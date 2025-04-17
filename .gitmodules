@@ -1,0 +1,3 @@
+[submodule "stickers"]
+	path = stickers
+	url = https://github.com/WhatsApp/stickers.git
