@@ -1,0 +1,40 @@
+{
+  "name": "stiker-whatsapp",
+  "version": "1.0.0",
+  "description": "stiker-whatsapp",
+  "main": "./src/index.js",
+  "type": "module",
+  "author": "Vinícius",
+  "license": "ISC",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup src/index.ts --out-dir dist --format esm --tsconfig tsconfig.json",
+    "format": "prettier --write .",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/qrcode-terminal": "^0.12.2",
+    "@typescript-eslint/eslint-plugin": "^8.30.1",
+    "@typescript-eslint/parser": "^8.30.1",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.6",
+    "prettier": "^3.5.3",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.3"
+  },
+  "dependencies": {
+    "baileys": "^6.7.16",
+    "chalk": "^5.4.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "qrcode-terminal": "^0.12.0",
+    "sharp": "^0.32.6",
+    "sqlite3": "^5.1.7",
+    "typescript": "^5.8.3",
+    "wa-sticker-formatter": "^4.4.4"
+  }
+}
