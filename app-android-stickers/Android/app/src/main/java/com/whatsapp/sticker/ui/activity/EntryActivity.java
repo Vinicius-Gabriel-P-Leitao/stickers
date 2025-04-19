@@ -21,10 +21,10 @@ import androidx.annotation.Nullable;
 
 import com.whatsapp.sticker.R;
 import com.whatsapp.sticker.core.BaseActivity;
-import com.whatsapp.sticker.data.StickerPack;
-import com.whatsapp.sticker.service.StickerPackLoader;
-import com.whatsapp.sticker.ui.activity.pack.original.StickerPackDetailsActivity;
-import com.whatsapp.sticker.ui.activity.pack.original.StickerPackListActivity;
+import com.whatsapp.sticker.data.model.StickerPack;
+import com.whatsapp.sticker.data.repository.StickerPackLoader;
+import com.whatsapp.sticker.ui.activity.feature.original.StickerPackDetailsActivity;
+import com.whatsapp.sticker.ui.activity.feature.original.StickerPackListActivity;
 import com.whatsapp.sticker.validation.StickerPackValidator;
 
 import java.lang.ref.WeakReference;

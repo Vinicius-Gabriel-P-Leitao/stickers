@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-package com.whatsapp.sticker.ui.activity.pack.original;
+package com.whatsapp.sticker.ui.activity.feature.original;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -26,9 +26,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.whatsapp.sticker.R;
-import com.whatsapp.sticker.data.StickerPack;
-import com.whatsapp.sticker.service.StickerPackLoader;
-import com.whatsapp.sticker.ui.activity.pack.AddStickerPackActivity;
+import com.whatsapp.sticker.data.model.StickerPack;
+import com.whatsapp.sticker.data.repository.StickerPackLoader;
+import com.whatsapp.sticker.ui.activity.feature.AddStickerPackActivity;
 import com.whatsapp.sticker.ui.adapter.StickerPreviewAdapter;
 import com.whatsapp.sticker.validation.WhitelistCheck;
 

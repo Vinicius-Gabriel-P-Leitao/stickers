@@ -20,8 +20,8 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.whatsapp.sticker.R;
-import com.whatsapp.sticker.data.StickerPack;
-import com.whatsapp.sticker.service.StickerPackLoader;
+import com.whatsapp.sticker.data.model.StickerPack;
+import com.whatsapp.sticker.data.repository.StickerPackLoader;
 import com.whatsapp.sticker.ui.view.StickerPreviewViewHolder;
 
 public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewViewHolder> {

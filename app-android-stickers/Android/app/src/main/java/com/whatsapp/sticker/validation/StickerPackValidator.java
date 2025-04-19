@@ -21,9 +21,9 @@ import androidx.annotation.Nullable;
 
 import com.facebook.animated.webp.WebPImage;
 import com.facebook.imagepipeline.common.ImageDecodeOptions;
-import com.whatsapp.sticker.service.StickerPackLoader;
-import com.whatsapp.sticker.data.Sticker;
-import com.whatsapp.sticker.data.StickerPack;
+import com.whatsapp.sticker.data.repository.StickerPackLoader;
+import com.whatsapp.sticker.data.model.Sticker;
+import com.whatsapp.sticker.data.model.StickerPack;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

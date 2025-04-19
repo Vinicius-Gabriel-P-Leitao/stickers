@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-package com.whatsapp.sticker.ui.activity.pack.original;
+package com.whatsapp.sticker.ui.activity.feature.original;
 
 import android.content.Intent;
 import android.graphics.Rect;
