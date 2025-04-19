@@ -26,20 +26,10 @@ public class PickMediaListAdapter extends RecyclerView.Adapter<PickMediaListAdap
    private final Context context;
    private final List<String> imagePaths;
    private final Set<Integer> selectedItems = new HashSet<>();
-   private static final int VIEW_TYPE_HEADER = 0;
-   private static final int VIEW_TYPE_ITEM = 1;
 
    public PickMediaListAdapter(Context context, List<String> imagePaths, OnItemClickListener listener) {
       this.context = context;
       this.imagePaths = imagePaths;
-   }
-
-   @Override
-   public int getItemViewType(int position) {
-      if (position == 0) {
-         return VIEW_TYPE_HEADER;
-      }
-      return VIEW_TYPE_ITEM;
    }
 
    public Set<String> getSelectedImagePaths() {
@@ -55,7 +45,7 @@ public class PickMediaListAdapter extends RecyclerView.Adapter<PickMediaListAdap
    @NonNull
    @Override
    public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-      View view = LayoutInflater.from(context).inflate(R.layout.item_media, parent, false);
+      View view = LayoutInflater.from(context).inflate(R.layout.thumbnail_media, parent, false);
       return new ImageViewHolder(view);
    }
 
