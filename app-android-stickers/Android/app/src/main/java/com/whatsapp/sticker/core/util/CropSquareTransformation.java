@@ -1,4 +1,4 @@
-package com.whatsapp.sticker.ui.view;
+package com.whatsapp.sticker.core.util;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;

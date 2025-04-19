@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.whatsapp.sticker.R;
-import com.whatsapp.sticker.ui.view.CropSquareTransformation;
+import com.whatsapp.sticker.core.util.CropSquareTransformation;
 
 import java.io.File;
 import java.util.HashSet;
