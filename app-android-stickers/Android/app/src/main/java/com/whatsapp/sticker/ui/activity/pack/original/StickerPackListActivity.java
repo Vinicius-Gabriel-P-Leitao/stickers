@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.whatsapp.sticker.R;
 import com.whatsapp.sticker.data.StickerPack;
 import com.whatsapp.sticker.ui.activity.pack.AddStickerPackActivity;
-import com.whatsapp.sticker.ui.activity.pack.implementation.SickerPackNewAddActivity;
+import com.whatsapp.sticker.ui.activity.pack.implementation.NewStickerPackActivity;
 import com.whatsapp.sticker.ui.view.StickerPackListItemViewHolder;
 import com.whatsapp.sticker.ui.adapter.StickerPackListAdapter;
 import com.whatsapp.sticker.validation.WhitelistCheck;
@@ -80,8 +80,8 @@ public class StickerPackListActivity extends AddStickerPackActivity {
     }
 
     private void openCreateStickerPackActivity() {
-        Intent intent = new Intent(StickerPackListActivity.this, SickerPackNewAddActivity.class);
-        intent.putExtra(SickerPackNewAddActivity.EXTRA_STICKER_PACK_DATA, stickerPackList.get(0)); // Delete: Apagar quando implementar a criação de figurinha e pacotes
+        Intent intent = new Intent(StickerPackListActivity.this, NewStickerPackActivity.class);
+        intent.putExtra(NewStickerPackActivity.EXTRA_STICKER_PACK_DATA, stickerPackList.get(0)); // Delete: Apagar quando implementar a criação de figurinha e pacotes
         startActivity(intent);
     }
 

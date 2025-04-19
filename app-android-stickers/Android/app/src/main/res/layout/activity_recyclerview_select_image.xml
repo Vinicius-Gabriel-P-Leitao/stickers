@@ -1,0 +1,37 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.whatsapp.sticker.ui.view.ImagePickerBottomSheet">
+
+    <View
+        android:id="@+id/top_handle"
+        android:layout_width="60dp"
+        android:layout_height="6dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/background_handler"
+        android:elevation="4dp"
+        android:translationZ="4dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/recyclerview_top_border"
+        android:clipToPadding="false"
+        android:paddingTop="24dp"
+        android:paddingBottom="72dp" />
+
+    <Button
+        android:id="@+id/select_medias_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:backgroundTint="@android:color/background_dark"
+        android:elevation="6dp"
+        android:text="Selecionar"
+        android:textColor="@android:color/white" />
+</FrameLayout>
