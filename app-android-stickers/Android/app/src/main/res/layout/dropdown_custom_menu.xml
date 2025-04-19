@@ -21,7 +21,7 @@
             android:layout_height="24dp"
             android:layout_marginEnd="12dp"
             android:contentDescription="@string/menu_option_stickers_static"
-            android:src="@drawable/sticker_3rdparty_web" />
+            android:src="@drawable/stop_circle_24px" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -50,7 +50,7 @@
             android:layout_height="24dp"
             android:layout_marginEnd="12dp"
             android:contentDescription="@string/menu_option_stickers_static"
-            android:src="@drawable/sticker_3rdparty_web" />
+            android:src="@drawable/autoplay_24px" />
 
         <TextView
             android:layout_width="wrap_content"
