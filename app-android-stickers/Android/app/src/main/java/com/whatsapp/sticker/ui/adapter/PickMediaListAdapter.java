@@ -67,7 +67,7 @@ public class PickMediaListAdapter extends RecyclerView.Adapter<PickMediaListAdap
       RequestManager glide = Glide.with(holder.imageView.getContext());
       if (path.endsWith(".mp4") || path.endsWith(".webm") || path.endsWith(".3gp")) {
          // Carrega thumb do vídeo com corte centralizado
-         glide.load(uri).override(300, 300).centerCrop().into(holder.imageView);
+         glide.load(uri).override(300, 300).centerCrop().transform(new CropSquareTransformation(10f, 2, Color.GRAY)).into(holder.imageView);
 
       } else if (path.endsWith(".gif")) {
          // GIF animado com transformação
