@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-package com.whatsapp.sticker.data;
+package com.whatsapp.sticker.data.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

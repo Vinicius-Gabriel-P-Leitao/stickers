@@ -13,8 +13,8 @@ import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
 
-import com.whatsapp.sticker.data.Sticker;
-import com.whatsapp.sticker.data.StickerPack;
+import com.whatsapp.sticker.data.model.Sticker;
+import com.whatsapp.sticker.data.model.StickerPack;
 import com.whatsapp.sticker.validation.StickerPackValidator;
 
 import java.io.IOException;

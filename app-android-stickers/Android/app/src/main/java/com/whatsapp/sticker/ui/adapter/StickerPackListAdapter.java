@@ -25,10 +25,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.whatsapp.sticker.R;
-import com.whatsapp.sticker.data.StickerPack;
+import com.whatsapp.sticker.data.model.StickerPack;
 import com.whatsapp.sticker.ui.view.StickerPackListItemViewHolder;
-import com.whatsapp.sticker.service.StickerPackLoader;
-import com.whatsapp.sticker.ui.activity.pack.original.StickerPackDetailsActivity;
+import com.whatsapp.sticker.data.repository.StickerPackLoader;
+import com.whatsapp.sticker.ui.activity.feature.original.StickerPackDetailsActivity;
 
 import java.util.List;
 

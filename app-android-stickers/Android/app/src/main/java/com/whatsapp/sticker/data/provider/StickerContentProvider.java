@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-package com.whatsapp.sticker.provider;
+package com.whatsapp.sticker.data.provider;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -26,8 +26,8 @@ import androidx.annotation.Nullable;
 
 import com.whatsapp.sticker.BuildConfig;
 import com.whatsapp.sticker.service.ContentFileParser;
-import com.whatsapp.sticker.data.Sticker;
-import com.whatsapp.sticker.data.StickerPack;
+import com.whatsapp.sticker.data.model.Sticker;
+import com.whatsapp.sticker.data.model.StickerPack;
 
 import java.io.IOException;
 import java.io.InputStream;

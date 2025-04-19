@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-package com.whatsapp.sticker.ui.activity.pack;
+package com.whatsapp.sticker.ui.activity.feature;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -25,7 +25,7 @@ import androidx.fragment.app.DialogFragment;
 import com.whatsapp.sticker.BuildConfig;
 import com.whatsapp.sticker.R;
 import com.whatsapp.sticker.core.BaseActivity;
-import com.whatsapp.sticker.ui.activity.pack.original.StickerPackDetailsActivity;
+import com.whatsapp.sticker.ui.activity.feature.original.StickerPackDetailsActivity;
 import com.whatsapp.sticker.validation.WhitelistCheck;
 
 // Abstração para implementar figurinhas no whatsapp
