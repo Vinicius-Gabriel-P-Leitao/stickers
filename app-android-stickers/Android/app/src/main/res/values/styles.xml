@@ -1,5 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-
+<resources>
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -7,8 +6,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="actionBarTheme">@style/MyApp.ActionBarTheme</item>
         <!-- Customize your theme here. -->
-        <item name="android:statusBarColor" tools:targetApi="21">@color/animatedStickerIndicator
-        </item>
+        <item name="android:statusBarColor">@color/animatedStickerIndicator</item>
     </style>
 
     <style name="MyApp.ActionBarTheme" parent="@style/ThemeOverlay.MaterialComponents.ActionBar">
@@ -37,8 +35,8 @@
         <item name="android:windowExitAnimation">@anim/popup_exit</item>
     </style>
 
-    <style name="PopupBounceAnimation">
-        <item name="android:windowEnterAnimation">@anim/popup_bounce_enter</item>
+    <style name="popup_bounce_animation">
+        <item name="android:windowEnterAnimation">@anim/popup_enter</item>
         <item name="android:windowExitAnimation">@anim/popup_bound_exit</item>
     </style>
 
@@ -55,11 +53,18 @@
         <item name="android:minHeight">48dp</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:paddingLeft">31dp</item>
-        <item name="android:paddingStart" tools:targetApi="jelly_bean_mr1">24dp</item>
+        <item name="android:paddingStart">24dp</item>
         <item name="android:layout_marginTop">8dp</item>
         <item name="android:drawablePadding">32dp</item>
         <item name="android:clickable">true</item>
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
     </style>
 
+    <style name="TransparentBottomSheet" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/TransparentBottomSheetStyle</item>
+    </style>
+
+    <style name="TransparentBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
 </resources>
