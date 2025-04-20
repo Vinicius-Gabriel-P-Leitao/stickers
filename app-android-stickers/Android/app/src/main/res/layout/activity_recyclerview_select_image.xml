@@ -4,24 +4,14 @@
     android:layout_height="match_parent"
     tools:context="com.whatsapp.sticker.ui.view.ImagePickerBottomSheet">
 
-    <View
-        android:id="@+id/top_handle"
-        android:layout_width="60dp"
-        android:layout_height="6dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/background_handler"
-        android:elevation="4dp"
-        android:translationZ="4dp" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="600dp"
         android:layout_marginTop="2dp"
         android:background="@drawable/recyclerview_top_border"
         android:clipToPadding="false"
-        android:paddingTop="24dp"
+        android:paddingTop="10dp"
         android:paddingBottom="72dp" />
 
     <Button
