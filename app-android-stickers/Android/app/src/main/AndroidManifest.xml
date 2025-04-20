@@ -16,39 +16,39 @@
 
 
         <activity
-            android:name="com.whatsapp.sticker.ui.activity.EntryActivity"
+            android:name="com.vinicius.sticker.ui.activity.EntryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.whatsapp.sticker.ui.activity.feature.original.StickerPackListActivity" />
+        <activity android:name="com.vinicius.sticker.ui.activity.feature.original.StickerPackListActivity" />
         <activity
-            android:name="com.whatsapp.sticker.ui.activity.feature.original.StickerPackDetailsActivity"
-            android:parentActivityName="com.whatsapp.sticker.ui.activity.feature.original.StickerPackListActivity"
+            android:name="com.vinicius.sticker.ui.activity.feature.original.StickerPackDetailsActivity"
+            android:parentActivityName="com.vinicius.sticker.ui.activity.feature.original.StickerPackListActivity"
             tools:ignore="UnusedAttribute">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.whatsapp.sticker.ui.activity.feature.original.StickerPackListActivity" />
+                android:value="com.vinicius.sticker.ui.activity.feature.original.StickerPackListActivity" />
         </activity>
         <activity
-            android:name="com.whatsapp.sticker.ui.activity.feature.original.StickerPackInfoActivity"
+            android:name="com.vinicius.sticker.ui.activity.feature.original.StickerPackInfoActivity"
             android:label="@string/title_activity_sticker_pack_info"
-            android:parentActivityName="com.whatsapp.sticker.ui.activity.feature.original.StickerPackDetailsActivity"
+            android:parentActivityName="com.vinicius.sticker.ui.activity.feature.original.StickerPackDetailsActivity"
             tools:ignore="UnusedAttribute">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.whatsapp.sticker.ui.activity.feature.original.StickerPackDetailsActivity" />
+                android:value="com.vinicius.sticker.ui.activity.feature.original.StickerPackDetailsActivity" />
         </activity>
-        <activity android:name="com.whatsapp.sticker.ui.activity.feature.implementation.NewStickerPackActivity">
+        <activity android:name="com.vinicius.sticker.ui.activity.feature.implementation.NewStickerPackActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.whatsapp.sticker.ui.activity.feature.implementation.NewStickerPackActivity" />
+                android:value="com.vinicius.sticker.ui.activity.feature.implementation.NewStickerPackActivity" />
         </activity>
 
         <provider
-            android:name="com.whatsapp.sticker.data.provider.StickerContentProvider"
+            android:name="com.vinicius.sticker.data.provider.StickerContentProvider"
             android:authorities="${contentProviderAuthority}"
             android:enabled="true"
             android:exported="true"

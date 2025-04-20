@@ -5,7 +5,7 @@ android {
 
     //the compression of webp file during build causes problem with FileDescriptor in ContentProvider.
     defaultConfig {
-        applicationId "com.whatsapp.sticker"
+        applicationId "com.vinicius.sticker"
         minSdkVersion 21
         targetSdkVersion 35
         versionCode 1
@@ -15,8 +15,7 @@ android {
         // Creates a placeholder property to use in the manifest.
         manifestPlaceholders = [contentProviderAuthority: contentProviderAuthority]
         // Adds a new field for the authority to the BuildConfig class.
-        buildConfigField(
-                "String",
+        buildConfigField("String",
                 "CONTENT_PROVIDER_AUTHORITY",
                 "\"${contentProviderAuthority}\"")
     }
@@ -42,7 +41,7 @@ android {
         }
     }
 
-    namespace 'com.whatsapp.sticker'
+    namespace 'com.vinicius.sticker'
     androidResources {
         noCompress 'webp'
     }

@@ -14,7 +14,7 @@
         android:layout_weight="1"
         tools:ignore="UselessParent">
 
-        <com.whatsapp.sticker.ui.view.BottomFadingRecyclerView
+        <com.vinicius.sticker.ui.view.BottomFadingRecyclerView
             android:id="@+id/sticker_list_to_package"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
