@@ -18,17 +18,17 @@ import java.util.List;
 
 public class OpenOwnGalleryActivity {
    public static final String[] IMAGE_MIME_TYPES = {"image/jpeg", "image/png"};
-   public static final String[] ANIMATED_MIME_TYPE = {"video/mp4", "image/gif"};
+   public static final String[] ANIMATED_MIME_TYPES = {"video/mp4", "image/gif"};
 
    public static void launchOwnGallery(FragmentActivity activity, String[] mimeType) {
       List<String> paths = new ArrayList<>();
 
       if (Arrays.equals(mimeType, IMAGE_MIME_TYPES)) {
-         paths = getMediaPaths(activity, CursorFindMediaActivity.IMAGE_MIME_TYPES);
+         paths = getMediaPaths(activity, mimeType);
       }
 
-      if (Arrays.equals(mimeType, ANIMATED_MIME_TYPE)) {
-         paths = getMediaPaths(activity, CursorFindMediaActivity.ANIMATED_MIME_TYPE);
+      if (Arrays.equals(mimeType, ANIMATED_MIME_TYPES)) {
+         paths = getMediaPaths(activity, mimeType);
       }
 
       ImagePickerBottomSheet sheet = new ImagePickerBottomSheet(paths, new PickMediaListAdapter.OnItemClickListener() {

@@ -1,5 +1,8 @@
 package com.vinicius.sticker.ui.view;
 
+import static com.vinicius.sticker.core.util.ConvertMediaToStickerFormat.convertMediaToWebP;
+
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +23,7 @@ import com.vinicius.sticker.ui.adapter.PickMediaListAdapter;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -80,7 +84,9 @@ public class ImagePickerBottomSheet extends BottomSheetDialogFragment {
             Toast.makeText(getContext(), "Nenhuma imagem selecionada", Toast.LENGTH_SHORT).show();
          } else {
             for (String path : selectedMediaPaths) {
-               Log.d("Selecionado", path); // Todo: Onde o caminho imagens vem
+               Log.i("ImagePath", String.format("Caminho: %s", path));
+               convertMediaToWebP(getContext(), String.valueOf(Uri.fromFile(new File(path))), new File(path).getName());
+               ;
             }
          }
       });

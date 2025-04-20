@@ -9,11 +9,11 @@
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
-
 
         <activity
             android:name="com.vinicius.sticker.ui.activity.EntryActivity"
@@ -64,6 +64,13 @@
     <uses-permission
         android:name="android.permission.READ_MEDIA_VIDEO"
         tools:ignore="SelectedPhotoAccess,WrongManifestParent" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
 
     <!-- to be able to query the whitelist status in WhatsApp
      https://developer.android.com/training/basics/intents/package-visibility#package-name -->

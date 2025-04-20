@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CursorFindMediaActivity {
-   public static final String[] IMAGE_MIME_TYPES = {"image/jpeg", "image/png"};
-   public static final String[] ANIMATED_MIME_TYPE = {"video/mp4", "image/gif"};
 
    public static List<String> getMediaPaths(Context context, String[] mimeTypes) {
       List<String> mediaPaths = new ArrayList<>();
