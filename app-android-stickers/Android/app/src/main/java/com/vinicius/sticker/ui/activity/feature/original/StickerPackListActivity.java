@@ -8,23 +8,29 @@
 
 package com.vinicius.sticker.ui.activity.feature.original;
 
-
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
+import android.widget.PopupWindow;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.data.model.StickerPack;
 import com.vinicius.sticker.ui.activity.feature.AddStickerPackActivity;
 import com.vinicius.sticker.ui.activity.feature.implementation.NewStickerPackActivity;
-import com.vinicius.sticker.ui.view.StickerPackListItemViewHolder;
 import com.vinicius.sticker.ui.adapter.StickerPackListAdapter;
+import com.vinicius.sticker.ui.view.StickerPackListItemViewHolder;
 import com.vinicius.sticker.validation.WhitelistCheck;
 
 import java.lang.ref.WeakReference;
@@ -32,118 +38,146 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 public class StickerPackListActivity extends AddStickerPackActivity {
-    public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
-    private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
-    private LinearLayoutManager packLayoutManager;
-    private RecyclerView packRecyclerView;
-    private Button createNewPackageButton;
-    private StickerPackListAdapter allStickerPacksListAdapter;
-    private WhiteListCheckAsyncTask whiteListCheckAsyncTask;
-    private ArrayList<StickerPack> stickerPackList;
+   /* Values */
+   public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
+   private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
+   /* UI */
+   private StickerPackListAdapter allStickerPacksListAdapter;
+   private WhiteListCheckAsyncTask whiteListCheckAsyncTask;
+   private MaterialButton buttonCreateStickerPackage;
+   private ArrayList<StickerPack> stickerPackList;
+   private LinearLayoutManager packLayoutManager;
+   private RecyclerView packRecyclerView;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sticker_pack_list);
+   @Override
+   protected void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.activity_sticker_pack_list);
 
-        packRecyclerView = findViewById(R.id.sticker_pack_list);
+      packRecyclerView = findViewById(R.id.sticker_pack_list);
 
-        createNewPackageButton = findViewById(R.id.button_redirect_create_sticker_package);
-        createNewPackageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openCreateStickerPackActivity();
-            }
-        });
+      stickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_STICKER_PACK_LIST_DATA);
+      showStickerPackList(stickerPackList);
+      if (getSupportActionBar() != null) {
+         getSupportActionBar().setTitle(getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, stickerPackList.size()));
+      }
 
-        stickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_STICKER_PACK_LIST_DATA);
-        showStickerPackList(stickerPackList);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, stickerPackList.size()));
-        }
-    }
+      buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
+      buttonCreateStickerPackage.setOnClickListener(view -> {
+         popUpButtonChooserStickerModel(buttonCreateStickerPackage);
+      });
+   }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        whiteListCheckAsyncTask = new WhiteListCheckAsyncTask(this);
-        whiteListCheckAsyncTask.execute(stickerPackList.toArray(new StickerPack[0]));
-    }
+   private void popUpButtonChooserStickerModel(@NonNull MaterialButton materialButton) {
+      View popupView = LayoutInflater.from(this).inflate(R.layout.dropdown_custom_menu, null);
+      popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (whiteListCheckAsyncTask != null && !whiteListCheckAsyncTask.isCancelled()) {
-            whiteListCheckAsyncTask.cancel(true);
-        }
-    }
+      PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+      popupWindow.setElevation(12f);
+      popupWindow.setOutsideTouchable(true);
+      popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(this, R.drawable.background_menu_dropdown));
+      popupWindow.setAnimationStyle(R.style.popup_bounce_animation);
 
-    private void openCreateStickerPackActivity() {
-        Intent intent = new Intent(StickerPackListActivity.this, NewStickerPackActivity.class);
-        intent.putExtra(NewStickerPackActivity.EXTRA_STICKER_PACK_DATA, stickerPackList.get(0)); // Delete: Apagar quando implementar a criação de figurinha e pacotes
-        startActivity(intent);
-    }
+      int[] location = new int[2];
+      materialButton.getLocationOnScreen(location);
 
-    private void showStickerPackList(List<StickerPack> stickerPackList) {
-        allStickerPacksListAdapter = new StickerPackListAdapter(stickerPackList, onAddButtonClickedListener);
-        packRecyclerView.setAdapter(allStickerPacksListAdapter);
-        packLayoutManager = new LinearLayoutManager(this);
-        packLayoutManager.setOrientation(RecyclerView.VERTICAL);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
-                packRecyclerView.getContext(),
-                packLayoutManager.getOrientation()
-        );
-        packRecyclerView.addItemDecoration(dividerItemDecoration);
-        packRecyclerView.setLayoutManager(packLayoutManager);
-        packRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(this::recalculateColumnCount);
-    }
+      int popupHeight = popupView.getMeasuredHeight();
+      int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, getResources().getDisplayMetrics());
+      int yPosition = location[1] - popupHeight - margin;
 
+      popupWindow.showAtLocation(materialButton, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, yPosition);
 
-    private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = pack -> addStickerPackToWhatsApp(pack.identifier, pack.name);
+      popupView.findViewById(R.id.item_option_static).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            openCreateStickerPackActivity(NewStickerPackActivity.EXTRA_STICKER_FORMAT, NewStickerPackActivity.STATIC_STICKER);
+         }
+      });
 
+      popupView.findViewById(R.id.item_option_animated).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            openCreateStickerPackActivity(NewStickerPackActivity.EXTRA_STICKER_FORMAT, NewStickerPackActivity.ANIMATED_STICKER);
+         }
+      });
+   }
 
-    private void recalculateColumnCount() {
-        final int previewSize = getResources().getDimensionPixelSize(R.dimen.sticker_pack_list_item_preview_image_size);
-        int firstVisibleItemPosition = packLayoutManager.findFirstVisibleItemPosition();
-        StickerPackListItemViewHolder viewHolder = (StickerPackListItemViewHolder) packRecyclerView.findViewHolderForAdapterPosition(firstVisibleItemPosition);
-        if (viewHolder != null) {
-            final int widthOfImageRow = viewHolder.imageRowView.getMeasuredWidth();
-            final int max = Math.max(widthOfImageRow / previewSize, 1);
-            int maxNumberOfImagesInARow = Math.min(STICKER_PREVIEW_DISPLAY_LIMIT, max);
-            int minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) / (maxNumberOfImagesInARow - 1);
-            allStickerPacksListAdapter.setImageRowSpec(maxNumberOfImagesInARow, minMarginBetweenImages);
-        }
-    }
+   private void openCreateStickerPackActivity(String typePackage, String format) {
+      Intent intent = new Intent(StickerPackListActivity.this, NewStickerPackActivity.class);
+      intent.putExtra(typePackage, format);
+      startActivity(intent);
+   }
 
+   @Override
+   protected void onResume() {
+      super.onResume();
+      whiteListCheckAsyncTask = new WhiteListCheckAsyncTask(this);
+      whiteListCheckAsyncTask.execute(stickerPackList.toArray(new StickerPack[0]));
+   }
 
-    static class WhiteListCheckAsyncTask extends AsyncTask<StickerPack, Void, List<StickerPack>> {
-        private final WeakReference<StickerPackListActivity> stickerPackListActivityWeakReference;
+   @Override
+   protected void onPause() {
+      super.onPause();
+      if (whiteListCheckAsyncTask != null && !whiteListCheckAsyncTask.isCancelled()) {
+         whiteListCheckAsyncTask.cancel(true);
+      }
+   }
 
-        WhiteListCheckAsyncTask(StickerPackListActivity stickerPackListActivity) {
-            this.stickerPackListActivityWeakReference = new WeakReference<>(stickerPackListActivity);
-        }
+   private void showStickerPackList(List<StickerPack> stickerPackList) {
+      allStickerPacksListAdapter = new StickerPackListAdapter(stickerPackList, onAddButtonClickedListener);
+      packRecyclerView.setAdapter(allStickerPacksListAdapter);
 
-        @Override
-        protected final List<StickerPack> doInBackground(StickerPack... stickerPackArray) {
-            final StickerPackListActivity stickerPackListActivity = stickerPackListActivityWeakReference.get();
-            if (stickerPackListActivity == null) {
-                return Arrays.asList(stickerPackArray);
-            }
-            for (StickerPack stickerPack : stickerPackArray) {
-                stickerPack.setIsWhitelisted(WhitelistCheck.isWhitelisted(stickerPackListActivity, stickerPack.identifier));
-            }
+      packLayoutManager = new LinearLayoutManager(this);
+      packLayoutManager.setOrientation(RecyclerView.VERTICAL);
+      DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(packRecyclerView.getContext(), packLayoutManager.getOrientation());
+
+      packRecyclerView.addItemDecoration(dividerItemDecoration);
+      packRecyclerView.setLayoutManager(packLayoutManager);
+      packRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(this::recalculateColumnCount);
+   }
+
+   private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = pack -> addStickerPackToWhatsApp(pack.identifier, pack.name);
+
+   private void recalculateColumnCount() {
+      final int previewSize = getResources().getDimensionPixelSize(R.dimen.sticker_pack_list_item_preview_image_size);
+      int firstVisibleItemPosition = packLayoutManager.findFirstVisibleItemPosition();
+      StickerPackListItemViewHolder viewHolder = (StickerPackListItemViewHolder) packRecyclerView.findViewHolderForAdapterPosition(firstVisibleItemPosition);
+      if (viewHolder != null) {
+         final int widthOfImageRow = viewHolder.imageRowView.getMeasuredWidth();
+         final int max = Math.max(widthOfImageRow / previewSize, 1);
+         int maxNumberOfImagesInARow = Math.min(STICKER_PREVIEW_DISPLAY_LIMIT, max);
+         int minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) / (maxNumberOfImagesInARow - 1);
+         allStickerPacksListAdapter.setImageRowSpec(maxNumberOfImagesInARow, minMarginBetweenImages);
+      }
+   }
+
+   static class WhiteListCheckAsyncTask extends AsyncTask<StickerPack, Void, List<StickerPack>> {
+      private final WeakReference<StickerPackListActivity> stickerPackListActivityWeakReference;
+
+      WhiteListCheckAsyncTask(StickerPackListActivity stickerPackListActivity) {
+         this.stickerPackListActivityWeakReference = new WeakReference<>(stickerPackListActivity);
+      }
+
+      @Override
+      protected final List<StickerPack> doInBackground(StickerPack... stickerPackArray) {
+         final StickerPackListActivity stickerPackListActivity = stickerPackListActivityWeakReference.get();
+         if (stickerPackListActivity == null) {
             return Arrays.asList(stickerPackArray);
-        }
+         }
+         for (StickerPack stickerPack : stickerPackArray) {
+            stickerPack.setIsWhitelisted(WhitelistCheck.isWhitelisted(stickerPackListActivity, stickerPack.identifier));
+         }
+         return Arrays.asList(stickerPackArray);
+      }
 
-        @Override
-        protected void onPostExecute(List<StickerPack> stickerPackList) {
-            final StickerPackListActivity stickerPackListActivity = stickerPackListActivityWeakReference.get();
-            if (stickerPackListActivity != null) {
-                stickerPackListActivity.allStickerPacksListAdapter.setStickerPackList(stickerPackList);
-                stickerPackListActivity.allStickerPacksListAdapter.notifyDataSetChanged();
-            }
-        }
-    }
+      @Override
+      protected void onPostExecute(List<StickerPack> stickerPackList) {
+         final StickerPackListActivity stickerPackListActivity = stickerPackListActivityWeakReference.get();
+         if (stickerPackListActivity != null) {
+            stickerPackListActivity.allStickerPacksListAdapter.setStickerPackList(stickerPackList);
+            stickerPackListActivity.allStickerPacksListAdapter.notifyDataSetChanged();
+         }
+      }
+   }
 }

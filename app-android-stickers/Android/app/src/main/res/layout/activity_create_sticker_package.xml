@@ -43,7 +43,7 @@
             tools:visibility="visible" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_select_media_sticker"
+            android:id="@+id/button_select_media"
             style="@style/WhiteOutlineButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

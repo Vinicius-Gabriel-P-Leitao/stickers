@@ -2,9 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.whatsapp.sticker.ui.view.ImagePickerBottomSheet">
+    tools:context="com.vinicius.sticker.ui.view.ImagePickerBottomSheet">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.vinicius.sticker.ui.view.BottomFadingRecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="600dp"
