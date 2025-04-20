@@ -6,7 +6,7 @@ android {
     //the compression of webp file during build causes problem with FileDescriptor in ContentProvider.
     defaultConfig {
         applicationId "com.vinicius.sticker"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 35
         versionCode 1
         versionName "1.0"
@@ -95,6 +95,7 @@ tasks.configureEach { task ->
 
 dependencies {
     implementation 'com.github.bumptech.glide:glide:4.16.0'
+    implementation 'com.arthenica:ffmpeg-kit-full:6.0-2'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'

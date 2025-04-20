@@ -64,22 +64,22 @@ public class ImagePickerBottomSheet extends BottomSheetDialogFragment {
       recyclerView.setLayoutManager(layoutManager);
 
       DrawerHandlerAdapter drawerHandlerAdapter = new DrawerHandlerAdapter(getContext());
-      PickMediaListAdapter pickMediaListAdapter = new PickMediaListAdapter(getContext(), imagePaths, imagePath -> {
+      PickMediaListAdapter mediaListAdapter = new PickMediaListAdapter(getContext(), imagePaths, imagePath -> {
          listener.onItemClick(imagePath);
          dismiss();
       });
-      ConcatAdapter concatAdapter = new ConcatAdapter(drawerHandlerAdapter, pickMediaListAdapter);
+      ConcatAdapter concatAdapter = new ConcatAdapter(drawerHandlerAdapter, mediaListAdapter);
 
       recyclerView.setAdapter(concatAdapter);
 
       Button selectButton = view.findViewById(R.id.select_medias_button);
       selectButton.setOnClickListener(buttonView -> {
-         Set<String> selectedImagePaths = pickMediaListAdapter.getSelectedImagePaths();
+         Set<String> selectedMediaPaths = mediaListAdapter.getSelectedMediaPaths();
 
-         if (selectedImagePaths.isEmpty()) {
+         if (selectedMediaPaths.isEmpty()) {
             Toast.makeText(getContext(), "Nenhuma imagem selecionada", Toast.LENGTH_SHORT).show();
          } else {
-            for (String path : selectedImagePaths) {
+            for (String path : selectedMediaPaths) {
                Log.d("Selecionado", path); // Todo: Onde o caminho imagens vem
             }
          }

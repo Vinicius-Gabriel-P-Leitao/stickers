@@ -32,7 +32,7 @@ public class PickMediaListAdapter extends RecyclerView.Adapter<PickMediaListAdap
       this.imagePaths = imagePaths;
    }
 
-   public Set<String> getSelectedImagePaths() {
+   public Set<String> getSelectedMediaPaths() {
       Set<String> selectedPaths = new HashSet<>();
       for (Integer index : selectedItems) {
          if (index >= 0 && index < imagePaths.size()) {
