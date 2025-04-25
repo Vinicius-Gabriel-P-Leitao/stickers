@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_background"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingTop="15dp">
+
+
+    <TextView
+        android:id="@+id/tv_permission_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:paddingBottom="16dp"
+        android:text="@string/dialog_settings_permission_title"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_permission_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:paddingBottom="20dp"
+        android:text="@string/dialog_settings_message_permission"
+        android:textAlignment="center"
+        android:textSize="16sp" />
+
+
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/cancel_permission_button"
+            style="@style/SurfaceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="60dp"
+            android:backgroundTint="@color/catppuccin_surface0"
+            android:text="@string/dialog_settings_button_permission_cancel"
+            android:textColor="@color/catppuccin_text" />
+
+        <Button
+            android:id="@+id/grant_permission_button"
+            style="@style/SurfaceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="60dp"
+            android:backgroundTint="@color/catppuccin_surface0"
+            android:text="@string/dialog_settings_button_permission_accept"
+            android:textColor="@color/catppuccin_text" />
+    </LinearLayout>
+</LinearLayout>

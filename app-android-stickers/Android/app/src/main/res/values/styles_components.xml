@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Action Bar Theme -->
+    <style name="MyApp.ActionBarTheme" parent="@style/ThemeOverlay.MaterialComponents.ActionBar">
+        <item name="colorControlNormal">@color/action_bar_arrow_color</item>
+    </style>
+
+    <!-- Button Styles -->
+    <style name="StickerPreviewButtonText" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="WhiteOutlineButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">@color/catppuccin_lavender</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textColor">@color/catppuccin_lavender</item>
+    </style>
+
+    <style name="SurfaceButton" parent="Widget.AppCompat.ButtonBar">
+        <item name="android:backgroundTint">@color/catppuccin_surface0</item>
+        <item name="android:textColor">@color/catppuccin_text</item>
+    </style>
+
+    <style name="InfoButtonStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingLeft">31dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:drawablePadding">32dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <!-- Compound Button Styles -->
+    <style name="Thumbnail.RadioButton" parent="Widget.Material3.CompoundButton.RadioButton">
+        <item name="buttonTint">@color/catppuccin_lavender</item>
+    </style>
+
+    <!-- List Item Styles -->
+    <style name="StickerPacksListItemAuthorStyle">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:lines">1</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <!-- Bottom Sheet Styles -->
+    <style name="TransparentBottomSheet" parent="Theme.Design.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/TransparentBottomSheetStyle</item>
+    </style>
+
+    <style name="TransparentBottomSheetStyle" parent="Theme.MaterialComponents.BottomSheetDialog">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowAnimationStyle">@style/FadeAnimation</item>
+    </style>
+
+    <!-- Animation Styles -->
+    <style name="FadeAnimation">
+        <item name="android:windowEnterAnimation">@anim/fade_enter</item>
+        <item name="android:windowExitAnimation">@anim/fade_exit</item>
+    </style>
+
+    <style name="PopupBounceAnimation">
+        <item name="android:windowEnterAnimation">@anim/fade_enter</item>
+        <item name="android:windowExitAnimation">@anim/popup_bound_exit</item>
+    </style>
+
+</resources>

@@ -1,0 +1,7 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
+        <item name="android:background">@color/catppuccin_base</item>
+        <item name="android:statusBarColor">@color/catppuccin_base</item>
+    </style>
+</resources>

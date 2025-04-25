@@ -1,0 +1,8 @@
+# License Information
+
+This project contains code under multiple licenses:
+
+- **Custom code by Vinícius**: Licensed under the [Vinícius Non-Commercial Open License v1.0 (VNCL)](./licenses/VNCL-LICENSE).
+- **Portions from WhatsApp**: Licensed under the [BSD License from WhatsApp](./licenses/WHATSAPP-LICENSE).
+
+For details on specific license terms and headers, see the [LICENSE-COMMENTS.md](./docs/LICENSE-COMMENTS.md) file.

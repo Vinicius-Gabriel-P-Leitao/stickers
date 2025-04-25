@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App icon bg -->
+    <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- Base colors -->
+    <color name="color_primary">@android:color/transparent</color>
+    <color name="color_primary_dark">#BABABA</color>
+    <color name="color_accent">#128C7E</color>
+    <color name="inactive_add_button_color">#B3B3B3</color>
+    <color name="info_page_background_color">#EBEBEB</color>
+    <color name="action_bar_arrow_color">@color/color_accent</color>
+    <color name="animated_sticker_indicator">#66000000</color>
+</resources>
+
