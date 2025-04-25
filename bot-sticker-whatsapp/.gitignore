@@ -1,5 +1,0 @@
-node_modules
-dist
-/resource/auth/*
-.env
-resource/db/sticker.db
