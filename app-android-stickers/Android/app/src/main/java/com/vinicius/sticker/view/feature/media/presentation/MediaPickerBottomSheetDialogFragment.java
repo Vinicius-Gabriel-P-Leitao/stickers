@@ -98,8 +98,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                executor.execute(() -> {
                   convertMediaToWebP(getContext(),
                       uri,
-                      new File(Objects.requireNonNull(uri.getPath())).getName()); // Todo: Fazer uma
-                  // telinha de loading
+                      new File(Objects.requireNonNull(uri.getPath())).getName()); // Todo: Fazer uma telinha de loading
 
                   new Handler(Looper.getMainLooper()).post(() -> {
                      Toast.makeText(getContext(),

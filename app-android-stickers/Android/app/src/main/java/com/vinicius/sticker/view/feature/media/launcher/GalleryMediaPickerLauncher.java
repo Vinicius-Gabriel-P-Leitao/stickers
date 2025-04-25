@@ -63,6 +63,6 @@ public class GalleryMediaPickerLauncher {
           });
 
       sheet.show(activity.getSupportFragmentManager(),
-          "ImagePickerBottomSheet");
+          "MediaPickerBottomSheetDialogFragment");
    }
 }
