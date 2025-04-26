@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="8dp"
-    android:layout_marginBottom="@dimen/cardview_compat_inset_shadow"
-    android:orientation="vertical">
+    android:background="@color/catppuccin_base"
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -19,30 +19,29 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:contentDescription="@string/list_sticker_add_package"
-            android:fadingEdgeLength="@dimen/fading_edge_length"
-            android:paddingStart="@dimen/preview_side_margin"
-            android:paddingLeft="@dimen/preview_side_margin"
-            android:paddingEnd="@dimen/preview_side_margin"
-            android:paddingRight="@dimen/preview_side_margin"
+            android:paddingStart="8dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="72dp"
             android:requiresFadingEdge="vertical" />
 
         <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/sticker_details_expanded_sticker"
             android:layout_width="128dp"
             android:layout_height="128dp"
+            android:layout_gravity="center"
             android:scaleType="centerCrop"
-            android:visibility="invisible" />
+            android:visibility="gone" />
 
-        <ImageButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/button_select_media"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_gravity="bottom|center"
-            android:layout_margin="20dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="Abrir aba de nome do pacote e botão de abrir galeria."
-            android:padding="16dp"
-            android:src="@drawable/ic_add_circle_24px" />
-
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="24dp"
+            android:backgroundTint="@color/catppuccin_mauve"
+            android:contentDescription="Abrir aba de nome do pacote e galeria"
+            android:src="@drawable/ic_add_circle_24px"
+            android:tint="@color/catppuccin_base" />
     </FrameLayout>
 </LinearLayout>

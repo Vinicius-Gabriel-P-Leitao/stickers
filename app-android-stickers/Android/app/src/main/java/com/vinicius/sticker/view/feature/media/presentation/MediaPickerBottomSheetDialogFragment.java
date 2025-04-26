@@ -114,7 +114,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                 public void onSuccess(File outputFile) {
                    new Handler(Looper.getMainLooper()).post(() -> {
                       Toast.makeText(getContext(), "Imagem convertida!", Toast.LENGTH_SHORT).show();
-                      // Aqui você pode adicionar lógica para montar o JSON após o sucesso da conversão.
+                      // NOTE: Colocar lógica de converter json aqui:
                    });
                 }
 

@@ -3,17 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/dialog_background"
+    android:clipToPadding="false"
     android:gravity="center"
     android:orientation="vertical"
-    android:paddingTop="15dp">
+    android:padding="24dp">
 
     <TextView
-        android:id="@+id/tv_permission_title"
+        android:id="@+id/title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Importar Mídia"
         android:background="@android:color/transparent"
-        android:paddingBottom="16dp"
-        android:text="Nome do pacote"
+        android:textColor="@color/catppuccin_text"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -21,9 +23,8 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:hint="Nome do pacote">
+        android:hint="Nome do pacote"
+        android:textColorHint="@color/catppuccin_subtext0">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_user_input"
@@ -34,34 +35,16 @@
             android:textColorHint="@color/catppuccin_subtext0" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <LinearLayout
-        style="?android:attr/buttonBarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="10dp">
+    <ImageButton
+        android:id="@+id/grant_permission_button"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/rounded_button_background"
+        android:backgroundTint="@color/catppuccin_surface1"
+        android:contentDescription="Buscar imagens ou vídeos na galeria"
+        android:padding="16dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_image_gallery" />
 
-        <ImageButton
-            android:id="@+id/grant_permission_button"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/catppuccin_surface0"
-            android:contentDescription="Buscar imagens ou videos na galeria."
-            android:padding="0dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_image_gallery" />
-
-        <Button
-            android:id="@+id/cancel_permission_button"
-            style="@style/SurfaceButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:backgroundTint="@color/catppuccin_surface0"
-            android:text="Cancelar"
-            android:textColor="@color/catppuccin_text" />
-
-    </LinearLayout>
 </LinearLayout>
