@@ -70,7 +70,6 @@ public class StickerContentProvider extends ContentProvider {
    private static final int METADATA_CODE_FOR_SINGLE_PACK = 2;
    private static final int STICKERS_CODE = 3;
    private static final int STICKERS_ASSET_CODE = 4;
-
    private static final int STICKER_PACK_TRAY_ICON_CODE = 5;
 
    private List<StickerPack> stickerPackList;

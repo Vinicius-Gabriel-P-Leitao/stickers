@@ -18,10 +18,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -41,14 +43,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragment {
-   private final String namePack;
    private final boolean isAnimatedPack;
    private final List<Uri> mediaUris;
+   private ProgressBar progressBar;
+   private final String namePack;
+   private int completedConversions = 0;
+   private int totalConversions = 0;
    private final PickMediaListAdapter.OnItemClickListener listener;
-   ExecutorService executor = Executors.newSingleThreadExecutor();
+   ExecutorService executor = new ThreadPoolExecutor(5, 10, 1L, TimeUnit.SECONDS,
+       new LinkedBlockingQueue<>()
+   );
 
    public MediaPickerBottomSheetDialogFragment(
        List<Uri> mediaUris, String namePack, boolean isAnimatedPack,
@@ -84,15 +93,22 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
 
       GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
 
-      PickMediaListAdapter mediaListAdapter = new PickMediaListAdapter(getContext(), mediaUris,
-          mediaUri -> {
-             listener.onItemClick(mediaUri);
-             dismiss();
-          }
+      PickMediaListAdapter mediaListAdapter = new PickMediaListAdapter(getContext(), mediaUri -> {
+         listener.onItemClick(mediaUri);
+         dismiss();
+      }
       );
+      mediaListAdapter.submitList(mediaUris);
 
       recyclerView.setLayoutManager(layoutManager);
       recyclerView.setAdapter(mediaListAdapter);
+
+      progressBar = view.findViewById(R.id.progress_bar_media);
+      if ( progressBar == null ) {
+         Log.e("MediaPickerFragment", "ProgressBar não encontrado!");
+      } else {
+         progressBar.setVisibility(View.GONE);
+      }
 
       Button selectButton = view.findViewById(R.id.select_medias_button);
       selectButton.setOnClickListener(buttonView -> {
@@ -101,6 +117,10 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
          if ( selectedMediaPaths.isEmpty() ) {
             Toast.makeText(getContext(), "Nenhuma imagem selecionada", Toast.LENGTH_SHORT).show();
          } else {
+            totalConversions = selectedMediaPaths.size();
+            completedConversions = 0;
+            progressBar.setVisibility(View.VISIBLE);
+
             for (Uri uri : selectedMediaPaths) {
                convertMediaAndSaveAsync(uri);
             }
@@ -109,16 +129,17 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
    }
 
    private void convertMediaAndSaveAsync(Uri uri) {
-      executor.execute(() -> {
+      executor.submit(() -> {
          convertMediaToWebP(getContext(), uri,
              new File(Objects.requireNonNull(uri.getPath())).getName(),
              new ConvertMediaToStickerFormat.MediaConversionCallback() {
-
                 @Override
                 public void onSuccess(File outputFile) {
                    new Handler(Looper.getMainLooper()).post(() -> {
-                      Toast.makeText(getContext(), "Imagem convertida!", Toast.LENGTH_SHORT).show();
                       // NOTE: Colocar lógica de converter json aqui:
+                      // isAnimatedPack;
+                      // namePack;
+                      checkAllConversionsCompleted();
                    });
                 }
 
@@ -126,11 +147,10 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                 public void onError(Exception exception) {
                    new Handler(Looper.getMainLooper()).post(() -> {
                       if ( exception instanceof MediaConversionException ) {
-                         Toast.makeText(getContext(),
-                             "Falha na conversão: " + exception.getMessage(), Toast.LENGTH_SHORT
-                         ).show();
+                         Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_SHORT)
+                             .show();
                       } else {
-                         Toast.makeText(getContext(), "Falha ao receber arquivo para conversão!",
+                         Toast.makeText(getContext(), "Erro critico ao converter imagens!",
                              Toast.LENGTH_SHORT
                          ).show();
                       }
@@ -139,5 +159,15 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
              }
          );
       });
+   }
+
+   private void checkAllConversionsCompleted() {
+      completedConversions++;
+
+      if ( completedConversions == totalConversions ) {
+         progressBar.setVisibility(View.GONE);
+         Toast.makeText(getContext(), "Todas as conversões completadas!", Toast.LENGTH_SHORT)
+             .show();
+      }
    }
 }

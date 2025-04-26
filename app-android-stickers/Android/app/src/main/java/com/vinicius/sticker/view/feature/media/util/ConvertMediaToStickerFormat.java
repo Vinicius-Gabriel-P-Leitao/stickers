@@ -34,13 +34,13 @@ import java.io.IOException;
 import java.util.Map;
 
 public class ConvertMediaToStickerFormat {
+   private static MediaConversionCallback callback;
+
    public interface MediaConversionCallback {
       void onSuccess(File outputFile);
 
       void onError(Exception exception);
    }
-
-   private static MediaConversionCallback callback;
 
    public static void convertMediaToWebP(
        Context context, Uri inputUri, String outputFile, MediaConversionCallback callback) {

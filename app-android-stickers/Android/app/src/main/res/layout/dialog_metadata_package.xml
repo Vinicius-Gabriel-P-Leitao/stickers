@@ -40,7 +40,7 @@
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:layout_marginTop="24dp"
-        android:background="@drawable/rounded_button_background"
+        android:background="@drawable/rounded_button_open_gallery_background"
         android:backgroundTint="@color/catppuccin_surface1"
         android:contentDescription="Buscar imagens ou vídeos na galeria"
         android:padding="16dp"

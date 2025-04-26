@@ -17,19 +17,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.radiobutton.MaterialRadioButton
-        android:id="@+id/radio_button"
-        style="@style/Thumbnail.RadioButton"
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/radio_checkbox"
+        style="@style/Thumbnail.RadioCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="6dp"
+        android:layout_margin="4dp"
+        android:background="@drawable/checkbox_container_image_background"
         android:checkable="true"
+        android:textStyle="bold"
         android:checked="false"
         android:clickable="true"
         android:focusable="true"
-        android:minWidth="0dp"
+        android:gravity="center_vertical"
         android:minHeight="0dp"
-        android:padding="0dp"
+        android:textColor="@color/catppuccin_lavender"
+        android:textSize="20sp"
+        app:iconGravity="textStart"
+        app:iconPadding="4dp"
         app:layout_constraintStart_toStartOf="@+id/image_view"
         app:layout_constraintTop_toTopOf="@+id/image_view" />
 

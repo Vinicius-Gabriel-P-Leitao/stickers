@@ -12,14 +12,19 @@
  */
 package com.vinicius.sticker.view.feature.media.adapter;
 
+import static com.vinicius.sticker.core.validation.StickerPackValidator.STICKER_SIZE_MAX;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -31,26 +36,26 @@ import com.vinicius.sticker.view.feature.media.util.CropSquareTransformation;
 import com.vinicius.sticker.view.feature.media.viewholder.MediaViewHolder;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class PickMediaListAdapter extends RecyclerView.Adapter<MediaViewHolder> {
+public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
    private final Context context;
-   private final List<Uri> mediaUris;
-   private final Set<Integer> selectedItems = new HashSet<>();
+   private final List<Integer> selectedItems = new ArrayList<>();
 
-   public PickMediaListAdapter(Context context, List<Uri> mediaUris, OnItemClickListener itemClickListener) {
+   public PickMediaListAdapter(Context context, OnItemClickListener itemClickListener) {
+      super(new UriDiffCallback());
       this.context = context;
-      this.mediaUris = mediaUris;
    }
 
    public Set<Uri> getSelectedMediaPaths() {
       Set<Uri> selectedPaths = new HashSet<>();
       for (Integer index : selectedItems) {
-         if (index >= 0 && index < mediaUris.size()) {
-            selectedPaths.add(mediaUris.get(index));
+         if ( index >= 0 && index < getCurrentList().size() ) {
+            selectedPaths.add(getCurrentList().get(index));
          }
       }
       return selectedPaths;
@@ -58,59 +63,101 @@ public class PickMediaListAdapter extends RecyclerView.Adapter<MediaViewHolder> 
 
    @NonNull
    @Override
-   public MediaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-      View view = LayoutInflater.from(context).inflate(R.layout.container_thumbnail_media,
-          parent,
-          false);
+   public MediaViewHolder onCreateViewHolder(
+       @NonNull ViewGroup parent, int viewType) {
+      View view = LayoutInflater.from(context)
+          .inflate(R.layout.container_thumbnail_media, parent, false);
       return new MediaViewHolder(view);
    }
 
    @Override
-   public void onBindViewHolder(@NonNull MediaViewHolder holder, int position) {
-      Uri uri = mediaUris.get(position);
+   public void onBindViewHolder(
+       @NonNull MediaViewHolder holder, int position) {
+      Uri uri = getItem(position);
       String fileName = new File(Objects.requireNonNull(uri.getPath())).getName();
       String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
       RequestManager glide = Glide.with(holder.imageView.getContext());
 
       MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(
-          new CropSquareTransformation(10f,
-              5,
-              R.color.catppuccin_overlay2)
-      );
+          new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
 
       RequestBuilder<?> requestBuilder;
-      if (extension.endsWith(".mp4") || extension.endsWith(".webm") || extension.endsWith(".3gp")) {
+      if ( extension.endsWith(".mp4") || extension.endsWith(".webm") || extension.endsWith(
+          ".3gp") ) {
          requestBuilder = glide.asBitmap().frame(1_000_000).load(uri);
-      } else if (extension.endsWith(".gif")) {
+      } else if ( extension.endsWith(".gif") ) {
          requestBuilder = glide.asGif().load(uri);
       } else {
          requestBuilder = glide.load(uri);
       }
-      requestBuilder.override(300,
-          300).centerCrop().transform(commonTransform).into(holder.imageView);
+      requestBuilder.override(300, 300)
+          .centerCrop()
+          .transform(commonTransform)
+          .into(holder.imageView);
 
-      holder.radioChip.setChecked(selectedItems.contains(position));
-      holder.radioChip.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            if (selectedItems.contains(holder.getAbsoluteAdapterPosition())) {
-               selectedItems.remove(holder.getAbsoluteAdapterPosition());
-               holder.radioChip.setChecked(false);
-            } else {
-               selectedItems.add(holder.getAbsoluteAdapterPosition());
-               holder.radioChip.setChecked(true);
-            }
+      holder.radioCheckBox.setChecked(selectedItems.contains(position));
+
+      if ( selectedItems.contains(position) ) {
+         int index = selectedItems.indexOf(position);
+         if ( index >= 0 ) {
+            int sequenceNumber = index + 1;
+            // Note: espaço é para dar um "padding" no final do botão
+            holder.radioCheckBox.setText(String.valueOf(sequenceNumber + "  "));
+         } else {
+            holder.radioCheckBox.setText("0  ");
          }
-      });
-   }
+      } else {
+         holder.radioCheckBox.setText("0  ");
+      }
 
-   @Override
-   public int getItemCount() {
-      return mediaUris.size();
+      holder.radioCheckBox.setOnClickListener(view -> {
+         int adapterPosition = holder.getAbsoluteAdapterPosition();
+         if ( adapterPosition == RecyclerView.NO_POSITION )
+            return;
+
+         if ( selectedItems.size() < STICKER_SIZE_MAX ) {
+            if ( selectedItems.contains(adapterPosition) ) {
+               selectedItems.remove((Integer) adapterPosition);
+               holder.radioCheckBox.setChecked(false);
+            } else {
+               selectedItems.add(adapterPosition);
+               holder.radioCheckBox.setChecked(true);
+            }
+         } else {
+            Toast.makeText(view.getContext(), "Numero máximo de itens selecionados!",
+                Toast.LENGTH_SHORT
+            ).show();
+         }
+
+         for (Integer pos : selectedItems) {
+            notifyItemChanged(pos);
+         }
+
+         notifyItemChanged(adapterPosition);
+      });
    }
 
    public interface OnItemClickListener {
       void onItemClick(String imagePath);
+   }
+
+   public static class UriDiffCallback extends DiffUtil.ItemCallback<Uri> {
+
+      @Override
+      public boolean areItemsTheSame(
+          @NonNull Uri oldItem,
+          @NonNull Uri newItem
+      ) {
+         return Objects.equals(oldItem, newItem);
+      }
+
+      @Override
+      public boolean areContentsTheSame(
+          @NonNull Uri oldItem,
+          @NonNull Uri newItem
+      ) {
+         return Objects.equals(oldItem, newItem);
+      }
    }
 }
