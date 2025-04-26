@@ -45,14 +45,18 @@ import java.util.concurrent.Executors;
 
 public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragment {
    private final String namePack;
+   private final boolean isAnimatedPack;
    private final List<Uri> mediaUris;
    private final PickMediaListAdapter.OnItemClickListener listener;
    ExecutorService executor = Executors.newSingleThreadExecutor();
 
    public MediaPickerBottomSheetDialogFragment(
-       List<Uri> mediaUris, String namePack, PickMediaListAdapter.OnItemClickListener listener) {
+       List<Uri> mediaUris, String namePack, boolean isAnimatedPack,
+       PickMediaListAdapter.OnItemClickListener listener
+   ) {
       this.mediaUris = mediaUris;
       this.namePack = namePack;
+      this.isAnimatedPack = isAnimatedPack;
       this.listener = listener;
    }
 
@@ -98,13 +102,13 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
             Toast.makeText(getContext(), "Nenhuma imagem selecionada", Toast.LENGTH_SHORT).show();
          } else {
             for (Uri uri : selectedMediaPaths) {
-               convertMediaAsync(uri);
+               convertMediaAndSaveAsync(uri);
             }
          }
       });
    }
 
-   private void convertMediaAsync(Uri uri) {
+   private void convertMediaAndSaveAsync(Uri uri) {
       executor.execute(() -> {
          convertMediaToWebP(getContext(), uri,
              new File(Objects.requireNonNull(uri.getPath())).getName(),
