@@ -20,9 +20,9 @@ import androidx.annotation.Nullable;
 
 import com.facebook.animated.webp.WebPImage;
 import com.facebook.imagepipeline.common.ImageDecodeOptions;
-import com.vinicius.sticker.data.model.Sticker;
-import com.vinicius.sticker.data.model.StickerPack;
-import com.vinicius.sticker.data.repository.StickerPackLoader;
+import com.vinicius.sticker.domain.data.model.Sticker;
+import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.data.repository.StickerPackLoader;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

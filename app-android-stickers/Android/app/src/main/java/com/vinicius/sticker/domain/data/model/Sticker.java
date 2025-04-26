@@ -5,7 +5,7 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
-package com.vinicius.sticker.data.model;
+package com.vinicius.sticker.domain.data.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

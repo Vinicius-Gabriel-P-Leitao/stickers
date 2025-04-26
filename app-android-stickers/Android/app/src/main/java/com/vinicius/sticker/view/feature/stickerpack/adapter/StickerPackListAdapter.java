@@ -24,8 +24,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.data.model.StickerPack;
-import com.vinicius.sticker.data.repository.StickerPackLoader;
+import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.data.repository.StickerPackLoader;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.StickerPackDetailsActivity;
 import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListItemViewHolder;
 

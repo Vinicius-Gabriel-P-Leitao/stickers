@@ -11,6 +11,6 @@
  * Original GPLv3 license text begins below.
  */
 
-package com.vinicius.sticker.builder;
+package com.vinicius.sticker.domain.builder;
 
 public class ContentJsonBuilder {}

@@ -5,15 +5,15 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
-package com.vinicius.sticker.service;
+package com.vinicius.sticker.domain.service;
 
 import android.text.TextUtils;
 import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
 
-import com.vinicius.sticker.data.model.Sticker;
-import com.vinicius.sticker.data.model.StickerPack;
+import com.vinicius.sticker.domain.data.model.Sticker;
+import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 
 import java.io.IOException;

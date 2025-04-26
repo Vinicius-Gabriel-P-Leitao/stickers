@@ -28,7 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.data.model.StickerPack;
+import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPackListAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListItemViewHolder;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.AddStickerPackActivity;
