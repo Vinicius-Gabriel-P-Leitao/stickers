@@ -12,6 +12,7 @@
  */
 package com.vinicius.sticker.view.feature.media.presentation;
 
+import static com.vinicius.sticker.domain.service.StickerManager.generateJsonPackage;
 import static com.vinicius.sticker.view.feature.media.util.ConvertMediaToStickerFormat.convertMediaToWebP;
 
 import android.net.Uri;
@@ -39,6 +40,7 @@ import com.vinicius.sticker.view.feature.media.util.ConvertMediaToStickerFormat;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -48,25 +50,50 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragment {
-   private final boolean isAnimatedPack;
-   private final List<Uri> mediaUris;
+   private static final String KEY_MEDIA_URIS = "key_media_uris";
+   private static final String KEY_NAME_PACK = "key_name_pack";
+   private static final String KEY_IS_ANIMATED = "key_is_animated";
+   private boolean isAnimatedPack;
+   private List<Uri> mediaUris;
+   private String namePack;
+   private List<File> mediaConvertedFile = new ArrayList<>();
    private ProgressBar progressBar;
-   private final String namePack;
    private int completedConversions = 0;
    private int totalConversions = 0;
-   private final PickMediaListAdapter.OnItemClickListener listener;
+   private PickMediaListAdapter.OnItemClickListener listener;
    ExecutorService executor = new ThreadPoolExecutor(5, 10, 1L, TimeUnit.SECONDS,
        new LinkedBlockingQueue<>()
    );
 
-   public MediaPickerBottomSheetDialogFragment(
-       List<Uri> mediaUris, String namePack, boolean isAnimatedPack,
+   public MediaPickerBottomSheetDialogFragment() {
+   }
+
+   public static MediaPickerBottomSheetDialogFragment newInstance(
+       ArrayList<Uri> mediaUris, String namePack, boolean isAnimatedPack,
        PickMediaListAdapter.OnItemClickListener listener
    ) {
-      this.mediaUris = mediaUris;
-      this.namePack = namePack;
-      this.isAnimatedPack = isAnimatedPack;
+      MediaPickerBottomSheetDialogFragment fragment = new MediaPickerBottomSheetDialogFragment();
+      Bundle args = new Bundle();
+      args.putParcelableArrayList(KEY_MEDIA_URIS, mediaUris);
+      args.putString(KEY_NAME_PACK, namePack);
+      args.putBoolean(KEY_IS_ANIMATED, isAnimatedPack);
+      fragment.setArguments(args);
+      fragment.setListener(listener);
+      return fragment;
+   }
+
+   private void setListener(PickMediaListAdapter.OnItemClickListener listener) {
       this.listener = listener;
+   }
+
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      if ( getArguments() != null ) {
+         mediaUris = getArguments().getParcelableArrayList(KEY_MEDIA_URIS);
+         namePack = getArguments().getString(KEY_NAME_PACK);
+         isAnimatedPack = getArguments().getBoolean(KEY_IS_ANIMATED);
+      }
    }
 
    @Override
@@ -136,9 +163,9 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                 @Override
                 public void onSuccess(File outputFile) {
                    new Handler(Looper.getMainLooper()).post(() -> {
-                      // NOTE: Colocar lógica de converter json aqui:
-                      // isAnimatedPack;
-                      // namePack;
+
+                      mediaConvertedFile.add(outputFile);
+
                       checkAllConversionsCompleted();
                    });
                 }
@@ -166,6 +193,8 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
 
       if ( completedConversions == totalConversions ) {
          progressBar.setVisibility(View.GONE);
+         generateJsonPackage(isAnimatedPack, mediaConvertedFile, namePack);
+
          Toast.makeText(getContext(), "Todas as conversões completadas!", Toast.LENGTH_SHORT)
              .show();
       }

@@ -13,4 +13,97 @@
 
 package com.vinicius.sticker.domain.builder;
 
-public class ContentJsonBuilder {}
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.List;
+
+public class ContentJsonBuilder {
+   private final JSONObject stickerPackJson;
+   private final JSONArray stickersArray;
+
+   public ContentJsonBuilder() {
+      stickerPackJson = new JSONObject();
+      stickersArray = new JSONArray();
+   }
+
+   public ContentJsonBuilder setIdentifier(String identifier) throws JSONException {
+      stickerPackJson.put("identifier", identifier);
+      return this;
+   }
+
+   public ContentJsonBuilder setName(String name) throws JSONException {
+      stickerPackJson.put("name", name);
+      return this;
+   }
+
+   public ContentJsonBuilder setPublisher(String publisher) throws JSONException {
+      stickerPackJson.put("publisher", publisher);
+      return this;
+   }
+
+   public ContentJsonBuilder setTrayImageFile(String trayImageFile) throws JSONException {
+      stickerPackJson.put("tray_image_file", trayImageFile);
+      return this;
+   }
+
+   public ContentJsonBuilder setImageDataVersion(String version) throws JSONException {
+      stickerPackJson.put("image_data_version", version);
+      return this;
+   }
+
+   public ContentJsonBuilder setAvoidCache(boolean avoidCache) throws JSONException {
+      stickerPackJson.put("avoid_cache", avoidCache);
+      return this;
+   }
+
+   public ContentJsonBuilder setPublisherEmail(String email) throws JSONException {
+      stickerPackJson.put("publisher_email", email);
+      return this;
+   }
+
+   public ContentJsonBuilder setPublisherWebsite(String website) throws JSONException {
+      stickerPackJson.put("publisher_website", website);
+      return this;
+   }
+
+   public ContentJsonBuilder setPrivacyPolicyWebsite(String url) throws JSONException {
+      stickerPackJson.put("privacy_policy_website", url);
+      return this;
+   }
+
+   public ContentJsonBuilder setLicenseAgreementWebsite(String url) throws JSONException {
+      stickerPackJson.put("license_agreement_website", url);
+      return this;
+   }
+
+   public ContentJsonBuilder setAnimatedStickerPack(boolean animated) throws JSONException {
+      stickerPackJson.put("animated_sticker_pack", animated);
+      return this;
+   }
+
+   public ContentJsonBuilder addSticker(
+       String imageFile, List<String> emojis, String accessibilityText) throws JSONException {
+      JSONObject stickerJson = new JSONObject();
+      stickerJson.put("image_file", imageFile);
+
+      JSONArray emojisArray = new JSONArray();
+      for (String emoji : emojis) {
+         emojisArray.put(emoji);
+      }
+      stickerJson.put("emojis", emojisArray);
+
+      if ( accessibilityText != null ) {
+         stickerJson.put("accessibility_text", accessibilityText);
+      }
+
+      stickersArray.put(stickerJson);
+      return this;
+   }
+
+   public String build() throws JSONException {
+      stickerPackJson.put("stickers", stickersArray);
+      return stickerPackJson.toString(2);
+   }
+}

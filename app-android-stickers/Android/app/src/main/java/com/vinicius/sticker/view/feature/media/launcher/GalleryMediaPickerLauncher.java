@@ -48,18 +48,19 @@ public class GalleryMediaPickerLauncher {
          isAnimatedPack = true;
       }
 
-      MediaPickerBottomSheetDialogFragment sheet = new MediaPickerBottomSheetDialogFragment(uris,
-          namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
-         @Override
-         public void onItemClick(String imagePath) {
-            Uri selectedImageUri = Uri.fromFile(new File(imagePath));
-            Intent resultIntent = new Intent();
-            resultIntent.setData(selectedImageUri);
+      MediaPickerBottomSheetDialogFragment sheet = MediaPickerBottomSheetDialogFragment.newInstance(
+          new ArrayList<>(uris), namePack, isAnimatedPack,
+          new PickMediaListAdapter.OnItemClickListener() {
+             @Override
+             public void onItemClick(String imagePath) {
+                Uri selectedImageUri = Uri.fromFile(new File(imagePath));
+                Intent resultIntent = new Intent();
+                resultIntent.setData(selectedImageUri);
 
-            activity.setResult(RESULT_OK, resultIntent);
-            activity.finish();
-         }
-      }
+                activity.setResult(RESULT_OK, resultIntent);
+                activity.finish();
+             }
+          }
       );
 
       sheet.show(activity.getSupportFragmentManager(), "MediaPickerBottomSheetDialogFragment");

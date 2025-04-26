@@ -13,4 +13,61 @@
 
 package com.vinicius.sticker.domain.service;
 
-public class StickerManager {}
+import static com.vinicius.sticker.domain.service.ContentFileParser.readStickerPack;
+
+import android.util.JsonReader;
+import android.util.Log;
+
+import com.vinicius.sticker.domain.builder.ContentJsonBuilder;
+import com.vinicius.sticker.domain.data.model.Sticker;
+import com.vinicius.sticker.domain.data.model.StickerPack;
+
+import org.json.JSONException;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class StickerManager {
+   private static final List<Sticker> stickers = new ArrayList<>();
+   private final static String uuidPack = UUID.randomUUID().toString();
+
+   public static void generateJsonPackage(
+       boolean isAnimatedPack, List<File> fileList, String namePack) {
+      try {
+         stickers.clear();
+         ContentJsonBuilder builder = new ContentJsonBuilder();
+
+         builder.setIdentifier(uuidPack)
+             .setName(namePack)
+             .setPublisher("vinicius")
+             .setTrayImageFile(fileList.get(0).getName())
+             .setImageDataVersion("1")
+             .setAvoidCache(false)
+             .setPublisherWebsite("")
+             .setPublisherEmail("")
+             .setPrivacyPolicyWebsite("")
+             .setLicenseAgreementWebsite("")
+             .setAnimatedStickerPack(isAnimatedPack);
+
+         for (File file : fileList)
+            stickers.add(new Sticker(file.getName(), List.of("\uD83D\uDDFF"), "Sticker pack"));
+
+         for (Sticker sticker : stickers)
+            builder.addSticker(sticker.imageFileName, sticker.emojis, sticker.accessibilityText);
+
+         String contentJson = builder.build();
+         Log.d("Sticker Pack", contentJson);
+
+         try (JsonReader jsonReader = new JsonReader(new StringReader(contentJson))) {
+            StickerPack stickerPack = readStickerPack(jsonReader);
+         }
+      } catch (JSONException |
+               IOException jsonException) {
+         throw new RuntimeException(jsonException);
+      }
+   }
+}

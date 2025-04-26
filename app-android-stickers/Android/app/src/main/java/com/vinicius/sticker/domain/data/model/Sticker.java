@@ -4,6 +4,9 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
+ *
+ * Modifications by Vinícius, 2025
+ * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
 package com.vinicius.sticker.domain.data.model;
 
@@ -35,7 +38,7 @@ public class Sticker implements Parcelable {
       this.accessibilityText = accessibilityText;
    }
 
-   private Sticker(Parcel in) {
+   public Sticker(Parcel in) {
       imageFileName = in.readString();
       emojis = in.createStringArrayList();
       accessibilityText = in.readString();
