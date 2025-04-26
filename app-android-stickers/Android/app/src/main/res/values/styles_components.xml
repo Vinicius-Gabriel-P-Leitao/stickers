@@ -42,7 +42,7 @@
     </style>
 
     <!-- Compound Button Styles -->
-    <style name="Thumbnail.RadioButton" parent="Widget.Material3.CompoundButton.RadioButton">
+    <style name="Thumbnail.RadioCheckBox" parent="Widget.Material3.CompoundButton.RadioButton">
         <item name="buttonTint">@color/catppuccin_lavender</item>
     </style>
 

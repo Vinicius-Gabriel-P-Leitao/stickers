@@ -34,13 +34,13 @@ import java.io.IOException;
 import java.util.Map;
 
 public class ConvertMediaToStickerFormat {
+   private static MediaConversionCallback callback;
+
    public interface MediaConversionCallback {
       void onSuccess(File outputFile);
 
       void onError(Exception exception);
    }
-
-   private static MediaConversionCallback callback;
 
    public static void convertMediaToWebP(
        Context context, Uri inputUri, String outputFile, MediaConversionCallback callback) {
@@ -52,8 +52,8 @@ public class ConvertMediaToStickerFormat {
       mapDetailsFile.forEach((String fileName, String mimeType) -> {
          try {
             if ( validateUniqueMimeType(mimeType, IMAGE_MIME_TYPES) ) {
-               File imageFileAbsolutPath = convertImageToWebP(context, fileName, outputFile);
-               callback.onSuccess(imageFileAbsolutPath);
+               File imageOutputFile = convertImageToWebP(context, fileName, outputFile);
+               callback.onSuccess(imageOutputFile);
             } else if ( validateUniqueMimeType(mimeType, ANIMATED_MIME_TYPES) ) {
                // NOTE: Callback já é dada no método
                convertVideoToWebP(context, fileName, outputFile, callback);

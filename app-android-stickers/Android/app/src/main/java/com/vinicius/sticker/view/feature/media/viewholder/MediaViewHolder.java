@@ -17,16 +17,16 @@ import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.radiobutton.MaterialRadioButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.vinicius.sticker.R;
 
 public class MediaViewHolder extends RecyclerView.ViewHolder {
    public final ImageView imageView;
-   public final MaterialRadioButton radioChip;
+   public final MaterialCheckBox radioCheckBox;
 
    public MediaViewHolder(View itemView) {
       super(itemView);
       imageView = itemView.findViewById(R.id.image_view);
-      radioChip = itemView.findViewById(R.id.radio_button);
+      radioCheckBox = itemView.findViewById(R.id.radio_checkbox);
    }
 }

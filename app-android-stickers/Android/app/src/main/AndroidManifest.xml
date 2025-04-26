@@ -48,7 +48,7 @@
         </activity>
 
         <provider
-            android:name="com.vinicius.sticker.data.provider.StickerContentProvider"
+            android:name=".domain.data.provider.StickerContentProvider"
             android:authorities="${contentProviderAuthority}"
             android:enabled="true"
             android:exported="true"

@@ -8,24 +8,24 @@
  * Modifications by Vinícius, 2025
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
-package com.vinicius.sticker.data.repository;
+package com.vinicius.sticker.domain.data.repository;
 
-import static com.vinicius.sticker.data.provider.StickerContentProvider.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.ANIMATED_STICKER_PACK;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.AVOID_CACHE;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.IMAGE_DATA_VERSION;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.LICENSE_AGREEMENT_WEBSITE;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.PRIVACY_POLICY_WEBSITE;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.PUBLISHER_EMAIL;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.PUBLISHER_WEBSITE;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.STICKER_FILE_EMOJI_IN_QUERY;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.STICKER_FILE_NAME_IN_QUERY;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.STICKER_PACK_ICON_IN_QUERY;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.STICKER_PACK_IDENTIFIER_IN_QUERY;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.STICKER_PACK_NAME_IN_QUERY;
-import static com.vinicius.sticker.data.provider.StickerContentProvider.STICKER_PACK_PUBLISHER_IN_QUERY;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.ANIMATED_STICKER_PACK;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.AVOID_CACHE;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.IMAGE_DATA_VERSION;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.LICENSE_AGREEMENT_WEBSITE;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.PRIVACY_POLICY_WEBSITE;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.PUBLISHER_EMAIL;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.PUBLISHER_WEBSITE;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_FILE_EMOJI_IN_QUERY;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_FILE_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_ICON_IN_QUERY;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_IDENTIFIER_IN_QUERY;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_PUBLISHER_IN_QUERY;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -36,9 +36,9 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.vinicius.sticker.BuildConfig;
-import com.vinicius.sticker.data.model.Sticker;
-import com.vinicius.sticker.data.model.StickerPack;
-import com.vinicius.sticker.data.provider.StickerContentProvider;
+import com.vinicius.sticker.domain.data.model.Sticker;
+import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.data.provider.StickerContentProvider;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 
 import java.io.ByteArrayOutputStream;

@@ -5,7 +5,7 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
-package com.vinicius.sticker.data.provider;
+package com.vinicius.sticker.domain.data.provider;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -24,9 +24,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.BuildConfig;
-import com.vinicius.sticker.data.model.Sticker;
-import com.vinicius.sticker.data.model.StickerPack;
-import com.vinicius.sticker.service.ContentFileParser;
+import com.vinicius.sticker.domain.data.model.Sticker;
+import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.service.ContentFileParser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,7 +70,6 @@ public class StickerContentProvider extends ContentProvider {
    private static final int METADATA_CODE_FOR_SINGLE_PACK = 2;
    private static final int STICKERS_CODE = 3;
    private static final int STICKERS_ASSET_CODE = 4;
-
    private static final int STICKER_PACK_TRAY_ICON_CODE = 5;
 
    private List<StickerPack> stickerPackList;

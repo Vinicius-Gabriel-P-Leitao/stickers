@@ -20,9 +20,9 @@ import androidx.annotation.Nullable;
 
 import com.facebook.animated.webp.WebPImage;
 import com.facebook.imagepipeline.common.ImageDecodeOptions;
-import com.vinicius.sticker.data.model.Sticker;
-import com.vinicius.sticker.data.model.StickerPack;
-import com.vinicius.sticker.data.repository.StickerPackLoader;
+import com.vinicius.sticker.domain.data.model.Sticker;
+import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.data.repository.StickerPackLoader;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -38,8 +38,8 @@ public class StickerPackValidator {
    private static final int EMOJI_MIN_LIMIT = 1;
    private static final int IMAGE_HEIGHT = 512;
    private static final int IMAGE_WIDTH = 512;
-   private static final int STICKER_SIZE_MIN = 3; // NOTE: Necessário sempre entre 3 e 30
-   private static final int STICKER_SIZE_MAX = 30;
+   private static final int STICKER_SIZE_MIN = 3;
+   public static final int STICKER_SIZE_MAX = 30;
    private static final int CHAR_COUNT_MAX = 128;
    private static final long KB_IN_BYTES = 1024;
    private static final int TRAY_IMAGE_FILE_SIZE_MAX_KB = 50;
