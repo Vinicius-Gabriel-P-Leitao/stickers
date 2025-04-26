@@ -30,7 +30,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
+import com.vinicius.sticker.core.exception.MediaConversionException;
 import com.vinicius.sticker.view.feature.media.adapter.PickMediaListAdapter;
+import com.vinicius.sticker.view.feature.media.util.ConvertMediaToStickerFormat;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -42,12 +44,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragment {
+   private final String namePack;
    private final List<Uri> mediaUris;
    private final PickMediaListAdapter.OnItemClickListener listener;
    ExecutorService executor = Executors.newSingleThreadExecutor();
 
-   public MediaPickerBottomSheetDialogFragment(List<Uri> mediaUris, PickMediaListAdapter.OnItemClickListener listener) {
+   public MediaPickerBottomSheetDialogFragment(
+       List<Uri> mediaUris, String namePack, PickMediaListAdapter.OnItemClickListener listener) {
       this.mediaUris = mediaUris;
+      this.namePack = namePack;
       this.listener = listener;
    }
 
@@ -58,29 +63,29 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
 
    @Nullable
    @Override
-   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-      return inflater.inflate(R.layout.dialog_fragment_recyclerview_select_media,
-          container,
-          false);
+   public View onCreateView(
+       @NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+       @Nullable Bundle savedInstanceState
+   ) {
+      return inflater.inflate(R.layout.dialog_fragment_recyclerview_select_media, container, false);
    }
 
    @Override
-   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-      super.onViewCreated(view,
-          savedInstanceState);
+   public void onViewCreated(
+       @NonNull View view, @Nullable Bundle savedInstanceState) {
+      super.onViewCreated(view, savedInstanceState);
 
       RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
       recyclerView.setHasFixedSize(true);
 
-      GridLayoutManager layoutManager = new GridLayoutManager(getContext(),
-          3);
+      GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
 
-      PickMediaListAdapter mediaListAdapter = new PickMediaListAdapter(getContext(),
-          mediaUris,
+      PickMediaListAdapter mediaListAdapter = new PickMediaListAdapter(getContext(), mediaUris,
           mediaUri -> {
              listener.onItemClick(mediaUri);
              dismiss();
-          });
+          }
+      );
 
       recyclerView.setLayoutManager(layoutManager);
       recyclerView.setAdapter(mediaListAdapter);
@@ -89,25 +94,46 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
       selectButton.setOnClickListener(buttonView -> {
          Set<Uri> selectedMediaPaths = mediaListAdapter.getSelectedMediaPaths();
 
-         if (selectedMediaPaths.isEmpty()) {
-            Toast.makeText(getContext(),
-                "Nenhuma imagem selecionada",
-                Toast.LENGTH_SHORT).show();
+         if ( selectedMediaPaths.isEmpty() ) {
+            Toast.makeText(getContext(), "Nenhuma imagem selecionada", Toast.LENGTH_SHORT).show();
          } else {
             for (Uri uri : selectedMediaPaths) {
-               executor.execute(() -> {
-                  convertMediaToWebP(getContext(),
-                      uri,
-                      new File(Objects.requireNonNull(uri.getPath())).getName()); // Todo: Fazer uma telinha de loading
-
-                  new Handler(Looper.getMainLooper()).post(() -> {
-                     Toast.makeText(getContext(),
-                         "Imagens convertidas",
-                         Toast.LENGTH_SHORT).show(); // Todo: Dar uma callback legal para o usuário
-                  });
-               });
+               convertMediaAsync(uri);
             }
          }
+      });
+   }
+
+   private void convertMediaAsync(Uri uri) {
+      executor.execute(() -> {
+         convertMediaToWebP(getContext(), uri,
+             new File(Objects.requireNonNull(uri.getPath())).getName(),
+             new ConvertMediaToStickerFormat.MediaConversionCallback() {
+
+                @Override
+                public void onSuccess(File outputFile) {
+                   new Handler(Looper.getMainLooper()).post(() -> {
+                      Toast.makeText(getContext(), "Imagem convertida!", Toast.LENGTH_SHORT).show();
+                      // Aqui você pode adicionar lógica para montar o JSON após o sucesso da conversão.
+                   });
+                }
+
+                @Override
+                public void onError(Exception exception) {
+                   new Handler(Looper.getMainLooper()).post(() -> {
+                      if ( exception instanceof MediaConversionException ) {
+                         Toast.makeText(getContext(),
+                             "Falha na conversão: " + exception.getMessage(), Toast.LENGTH_SHORT
+                         ).show();
+                      } else {
+                         Toast.makeText(getContext(), "Falha ao receber arquivo para conversão!",
+                             Toast.LENGTH_SHORT
+                         ).show();
+                      }
+                   });
+                }
+             }
+         );
       });
    }
 }

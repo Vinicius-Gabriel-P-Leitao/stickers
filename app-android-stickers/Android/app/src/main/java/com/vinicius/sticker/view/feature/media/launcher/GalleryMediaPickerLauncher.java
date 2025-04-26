@@ -32,37 +32,34 @@ public class GalleryMediaPickerLauncher {
    public static final String[] IMAGE_MIME_TYPES = {"image/jpeg", "image/png"};
    public static final String[] ANIMATED_MIME_TYPES = {"video/mp4", "image/gif"};
 
-   public static void launchOwnGallery(FragmentActivity activity, String[] mimeType) {
+   public static void launchOwnGallery(
+       FragmentActivity activity, String[] mimeType,
+       String namePack
+   ) {
       List<Uri> uris = new ArrayList<>();
 
-      if (Arrays.equals(mimeType,
-          IMAGE_MIME_TYPES)) {
-         uris = getMediaUris(activity,
-             IMAGE_MIME_TYPES);
+      if ( Arrays.equals(mimeType, IMAGE_MIME_TYPES) ) {
+         uris = getMediaUris(activity, IMAGE_MIME_TYPES);
       }
 
-      if (Arrays.equals(mimeType,
-          ANIMATED_MIME_TYPES)) {
-         uris = getMediaUris(activity,
-             ANIMATED_MIME_TYPES);
+      if ( Arrays.equals(mimeType, ANIMATED_MIME_TYPES) ) {
+         uris = getMediaUris(activity, ANIMATED_MIME_TYPES);
       }
 
       MediaPickerBottomSheetDialogFragment sheet = new MediaPickerBottomSheetDialogFragment(uris,
-          new PickMediaListAdapter.OnItemClickListener() {
-             @Override
-             public void onItemClick(String imagePath) {
-                Uri selectedImageUri = Uri.fromFile(new File(imagePath));
-                Intent resultIntent = new Intent();
-                resultIntent.setData(selectedImageUri);
+          namePack, new PickMediaListAdapter.OnItemClickListener() {
+         @Override
+         public void onItemClick(String imagePath) {
+            Uri selectedImageUri = Uri.fromFile(new File(imagePath));
+            Intent resultIntent = new Intent();
+            resultIntent.setData(selectedImageUri);
 
-                activity.setResult(
-                    RESULT_OK,
-                    resultIntent);
-                activity.finish();
-             }
-          });
+            activity.setResult(RESULT_OK, resultIntent);
+            activity.finish();
+         }
+      }
+      );
 
-      sheet.show(activity.getSupportFragmentManager(),
-          "MediaPickerBottomSheetDialogFragment");
+      sheet.show(activity.getSupportFragmentManager(), "MediaPickerBottomSheetDialogFragment");
    }
 }
