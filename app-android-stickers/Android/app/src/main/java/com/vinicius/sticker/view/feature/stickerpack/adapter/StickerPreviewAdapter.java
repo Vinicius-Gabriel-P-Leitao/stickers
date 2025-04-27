@@ -23,7 +23,7 @@ import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.data.repository.StickerPackLoader;
+import com.vinicius.sticker.domain.service.StickerPackLoader;
 import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPreviewViewHolder;
 
 public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewViewHolder> {

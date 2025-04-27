@@ -8,7 +8,7 @@
  * Modifications by Vinícius, 2025
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
-package com.vinicius.sticker.domain.data.repository;
+package com.vinicius.sticker.domain.service;
 
 import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
 import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.ANIMATED_STICKER_PACK;

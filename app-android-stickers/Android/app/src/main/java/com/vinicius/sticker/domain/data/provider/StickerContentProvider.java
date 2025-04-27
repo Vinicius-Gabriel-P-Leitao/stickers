@@ -10,10 +10,9 @@
  */
 package com.vinicius.sticker.domain.data.provider;
 
-import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.FK_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.FK_STICKER_PACKS;
-import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.ID_STICKER;
-import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.ID_STICKER_PACK;
+import static com.vinicius.sticker.domain.data.repository.SelectStickerPacks.getCursorForSingleStickerPack;
+import static com.vinicius.sticker.domain.data.repository.SelectStickerPacks.getPackForAllStickerPacks;
+import static com.vinicius.sticker.domain.data.repository.SelectStickerPacks.getStickersForAStickerPack;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -28,8 +27,6 @@ import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.BuildConfig;
 import com.vinicius.sticker.domain.data.database.StickerDatabaseHelper;
-import com.vinicius.sticker.domain.data.model.Sticker;
-import com.vinicius.sticker.domain.data.model.StickerPack;
 
 import java.util.Objects;
 
@@ -111,40 +108,6 @@ public class StickerContentProvider extends ContentProvider {
       return empty;
    }
 
-   private void insertStickerPack(SQLiteDatabase db, StickerPack pack) {
-      ContentValues stickerPacksValues = new ContentValues();
-      stickerPacksValues.put(ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, pack.androidPlayStoreLink);
-      stickerPacksValues.put(IOS_APP_DOWNLOAD_LINK_IN_QUERY, pack.iosAppStoreLink);
-      long stickerPackId = db.insert("sticker_packs", null, stickerPacksValues);
-
-      if ( stickerPackId != -1 ) {
-         ContentValues stickerPackValues = new ContentValues();
-         stickerPackValues.put(STICKER_PACK_IDENTIFIER_IN_QUERY, pack.identifier);
-         stickerPackValues.put(STICKER_PACK_NAME_IN_QUERY, pack.name);
-         stickerPackValues.put(STICKER_PACK_PUBLISHER_IN_QUERY, pack.publisher);
-         stickerPackValues.put(STICKER_PACK_ICON_IN_QUERY, pack.trayImageFile);
-         stickerPackValues.put(PUBLISHER_EMAIL, pack.publisherEmail);
-         stickerPackValues.put(PUBLISHER_WEBSITE, pack.publisherWebsite);
-         stickerPackValues.put(PRIVACY_POLICY_WEBSITE, pack.privacyPolicyWebsite);
-         stickerPackValues.put(LICENSE_AGREEMENT_WEBSITE, pack.licenseAgreementWebsite);
-         stickerPackValues.put(ANIMATED_STICKER_PACK, pack.animatedStickerPack ? 1 : 0);
-         stickerPackValues.put(FK_STICKER_PACKS, stickerPackId);
-         long result = db.insert("sticker_pack", null, stickerPackValues);
-
-         if ( result != -1 ) {
-            for (Sticker sticker : pack.getStickers()) {
-               ContentValues stickerValues = new ContentValues();
-               stickerValues.put(STICKER_FILE_NAME_IN_QUERY, sticker.imageFileName);
-               stickerValues.put(STICKER_FILE_EMOJI_IN_QUERY, String.valueOf(sticker.emojis));
-               stickerValues.put(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY,
-                                 sticker.accessibilityText);
-               stickerValues.put(FK_STICKER_PACK, stickerPackId);
-               db.insert("sticker", null, stickerValues);
-            }
-         }
-      }
-   }
-
    @Override
    public String getType(
        @NonNull Uri uri
@@ -176,38 +139,14 @@ public class StickerContentProvider extends ContentProvider {
    ) {
       final int code = MATCHER.match(uri);
       if ( code == METADATA_CODE ) {
-         return getPackForAllStickerPacks(uri);
+         return getPackForAllStickerPacks(uri, dbHelper);
       } else if ( code == METADATA_CODE_FOR_SINGLE_PACK ) {
-         return getCursorForSingleStickerPack(uri);
+         return getCursorForSingleStickerPack(uri, dbHelper);
       } else if ( code == STICKERS_CODE ) {
-         return getStickersForAStickerPack(uri);
+         return getStickersForAStickerPack(uri, dbHelper);
       } else {
          throw new IllegalArgumentException("Unknown URI: " + uri);
       }
-   }
-
-   private Cursor getPackForAllStickerPacks(Uri uri) {
-      SQLiteDatabase db = dbHelper.getReadableDatabase();
-      String[] projection = {ID_STICKER_PACK, STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_ICON_IN_QUERY};
-      return db.query("sticker_pack", projection, null, null, null, null, null);
-   }
-
-   private Cursor getCursorForSingleStickerPack(Uri uri) {
-      SQLiteDatabase db = dbHelper.getReadableDatabase();
-      String[] projection = {ID_STICKER_PACK, STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_ICON_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, ANIMATED_STICKER_PACK};
-      String selection = ID_STICKER_PACK + " = ?";
-      String[] selectionArgs = new String[]{uri.getLastPathSegment()};
-
-      return db.query("sticker_pack", projection, selection, selectionArgs, null, null, null);
-   }
-
-   private Cursor getStickersForAStickerPack(Uri uri) {
-      SQLiteDatabase db = dbHelper.getReadableDatabase();
-      String[] projection = {ID_STICKER, STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY};
-      String selection = FK_STICKER_PACK + " = ?";
-      String[] selectionArgs = new String[]{uri.getLastPathSegment()};
-
-      return db.query("sticker", projection, selection, selectionArgs, null, null, null);
    }
 
    @Override

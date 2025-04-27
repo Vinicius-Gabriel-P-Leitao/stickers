@@ -11,7 +11,7 @@
  * Original GPLv3 license text begins below.
  */
 
-package com.vinicius.sticker.domain.data.repository;
+package com.vinicius.sticker.domain.service;
 
 public class StickerPackSave {
 
