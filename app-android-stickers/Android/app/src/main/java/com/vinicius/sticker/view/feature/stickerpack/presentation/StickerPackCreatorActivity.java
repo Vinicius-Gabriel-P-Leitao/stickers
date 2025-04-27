@@ -34,13 +34,16 @@ import com.vinicius.sticker.view.feature.permission.presentation.PermissionReque
 import java.util.Arrays;
 
 public class StickerPackCreatorActivity extends BaseActivity {
-   /* Values  */
    public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
    public static final String EXTRA_STICKER_FORMAT = "sticker_format";
    public static final String STATIC_STICKER = "animated";
    public static final String ANIMATED_STICKER = "static";
-
    private ActivityResultLauncher<Intent> permissionLauncher;
+   private String namePack;
+
+   private void saveNamePack(String namePack) {
+      this.namePack = namePack;
+   }
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +75,11 @@ public class StickerPackCreatorActivity extends BaseActivity {
                 new PermissionRequestBottomSheetDialogFragment.PermissionCallback() {
                    @Override
                    public void onPermissionsGranted() {
-                      openMetadataGetter();
+                      if ( namePack == null || namePack.isEmpty() ) {
+                         openMetadataGetter();
+                      } else {
+                         openGallery(namePack);
+                      }
                    }
 
                    @Override
@@ -87,7 +94,20 @@ public class StickerPackCreatorActivity extends BaseActivity {
                 "permissionRequestBottomSheetDialogFragment"
             );
          } else {
-            openMetadataGetter();
+            if ( savedInstanceState != null ) {
+               namePack = savedInstanceState.getString("namePack", "");
+               if ( namePack.isEmpty() ) {
+                  openMetadataGetter();
+               } else {
+                  openGallery(namePack);
+               }
+            } else {
+               if ( namePack == null || namePack.isEmpty() ) {
+                  openMetadataGetter();
+               } else {
+                  openGallery(namePack);
+               }
+            }
          }
       });
    }
@@ -99,16 +119,8 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
              @Override
              public void onGetMetadata(String namePack) {
-                String format = getIntent().getStringExtra(EXTRA_STICKER_FORMAT);
-                if ( format == null ) {
-                   Toast.makeText(StickerPackCreatorActivity.this, "Erro ao abrir galeira!",
-                       Toast.LENGTH_SHORT
-                   ).show();
-
-                   throw new RuntimeException("Erro ao abrir galeria, pode o valor pode ser nulo");
-                }
-
-                openGallery(format, namePack);
+                saveNamePack(namePack);
+                openGallery(namePack);
              }
 
              @Override
@@ -122,14 +134,27 @@ public class StickerPackCreatorActivity extends BaseActivity {
       );
    }
 
-   private void openGallery(String format, String namePack) {
-      if ( format.equals(STATIC_STICKER) ) {
+   private void openGallery(String namePack) {
+      String format = getIntent().getStringExtra(EXTRA_STICKER_FORMAT);
+
+      if ( format != null && format.equals(STATIC_STICKER) ) {
          launchOwnGallery(StickerPackCreatorActivity.this, IMAGE_MIME_TYPES, namePack);
+         return;
       }
 
-      if ( format.equals(ANIMATED_STICKER) ) {
+      if ( format != null && format.equals(ANIMATED_STICKER) ) {
          launchOwnGallery(StickerPackCreatorActivity.this, ANIMATED_MIME_TYPES, namePack);
+         return;
       }
+
+      Toast.makeText(StickerPackCreatorActivity.this, "Erro ao abrir galeira!", Toast.LENGTH_SHORT)
+          .show();
+   }
+
+   @Override
+   protected void onSaveInstanceState(Bundle outState) {
+      super.onSaveInstanceState(outState);
+      outState.putString("namePack", namePack);
    }
 
    @Override
@@ -140,5 +165,4 @@ public class StickerPackCreatorActivity extends BaseActivity {
          Log.d("MediaPicker", "Selected URI: " + selectedUri);
       }
    }
-
 }

@@ -12,7 +12,7 @@
  */
 package com.vinicius.sticker.view.feature.media.presentation;
 
-import static com.vinicius.sticker.domain.service.StickerManager.generateJsonPackage;
+import static com.vinicius.sticker.domain.service.StickerPackCreatorManager.generateJsonPack;
 import static com.vinicius.sticker.view.feature.media.util.ConvertMediaToStickerFormat.convertMediaToWebP;
 
 import android.net.Uri;
@@ -163,9 +163,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                 @Override
                 public void onSuccess(File outputFile) {
                    new Handler(Looper.getMainLooper()).post(() -> {
-
                       mediaConvertedFile.add(outputFile);
-
                       checkAllConversionsCompleted();
                    });
                 }
@@ -193,7 +191,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
 
       if ( completedConversions == totalConversions ) {
          progressBar.setVisibility(View.GONE);
-         generateJsonPackage(isAnimatedPack, mediaConvertedFile, namePack);
+         generateJsonPack(getContext(), isAnimatedPack, mediaConvertedFile, namePack);
 
          Toast.makeText(getContext(), "Todas as conversões completadas!", Toast.LENGTH_SHORT)
              .show();

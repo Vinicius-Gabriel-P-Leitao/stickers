@@ -109,4 +109,7 @@ dependencies {
     implementation "com.facebook.fresco:webpsupport:$fresco_version"
     implementation "com.facebook.fresco:animated-webp:$fresco_version"
     implementation "com.facebook.fresco:animated-base:$fresco_version"
+    def sqlite_version = "2.5.0"
+    implementation "androidx.sqlite:sqlite:$sqlite_version"
+    implementation "androidx.sqlite:sqlite-framework:$sqlite_version"
 }

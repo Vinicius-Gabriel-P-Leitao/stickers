@@ -52,7 +52,7 @@
             android:authorities="${contentProviderAuthority}"
             android:enabled="true"
             android:exported="true"
-            android:readPermission="com.whatsapp.sticker.READ" />
+            android:permission="com.whatsapp.sticker.READ" />
     </application>
 
     <uses-permission
