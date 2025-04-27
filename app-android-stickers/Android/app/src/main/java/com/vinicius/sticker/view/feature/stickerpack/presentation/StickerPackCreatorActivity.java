@@ -36,6 +36,7 @@ import java.util.Arrays;
 public class StickerPackCreatorActivity extends BaseActivity {
    public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
    public static final String EXTRA_STICKER_FORMAT = "sticker_format";
+   public static final String DATABASE_EMPTY = "database_empty";
    public static final String STATIC_STICKER = "animated";
    public static final String ANIMATED_STICKER = "static";
    private ActivityResultLauncher<Intent> permissionLauncher;
@@ -85,14 +86,12 @@ public class StickerPackCreatorActivity extends BaseActivity {
                    @Override
                    public void onPermissionsDenied() {
                       Toast.makeText(StickerPackCreatorActivity.this, "Galeria não foi liberada.",
-                          Toast.LENGTH_SHORT
-                      ).show();
+                                     Toast.LENGTH_SHORT).show();
                    }
                 });
 
             permissionRequestBottomSheetDialogFragment.show(getSupportFragmentManager(),
-                "permissionRequestBottomSheetDialogFragment"
-            );
+                                                            "permissionRequestBottomSheetDialogFragment");
          } else {
             if ( savedInstanceState != null ) {
                namePack = savedInstanceState.getString("namePack", "");
@@ -130,12 +129,18 @@ public class StickerPackCreatorActivity extends BaseActivity {
           });
 
       packMetadataBottomSheetDialogFragment.show(getSupportFragmentManager(),
-          "PackMetadataBottomSheetDialogFragment"
-      );
+                                                 "PackMetadataBottomSheetDialogFragment");
    }
 
    private void openGallery(String namePack) {
       String format = getIntent().getStringExtra(EXTRA_STICKER_FORMAT);
+      boolean databaseIsEmpty = getIntent().getBooleanExtra(DATABASE_EMPTY, false);
+
+      if ( databaseIsEmpty ) {
+         format = STATIC_STICKER;
+         Log.i("databaseIsEmpty", String.valueOf(databaseIsEmpty));
+         // Pegar formato do primeiro pacote.
+      }
 
       if ( format != null && format.equals(STATIC_STICKER) ) {
          launchOwnGallery(StickerPackCreatorActivity.this, IMAGE_MIME_TYPES, namePack);
