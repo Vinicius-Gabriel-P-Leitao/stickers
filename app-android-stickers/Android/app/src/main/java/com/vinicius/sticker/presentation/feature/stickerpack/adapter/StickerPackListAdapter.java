@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.StickerPackLoader;
+import com.vinicius.sticker.domain.service.StickerPackLoaderService;
 import com.vinicius.sticker.presentation.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
 import com.vinicius.sticker.presentation.feature.stickerpack.viewholder.StickerPackListItemViewHolder;
 
@@ -81,8 +81,8 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
          final SimpleDraweeView rowImage = (SimpleDraweeView) LayoutInflater.from(context).inflate(R.layout.sticker_packs_list_media_item,
              viewHolder.imageRowView,
              false);
-         rowImage.setImageURI(StickerPackLoader.getStickerAssetUri(pack.identifier,
-             pack.getStickers().get(i).imageFileName));
+         rowImage.setImageURI(StickerPackLoaderService.getStickerAssetUri(pack.identifier,
+                                                                          pack.getStickers().get(i).imageFileName));
          final LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) rowImage.getLayoutParams();
          final int marginBetweenImages = minMarginBetweenImages - lp.leftMargin - lp.rightMargin;
          if (i != actualNumberOfStickersToShow - 1 && marginBetweenImages > 0) { //do not set the margin for the last image

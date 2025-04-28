@@ -30,7 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class SaveStickerPack {
+public class SaveStickerPackService {
 
    @FunctionalInterface
    public interface SaveStickerPackCallback {

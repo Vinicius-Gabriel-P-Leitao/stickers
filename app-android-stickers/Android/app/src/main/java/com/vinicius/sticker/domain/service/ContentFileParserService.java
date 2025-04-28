@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContentFileParser {
+public class ContentFileParserService {
    private static final String FIELD_STICKER_IMAGE_FILE = "image_file";
    private static final String FIELD_STICKER_EMOJIS = "emojis";
    private static final String FIELD_STICKER_ACCESSIBILITY_TEXT = "accessibility_text";

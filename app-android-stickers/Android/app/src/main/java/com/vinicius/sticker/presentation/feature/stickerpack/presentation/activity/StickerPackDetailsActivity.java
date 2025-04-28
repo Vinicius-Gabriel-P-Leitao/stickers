@@ -29,7 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.StickerPackLoader;
+import com.vinicius.sticker.domain.service.StickerPackLoaderService;
 import com.vinicius.sticker.presentation.feature.stickerpack.adapter.StickerPreviewAdapter;
 import com.vinicius.sticker.presentation.feature.stickerpack.usecase.AddStickerPackActivity;
 import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
@@ -130,8 +130,8 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
 
       packNameTextView.setText(stickerPack.name);
       packPublisherTextView.setText(stickerPack.publisher);
-      packTrayIcon.setImageURI(StickerPackLoader.getStickerAssetUri(stickerPack.identifier,
-          stickerPack.trayImageFile));
+      packTrayIcon.setImageURI(StickerPackLoaderService.getStickerAssetUri(stickerPack.identifier,
+                                                                           stickerPack.trayImageFile));
       packSizeTextView.setText(Formatter.formatShortFileSize(this,
           stickerPack.getTotalSize()));
 
@@ -175,8 +175,8 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
       if (item.getItemId() == R.id.action_info && stickerPack != null) {
-         Uri trayIconUri = StickerPackLoader.getStickerAssetUri(stickerPack.identifier,
-             stickerPack.trayImageFile);
+         Uri trayIconUri = StickerPackLoaderService.getStickerAssetUri(stickerPack.identifier,
+                                                                       stickerPack.trayImageFile);
          launchInfoActivity(stickerPack.publisherWebsite,
              stickerPack.publisherEmail,
              stickerPack.privacyPolicyWebsite,

@@ -25,7 +25,7 @@ import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.BaseActivity;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.StickerPackLoader;
+import com.vinicius.sticker.domain.service.StickerPackLoaderService;
 import com.vinicius.sticker.presentation.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
 import com.vinicius.sticker.presentation.feature.stickerpack.presentation.activity.StickerPackListActivity;
 
@@ -102,7 +102,7 @@ public class EntryActivity extends BaseActivity {
          try {
             final Context context = contextWeakReference.get();
             if ( context != null ) {
-               stickerPackList = StickerPackLoader.fetchStickerPacks(context);
+               stickerPackList = StickerPackLoaderService.fetchStickerPacks(context);
                if ( stickerPackList.isEmpty() ) {
                   return new Pair<>("No sticker packs available", null);
                }

@@ -11,9 +11,9 @@
  * Original GPLv3 license text begins below.
  */
 
-package com.vinicius.sticker.domain.service;
+package com.vinicius.sticker.domain.manager;
 
-import static com.vinicius.sticker.domain.service.ContentFileParser.readStickerPack;
+import static com.vinicius.sticker.domain.service.ContentFileParserService.readStickerPack;
 
 import android.content.Context;
 import android.util.JsonReader;
@@ -23,6 +23,7 @@ import com.vinicius.sticker.domain.builder.ContentJsonBuilder;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.pattern.CallbackResult;
+import com.vinicius.sticker.domain.service.SaveStickerPackService;
 
 import org.json.JSONException;
 
@@ -94,7 +95,7 @@ public class StickerPackCreatorManager {
                jsonValidateCallback.onJsonValidateDataComplete(contentJson);
             }
 
-            SaveStickerPack.generateStructureForSavePack(
+            SaveStickerPackService.generateStructureForSavePack(
                 context, stickerPack, callbackResult -> {
                    switch (callbackResult.getStatus()) {
                       case SUCCESS:

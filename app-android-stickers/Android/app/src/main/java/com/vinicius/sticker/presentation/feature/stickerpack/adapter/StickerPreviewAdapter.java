@@ -23,7 +23,7 @@ import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.StickerPackLoader;
+import com.vinicius.sticker.domain.service.StickerPackLoaderService;
 import com.vinicius.sticker.presentation.feature.stickerpack.viewholder.StickerPreviewViewHolder;
 
 public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewViewHolder> {
@@ -97,8 +97,9 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
    @Override
    public void onBindViewHolder(@NonNull final StickerPreviewViewHolder stickerPreviewViewHolder, final int i) {
       stickerPreviewViewHolder.stickerPreviewView.setImageResource(errorResource);
-      stickerPreviewViewHolder.stickerPreviewView.setImageURI(StickerPackLoader.getStickerAssetUri(stickerPack.identifier,
-          stickerPack.getStickers().get(i).imageFileName));
+      stickerPreviewViewHolder.stickerPreviewView.setImageURI(
+          StickerPackLoaderService.getStickerAssetUri(stickerPack.identifier,
+                                                      stickerPack.getStickers().get(i).imageFileName));
       stickerPreviewViewHolder.stickerPreviewView.setOnClickListener(v -> expandPreview(i,
           stickerPreviewViewHolder.stickerPreviewView));
    }
@@ -185,8 +186,8 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
       if (expandedStickerPreview != null) {
          positionExpandedStickerPreview(position);
 
-         final Uri stickerAssetUri = StickerPackLoader.getStickerAssetUri(stickerPack.identifier,
-             stickerPack.getStickers().get(position).imageFileName);
+         final Uri stickerAssetUri = StickerPackLoaderService.getStickerAssetUri(stickerPack.identifier,
+                                                                                 stickerPack.getStickers().get(position).imageFileName);
          DraweeController controller = Fresco.newDraweeControllerBuilder()
              .setUri(stickerAssetUri)
              .setAutoPlayAnimations(true)

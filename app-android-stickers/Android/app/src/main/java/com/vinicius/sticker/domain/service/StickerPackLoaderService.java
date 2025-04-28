@@ -49,7 +49,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-public class StickerPackLoader {
+public class StickerPackLoaderService {
 
    /**
     * Get the list of sticker packs for the sticker content provider

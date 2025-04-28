@@ -25,7 +25,7 @@ import com.facebook.animated.webp.WebPImage;
 import com.facebook.imagepipeline.common.ImageDecodeOptions;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.StickerPackLoader;
+import com.vinicius.sticker.domain.service.StickerPackLoaderService;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -139,7 +139,7 @@ public class StickerPackValidator {
       }
       try {
          final byte[] stickerAssetBytes =
-             StickerPackLoader.fetchStickerAsset(
+             StickerPackLoaderService.fetchStickerAsset(
                  stickerPack.identifier, stickerPack.trayImageFile, context.getContentResolver());
          if ( stickerAssetBytes.length > TRAY_IMAGE_FILE_SIZE_MAX_KB * KB_IN_BYTES ) {
             throw new IllegalStateException("tray image should be less than " +
@@ -241,7 +241,7 @@ public class StickerPackValidator {
        final String fileName, final boolean animatedStickerPack
    ) throws IllegalStateException {
       try {
-         final byte[] stickerInBytes = StickerPackLoader.fetchStickerAsset(
+         final byte[] stickerInBytes = StickerPackLoaderService.fetchStickerAsset(
              identifier, fileName,
              context.getContentResolver()
          );

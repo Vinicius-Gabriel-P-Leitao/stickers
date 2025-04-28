@@ -10,6 +10,7 @@
  *
  * Original GPLv3 license text begins below.
  */
+
 package com.vinicius.sticker.presentation.feature.media.presentation;
 
 import static com.vinicius.sticker.presentation.feature.media.util.ConvertMediaToStickerFormat.convertMediaToWebP;
@@ -33,7 +34,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.exception.MediaConversionException;
-import com.vinicius.sticker.domain.service.StickerPackCreatorManager;
+import com.vinicius.sticker.domain.manager.StickerPackCreatorManager;
 import com.vinicius.sticker.presentation.feature.media.adapter.PickMediaListAdapter;
 import com.vinicius.sticker.presentation.feature.media.util.ConvertMediaToStickerFormat;
 
@@ -53,13 +54,14 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
    private static final String KEY_MEDIA_URIS = "key_media_uris";
    private static final String KEY_NAME_PACK = "key_name_pack";
    private static final String KEY_IS_ANIMATED = "key_is_animated";
+   private final List<File> mediaConvertedFile = new ArrayList<>();
    private boolean isAnimatedPack;
    private List<Uri> mediaUris;
    private String namePack;
-   private List<File> mediaConvertedFile = new ArrayList<>();
-   private ProgressBar progressBar;
    private int completedConversions = 0;
    private int totalConversions = 0;
+   private ProgressBar progressBar;
+
    private PickMediaListAdapter.OnItemClickListener listener;
    ExecutorService executor =
        new ThreadPoolExecutor(5, 20, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
@@ -206,7 +208,8 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                 if ( callbackResult != null ) {
                    Log.i(
                        "SaveStickerPack",
-                       "Pacote salvo com sucesso -> " + callbackResult.getData());
+                       "Pacote salvo com sucesso -> " + callbackResult.getData()
+                   );
                 } else {
                    Log.e("SaveStickerPack", "Erro ao salvar pacote: " + callbackResult.getError());
                 }
