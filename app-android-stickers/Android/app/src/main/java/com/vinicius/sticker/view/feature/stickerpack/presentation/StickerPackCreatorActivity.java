@@ -26,10 +26,12 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.BaseActivity;
 import com.vinicius.sticker.view.feature.permission.presentation.PermissionRequestBottomSheetDialogFragment;
+import com.vinicius.sticker.view.feature.stickerpack.component.FormatStickerPopup;
 
 import java.util.Arrays;
 
@@ -41,6 +43,11 @@ public class StickerPackCreatorActivity extends BaseActivity {
    public static final String ANIMATED_STICKER = "static";
    private ActivityResultLauncher<Intent> permissionLauncher;
    private String namePack;
+   private String selectedFormat = null;
+
+   private void setFormat(String format) {
+      this.selectedFormat = format;
+   }
 
    private void saveNamePack(String namePack) {
       this.namePack = namePack;
@@ -59,63 +66,76 @@ public class StickerPackCreatorActivity extends BaseActivity {
              R.plurals.title_activity_sticker_packs_creator_list, 1));
       }
 
-      PermissionRequestBottomSheetDialogFragment permissionRequestBottomSheetDialogFragment = new PermissionRequestBottomSheetDialogFragment();
-
       ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
       buttonSelectMedia.setOnClickListener(view -> {
          ObjectAnimator rotation = ObjectAnimator.ofFloat(buttonSelectMedia, "rotation", 0f, 360f);
          rotation.setDuration(500);
          rotation.start();
 
-         String[] permissions = getPermissionsToRequest(this);
-         Log.i("Permissions Media", Arrays.toString(permissions));
+         if ( getIntent().getBooleanExtra(DATABASE_EMPTY, false) ) {
+            FormatStickerPopup.popUpButtonChooserStickerModel(this, buttonSelectMedia,
+                                                              new FormatStickerPopup.OnOptionClickListener() {
+                                                                 @Override
+                                                                 public void onStaticStickerSelected() {
+                                                                    setFormat(STATIC_STICKER);
+                                                                    createStickerPackFlux();
+                                                                 }
 
-         if ( permissions.length > 0 ) {
-            permissionRequestBottomSheetDialogFragment.setPermissions(permissions);
-            permissionRequestBottomSheetDialogFragment.setCallback(
-                new PermissionRequestBottomSheetDialogFragment.PermissionCallback() {
-                   @Override
-                   public void onPermissionsGranted() {
-                      if ( namePack == null || namePack.isEmpty() ) {
-                         openMetadataGetter();
-                      } else {
-                         openGallery(namePack);
-                      }
-                   }
-
-                   @Override
-                   public void onPermissionsDenied() {
-                      Toast.makeText(StickerPackCreatorActivity.this, "Galeria não foi liberada.",
-                                     Toast.LENGTH_SHORT).show();
-                   }
-                });
-
-            permissionRequestBottomSheetDialogFragment.show(getSupportFragmentManager(),
-                                                            "permissionRequestBottomSheetDialogFragment");
+                                                                 @Override
+                                                                 public void onAnimatedStickerSelected() {
+                                                                    setFormat(ANIMATED_STICKER);
+                                                                    createStickerPackFlux();
+                                                                 }
+                                                              }
+            );
          } else {
-            if ( savedInstanceState != null ) {
-               namePack = savedInstanceState.getString("namePack", "");
-               if ( namePack.isEmpty() ) {
-                  openMetadataGetter();
-               } else {
-                  openGallery(namePack);
-               }
-            } else {
-               if ( namePack == null || namePack.isEmpty() ) {
-                  openMetadataGetter();
-               } else {
-                  openGallery(namePack);
-               }
-            }
+            createStickerPackFlux();
          }
       });
+   }
+
+   private void createStickerPackFlux() {
+      PermissionRequestBottomSheetDialogFragment permissionRequestBottomSheetDialogFragment = new PermissionRequestBottomSheetDialogFragment();
+
+      String[] permissions = getPermissionsToRequest(this);
+      Log.i("Permissions Media", Arrays.toString(permissions));
+      if ( permissions.length > 0 ) {
+         permissionRequestBottomSheetDialogFragment.setPermissions(permissions);
+         permissionRequestBottomSheetDialogFragment.setCallback(
+             new PermissionRequestBottomSheetDialogFragment.PermissionCallback() {
+                @Override
+                public void onPermissionsGranted() {
+                   if ( namePack == null || namePack.isEmpty() ) {
+                      openMetadataGetter();
+                   } else {
+                      openGallery(namePack);
+                   }
+                }
+
+                @Override
+                public void onPermissionsDenied() {
+                   Toast.makeText(StickerPackCreatorActivity.this, "Galeria não foi liberada.",
+                                  Toast.LENGTH_SHORT
+                   ).show();
+                }
+             });
+
+         permissionRequestBottomSheetDialogFragment.show(getSupportFragmentManager(),
+                                                         "permissionRequestBottomSheetDialogFragment"
+         );
+      } else {
+         if ( namePack == null || namePack.isEmpty() ) {
+            openMetadataGetter();
+         } else {
+            openGallery(namePack);
+         }
+      }
    }
 
    private void openMetadataGetter() {
       PackMetadataBottomSheetDialogFragment packMetadataBottomSheetDialogFragment = new PackMetadataBottomSheetDialogFragment();
       packMetadataBottomSheetDialogFragment.setCallback(
           new PackMetadataBottomSheetDialogFragment.MetadataCallback() {
-
              @Override
              public void onGetMetadata(String namePack) {
                 saveNamePack(namePack);
@@ -129,37 +149,31 @@ public class StickerPackCreatorActivity extends BaseActivity {
           });
 
       packMetadataBottomSheetDialogFragment.show(getSupportFragmentManager(),
-                                                 "PackMetadataBottomSheetDialogFragment");
+                                                 "PackMetadataBottomSheetDialogFragment"
+      );
    }
 
    private void openGallery(String namePack) {
-      String format = getIntent().getStringExtra(EXTRA_STICKER_FORMAT);
-      boolean databaseIsEmpty = getIntent().getBooleanExtra(DATABASE_EMPTY, false);
-
-      if ( databaseIsEmpty ) {
-         format = STATIC_STICKER;
-         Log.i("databaseIsEmpty", String.valueOf(databaseIsEmpty));
-         // Pegar formato do primeiro pacote.
-      }
-
-      if ( format != null && format.equals(STATIC_STICKER) ) {
-         launchOwnGallery(StickerPackCreatorActivity.this, IMAGE_MIME_TYPES, namePack);
+      if ( selectedFormat != null && selectedFormat.equals(STATIC_STICKER) ) {
+         launchOwnGallery(this, IMAGE_MIME_TYPES, namePack);
          return;
       }
 
-      if ( format != null && format.equals(ANIMATED_STICKER) ) {
-         launchOwnGallery(StickerPackCreatorActivity.this, ANIMATED_MIME_TYPES, namePack);
+      if ( selectedFormat != null && selectedFormat.equals(ANIMATED_STICKER) ) {
+         launchOwnGallery(this, ANIMATED_MIME_TYPES, namePack);
          return;
       }
 
-      Toast.makeText(StickerPackCreatorActivity.this, "Erro ao abrir galeira!", Toast.LENGTH_SHORT)
-          .show();
+      Toast.makeText(this, "Erro ao abrir galeria!", Toast.LENGTH_SHORT).show();
    }
 
    @Override
-   protected void onSaveInstanceState(Bundle outState) {
+   protected void onSaveInstanceState(
+       @NonNull Bundle outState
+   ) {
       super.onSaveInstanceState(outState);
       outState.putString("namePack", namePack);
+      outState.putString("selectedFormat", selectedFormat);
    }
 
    @Override
