@@ -23,6 +23,7 @@ import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.domain.builder.ContentJsonBuilder;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.pattern.CallbackResult;
 
 import org.json.JSONException;
 
@@ -41,7 +42,7 @@ public class StickerPackCreatorManager {
    public interface JsonConversionCallback {
       void onJsonValidateDataComplete(StickerPack json);
 
-      void onSavedStickerPack(SaveStickerPack.Result result);
+      void onSavedStickerPack(CallbackResult callbackResult);
    }
 
    public void setCallback(JsonConversionCallback callback) {
@@ -96,22 +97,22 @@ public class StickerPackCreatorManager {
                Log.d("Sticker Pack", contentJson);
             }
             SaveStickerPack.generateStructureForSavePack(
-                context, stickerPack, new SaveStickerPack.JsonSaveCallback() {
+                context, stickerPack, new SaveStickerPack.SaveStickerPackCallback() {
                    @Override
-                   public void onJsonSaveCompleted(SaveStickerPack.Result result) {
-                      switch (result.getStatus()) {
+                   public void onJsonSaveCompleted(CallbackResult callbackResult) {
+                      switch (callbackResult.getStatus()) {
                          case SUCCESS:
                             callback.onSavedStickerPack(
-                                SaveStickerPack.Result.success(result.getData()));
+                                CallbackResult.success(callbackResult.getData()));
                             break;
                          case WARNING:
-                            Log.w("SaveStickerPack", result.getWarningMessage());
+                            Log.w("SaveStickerPack", callbackResult.getWarningMessage());
                             break;
                          case FAILURE:
-                            if ( result.getError() instanceof StickerPackSaveException ) {
-                               Log.e("SaveStickerPack", result.getError().getMessage());
+                            if ( callbackResult.getError() instanceof StickerPackSaveException ) {
+                               Log.e("SaveStickerPack", callbackResult.getError().getMessage());
                             } else {
-                               Log.e("SaveStickerPack", result.getError().getMessage());
+                               Log.e("SaveStickerPack", callbackResult.getError().getMessage());
                             }
                             break;
                       }
