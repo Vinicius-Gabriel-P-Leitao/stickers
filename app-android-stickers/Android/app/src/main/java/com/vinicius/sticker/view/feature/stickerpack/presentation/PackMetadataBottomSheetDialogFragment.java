@@ -47,7 +47,7 @@ public class PackMetadataBottomSheetDialogFragment extends BottomSheetDialogFrag
        @Nullable ViewGroup container,
        @Nullable Bundle savedInstanceState
    ) {
-      View view = inflater.inflate(R.layout.dialog_metadata_package, container, false);
+      View view = inflater.inflate(R.layout.dialog_metadata_pack, container, false);
 
       ImageButton buttonGrantPermission = view.findViewById(R.id.grant_permission_button);
       buttonGrantPermission.setOnClickListener(viewAccept -> {

@@ -11,7 +11,7 @@
  * Original GPLv3 license text begins below.
  */
 
-package com.vinicius.sticker.view.feature.media.util;
+package com.vinicius.sticker.domain.service;
 
 import android.content.Context;
 import android.os.Build;
@@ -21,20 +21,15 @@ import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class SaveStickerPackInCache {
+public class SaveStickerPack {
    public static final String STICKER_PACK_DIR = "sticker-pack";
 
-   public static void generateStructureForSavePack(
-       Context context, StickerPack stickerPack,
-       String contentJson
-   ) {
+   public static void generateStructureForSavePack(Context context, StickerPack stickerPack) {
       File mainDirectory = new File(context.getCacheDir(), STICKER_PACK_DIR);
 
       String folderName = stickerPack.identifier;
@@ -73,11 +68,7 @@ public class SaveStickerPackInCache {
          }
       }
 
-      try {
-         saveContentJsonToCache(stickerPackDirectory, contentJson);
-      } catch (IOException exception) {
-         Log.e("StickerPackSaver", "Erro ao salvar o JSON no cache", exception);
-      }
+      // Todo: Usar repositorio para salvar o stickerPack dentro do Sqlite
    }
 
    private static void cleanDirectory(File directory) {
@@ -93,16 +84,6 @@ public class SaveStickerPackInCache {
                }
             }
          }
-      }
-   }
-
-   private static void saveContentJsonToCache(
-       File stickerPackDirectory, String contentJson) throws IOException {
-      File jsonFile = new File(stickerPackDirectory, "pack.json");
-      try (FileOutputStream fos = new FileOutputStream(
-          jsonFile); OutputStreamWriter writer = new OutputStreamWriter(fos)) {
-         writer.write(contentJson);
-         Log.i("StickerPackSaver", "JSON salvo em: " + jsonFile.getPath());
       }
    }
 }

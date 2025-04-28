@@ -14,7 +14,7 @@
 package com.vinicius.sticker.view.feature.media.util;
 
 import static com.vinicius.sticker.domain.service.ContentFileParser.readStickerPack;
-import static com.vinicius.sticker.view.feature.media.util.SaveStickerPackInCache.STICKER_PACK_DIR;
+import static com.vinicius.sticker.domain.service.SaveStickerPack.STICKER_PACK_DIR;
 
 import android.content.Context;
 import android.util.JsonReader;

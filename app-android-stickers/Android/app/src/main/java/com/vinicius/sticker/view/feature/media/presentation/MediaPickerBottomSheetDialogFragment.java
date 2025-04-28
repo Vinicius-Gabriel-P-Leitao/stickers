@@ -61,7 +61,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
    private int completedConversions = 0;
    private int totalConversions = 0;
    private PickMediaListAdapter.OnItemClickListener listener;
-   ExecutorService executor = new ThreadPoolExecutor(5, 10, 1L, TimeUnit.SECONDS,
+   ExecutorService executor = new ThreadPoolExecutor(5, 20, 1L, TimeUnit.SECONDS,
        new LinkedBlockingQueue<>()
    );
 

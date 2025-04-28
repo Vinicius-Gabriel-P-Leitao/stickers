@@ -29,6 +29,7 @@ import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.S
 import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_PUBLISHER_IN_QUERY;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -113,5 +114,17 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
       db.execSQL("DROP TABLE IF EXISTS sticker_pack");
       db.execSQL("DROP TABLE IF EXISTS sticker");
       onCreate(db);
+   }
+
+   public static boolean isDatabaseEmpty(SQLiteDatabase database) {
+      Cursor cursor = database.rawQuery("SELECT COUNT(*) FROM sticker_packs", null);
+      boolean empty = true;
+
+      if ( cursor.moveToFirst() ) {
+         empty = cursor.getInt(0) == 0;
+      }
+      cursor.close();
+
+      return empty;
    }
 }

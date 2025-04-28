@@ -12,6 +12,7 @@
  */
 package com.vinicius.sticker.view.feature.media.viewholder;
 
+import android.graphics.Color;
 import android.view.View;
 import android.widget.ImageView;
 

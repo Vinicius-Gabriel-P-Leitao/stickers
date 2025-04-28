@@ -14,7 +14,7 @@
 package com.vinicius.sticker.domain.service;
 
 import static com.vinicius.sticker.domain.service.ContentFileParser.readStickerPack;
-import static com.vinicius.sticker.view.feature.media.util.SaveStickerPackInCache.generateStructureForSavePack;
+import static com.vinicius.sticker.domain.service.SaveStickerPack.generateStructureForSavePack;
 
 import android.content.Context;
 import android.util.JsonReader;
@@ -80,14 +80,11 @@ public class StickerPackCreatorManager {
 
          try (JsonReader jsonReader = new JsonReader(new StringReader(contentJson))) {
             StickerPack stickerPack = readStickerPack(jsonReader);
-            generateStructureForSavePack(context, stickerPack, contentJson);
+            generateStructureForSavePack(context, stickerPack);
          }
-
       } catch (JSONException |
                IOException jsonException) {
          throw new RuntimeException(jsonException);
       }
    }
-
-
 }

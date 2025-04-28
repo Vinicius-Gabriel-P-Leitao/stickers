@@ -46,6 +46,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.feature.stickerpack.presentation.StickerPackCreatorActivity" />
         </activity>
+        <activity android:name=".view.mainentry.StickerFirstPackCreatorActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.mainentry.StickerFirstPackCreatorActivity" />
+        </activity>
 
         <provider
             android:name=".domain.data.provider.StickerContentProvider"

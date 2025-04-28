@@ -26,7 +26,6 @@ import com.vinicius.sticker.core.BaseActivity;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.StickerPackLoader;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.StickerPackCreatorActivity;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.StickerPackDetailsActivity;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.StickerPackListActivity;
 
@@ -57,7 +56,8 @@ public class EntryActivity extends BaseActivity {
       if ( stickerPackList.size() > 1 ) {
          final Intent intent = new Intent(this, StickerPackListActivity.class);
          intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA,
-                                            stickerPackList);
+                                            stickerPackList
+         );
          startActivity(intent);
          finish();
          overridePendingTransition(0, 0);
@@ -65,7 +65,8 @@ public class EntryActivity extends BaseActivity {
          final Intent intent = new Intent(this, StickerPackDetailsActivity.class);
          intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, false);
          intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA,
-                         stickerPackList.get(0));
+                         stickerPackList.get(0)
+         );
          startActivity(intent);
          finish();
          overridePendingTransition(0, 0);
@@ -115,7 +116,9 @@ public class EntryActivity extends BaseActivity {
          } catch (IllegalStateException exception) {
             Context context = contextWeakReference.get();
             if ( context != null ) {
-               Intent intent = new Intent(context, StickerPackCreatorActivity.class);
+               Intent intent = new Intent(context, StickerFirstPackCreatorActivity.class);
+               // Note: flags para transformar essa activity como main
+               intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                intent.putExtra("database_empty", true);
                context.startActivity(intent);
             }
