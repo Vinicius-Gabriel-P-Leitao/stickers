@@ -13,10 +13,11 @@
 
 package com.vinicius.sticker.view.feature.media.util;
 
+import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKERS_ASSET;
 import static com.vinicius.sticker.domain.service.ContentFileParser.readStickerPack;
-import static com.vinicius.sticker.domain.service.SaveStickerPack.STICKER_PACK_DIR;
 
 import android.content.Context;
+import android.os.Environment;
 import android.util.JsonReader;
 import android.util.Log;
 
@@ -34,10 +35,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoadStickerPackInCache {
+public class LoadStickerPackInPicture {
    public static StickerPack processStickerPacks(String uuidPack, Context context) {
       List<StickerPack> stickerPacks = new ArrayList<>();
-      File stickerPackDir = new File(context.getCacheDir(), STICKER_PACK_DIR);
+      File stickerPackDir = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), STICKERS_ASSET);
 
       if ( stickerPackDir.exists() && stickerPackDir.isDirectory() ) {
          File[] packDirs = stickerPackDir.listFiles();

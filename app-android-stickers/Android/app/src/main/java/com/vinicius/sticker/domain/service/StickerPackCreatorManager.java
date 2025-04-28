@@ -14,12 +14,12 @@
 package com.vinicius.sticker.domain.service;
 
 import static com.vinicius.sticker.domain.service.ContentFileParser.readStickerPack;
-import static com.vinicius.sticker.domain.service.SaveStickerPack.generateStructureForSavePack;
 
 import android.content.Context;
 import android.util.JsonReader;
 import android.util.Log;
 
+import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.domain.builder.ContentJsonBuilder;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
@@ -36,10 +36,21 @@ import java.util.UUID;
 public class StickerPackCreatorManager {
    private static final List<Sticker> stickers = new ArrayList<>();
    private final static String uuidPack = UUID.randomUUID().toString();
+   private static JsonConversionCallback callback;
+
+   public interface JsonConversionCallback {
+      void onJsonValidateDataComplete(StickerPack json);
+
+      void onSavedStickerPack(SaveStickerPack.Result result);
+   }
+
+   public void setCallback(JsonConversionCallback callback) {
+      StickerPackCreatorManager.callback = callback;
+   }
 
    public static void generateJsonPack(
        Context context, boolean isAnimatedPack, List<File> fileList,
-       String namePack
+       String namePack, JsonConversionCallback callback
    ) {
       try {
          stickers.clear();
@@ -76,11 +87,37 @@ public class StickerPackCreatorManager {
          }
 
          String contentJson = builder.build();
-         Log.d("Sticker Pack", contentJson);
 
          try (JsonReader jsonReader = new JsonReader(new StringReader(contentJson))) {
             StickerPack stickerPack = readStickerPack(jsonReader);
-            generateStructureForSavePack(context, stickerPack);
+
+            if ( callback != null ) {
+               callback.onJsonValidateDataComplete(stickerPack);
+               Log.d("Sticker Pack", contentJson);
+            }
+            SaveStickerPack.generateStructureForSavePack(
+                context, stickerPack, new SaveStickerPack.JsonSaveCallback() {
+                   @Override
+                   public void onJsonSaveCompleted(SaveStickerPack.Result result) {
+                      switch (result.getStatus()) {
+                         case SUCCESS:
+                            callback.onSavedStickerPack(
+                                SaveStickerPack.Result.success(result.getData()));
+                            break;
+                         case WARNING:
+                            Log.w("SaveStickerPack", result.getWarningMessage());
+                            break;
+                         case FAILURE:
+                            if ( result.getError() instanceof StickerPackSaveException ) {
+                               Log.e("SaveStickerPack", result.getError().getMessage());
+                            } else {
+                               Log.e("SaveStickerPack", result.getError().getMessage());
+                            }
+                            break;
+                      }
+                   }
+                }
+            );
          }
       } catch (JSONException |
                IOException jsonException) {

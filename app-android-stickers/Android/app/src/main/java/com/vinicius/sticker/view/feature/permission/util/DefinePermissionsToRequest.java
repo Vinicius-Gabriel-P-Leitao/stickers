@@ -24,29 +24,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DefinePermissionsToRequest {
-   public static String[] getPermissionsToRequest(@NonNull Context context) {
+   public static String[] getPermissionsToRequest(
+       @NonNull Context context
+   ) {
       List<String> permissionsNeeded = new ArrayList<>();
 
       if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ) {
-         if ( ContextCompat.checkSelfPermission(
-             context,
-             Manifest.permission.READ_MEDIA_VIDEO
-         ) != PackageManager.PERMISSION_GRANTED ) {
+         if ( ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_VIDEO) !=
+             PackageManager.PERMISSION_GRANTED ) {
             permissionsNeeded.add(Manifest.permission.READ_MEDIA_VIDEO);
          }
 
-         if ( ContextCompat.checkSelfPermission(
-             context,
-             Manifest.permission.READ_MEDIA_IMAGES
-         ) != PackageManager.PERMISSION_GRANTED ) {
+         if ( ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) !=
+             PackageManager.PERMISSION_GRANTED ) {
             permissionsNeeded.add(Manifest.permission.READ_MEDIA_IMAGES);
          }
       } else {
-         if ( ContextCompat.checkSelfPermission(
-             context,
-             Manifest.permission.READ_EXTERNAL_STORAGE
+         if ( ContextCompat.checkSelfPermission(context,
+                                                Manifest.permission.READ_EXTERNAL_STORAGE
          ) != PackageManager.PERMISSION_GRANTED ) {
             permissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+         }
+
+         if ( Build.VERSION.SDK_INT <= Build.VERSION_CODES.P ) {
+            if ( ContextCompat.checkSelfPermission(context,
+                                                   Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED ) {
+               permissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
          }
       }
 

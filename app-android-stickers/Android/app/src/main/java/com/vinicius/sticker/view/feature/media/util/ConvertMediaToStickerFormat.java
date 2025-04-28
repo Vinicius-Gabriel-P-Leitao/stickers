@@ -46,7 +46,7 @@ public class ConvertMediaToStickerFormat {
        Context context, Uri inputUri, String outputFile, MediaConversionCallback callback) {
       Map<String, String> mapDetailsFile = getFileDetailsFromUri(context, inputUri);
       if ( mapDetailsFile.isEmpty() ) {
-         throw new IllegalArgumentException("Não foi possível determinar o tipo MIME do arquivo");
+         throw new MediaConversionException("Não foi possível determinar o tipo MIME do arquivo!");
       }
 
       mapDetailsFile.forEach((String fileName, String mimeType) -> {

@@ -34,6 +34,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.exception.MediaConversionException;
+import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.service.SaveStickerPack;
+import com.vinicius.sticker.domain.service.StickerPackCreatorManager;
 import com.vinicius.sticker.view.feature.media.adapter.PickMediaListAdapter;
 import com.vinicius.sticker.view.feature.media.util.ConvertMediaToStickerFormat;
 
@@ -61,15 +64,16 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
    private int completedConversions = 0;
    private int totalConversions = 0;
    private PickMediaListAdapter.OnItemClickListener listener;
-   ExecutorService executor = new ThreadPoolExecutor(5, 20, 1L, TimeUnit.SECONDS,
-       new LinkedBlockingQueue<>()
-   );
+   ExecutorService executor =
+       new ThreadPoolExecutor(5, 20, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
    public MediaPickerBottomSheetDialogFragment() {
    }
 
    public static MediaPickerBottomSheetDialogFragment newInstance(
-       ArrayList<Uri> mediaUris, String namePack, boolean isAnimatedPack,
+       ArrayList<Uri> mediaUris,
+       String namePack,
+       boolean isAnimatedPack,
        PickMediaListAdapter.OnItemClickListener listener
    ) {
       MediaPickerBottomSheetDialogFragment fragment = new MediaPickerBottomSheetDialogFragment();
@@ -120,7 +124,8 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
 
       GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
 
-      PickMediaListAdapter mediaListAdapter = new PickMediaListAdapter(getContext(), mediaUri -> {
+      PickMediaListAdapter mediaListAdapter = new PickMediaListAdapter(
+          getContext(), mediaUri -> {
          listener.onItemClick(mediaUri);
          dismiss();
       }
@@ -157,8 +162,8 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
 
    private void convertMediaAndSaveAsync(Uri uri) {
       executor.submit(() -> {
-         convertMediaToWebP(getContext(), uri,
-             new File(Objects.requireNonNull(uri.getPath())).getName(),
+         convertMediaToWebP(
+             getContext(), uri, new File(Objects.requireNonNull(uri.getPath())).getName(),
              new ConvertMediaToStickerFormat.MediaConversionCallback() {
                 @Override
                 public void onSuccess(File outputFile) {
@@ -175,9 +180,11 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                          Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_SHORT)
                              .show();
                       } else {
-                         Toast.makeText(getContext(), "Erro critico ao converter imagens!",
-                             Toast.LENGTH_SHORT
-                         ).show();
+                         Toast.makeText(
+                                 getContext(), "Erro critico ao converter imagens!",
+                                 Toast.LENGTH_SHORT
+                             )
+                             .show();
                       }
                    });
                 }
@@ -191,10 +198,22 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
 
       if ( completedConversions == totalConversions ) {
          progressBar.setVisibility(View.GONE);
-         generateJsonPack(getContext(), isAnimatedPack, mediaConvertedFile, namePack);
+         StickerPackCreatorManager.generateJsonPack(
+             getContext(), isAnimatedPack, mediaConvertedFile, namePack,
+             new StickerPackCreatorManager.JsonConversionCallback() {
+                @Override
+                public void onJsonValidateDataComplete(StickerPack json) {
 
-         Toast.makeText(getContext(), "Todas as conversões completadas!", Toast.LENGTH_SHORT)
-             .show();
+                   Toast.makeText(
+                       getContext(), "Todas as conversões completadas!", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onSavedStickerPack(SaveStickerPack.Result result) {
+
+                }
+             }
+         );
       }
    }
 }

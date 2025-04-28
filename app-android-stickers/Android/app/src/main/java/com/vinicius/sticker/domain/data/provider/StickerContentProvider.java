@@ -66,12 +66,12 @@ public class StickerContentProvider extends ContentProvider {
    /**
     * Do not change the values in the UriMatcher because otherwise, WhatsApp will not be able to fetch the stickers from the ContentProvider.
     */
-   private static final UriMatcher MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
-   private static final String METADATA = "metadata";
    public static final Uri AUTHORITY_URI = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
        .authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
        .appendPath(StickerContentProvider.METADATA)
        .build();
+   private static final UriMatcher MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
+   private static final String METADATA = "metadata";
    private static final int METADATA_CODE = 1;
    private static final int METADATA_CODE_FOR_SINGLE_PACK = 2;
    private static final int STICKERS_CODE = 3;
