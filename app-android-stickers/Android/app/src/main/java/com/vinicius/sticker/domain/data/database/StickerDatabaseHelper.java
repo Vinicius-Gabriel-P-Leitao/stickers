@@ -34,10 +34,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class StickerDatabaseHelper extends SQLiteOpenHelper {
-
    private static final String DATABASE_NAME = "stickers.db";
    private static final int DATABASE_VERSION = 1;
-
    public static final String ID_STICKER_PACKS = "id_sticker_packs";
    public static final String FK_STICKER_PACKS = "fk_sticker_packs";
    public static final String ID_STICKER_PACK = "id_sticker_pack";

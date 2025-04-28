@@ -44,7 +44,7 @@ public class WhatsappWhitelistValidator {
          boolean consumerResult = isStickerPackWhitelistedInWhatsAppConsumer(context, identifier);
          boolean smbResult = isStickerPackWhitelistedInWhatsAppSmb(context, identifier);
          return consumerResult && smbResult;
-      } catch (Exception e) {
+      } catch (Exception exception) {
          return false;
       }
    }
@@ -95,7 +95,7 @@ public class WhatsappWhitelistValidator {
          } else {
             return false;
          }
-      } catch (PackageManager.NameNotFoundException e) {
+      } catch (PackageManager.NameNotFoundException exception) {
          return false;
       }
    }

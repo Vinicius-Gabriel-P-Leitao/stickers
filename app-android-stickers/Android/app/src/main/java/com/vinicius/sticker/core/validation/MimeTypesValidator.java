@@ -10,6 +10,7 @@
  *
  * Original GPLv3 license text begins below.
  */
+
 package com.vinicius.sticker.core.validation;
 
 import android.util.Log;
@@ -21,10 +22,8 @@ public class MimeTypesValidator {
 
    public static boolean validateArraysMimeTypes(String[] mimeTypes, String[] staticMimeTypes) {
       for (String type : staticMimeTypes) {
-         Log.d("MimeTypeCheck",
-             "Comparando MIME: " + Arrays.toString(mimeTypes) + " com " + type);
-         if (Arrays.equals(mimeTypes,
-             staticMimeTypes)) {
+         Log.d("MimeTypeCheck", "Comparando MIME: " + Arrays.toString(mimeTypes) + " com " + type);
+         if ( Arrays.equals(mimeTypes, staticMimeTypes) ) {
             return true;
          }
       }
@@ -33,10 +32,8 @@ public class MimeTypesValidator {
 
    public static boolean validateUniqueMimeType(String mimeType, String[] mimeTypesList) {
       for (String type : mimeTypesList) {
-         Log.d("MimeTypeCheck",
-             "Comparando MIME: " + mimeType + " com " + type);
-         if (Objects.equals(mimeType,
-             type)) {
+         Log.d("MimeTypeCheck", "Comparando MIME: " + mimeType + " com " + type);
+         if ( Objects.equals(mimeType, type) ) {
             return true;
          }
       }

@@ -8,6 +8,7 @@
  * Modifications by Vinícius, 2025
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
+
 package com.vinicius.sticker.domain.service;
 
 import android.text.TextUtils;
@@ -15,30 +16,18 @@ import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
 
+import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.core.validation.StickerPackValidator;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-// Passo o content.json e ele retorna uma lista de objetos/modelos StickerPack
 public class ContentFileParser {
    private static final String FIELD_STICKER_IMAGE_FILE = "image_file";
    private static final String FIELD_STICKER_EMOJIS = "emojis";
    private static final String FIELD_STICKER_ACCESSIBILITY_TEXT = "accessibility_text";
-
-   @NonNull
-   public static List<StickerPack> parseStickerPacks(
-       @NonNull InputStream contentsInputStream
-   ) throws IOException, IllegalStateException {
-      try (JsonReader reader = new JsonReader(new InputStreamReader(contentsInputStream))) {
-         return readStickerPacks(reader);
-      }
-   }
 
    @NonNull
    public static List<StickerPack> readStickerPacks(
@@ -159,9 +148,10 @@ public class ContentFileParser {
          throw new IllegalStateException("image_data_version should not be empty");
       }
       reader.endObject();
-      final StickerPack stickerPack = new StickerPack(identifier, name, publisher, trayImageFile,
-          publisherEmail, publisherWebsite, privacyPolicyWebsite, licenseAgreementWebsite,
-          imageDataVersion, avoidCache, animatedStickerPack
+      final StickerPack stickerPack = new StickerPack(
+          identifier, name, publisher, trayImageFile, publisherEmail, publisherWebsite,
+          privacyPolicyWebsite, licenseAgreementWebsite, imageDataVersion, avoidCache,
+          animatedStickerPack
       );
       stickerPack.setStickers(stickerList);
       return stickerPack;
@@ -208,7 +198,8 @@ public class ContentFileParser {
          }
          if ( imageFile.contains("..") || imageFile.contains("/") ) {
             throw new IllegalStateException(
-                "the file name should not contain .. or / to prevent directory traversal, image file is:" + imageFile);
+                "the file name should not contain .. or / to prevent directory traversal, image file is:" +
+                    imageFile);
          }
          stickerList.add(new Sticker(imageFile, emojis, accessibilityText));
       }

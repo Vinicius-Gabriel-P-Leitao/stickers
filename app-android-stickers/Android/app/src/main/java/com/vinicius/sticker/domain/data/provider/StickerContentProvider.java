@@ -43,6 +43,7 @@ public class StickerContentProvider extends ContentProvider {
    /**
     * Do not change the strings listed below, as these are used by WhatsApp. And changing these will break the interface between sticker app and WhatsApp.
     */
+   // Note: StickerPack
    public static final String STICKER_PACK_IDENTIFIER_IN_QUERY = "sticker_pack_identifier";
    public static final String STICKER_PACK_NAME_IN_QUERY = "sticker_pack_name";
    public static final String STICKER_PACK_PUBLISHER_IN_QUERY = "sticker_pack_publisher";
@@ -57,9 +58,11 @@ public class StickerContentProvider extends ContentProvider {
    public static final String AVOID_CACHE = "whatsapp_will_not_cache_stickers";
    public static final String ANIMATED_STICKER_PACK = "animated_sticker_pack";
 
+   // Note: Sticker
    public static final String STICKER_FILE_NAME_IN_QUERY = "sticker_file_name";
    public static final String STICKER_FILE_EMOJI_IN_QUERY = "sticker_emoji";
-   public static final String STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY = "sticker_accessibility_text";
+   public static final String STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY =
+       "sticker_accessibility_text";
    public static final String STICKERS = "stickers";
    public static final String STICKERS_ASSET = "stickers_asset";
    private static final String CONTENT_FILE_NAME = "contents.json";
@@ -208,8 +211,9 @@ public class StickerContentProvider extends ContentProvider {
             return context.getContentResolver()
                 .openAssetFileDescriptor(Uri.fromFile(stickerFile), "r");
          } catch (IOException exception) {
-            Log.e(getContext().getPackageName(), "IOException when getting asset file, uri:" + uri,
-                  exception
+            Log.e(
+                getContext().getPackageName(), "IOException when getting asset file, uri:" + uri,
+                exception
             );
          }
       }

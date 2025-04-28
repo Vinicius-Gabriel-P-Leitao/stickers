@@ -19,7 +19,6 @@ import android.content.Context;
 import android.util.JsonReader;
 import android.util.Log;
 
-import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.domain.builder.ContentJsonBuilder;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
@@ -32,26 +31,26 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class StickerPackCreatorManager {
    private static final List<Sticker> stickers = new ArrayList<>();
    private final static String uuidPack = UUID.randomUUID().toString();
-   private static JsonConversionCallback callback;
 
-   public interface JsonConversionCallback {
-      void onJsonValidateDataComplete(StickerPack json);
+   @FunctionalInterface
+   public interface JsonValidateCallback {
+      void onJsonValidateDataComplete(String contentJson);
+   }
 
+   @FunctionalInterface
+   public interface SavedStickerPackCallback {
       void onSavedStickerPack(CallbackResult callbackResult);
    }
 
-   public void setCallback(JsonConversionCallback callback) {
-      StickerPackCreatorManager.callback = callback;
-   }
-
    public static void generateJsonPack(
-       Context context, boolean isAnimatedPack, List<File> fileList,
-       String namePack, JsonConversionCallback callback
+       Context context, boolean isAnimatedPack, List<File> fileList, String namePack,
+       JsonValidateCallback jsonValidateCallback, SavedStickerPackCallback savedStickerPackCallback
    ) {
       try {
          stickers.clear();
@@ -88,41 +87,40 @@ public class StickerPackCreatorManager {
          }
 
          String contentJson = builder.build();
-
          try (JsonReader jsonReader = new JsonReader(new StringReader(contentJson))) {
             StickerPack stickerPack = readStickerPack(jsonReader);
 
-            if ( callback != null ) {
-               callback.onJsonValidateDataComplete(stickerPack);
-               Log.d("Sticker Pack", contentJson);
+            if ( jsonValidateCallback != null ) {
+               jsonValidateCallback.onJsonValidateDataComplete(contentJson);
             }
+
             SaveStickerPack.generateStructureForSavePack(
-                context, stickerPack, new SaveStickerPack.SaveStickerPackCallback() {
-                   @Override
-                   public void onJsonSaveCompleted(CallbackResult callbackResult) {
-                      switch (callbackResult.getStatus()) {
-                         case SUCCESS:
-                            callback.onSavedStickerPack(
+                context, stickerPack, callbackResult -> {
+                   switch (callbackResult.getStatus()) {
+                      case SUCCESS:
+                         if ( savedStickerPackCallback != null ) {
+                            savedStickerPackCallback.onSavedStickerPack(
                                 CallbackResult.success(callbackResult.getData()));
-                            break;
-                         case WARNING:
-                            Log.w("SaveStickerPack", callbackResult.getWarningMessage());
-                            break;
-                         case FAILURE:
-                            if ( callbackResult.getError() instanceof StickerPackSaveException ) {
-                               Log.e("SaveStickerPack", callbackResult.getError().getMessage());
-                            } else {
-                               Log.e("SaveStickerPack", callbackResult.getError().getMessage());
-                            }
-                            break;
-                      }
+                         } else {
+                            Log.d("SaveStickerPack", "Callback não foi retornada corretamente!");
+                         }
+                         break;
+                      case WARNING:
+                         Log.w("SaveStickerPack", callbackResult.getWarningMessage());
+                         break;
+                      case FAILURE:
+                         Log.e(
+                             "SaveStickerPack",
+                             Objects.requireNonNull(callbackResult.getError().getMessage())
+                         );
+                         break;
                    }
                 }
             );
          }
       } catch (JSONException |
-               IOException jsonException) {
-         throw new RuntimeException(jsonException);
+               IOException exception) {
+         throw new RuntimeException(exception);
       }
    }
 }

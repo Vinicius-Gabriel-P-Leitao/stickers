@@ -32,17 +32,13 @@ import java.util.List;
 
 public class SaveStickerPack {
 
-   private static SaveStickerPackCallback callback;
-
+   @FunctionalInterface
    public interface SaveStickerPackCallback {
-      void onJsonSaveCompleted(CallbackResult callbackResult);
+      void onStickerPackSaveCompleted(CallbackResult callbackResult);
    }
 
    public static void generateStructureForSavePack(
-       Context context, StickerPack stickerPack,
-       SaveStickerPackCallback callback
-   ) {
-      SaveStickerPack.callback = callback;
+       Context context, StickerPack stickerPack, SaveStickerPackCallback callback) {
 
       File mainDirectory =
           new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), STICKERS_ASSET);
@@ -50,10 +46,16 @@ public class SaveStickerPack {
       if ( !mainDirectory.exists() ) {
          boolean created = mainDirectory.mkdirs();
          if ( !created ) {
-            callback.onJsonSaveCompleted(CallbackResult.failure(new StickerPackSaveException(
+            callback.onStickerPackSaveCompleted(CallbackResult.failure(new StickerPackSaveException(
                 "Falha ao criar o mainDirectory: " + mainDirectory.getPath())));
             return;
+         } else {
+            callback.onStickerPackSaveCompleted(CallbackResult.success(
+                "mainDirectory criado com sucesso: " + mainDirectory.getPath()));
          }
+      } else {
+         callback.onStickerPackSaveCompleted(
+             CallbackResult.success("mainDirectory já existe: " + mainDirectory.getPath()));
       }
 
       String folderName = stickerPack.identifier;
@@ -61,18 +63,18 @@ public class SaveStickerPack {
       if ( !stickerPackDirectory.exists() ) {
          boolean created = stickerPackDirectory.mkdirs();
          if ( !created ) {
-            callback.onJsonSaveCompleted(CallbackResult.failure(new StickerPackSaveException(
+            callback.onStickerPackSaveCompleted(CallbackResult.failure(new StickerPackSaveException(
                 "Falha ao criar a pasta: " + stickerPackDirectory.getPath())));
             return;
          }
-         callback.onJsonSaveCompleted(
+         callback.onStickerPackSaveCompleted(
              CallbackResult.success("Pasta criada com sucesso: " + stickerPackDirectory.getPath()));
       } else {
-         callback.onJsonSaveCompleted(
+         callback.onStickerPackSaveCompleted(
              CallbackResult.warning("Pasta já existe: " + stickerPackDirectory.getPath()));
       }
 
-      cleanDirectory(stickerPackDirectory);
+      cleanDirectory(stickerPackDirectory, callback);
       List<Sticker> stickerList = stickerPack.getStickers();
       for (Sticker sticker : stickerList) {
          String fileName = sticker.imageFileName;
@@ -86,37 +88,38 @@ public class SaveStickerPack {
                   Path destPath = destFile.toPath();
                   Files.copy(sourcePath, destPath);
 
-                  callback.onJsonSaveCompleted(
+                  callback.onStickerPackSaveCompleted(
                       CallbackResult.success("Arquivo copiado para: " + destFile.getPath()));
                }
             } catch (IOException exception) {
-               callback.onJsonSaveCompleted(CallbackResult.failure(
+               callback.onStickerPackSaveCompleted(CallbackResult.failure(
                    new StickerPackSaveException("Arquivo não encontrado: " + fileName, exception)));
             }
          } else {
-            callback.onJsonSaveCompleted(CallbackResult.failure(
+            callback.onStickerPackSaveCompleted(CallbackResult.failure(
                 new StickerPackSaveException("Arquivo não encontrado: " + fileName)));
          }
       }
-
-      // Todo: Usar repositorio para salvar o stickerPack dentro do Sqlite
+      // Todo: Usar repositorio para salvar o stickerPack metadata dentro do Sqlite}
    }
 
-   private static void cleanDirectory(File directory) {
+   private static void cleanDirectory(File directory, SaveStickerPackCallback callback) {
       File[] files = directory.listFiles();
       if ( files != null ) {
          for (File file : files) {
             if ( file.isFile() ) {
                boolean deleted = file.delete();
                if ( deleted ) {
-                  callback.onJsonSaveCompleted(
+                  callback.onStickerPackSaveCompleted(
                       CallbackResult.success("Arquivo excluído: " + file.getName()));
                } else {
-                  callback.onJsonSaveCompleted(CallbackResult.failure(new StickerPackSaveException(
-                      "Erro ao excluir o arquivo: " + file.getName())));
+                  callback.onStickerPackSaveCompleted(CallbackResult.failure(
+                      new StickerPackSaveException(
+                          "Erro ao excluir o arquivo: " + file.getName())));
                }
             }
          }
       }
    }
+
 }

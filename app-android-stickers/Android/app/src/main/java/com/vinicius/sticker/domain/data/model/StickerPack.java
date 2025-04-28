@@ -41,7 +41,12 @@ public class StickerPack implements Parcelable {
    private long totalSize;
    private boolean isWhitelisted;
 
-   public StickerPack(String identifier, String name, String publisher, String trayImageFile, String publisherEmail, String publisherWebsite, String privacyPolicyWebsite, String licenseAgreementWebsite, String imageDataVersion, boolean avoidCache, boolean animatedStickerPack) {
+   public StickerPack(
+       String identifier, String name, String publisher, String trayImageFile,
+       String publisherEmail, String publisherWebsite, String privacyPolicyWebsite,
+       String licenseAgreementWebsite, String imageDataVersion, boolean avoidCache,
+       boolean animatedStickerPack
+   ) {
       this.identifier = identifier;
       this.name = name;
       this.publisher = publisher;

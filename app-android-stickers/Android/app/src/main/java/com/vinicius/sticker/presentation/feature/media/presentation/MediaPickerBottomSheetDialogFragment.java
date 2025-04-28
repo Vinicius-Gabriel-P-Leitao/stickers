@@ -33,8 +33,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.exception.MediaConversionException;
-import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.pattern.CallbackResult;
 import com.vinicius.sticker.domain.service.StickerPackCreatorManager;
 import com.vinicius.sticker.presentation.feature.media.adapter.PickMediaListAdapter;
 import com.vinicius.sticker.presentation.feature.media.util.ConvertMediaToStickerFormat;
@@ -198,18 +196,19 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
       if ( completedConversions == totalConversions ) {
          progressBar.setVisibility(View.GONE);
          StickerPackCreatorManager.generateJsonPack(
-             getContext(), isAnimatedPack, mediaConvertedFile, namePack,
-             new StickerPackCreatorManager.JsonConversionCallback() {
-                @Override
-                public void onJsonValidateDataComplete(StickerPack json) {
-
-                   Toast.makeText(
-                       getContext(), "Todas as conversões completadas!", Toast.LENGTH_SHORT).show();
+             getContext(), isAnimatedPack, mediaConvertedFile, namePack, contentJson -> {
+                if ( contentJson != null ) {
+                   Log.i("StickerPackCreator", "JSON validado com sucesso: " + contentJson);
+                } else {
+                   Log.e("StickerPackCreator", "Erro ao validar JSON");
                 }
-
-                @Override
-                public void onSavedStickerPack(CallbackResult callbackResult) {
-
+             }, callbackResult -> {
+                if ( callbackResult != null ) {
+                   Log.i(
+                       "SaveStickerPack",
+                       "Pacote salvo com sucesso -> " + callbackResult.getData());
+                } else {
+                   Log.e("SaveStickerPack", "Erro ao salvar pacote: " + callbackResult.getError());
                 }
              }
          );

@@ -14,11 +14,11 @@
 package com.vinicius.sticker.core.exception;
 
 public class MediaConversionException extends RuntimeException {
-  public MediaConversionException(String message) {
-    super(message);
-  }
+   public MediaConversionException(String message) {
+      super(message);
+   }
 
-  public MediaConversionException(String message, Throwable cause) {
-    super(message, cause);
-  }
+   public MediaConversionException(String message, Throwable cause) {
+      super(message, cause);
+   }
 }

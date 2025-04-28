@@ -78,12 +78,11 @@ public class ContentJsonBuilder {
       return this;
    }
 
-   public ContentJsonBuilder setAnimatedStickerPack(boolean animated) throws JSONException {
+   public void setAnimatedStickerPack(boolean animated) throws JSONException {
       stickerPackJson.put("animated_sticker_pack", animated);
-      return this;
    }
 
-   public ContentJsonBuilder addSticker(
+   public void addSticker(
        String imageFile, List<String> emojis, String accessibilityText) throws JSONException {
       JSONObject stickerJson = new JSONObject();
       stickerJson.put("image_file", imageFile);
@@ -99,7 +98,6 @@ public class ContentJsonBuilder {
       }
 
       stickersArray.put(stickerJson);
-      return this;
    }
 
    public String build() throws JSONException {
