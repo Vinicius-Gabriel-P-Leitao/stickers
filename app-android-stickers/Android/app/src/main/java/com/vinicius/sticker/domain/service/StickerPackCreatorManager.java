@@ -14,7 +14,9 @@
 package com.vinicius.sticker.domain.service;
 
 import static com.vinicius.sticker.domain.service.ContentFileParser.readStickerPack;
+import static com.vinicius.sticker.domain.service.SaveStickerPack.generateStructureForSavePack;
 
+import android.content.Context;
 import android.util.JsonReader;
 import android.util.Log;
 
@@ -31,12 +33,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class StickerManager {
+public class StickerPackCreatorManager {
    private static final List<Sticker> stickers = new ArrayList<>();
    private final static String uuidPack = UUID.randomUUID().toString();
 
-   public static void generateJsonPackage(
-       boolean isAnimatedPack, List<File> fileList, String namePack) {
+   public static void generateJsonPack(
+       Context context, boolean isAnimatedPack, List<File> fileList,
+       String namePack
+   ) {
       try {
          stickers.clear();
          ContentJsonBuilder builder = new ContentJsonBuilder();
@@ -53,17 +57,30 @@ public class StickerManager {
              .setLicenseAgreementWebsite("")
              .setAnimatedStickerPack(isAnimatedPack);
 
-         for (File file : fileList)
-            stickers.add(new Sticker(file.getName(), List.of("\uD83D\uDDFF"), "Sticker pack"));
+         for (File file : fileList) {
+            boolean exists = false;
+            for (Sticker sticker : stickers) {
+               if ( sticker.imageFileName.equals(file.getName()) ) {
+                  exists = true;
+                  break;
+               }
+            }
 
-         for (Sticker sticker : stickers)
+            if ( !exists ) {
+               stickers.add(new Sticker(file.getName(), List.of("\uD83D\uDDFF"), "Sticker pack"));
+            }
+         }
+
+         for (Sticker sticker : stickers) {
             builder.addSticker(sticker.imageFileName, sticker.emojis, sticker.accessibilityText);
+         }
 
          String contentJson = builder.build();
          Log.d("Sticker Pack", contentJson);
 
          try (JsonReader jsonReader = new JsonReader(new StringReader(contentJson))) {
             StickerPack stickerPack = readStickerPack(jsonReader);
+            generateStructureForSavePack(context, stickerPack);
          }
       } catch (JSONException |
                IOException jsonException) {

@@ -14,6 +14,7 @@ package com.vinicius.sticker.view.feature.media.adapter;
 
 import static com.vinicius.sticker.core.validation.StickerPackValidator.STICKER_SIZE_MAX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -43,8 +44,13 @@ import java.util.Objects;
 import java.util.Set;
 
 public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
-   private final Context context;
+   public static final String PAYLOAD_SELECTION_CHANGED = "PAYLOAD_SELECTION_CHANGED";
    private final List<Integer> selectedItems = new ArrayList<>();
+   private final Context context;
+
+   public interface OnItemClickListener {
+      void onItemClick(String imagePath);
+   }
 
    public PickMediaListAdapter(Context context, OnItemClickListener itemClickListener) {
       super(new UriDiffCallback());
@@ -83,8 +89,9 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
           new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
 
       RequestBuilder<?> requestBuilder;
-      if ( extension.endsWith(".mp4") || extension.endsWith(".webm") || extension.endsWith(
-          ".3gp") ) {
+      if ( extension.endsWith(".mp4") ||
+          extension.endsWith(".webm") ||
+          extension.endsWith(".3gp") ) {
          requestBuilder = glide.asBitmap().frame(1_000_000).load(uri);
       } else if ( extension.endsWith(".gif") ) {
          requestBuilder = glide.asGif().load(uri);
@@ -97,13 +104,12 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
           .into(holder.imageView);
 
       holder.radioCheckBox.setChecked(selectedItems.contains(position));
-
       if ( selectedItems.contains(position) ) {
          int index = selectedItems.indexOf(position);
          if ( index >= 0 ) {
             int sequenceNumber = index + 1;
             // Note: espaço é para dar um "padding" no final do botão
-            holder.radioCheckBox.setText(String.valueOf(sequenceNumber + "  "));
+            holder.radioCheckBox.setText(String.format("%s  ", sequenceNumber));
          } else {
             holder.radioCheckBox.setText("0  ");
          }
@@ -126,20 +132,46 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
             }
          } else {
             Toast.makeText(view.getContext(), "Numero máximo de itens selecionados!",
-                Toast.LENGTH_SHORT
+                           Toast.LENGTH_SHORT
             ).show();
          }
 
          for (Integer pos : selectedItems) {
-            notifyItemChanged(pos);
+            notifyItemChanged(pos, PAYLOAD_SELECTION_CHANGED);
          }
 
-         notifyItemChanged(adapterPosition);
+         notifyItemChanged(adapterPosition, PAYLOAD_SELECTION_CHANGED);
       });
    }
 
-   public interface OnItemClickListener {
-      void onItemClick(String imagePath);
+   @Override
+   public void onBindViewHolder(
+       @NonNull MediaViewHolder holder, int position,
+       @NonNull List<Object> payloads
+   ) {
+      if ( !payloads.isEmpty() ) {
+         updateSelectionUI(holder, position);
+      } else {
+         super.onBindViewHolder(holder, position, payloads);
+      }
+   }
+
+   @SuppressLint("DefaultLocale")
+   private void updateSelectionUI(MediaViewHolder holder, int position) {
+      holder.radioCheckBox.setChecked(selectedItems.contains(position));
+
+      if ( selectedItems.contains(position) ) {
+         int index = selectedItems.indexOf(position);
+         if ( index >= 0 ) {
+            int sequenceNumber = index + 1;
+            // Note: espaços depois é necessário para um "padding"
+            holder.radioCheckBox.setText(String.format("%d  ", sequenceNumber));
+         } else {
+            holder.radioCheckBox.setText("0  ");
+         }
+      } else {
+         holder.radioCheckBox.setText("0  ");
+      }
    }
 
    public static class UriDiffCallback extends DiffUtil.ItemCallback<Uri> {

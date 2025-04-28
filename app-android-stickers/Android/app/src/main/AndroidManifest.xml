@@ -46,13 +46,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.feature.stickerpack.presentation.StickerPackCreatorActivity" />
         </activity>
+        <activity android:name=".view.mainentry.StickerFirstPackCreatorActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.mainentry.StickerFirstPackCreatorActivity" />
+        </activity>
 
         <provider
             android:name=".domain.data.provider.StickerContentProvider"
             android:authorities="${contentProviderAuthority}"
             android:enabled="true"
             android:exported="true"
-            android:readPermission="com.whatsapp.sticker.READ" />
+            android:permission="com.whatsapp.sticker.READ" />
     </application>
 
     <uses-permission

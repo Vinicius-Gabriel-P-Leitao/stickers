@@ -27,7 +27,6 @@ import com.vinicius.sticker.core.BaseActivity;
 import com.vinicius.sticker.core.validation.WhitelistCheck;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.StickerPackDetailsActivity;
 
-// Abstração para implementar figurinhas no whatsapp
 public abstract class AddStickerPackActivity extends BaseActivity {
    private static final int ADD_PACK = 200;
    private static final String TAG = "AddStickerPackActivity";

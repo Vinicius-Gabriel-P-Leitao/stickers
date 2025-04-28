@@ -10,7 +10,8 @@
  *
  * Original GPLv3 license text begins below.
  */
-package com.vinicius.sticker.view.feature.stickerpack.presentation;
+
+package com.vinicius.sticker.view.mainentry;
 
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
@@ -30,15 +31,21 @@ import androidx.annotation.NonNull;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.BaseActivity;
 import com.vinicius.sticker.view.feature.permission.presentation.PermissionRequestBottomSheetDialogFragment;
+import com.vinicius.sticker.view.feature.stickerpack.component.FormatStickerPopup;
+import com.vinicius.sticker.view.feature.stickerpack.presentation.PackMetadataBottomSheetDialogFragment;
 
 import java.util.Arrays;
 
-public class StickerPackCreatorActivity extends BaseActivity {
-   public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
-   public static final String EXTRA_STICKER_FORMAT = "sticker_format";
+public class StickerFirstPackCreatorActivity extends BaseActivity {
+   public static final String DATABASE_EMPTY = "database_empty";
    public static final String STATIC_STICKER = "animated";
    public static final String ANIMATED_STICKER = "static";
    private String namePack;
+   private String selectedFormat = null;
+
+   private void setFormat(String format) {
+      this.selectedFormat = format;
+   }
 
    private void saveNamePack(String namePack) {
       this.namePack = namePack;
@@ -47,14 +54,11 @@ public class StickerPackCreatorActivity extends BaseActivity {
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      setContentView(R.layout.activity_create_sticker_pack);
+      setContentView(R.layout.activity_create_first_sticker_pack);
 
-      boolean showUpButton = getIntent().getBooleanExtra(EXTRA_SHOW_UP_BUTTON, true);
       if ( getSupportActionBar() != null ) {
-         getSupportActionBar().setDisplayHomeAsUpEnabled(showUpButton);
-         getSupportActionBar().setTitle(showUpButton ? getResources().getString(
-             R.string.title_activity_sticker_packs_creator) : getResources().getQuantityString(
-             R.plurals.title_activity_sticker_packs_creator_list, 1));
+         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+         getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
       }
 
       ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
@@ -63,7 +67,23 @@ public class StickerPackCreatorActivity extends BaseActivity {
          rotation.setDuration(500);
          rotation.start();
 
-         createStickerPackFlow();
+         if ( getIntent().getBooleanExtra(DATABASE_EMPTY, false) ) {
+            FormatStickerPopup.popUpButtonChooserStickerModel(this, buttonSelectMedia,
+                                                              new FormatStickerPopup.OnOptionClickListener() {
+                                                                 @Override
+                                                                 public void onStaticStickerSelected() {
+                                                                    setFormat(STATIC_STICKER);
+                                                                    createStickerPackFlow();
+                                                                 }
+
+                                                                 @Override
+                                                                 public void onAnimatedStickerSelected() {
+                                                                    setFormat(ANIMATED_STICKER);
+                                                                    createStickerPackFlow();
+                                                                 }
+                                                              }
+            );
+         }
       });
    }
 
@@ -87,7 +107,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
                 @Override
                 public void onPermissionsDenied() {
-                   Toast.makeText(StickerPackCreatorActivity.this, "Galeria não foi liberada.",
+                   Toast.makeText(StickerFirstPackCreatorActivity.this, "Galeria não foi liberada.",
                                   Toast.LENGTH_SHORT
                    ).show();
                 }
@@ -117,7 +137,8 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
              @Override
              public void onError(String error) {
-                Toast.makeText(StickerPackCreatorActivity.this, error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(StickerFirstPackCreatorActivity.this, error, Toast.LENGTH_SHORT)
+                    .show();
              }
           });
 
@@ -127,8 +148,6 @@ public class StickerPackCreatorActivity extends BaseActivity {
    }
 
    private void openGallery(String namePack) {
-      String selectedFormat = getIntent().getStringExtra(EXTRA_STICKER_FORMAT);
-
       if ( selectedFormat != null && selectedFormat.equals(STATIC_STICKER) ) {
          launchOwnGallery(this, IMAGE_MIME_TYPES, namePack);
          return;
@@ -148,6 +167,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
    ) {
       super.onSaveInstanceState(outState);
       outState.putString("namePack", namePack);
+      outState.putString("selectedFormat", selectedFormat);
    }
 
    @Override
