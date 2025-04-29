@@ -16,44 +16,44 @@
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
 
         <activity
-            android:name="com.vinicius.sticker.view.mainentry.EntryActivity"
+            android:name="com.vinicius.sticker.presentation.main.EntryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.feature.stickerpack.presentation.StickerPackListActivity" />
+        <activity android:name=".presentation.feature.stickerpack.presentation.activity.StickerPackListActivity" />
         <activity
-            android:name=".view.feature.stickerpack.presentation.StickerPackDetailsActivity"
-            android:parentActivityName=".view.feature.stickerpack.presentation.StickerPackListActivity"
+            android:name=".presentation.feature.stickerpack.presentation.activity.StickerPackDetailsActivity"
+            android:parentActivityName=".presentation.feature.stickerpack.presentation.activity.StickerPackListActivity"
             tools:ignore="UnusedAttribute">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.feature.stickerpack.presentation.StickerPackListActivity" />
+                android:value=".presentation.feature.stickerpack.presentation.activity.StickerPackListActivity" />
         </activity>
         <activity
-            android:name=".view.feature.stickerpack.presentation.StickerPackInfoActivity"
+            android:name=".presentation.feature.stickerpack.presentation.activity.StickerPackInfoActivity"
             android:label="@string/title_activity_sticker_pack_info"
-            android:parentActivityName=".view.feature.stickerpack.presentation.StickerPackDetailsActivity"
+            android:parentActivityName=".presentation.feature.stickerpack.presentation.activity.StickerPackDetailsActivity"
             tools:ignore="UnusedAttribute">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.feature.stickerpack.presentation.StickerPackDetailsActivity" />
+                android:value=".presentation.feature.stickerpack.presentation.activity.StickerPackDetailsActivity" />
         </activity>
-        <activity android:name=".view.feature.stickerpack.presentation.StickerPackCreatorActivity">
+        <activity android:name=".presentation.feature.stickerpack.presentation.activity.StickerPackCreatorActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.feature.stickerpack.presentation.StickerPackCreatorActivity" />
+                android:value=".presentation.feature.stickerpack.presentation.activity.StickerPackCreatorActivity" />
         </activity>
-        <activity android:name=".view.mainentry.StickerFirstPackCreatorActivity">
+        <activity android:name=".presentation.main.StickerFirstPackCreatorActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.mainentry.StickerFirstPackCreatorActivity" />
+                android:value=".presentation.main.StickerFirstPackCreatorActivity" />
         </activity>
 
         <provider
-            android:name=".domain.data.provider.StickerContentProvider"
+            android:name=".domain.data.content.provider.StickerContentProvider"
             android:authorities="${contentProviderAuthority}"
             android:enabled="true"
             android:exported="true"
