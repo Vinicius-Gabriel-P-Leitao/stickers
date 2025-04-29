@@ -13,15 +13,18 @@
 
 package com.vinicius.sticker.domain.manager;
 
+import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.getStickerPackIdentifier;
+import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.identifierPackIsPresent;
 import static com.vinicius.sticker.domain.service.ContentFileParserService.readStickerPack;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.JsonReader;
 import android.util.Log;
 
-import androidx.lifecycle.ViewModel;
-
+import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.domain.builder.StickerPackContentJsonBuilder;
+import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.pattern.CallbackResult;
@@ -37,7 +40,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class StickerPackCreatorManager extends ViewModel {
+public class StickerPackCreatorManager {
+
    private static final List<Sticker> stickers = new ArrayList<>();
    private final static String uuidPack = UUID.randomUUID().toString();
 
@@ -60,7 +64,7 @@ public class StickerPackCreatorManager extends ViewModel {
          StickerPackContentJsonBuilder builder = new StickerPackContentJsonBuilder();
 
          builder.setIdentifier(uuidPack)
-             .setName(namePack)
+             .setName(namePack.trim())
              .setPublisher("vinicius")
              .setTrayImageFile("thumbnail.jpg")
              .setImageDataVersion("1")
@@ -81,7 +85,7 @@ public class StickerPackCreatorManager extends ViewModel {
             }
 
             if ( !exists ) {
-               stickers.add(new Sticker(file.getName(), List.of("\uD83D\uDDFF"), "Sticker pack"));
+               stickers.add(new Sticker(file.getName().trim(), List.of("\uD83D\uDDFF"), "Sticker pack"));
             }
          }
 
@@ -97,8 +101,16 @@ public class StickerPackCreatorManager extends ViewModel {
                jsonValidateCallback.onJsonValidateDataComplete(contentJson);
             }
 
+            StickerDatabaseHelper dbHelper = StickerDatabaseHelper.getInstance(context);
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            String isPresent = null;
+            if ( identifierPackIsPresent(db, stickerPack.identifier) ) {
+               isPresent = getStickerPackIdentifier(db, stickerPack.identifier);
+            }
+
             SaveStickerPackService.generateStructureForSavePack(
-                context, stickerPack, callbackResult -> {
+                context, stickerPack, isPresent, callbackResult -> {
                    switch (callbackResult.getStatus()) {
                       case SUCCESS:
                          if ( savedStickerPackCallback != null ) {
@@ -111,7 +123,13 @@ public class StickerPackCreatorManager extends ViewModel {
                          Log.w("SaveStickerPack", callbackResult.getWarningMessage());
                          break;
                       case FAILURE:
-                         Log.e("SaveStickerPack", Objects.requireNonNull(callbackResult.getError().getMessage()));
+                         if ( callbackResult.getError() instanceof StickerPackSaveException exception ) {
+                            Log.e("SaveStickerPack", Objects.requireNonNull(callbackResult.getError().getMessage()));
+                            savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(exception));
+                         } else {
+                            savedStickerPackCallback.onSavedStickerPack(
+                                CallbackResult.failure(new StickerPackSaveException("Erro interno desconhecido!")));
+                         }
                          break;
                    }
                 }

@@ -12,9 +12,9 @@
  */
 package com.vinicius.sticker.presentation.feature.media.util;
 
+import static com.vinicius.sticker.core.validation.MimeTypesValidator.validateArraysMimeTypes;
 import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
 import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
-import static com.vinicius.sticker.core.validation.MimeTypesValidator.validateArraysMimeTypes;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -33,12 +33,10 @@ public class CursorSearchUriMedia {
    public static List<Uri> getMediaUris(Context context, String[] mimeTypes) {
       List<Uri> mediaUris;
 
-      if (validateArraysMimeTypes(mimeTypes,
-          IMAGE_MIME_TYPES)) {
-         mediaUris = getImageUris(context);
-      } else if (validateArraysMimeTypes(mimeTypes,
-          ANIMATED_MIME_TYPES)) {
-         mediaUris = getAnimatedUris(context);
+      if ( validateArraysMimeTypes(mimeTypes, IMAGE_MIME_TYPES) ) {
+         mediaUris = getImagesUris(context);
+      } else if ( validateArraysMimeTypes(mimeTypes, ANIMATED_MIME_TYPES) ) {
+         mediaUris = getVideosUris(context);
       } else {
          throw new IllegalArgumentException("Tipo MIME não suportado para conversão: " + mimeTypes);
       }
@@ -51,27 +49,22 @@ public class CursorSearchUriMedia {
 
       String fileName = null;
       String[] projection = {MediaStore.Files.FileColumns.DATA};
-      Cursor cursor = context.getContentResolver().query(uri,
-          projection,
-          null,
-          null,
-          null);
+      Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
 
-      if (cursor != null && cursor.moveToFirst()) {
+      if ( cursor != null && cursor.moveToFirst() ) {
          int dataColumn = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-         if (dataColumn != -1) {
+         if ( dataColumn != -1 ) {
             fileName = cursor.getString(dataColumn);
          }
          cursor.close();
       }
       String mimeType = context.getContentResolver().getType(uri);
-      fileDetails.put(fileName,
-          mimeType);
+      fileDetails.put(fileName, mimeType);
 
       return fileDetails;
    }
 
-   private static List<Uri> getImageUris(Context context) {
+   private static List<Uri> getImagesUris(Context context) {
       List<Uri> imageUris = new ArrayList<>();
 
       String[] projection = {MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA, MediaStore.Images.Media.MIME_TYPE};
@@ -79,61 +72,49 @@ public class CursorSearchUriMedia {
       String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC";
       String selection = MediaStore.Images.Media.MIME_TYPE + "=? OR " + MediaStore.Images.Media.MIME_TYPE + "=?";
 
-      Cursor cursor = context.getContentResolver().query(collection,
-          projection,
-          selection,
-          IMAGE_MIME_TYPES,
-          sortOrder);
+      Cursor cursor = context.getContentResolver().query(collection, projection, selection, IMAGE_MIME_TYPES, sortOrder);
 
-      if (cursor != null) {
+      if ( cursor != null ) {
          int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
          int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
 
          while (cursor.moveToNext()) {
             long id = cursor.getLong(idColumn);
-            Uri imageUri = ContentUris.withAppendedId(collection,
-                id);
+            Uri imageUri = ContentUris.withAppendedId(collection, id);
             imageUris.add(imageUri);
 
-            Log.i("imageUri",
-                "Uri: " + cursor.getString(dataColumn));
+            Log.i("imageUri", "Uri: " + cursor.getString(dataColumn));
          }
          cursor.close();
       }
       return imageUris;
    }
 
-   private static List<Uri> getAnimatedUris(Context context) {
-      List<Uri> animatedUris = new ArrayList<>();
+   private static List<Uri> getVideosUris(Context context) {
+      List<Uri> videosUris = new ArrayList<>();
 
       Uri collection = MediaStore.Files.getContentUri("external");
       String[] projection = {MediaStore.Files.FileColumns._ID, MediaStore.Files.FileColumns.MEDIA_TYPE, MediaStore.Files.FileColumns.MIME_TYPE};
       String selection = MediaStore.Files.FileColumns.MIME_TYPE + "=? OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?";
       String sortOrder = MediaStore.Files.FileColumns.DATE_ADDED + " DESC";
 
-      Cursor cursor = context.getContentResolver().query(collection,
-          projection,
-          selection,
-          ANIMATED_MIME_TYPES,
-          sortOrder);
+      Cursor cursor = context.getContentResolver().query(collection, projection, selection, ANIMATED_MIME_TYPES, sortOrder);
 
-      if (cursor != null) {
+      if ( cursor != null ) {
          int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID);
          int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
 
          while (cursor.moveToNext()) {
             long id = cursor.getLong(idColumn);
-            Uri fileUri = ContentUris.withAppendedId(collection,
-                id);
-            animatedUris.add(fileUri);
+            Uri fileUri = ContentUris.withAppendedId(collection, id);
+            videosUris.add(fileUri);
 
-            Log.i("animatedUri",
-                "Uri: " + cursor.getString(dataColumn));
+            Log.i("animatedUri", "Uri: " + cursor.getString(dataColumn));
          }
 
          cursor.close();
       }
 
-      return animatedUris;
+      return videosUris;
    }
 }

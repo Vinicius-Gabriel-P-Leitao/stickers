@@ -19,7 +19,11 @@ import android.content.Intent;
 import android.net.Uri;
 
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
+import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.presentation.feature.media.adapter.PickMediaListAdapter;
 import com.vinicius.sticker.presentation.feature.media.fragment.MediaPickerBottomSheetDialogFragment;
 
@@ -28,9 +32,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GalleryMediaPickerLauncher {
+public class GalleryMediaPickerLauncher extends ViewModel {
    public static final String[] IMAGE_MIME_TYPES = {"image/jpeg", "image/png"};
    public static final String[] ANIMATED_MIME_TYPES = {"video/mp4", "image/gif"};
+
+   private final MutableLiveData<StickerPack> stickerPackPreview = new MutableLiveData<>();
+
+   public LiveData<StickerPack> getStickerPackToPreview() {
+      return stickerPackPreview;
+   }
+
+   public void setStickerPackToPreview(StickerPack stickerPack) {
+      stickerPackPreview.setValue(stickerPack);
+   }
 
    public static void launchOwnGallery(FragmentActivity activity, String[] mimeType, String namePack) {
       List<Uri> uris = new ArrayList<>();

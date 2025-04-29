@@ -16,7 +16,6 @@ package com.vinicius.sticker.presentation.feature.media.fragment;
 import static com.vinicius.sticker.core.validation.StickerPackValidator.STICKER_SIZE_MIN;
 import static com.vinicius.sticker.presentation.feature.media.util.ConvertMediaToStickerFormat.convertMediaToWebP;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,14 +29,17 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.exception.MediaConversionException;
+import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.manager.StickerPackCreatorManager;
 import com.vinicius.sticker.presentation.feature.media.adapter.PickMediaListAdapter;
+import com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher;
 import com.vinicius.sticker.presentation.feature.media.util.ConvertMediaToStickerFormat;
 
 import org.jetbrains.annotations.Nullable;
@@ -56,11 +58,13 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
    private static final String KEY_MEDIA_URIS = "key_media_uris";
    private static final String KEY_NAME_PACK = "key_name_pack";
    private static final String KEY_IS_ANIMATED = "key_is_animated";
+
    private final List<File> mediaConvertedFile = new ArrayList<>();
+   private GalleryMediaPickerLauncher viewModel;
    private boolean isAnimatedPack;
-   private Context context;
    private List<Uri> mediaUris;
    private String namePack;
+
    private int completedConversions = 0;
    private int totalConversions = 0;
    private ProgressBar progressBar;
@@ -117,6 +121,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
    public void onViewCreated(
        @NonNull View view, @Nullable Bundle savedInstanceState) {
       super.onViewCreated(view, savedInstanceState);
+      viewModel = new ViewModelProvider(requireActivity()).get(GalleryMediaPickerLauncher.class);
 
       RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
       recyclerView.setHasFixedSize(true);
@@ -203,16 +208,17 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                 if ( getContext() != null && isAdded() ) {
                    switch (callbackResult.getStatus()) {
                       case SUCCESS:
-//                         Intent intent = new Intent(getContext(), EntryActivity.class);
-//                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                         startActivity(intent);
-                         // Note: Fazer renderização do pack na activity
-                         break;
-                      case FAILURE:
-                         Toast.makeText(getContext(), "Falha ao salvar pacote: " + callbackResult.getError().getMessage(), Toast.LENGTH_SHORT).show();
+                         if ( callbackResult.getData() instanceof StickerPack pack ) {
+                            viewModel.setStickerPackToPreview(pack);
+                         } else {
+                            Log.i("MediaPickerFragment", (String) callbackResult.getData());
+                         }
                          break;
                       case WARNING:
                          Toast.makeText(getContext(), "Aviso: " + callbackResult.getWarningMessage(), Toast.LENGTH_SHORT).show();
+                         break;
+                      case FAILURE:
+                         Toast.makeText(getContext(), callbackResult.getError().getMessage(), Toast.LENGTH_SHORT).show();
                          break;
                    }
                 } else {

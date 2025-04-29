@@ -22,14 +22,23 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.BaseActivity;
+import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher;
 import com.vinicius.sticker.presentation.feature.permission.fragment.PermissionRequestBottomSheetDialogFragment;
+import com.vinicius.sticker.presentation.feature.stickerpack.adapter.StickerPreviewAdapter;
 import com.vinicius.sticker.presentation.feature.stickerpack.presentation.fragment.PackMetadataBottomSheetDialogFragment;
 
 import java.util.Arrays;
@@ -38,7 +47,13 @@ public class StickerPackCreatorActivity extends BaseActivity {
    public static final String EXTRA_STICKER_FORMAT = "sticker_format";
    public static final String STATIC_STICKER = "animated";
    public static final String ANIMATED_STICKER = "static";
+
+   private StickerPreviewAdapter stickerPreviewAdapter;
+   private GridLayoutManager layoutManager;
+   private RecyclerView recyclerView;
    private String namePack;
+   private int numColumns;
+   private View divider;
 
    private void saveNamePack(String namePack) {
       this.namePack = namePack;
@@ -62,6 +77,26 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
          createStickerPackFlow();
       });
+
+      GalleryMediaPickerLauncher viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
+      viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
+   }
+
+   @Override
+   protected void onSaveInstanceState(
+       @NonNull Bundle outState
+   ) {
+      super.onSaveInstanceState(outState);
+      outState.putString("namePack", namePack);
+   }
+
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      super.onActivityResult(requestCode, resultCode, data);
+      if ( requestCode == 1 && resultCode == RESULT_OK ) {
+         Uri selectedUri = data.getData();
+         Log.d("MediaPicker", "Selected URI: " + selectedUri);
+      }
    }
 
    private void createStickerPackFlow() {
@@ -131,20 +166,70 @@ public class StickerPackCreatorActivity extends BaseActivity {
       Toast.makeText(this, "Erro ao abrir galeria!", Toast.LENGTH_SHORT).show();
    }
 
-   @Override
-   protected void onSaveInstanceState(
-       @NonNull Bundle outState
-   ) {
-      super.onSaveInstanceState(outState);
-      outState.putString("namePack", namePack);
+   private final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+      @Override
+      public void onGlobalLayout() {
+         setNumColumns(
+             recyclerView.getWidth() / recyclerView.getContext().getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
+      }
+   };
+
+   private void setupStickerPackView(StickerPack stickerPack) {
+      Log.d("StickerPack", "StickerPack recebido: " + stickerPack.toString());
+
+      SimpleDraweeView expandedStickerView = findViewById(R.id.sticker_details_expanded_sticker);
+      layoutManager = new GridLayoutManager(this, 1);
+
+      recyclerView = findViewById(R.id.sticker_list_to_package);
+      recyclerView.setLayoutManager(layoutManager);
+      recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(pageLayoutListener);
+      recyclerView.addOnScrollListener(dividerScrollListener);
+
+      divider = findViewById(R.id.divider);
+
+      if ( stickerPreviewAdapter == null ) {
+         stickerPreviewAdapter = new StickerPreviewAdapter(
+             getLayoutInflater(), R.drawable.sticker_error, getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
+             getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, expandedStickerView
+         );
+         recyclerView.setAdapter(stickerPreviewAdapter);
+      }
    }
 
-   @Override
-   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-      super.onActivityResult(requestCode, resultCode, data);
-      if ( requestCode == 1 && resultCode == RESULT_OK ) {
-         Uri selectedUri = data.getData();
-         Log.d("MediaPicker", "Selected URI: " + selectedUri);
+   private final RecyclerView.OnScrollListener dividerScrollListener = new RecyclerView.OnScrollListener() {
+      @Override
+      public void onScrollStateChanged(
+          @NonNull
+          final RecyclerView recyclerView, final int newState
+      ) {
+         super.onScrollStateChanged(recyclerView, newState);
+         updateDivider(recyclerView);
+      }
+
+      @Override
+      public void onScrolled(
+          @NonNull
+          final RecyclerView recyclerView, final int dx, final int dy
+      ) {
+         super.onScrolled(recyclerView, dx, dy);
+         updateDivider(recyclerView);
+      }
+
+      private void updateDivider(RecyclerView recyclerView) {
+         boolean showDivider = recyclerView.computeVerticalScrollOffset() > 0;
+         if ( divider != null ) {
+            divider.setVisibility(showDivider ? View.VISIBLE : View.INVISIBLE);
+         }
+      }
+   };
+
+   private void setNumColumns(int numColumns) {
+      if ( this.numColumns != numColumns ) {
+         layoutManager.setSpanCount(numColumns);
+         this.numColumns = numColumns;
+         if ( stickerPreviewAdapter != null ) {
+            stickerPreviewAdapter.notifyDataSetChanged();
+         }
       }
    }
 }

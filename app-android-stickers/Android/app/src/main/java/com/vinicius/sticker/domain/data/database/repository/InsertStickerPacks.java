@@ -31,6 +31,8 @@ import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelpe
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_PACK_NAME_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_PACK_PUBLISHER_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.identifierPackIsPresent;
+import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.namePackIsPresent;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
@@ -45,23 +47,31 @@ import com.vinicius.sticker.domain.pattern.CallbackResult;
 public class InsertStickerPacks {
 
    public interface InsertStickerPackCallback {
-      void onInsertSuccessful(CallbackResult result);
+      void onInsertResult(CallbackResult result);
    }
 
    public void insertStickerPack(SQLiteDatabase dbHelper, StickerPack pack, InsertStickerPackCallback callback) {
       new Handler(Looper.getMainLooper()).postDelayed(
           () -> {
+             if ( namePackIsPresent(dbHelper, pack.name) ) {
+                callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("O nome do pacote já está no banco de dados.")));
+             }
+             if ( identifierPackIsPresent(dbHelper, pack.identifier) ) {
+                callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("O identificador do pacote já está no banco de dados.")));
+             }
              if ( pack.getStickers().size() < 3 ) {
-                throw new StickerPackSaveException("Sticker pack must contain at least 3 stickers.");
+                callback.onInsertResult(
+                    CallbackResult.failure(new StickerPackSaveException("O pacote de adesivos deve conter pelo menos 3 adesivos.")));
              }
              if ( pack.getStickers().size() > 30 ) {
-                throw new StickerPackSaveException("Sticker pack must contain at most 30 stickers.");
+                callback.onInsertResult(
+                    CallbackResult.failure(new StickerPackSaveException("O pacote de adesivos deve conter no máximo 30 adesivos.")));
              }
              if ( pack.trayImageFile == null ) {
-                throw new StickerPackSaveException("Tray image file cannot be null.");
+                callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("O arquivo de imagem da bandeja não pode ser nulo.")));
              }
              if ( pack.identifier == null || pack.identifier.isEmpty() ) {
-                throw new StickerPackSaveException("Identifier cannot be null or empty.");
+                callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("O identificador não pode ser nulo ou vazio.")));
              } else {
                 ContentValues stickerPacksValues = new ContentValues();
                 stickerPacksValues.put(ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, pack.androidPlayStoreLink);
@@ -95,16 +105,16 @@ public class InsertStickerPacks {
                       }
 
                       if ( callback != null ) {
-                         callback.onInsertSuccessful(CallbackResult.success("Insert completado com sucesso!"));
+                         callback.onInsertResult(CallbackResult.success(pack));
                       }
                    } else {
                       if ( callback != null ) {
-                         callback.onInsertSuccessful(CallbackResult.failure(new StickerPackSaveException("Failed to insert sticker pack.")));
+                         callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Failed to insert sticker pack.")));
                       }
                    }
                 } else {
                    if ( callback != null ) {
-                      callback.onInsertSuccessful(CallbackResult.failure(new StickerPackSaveException("Failed to insert sticker pack details.")));
+                      callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Failed to insert sticker pack details.")));
                    }
                 }
              }

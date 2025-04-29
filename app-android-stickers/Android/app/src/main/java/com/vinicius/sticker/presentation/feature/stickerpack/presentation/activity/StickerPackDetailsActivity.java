@@ -66,41 +66,8 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
    private StickerPack stickerPack;
    private View alreadyAddedText;
    private View addButton;
-   private int numColumns;
-   private final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-      @Override
-      public void onGlobalLayout() {
-         setNumColumns(
-             recyclerView.getWidth() / recyclerView.getContext().getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
-      }
-   };
    private View divider;
-   private final RecyclerView.OnScrollListener dividerScrollListener = new RecyclerView.OnScrollListener() {
-      @Override
-      public void onScrollStateChanged(
-          @NonNull
-          final RecyclerView recyclerView, final int newState
-      ) {
-         super.onScrollStateChanged(recyclerView, newState);
-         updateDivider(recyclerView);
-      }
-
-      @Override
-      public void onScrolled(
-          @NonNull
-          final RecyclerView recyclerView, final int dx, final int dy
-      ) {
-         super.onScrolled(recyclerView, dx, dy);
-         updateDivider(recyclerView);
-      }
-
-      private void updateDivider(RecyclerView recyclerView) {
-         boolean showDivider = recyclerView.computeVerticalScrollOffset() > 0;
-         if ( divider != null ) {
-            divider.setVisibility(showDivider ? View.VISIBLE : View.INVISIBLE);
-         }
-      }
-   };
+   private int numColumns;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -136,6 +103,7 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
 
       packNameTextView.setText(stickerPack.name);
       packPublisherTextView.setText(stickerPack.publisher);
+
       packTrayIcon.setImageURI(StickerPackLoaderService.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile));
       packSizeTextView.setText(Formatter.formatShortFileSize(this, stickerPack.getTotalSize()));
 
@@ -167,6 +135,41 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
 
       findViewById(R.id.sticker_pack_animation_indicator).setVisibility(stickerPack.animatedStickerPack ? View.VISIBLE : View.GONE);
    }
+
+   private final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+      @Override
+      public void onGlobalLayout() {
+         setNumColumns(
+             recyclerView.getWidth() / recyclerView.getContext().getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
+      }
+   };
+
+   private final RecyclerView.OnScrollListener dividerScrollListener = new RecyclerView.OnScrollListener() {
+      @Override
+      public void onScrollStateChanged(
+          @NonNull
+          final RecyclerView recyclerView, final int newState
+      ) {
+         super.onScrollStateChanged(recyclerView, newState);
+         updateDivider(recyclerView);
+      }
+
+      @Override
+      public void onScrolled(
+          @NonNull
+          final RecyclerView recyclerView, final int dx, final int dy
+      ) {
+         super.onScrolled(recyclerView, dx, dy);
+         updateDivider(recyclerView);
+      }
+
+      private void updateDivider(RecyclerView recyclerView) {
+         boolean showDivider = recyclerView.computeVerticalScrollOffset() > 0;
+         if ( divider != null ) {
+            divider.setVisibility(showDivider ? View.VISIBLE : View.INVISIBLE);
+         }
+      }
+   };
 
    private void launchInfoActivity(
        String publisherWebsite, String publisherEmail, String privacyPolicyWebsite, String licenseAgreementWebsite, String trayIconUriString) {

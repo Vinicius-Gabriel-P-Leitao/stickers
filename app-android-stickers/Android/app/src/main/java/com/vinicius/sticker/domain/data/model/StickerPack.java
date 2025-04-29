@@ -38,7 +38,7 @@ public class StickerPack implements Parcelable {
          return new StickerPack[size];
       }
    };
-   public final String identifier;
+   public String identifier;
    public final String name;
    public final String publisher;
    public final String trayImageFile;
