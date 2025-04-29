@@ -32,10 +32,7 @@ public class GalleryMediaPickerLauncher {
    public static final String[] IMAGE_MIME_TYPES = {"image/jpeg", "image/png"};
    public static final String[] ANIMATED_MIME_TYPES = {"video/mp4", "image/gif"};
 
-   public static void launchOwnGallery(
-       FragmentActivity activity, String[] mimeType,
-       String namePack
-   ) {
+   public static void launchOwnGallery(FragmentActivity activity, String[] mimeType, String namePack) {
       List<Uri> uris = new ArrayList<>();
       boolean isAnimatedPack = false;
 
@@ -49,8 +46,7 @@ public class GalleryMediaPickerLauncher {
       }
 
       MediaPickerBottomSheetDialogFragment sheet = MediaPickerBottomSheetDialogFragment.newInstance(
-          new ArrayList<>(uris), namePack, isAnimatedPack,
-          new PickMediaListAdapter.OnItemClickListener() {
+          new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
              @Override
              public void onItemClick(String imagePath) {
                 Uri selectedImageUri = Uri.fromFile(new File(imagePath));

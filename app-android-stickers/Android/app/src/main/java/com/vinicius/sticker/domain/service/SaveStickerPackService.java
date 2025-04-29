@@ -22,6 +22,8 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.lifecycle.ViewModel;
+
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
 import com.vinicius.sticker.domain.data.database.repository.InsertStickerPacks;
@@ -36,8 +38,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
-public class SaveStickerPackService {
+public class SaveStickerPackService extends ViewModel {
 
    @FunctionalInterface
    public interface SaveStickerPackCallback {
@@ -105,14 +108,32 @@ public class SaveStickerPackService {
          }
       }
 
-      insertStickerPack(context, stickerPack);
+      insertStickerPack(context, stickerPack, callback);
    }
 
-   private static void insertStickerPack(Context context, StickerPack stickerPack) {
+   private static void insertStickerPack(Context context, StickerPack stickerPack, SaveStickerPackCallback callback) {
       StickerDatabaseHelper dbHelper = StickerDatabaseHelper.getInstance(context);
       SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-      new InsertStickerPacks().insertStickerPack(db, stickerPack);
+      new InsertStickerPacks().insertStickerPack(
+          db, stickerPack, callbackResult -> {
+             switch (callbackResult.getStatus()) {
+                case SUCCESS:
+                   if ( callback != null ) {
+                      callback.onStickerPackSaveCompleted(CallbackResult.success(callbackResult.getData()));
+                   } else {
+                      Log.d("SaveStickerPack", "Callback não foi retornada corretamente pelo repositório!");
+                   }
+                   break;
+                case WARNING:
+                   Log.w("SaveStickerPack", callbackResult.getWarningMessage());
+                   break;
+                case FAILURE:
+                   Log.e("SaveStickerPack", Objects.requireNonNull(callbackResult.getError().getMessage()));
+                   break;
+             }
+          }
+      );
    }
 
    public static void compressAndSaveThumbnail(Context context, File originalFile, File destinationDir) {

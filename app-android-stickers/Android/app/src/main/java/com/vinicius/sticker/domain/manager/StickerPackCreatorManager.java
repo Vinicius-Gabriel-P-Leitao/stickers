@@ -19,6 +19,8 @@ import android.content.Context;
 import android.util.JsonReader;
 import android.util.Log;
 
+import androidx.lifecycle.ViewModel;
+
 import com.vinicius.sticker.domain.builder.StickerPackContentJsonBuilder;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
@@ -35,7 +37,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class StickerPackCreatorManager {
+public class StickerPackCreatorManager extends ViewModel {
    private static final List<Sticker> stickers = new ArrayList<>();
    private final static String uuidPack = UUID.randomUUID().toString();
 

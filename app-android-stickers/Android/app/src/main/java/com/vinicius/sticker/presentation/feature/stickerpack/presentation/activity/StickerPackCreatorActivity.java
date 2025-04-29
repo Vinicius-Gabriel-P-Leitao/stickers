@@ -35,7 +35,6 @@ import com.vinicius.sticker.presentation.feature.stickerpack.presentation.fragme
 import java.util.Arrays;
 
 public class StickerPackCreatorActivity extends BaseActivity {
-   public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
    public static final String EXTRA_STICKER_FORMAT = "sticker_format";
    public static final String STATIC_STICKER = "animated";
    public static final String ANIMATED_STICKER = "static";
@@ -50,12 +49,9 @@ public class StickerPackCreatorActivity extends BaseActivity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_create_sticker_pack);
 
-      boolean showUpButton = getIntent().getBooleanExtra(EXTRA_SHOW_UP_BUTTON, true);
       if ( getSupportActionBar() != null ) {
-         getSupportActionBar().setDisplayHomeAsUpEnabled(showUpButton);
-         getSupportActionBar().setTitle(showUpButton ? getResources().getString(
-             R.string.title_activity_sticker_packs_creator) : getResources().getQuantityString(
-             R.plurals.title_activity_sticker_packs_creator_list, 1));
+         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+         getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
       }
 
       ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
@@ -75,28 +71,23 @@ public class StickerPackCreatorActivity extends BaseActivity {
       Log.i("Permissions Media", Arrays.toString(permissions));
       if ( permissions.length > 0 ) {
          permissionRequestBottomSheetDialogFragment.setPermissions(permissions);
-         permissionRequestBottomSheetDialogFragment.setCallback(
-             new PermissionRequestBottomSheetDialogFragment.PermissionCallback() {
-                @Override
-                public void onPermissionsGranted() {
-                   if ( namePack == null || namePack.isEmpty() ) {
-                      openMetadataGetter();
-                   } else {
-                      openGallery(namePack);
-                   }
-                }
+         permissionRequestBottomSheetDialogFragment.setCallback(new PermissionRequestBottomSheetDialogFragment.PermissionCallback() {
+            @Override
+            public void onPermissionsGranted() {
+               if ( namePack == null || namePack.isEmpty() ) {
+                  openMetadataGetter();
+               } else {
+                  openGallery(namePack);
+               }
+            }
 
-                @Override
-                public void onPermissionsDenied() {
-                   Toast.makeText(StickerPackCreatorActivity.this, "Galeria não foi liberada.",
-                                  Toast.LENGTH_SHORT
-                   ).show();
-                }
-             });
+            @Override
+            public void onPermissionsDenied() {
+               Toast.makeText(StickerPackCreatorActivity.this, "Galeria não foi liberada.", Toast.LENGTH_SHORT).show();
+            }
+         });
 
-         permissionRequestBottomSheetDialogFragment.show(getSupportFragmentManager(),
-                                                         "permissionRequestBottomSheetDialogFragment"
-         );
+         permissionRequestBottomSheetDialogFragment.show(getSupportFragmentManager(), "permissionRequestBottomSheetDialogFragment");
       } else {
          if ( namePack == null || namePack.isEmpty() ) {
             openMetadataGetter();
@@ -108,23 +99,20 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
    private void openMetadataGetter() {
       PackMetadataBottomSheetDialogFragment packMetadataBottomSheetDialogFragment = new PackMetadataBottomSheetDialogFragment();
-      packMetadataBottomSheetDialogFragment.setCallback(
-          new PackMetadataBottomSheetDialogFragment.MetadataCallback() {
-             @Override
-             public void onGetMetadata(String namePack) {
-                saveNamePack(namePack);
-                openGallery(namePack);
-             }
+      packMetadataBottomSheetDialogFragment.setCallback(new PackMetadataBottomSheetDialogFragment.MetadataCallback() {
+         @Override
+         public void onGetMetadata(String namePack) {
+            saveNamePack(namePack);
+            openGallery(namePack);
+         }
 
-             @Override
-             public void onError(String error) {
-                Toast.makeText(StickerPackCreatorActivity.this, error, Toast.LENGTH_SHORT).show();
-             }
-          });
+         @Override
+         public void onError(String error) {
+            Toast.makeText(StickerPackCreatorActivity.this, error, Toast.LENGTH_SHORT).show();
+         }
+      });
 
-      packMetadataBottomSheetDialogFragment.show(getSupportFragmentManager(),
-                                                 "PackMetadataBottomSheetDialogFragment"
-      );
+      packMetadataBottomSheetDialogFragment.show(getSupportFragmentManager(), "PackMetadataBottomSheetDialogFragment");
    }
 
    private void openGallery(String namePack) {

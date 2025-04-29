@@ -25,8 +25,8 @@ import com.google.android.material.button.MaterialButton;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.presentation.feature.stickerpack.adapter.StickerPackListAdapter;
 import com.vinicius.sticker.presentation.component.FormatStickerPopupWindow;
+import com.vinicius.sticker.presentation.feature.stickerpack.adapter.StickerPackListAdapter;
 import com.vinicius.sticker.presentation.feature.stickerpack.usecase.AddStickerPackActivity;
 import com.vinicius.sticker.presentation.feature.stickerpack.viewholder.StickerPackListItemViewHolder;
 
@@ -39,8 +39,8 @@ public class StickerPackListActivity extends AddStickerPackActivity {
    /* Values */
    public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
    private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
-   private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = pack -> addStickerPackToWhatsApp(
-       pack.identifier, pack.name);
+   private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener =
+       pack -> addStickerPackToWhatsApp(pack.identifier, pack.name);
    /* UI */
    private StickerPackListAdapter allStickerPacksListAdapter;
    private WhiteListCheckAsyncTask whiteListCheckAsyncTask;
@@ -59,28 +59,23 @@ public class StickerPackListActivity extends AddStickerPackActivity {
       stickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_STICKER_PACK_LIST_DATA);
       showStickerPackList(stickerPackList);
       if ( getSupportActionBar() != null ) {
-         getSupportActionBar().setTitle(
-             getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list,
-                                              stickerPackList.size()
-             ));
+         getSupportActionBar().setTitle(getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, stickerPackList.size()));
       }
 
       buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
       buttonCreateStickerPackage.setOnClickListener(view -> {
-         FormatStickerPopupWindow.popUpButtonChooserStickerModel(this, buttonCreateStickerPackage,
-                                                                 new FormatStickerPopupWindow.OnOptionClickListener() {
-                                                              @Override
-                                                              public void onStaticStickerSelected() {
-                                                                 openCreateStickerPackActivity(
-                                                                     STATIC_STICKER);
-                                                              }
+         FormatStickerPopupWindow.popUpButtonChooserStickerModel(
+             this, buttonCreateStickerPackage, new FormatStickerPopupWindow.OnOptionClickListener() {
+                @Override
+                public void onStaticStickerSelected() {
+                   openCreateStickerPackActivity(STATIC_STICKER);
+                }
 
-                                                              @Override
-                                                              public void onAnimatedStickerSelected() {
-                                                                 openCreateStickerPackActivity(
-                                                                     ANIMATED_STICKER);
-                                                              }
-                                                           }
+                @Override
+                public void onAnimatedStickerSelected() {
+                   openCreateStickerPackActivity(ANIMATED_STICKER);
+                }
+             }
          );
       });
    }
@@ -107,37 +102,29 @@ public class StickerPackListActivity extends AddStickerPackActivity {
    }
 
    private void showStickerPackList(List<StickerPack> stickerPackList) {
-      allStickerPacksListAdapter = new StickerPackListAdapter(stickerPackList,
-                                                              onAddButtonClickedListener
-      );
+      allStickerPacksListAdapter = new StickerPackListAdapter(stickerPackList, onAddButtonClickedListener);
       packRecyclerView.setAdapter(allStickerPacksListAdapter);
 
       packLayoutManager = new LinearLayoutManager(this);
       packLayoutManager.setOrientation(RecyclerView.VERTICAL);
-      DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
-          packRecyclerView.getContext(), packLayoutManager.getOrientation());
+      DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(packRecyclerView.getContext(), packLayoutManager.getOrientation());
 
       packRecyclerView.addItemDecoration(dividerItemDecoration);
       packRecyclerView.setLayoutManager(packLayoutManager);
-      packRecyclerView.getViewTreeObserver()
-          .addOnGlobalLayoutListener(this::recalculateColumnCount);
+      packRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(this::recalculateColumnCount);
    }
 
    private void recalculateColumnCount() {
-      final int previewSize = getResources().getDimensionPixelSize(
-          R.dimen.sticker_pack_list_item_preview_image_size);
+      final int previewSize = getResources().getDimensionPixelSize(R.dimen.sticker_pack_list_item_preview_image_size);
       int firstVisibleItemPosition = packLayoutManager.findFirstVisibleItemPosition();
-      StickerPackListItemViewHolder viewHolder = (StickerPackListItemViewHolder) packRecyclerView.findViewHolderForAdapterPosition(
-          firstVisibleItemPosition);
+      StickerPackListItemViewHolder viewHolder =
+          (StickerPackListItemViewHolder) packRecyclerView.findViewHolderForAdapterPosition(firstVisibleItemPosition);
       if ( viewHolder != null ) {
          final int widthOfImageRow = viewHolder.imageRowView.getMeasuredWidth();
          final int max = Math.max(widthOfImageRow / previewSize, 1);
          int maxNumberOfImagesInARow = Math.min(STICKER_PREVIEW_DISPLAY_LIMIT, max);
-         int minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) /
-             (maxNumberOfImagesInARow - 1);
-         allStickerPacksListAdapter.setImageRowSpec(maxNumberOfImagesInARow,
-                                                    minMarginBetweenImages
-         );
+         int minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) / (maxNumberOfImagesInARow - 1);
+         allStickerPacksListAdapter.setImageRowSpec(maxNumberOfImagesInARow, minMarginBetweenImages);
       }
    }
 
@@ -155,8 +142,7 @@ public class StickerPackListActivity extends AddStickerPackActivity {
             return Arrays.asList(stickerPackArray);
          }
          for (StickerPack stickerPack : stickerPackArray) {
-            stickerPack.setIsWhitelisted(
-                WhatsappWhitelistValidator.isWhitelisted(stickerPackListActivity, stickerPack.identifier));
+            stickerPack.setIsWhitelisted(WhatsappWhitelistValidator.isWhitelisted(stickerPackListActivity, stickerPack.identifier));
          }
          return Arrays.asList(stickerPackArray);
       }

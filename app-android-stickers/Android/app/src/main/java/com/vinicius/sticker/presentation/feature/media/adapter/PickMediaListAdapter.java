@@ -71,8 +71,7 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
    @Override
    public MediaViewHolder onCreateViewHolder(
        @NonNull ViewGroup parent, int viewType) {
-      View view = LayoutInflater.from(context)
-          .inflate(R.layout.container_thumbnail_media, parent, false);
+      View view = LayoutInflater.from(context).inflate(R.layout.container_thumbnail_media, parent, false);
       return new MediaViewHolder(view);
    }
 
@@ -85,23 +84,17 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
 
       RequestManager glide = Glide.with(holder.imageView.getContext());
 
-      MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(
-          new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
+      MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
 
       RequestBuilder<?> requestBuilder;
-      if ( extension.endsWith(".mp4") ||
-          extension.endsWith(".webm") ||
-          extension.endsWith(".3gp") ) {
+      if ( extension.endsWith(".mp4") || extension.endsWith(".webm") || extension.endsWith(".3gp") ) {
          requestBuilder = glide.asBitmap().frame(1_000_000).load(uri);
       } else if ( extension.endsWith(".gif") ) {
          requestBuilder = glide.asGif().load(uri);
       } else {
          requestBuilder = glide.load(uri);
       }
-      requestBuilder.override(300, 300)
-          .centerCrop()
-          .transform(commonTransform)
-          .into(holder.imageView);
+      requestBuilder.override(300, 300).centerCrop().transform(commonTransform).into(holder.imageView);
 
       holder.radioCheckBox.setChecked(selectedItems.contains(position));
       if ( selectedItems.contains(position) ) {
@@ -131,9 +124,7 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
                holder.radioCheckBox.setChecked(true);
             }
          } else {
-            Toast.makeText(view.getContext(), "Numero máximo de itens selecionados!",
-                           Toast.LENGTH_SHORT
-            ).show();
+            Toast.makeText(view.getContext(), "Numero máximo de itens selecionados!", Toast.LENGTH_SHORT).show();
          }
 
          for (Integer pos : selectedItems) {

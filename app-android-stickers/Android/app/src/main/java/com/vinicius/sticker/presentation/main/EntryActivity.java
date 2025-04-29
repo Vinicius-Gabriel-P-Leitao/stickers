@@ -42,13 +42,13 @@ public class EntryActivity extends BaseActivity {
    ) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_entry);
+
       overridePendingTransition(0, 0);
       if ( getSupportActionBar() != null ) {
          getSupportActionBar().hide();
       }
+
       progressBar = findViewById(R.id.entry_activity_progress);
-      loadListAsyncTask = new LoadListAsyncTask(this);
-      loadListAsyncTask.execute();
    }
 
    private void showStickerPack(ArrayList<StickerPack> stickerPackList) {
@@ -84,8 +84,20 @@ public class EntryActivity extends BaseActivity {
       }
    }
 
+   @Override
+   protected void onResume() {
+      super.onResume();
+
+      if ( loadListAsyncTask == null || loadListAsyncTask.getStatus() == AsyncTask.Status.FINISHED ) {
+         progressBar.setVisibility(View.VISIBLE);
+         loadListAsyncTask = new LoadListAsyncTask(this);
+         loadListAsyncTask.execute();
+      }
+   }
+
    static class LoadListAsyncTask extends AsyncTask<Void, Void, Pair<String, ArrayList<StickerPack>>> {
       private final WeakReference<EntryActivity> contextWeakReference;
+
       LoadListAsyncTask(EntryActivity activity) {
          this.contextWeakReference = new WeakReference<>(activity);
       }

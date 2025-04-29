@@ -40,9 +40,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="@drawable/dialog_background"
-        android:padding="20dp"
         android:indeterminate="true"
         android:max="30"
+        android:padding="20dp"
         android:progress="0"
         android:visibility="gone"
         app:indicatorColor="@color/catppuccin_text" />
