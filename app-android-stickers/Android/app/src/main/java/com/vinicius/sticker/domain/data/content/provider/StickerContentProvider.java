@@ -8,13 +8,9 @@
  * Modifications by Vinícius, 2025
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
-package com.vinicius.sticker.domain.data.provider;
+package com.vinicius.sticker.domain.data.content.provider;
 
-import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.isDatabaseEmpty;
-import static com.vinicius.sticker.domain.data.model.StickerPack.fromContentValues;
-import static com.vinicius.sticker.domain.data.repository.SelectStickerPacks.getCursorForSingleStickerPack;
-import static com.vinicius.sticker.domain.data.repository.SelectStickerPacks.getPackForAllStickerPacks;
-import static com.vinicius.sticker.domain.data.repository.SelectStickerPacks.getStickersForAStickerPack;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.isDatabaseEmpty;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -25,6 +21,7 @@ import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -32,9 +29,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.BuildConfig;
-import com.vinicius.sticker.domain.data.database.StickerDatabaseHelper;
-import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.data.repository.InsertStickerPacks;
+import com.vinicius.sticker.domain.data.content.helpers.StickerQueryHelper;
+import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,6 +67,7 @@ public class StickerContentProvider extends ContentProvider {
       MATCHER.addURI(authority, METADATA, METADATA_CODE);
       MATCHER.addURI(authority, METADATA + "/*", METADATA_CODE_FOR_SINGLE_PACK);
       MATCHER.addURI(authority, STICKERS + "/*", STICKERS_CODE);
+      MATCHER.addURI(authority, STICKERS_ASSET + "/*/*", STICKERS_FILES_CODE);
       MATCHER.addURI(authority, "create", CREATE_STICKER_PACKS);
 
       dbHelper = new StickerDatabaseHelper(getContext());
@@ -90,12 +87,14 @@ public class StickerContentProvider extends ContentProvider {
        @Nullable String[] projection, String selection, String[] selectionArgs, String sortOrder
    ) {
       final int code = MATCHER.match(uri);
+      StickerQueryHelper stickerQueryHelper = new StickerQueryHelper(getContext());
+
       if ( code == METADATA_CODE ) {
-         return getPackForAllStickerPacks(uri, dbHelper);
+         return stickerQueryHelper.getPackForAllStickerPacks(uri, dbHelper);
       } else if ( code == METADATA_CODE_FOR_SINGLE_PACK ) {
-         return getCursorForSingleStickerPack(uri, dbHelper);
+         return stickerQueryHelper.getCursorForSingleStickerPack(uri, dbHelper);
       } else if ( code == STICKERS_CODE ) {
-         return getStickersForAStickerPack(uri, dbHelper);
+         return stickerQueryHelper.getStickersForAStickerPack(uri, dbHelper);
       } else {
          throw new IllegalArgumentException("Unknown URI: " + uri);
       }
@@ -112,22 +111,7 @@ public class StickerContentProvider extends ContentProvider {
    @Override
    public Uri insert(
        @NonNull Uri uri, ContentValues values) {
-      String callingPackage = getCallingPackage();
-
-      if ( !"com.vinicius.sticker".equals(callingPackage) ) {
-         throw new SecurityException("Insert permitido apenas para o app do content provider!");
-      }
-
-      final int matchCode = MATCHER.match(uri);
-
-      switch (matchCode) {
-         case CREATE_STICKER_PACKS:
-            StickerPack stickerPack = fromContentValues(values);
-            new InsertStickerPacks().insertStickerPack(dbHelper.getWritableDatabase(), stickerPack);
-            return Uri.parse(AUTHORITY_URI + "/" + stickerPack.identifier);
-         default:
-            throw new IllegalArgumentException("Unknown URI for insert: " + uri);
-      }
+      throw new UnsupportedOperationException("Not supported");
    }
 
    @Override
@@ -190,9 +174,10 @@ public class StickerContentProvider extends ContentProvider {
       File stickerFile = new File(stickerDirectory, fileName);
       if ( stickerFile.exists() && stickerFile.isFile() ) {
          try {
-            return context.getContentResolver().openAssetFileDescriptor(Uri.fromFile(stickerFile), "r");
+            ParcelFileDescriptor fileDescriptor = ParcelFileDescriptor.open(stickerFile, ParcelFileDescriptor.MODE_READ_ONLY);
+            return new AssetFileDescriptor(fileDescriptor, 0, AssetFileDescriptor.UNKNOWN_LENGTH);
          } catch (IOException exception) {
-            Log.e(getContext().getPackageName(), "IOException when getting asset file, uri:" + uri, exception);
+            Log.e(getContext().getPackageName(), "Erro ao abrir stickerFile: " + stickerFile.getAbsolutePath(), exception);
          }
       }
 

@@ -30,8 +30,8 @@ import androidx.annotation.NonNull;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.BaseActivity;
-import com.vinicius.sticker.presentation.feature.permission.fragment.PermissionRequestBottomSheetDialogFragment;
 import com.vinicius.sticker.presentation.component.FormatStickerPopupWindow;
+import com.vinicius.sticker.presentation.feature.permission.fragment.PermissionRequestBottomSheetDialogFragment;
 import com.vinicius.sticker.presentation.feature.stickerpack.presentation.fragment.PackMetadataBottomSheetDialogFragment;
 
 import java.util.Arrays;
@@ -68,20 +68,20 @@ public class StickerFirstPackCreatorActivity extends BaseActivity {
          rotation.start();
 
          if ( getIntent().getBooleanExtra(DATABASE_EMPTY, false) ) {
-            FormatStickerPopupWindow.popUpButtonChooserStickerModel(this, buttonSelectMedia,
-                                                                    new FormatStickerPopupWindow.OnOptionClickListener() {
-                                                                 @Override
-                                                                 public void onStaticStickerSelected() {
-                                                                    setFormat(STATIC_STICKER);
-                                                                    createStickerPackFlow();
-                                                                 }
+            FormatStickerPopupWindow.popUpButtonChooserStickerModel(
+                this, buttonSelectMedia, new FormatStickerPopupWindow.OnOptionClickListener() {
+                   @Override
+                   public void onStaticStickerSelected() {
+                      setFormat(STATIC_STICKER);
+                      createStickerPackFlow();
+                   }
 
-                                                                 @Override
-                                                                 public void onAnimatedStickerSelected() {
-                                                                    setFormat(ANIMATED_STICKER);
-                                                                    createStickerPackFlow();
-                                                                 }
-                                                              }
+                   @Override
+                   public void onAnimatedStickerSelected() {
+                      setFormat(ANIMATED_STICKER);
+                      createStickerPackFlow();
+                   }
+                }
             );
          }
       });
@@ -94,28 +94,23 @@ public class StickerFirstPackCreatorActivity extends BaseActivity {
       Log.i("Permissions Media", Arrays.toString(permissions));
       if ( permissions.length > 0 ) {
          permissionRequestBottomSheetDialogFragment.setPermissions(permissions);
-         permissionRequestBottomSheetDialogFragment.setCallback(
-             new PermissionRequestBottomSheetDialogFragment.PermissionCallback() {
-                @Override
-                public void onPermissionsGranted() {
-                   if ( namePack == null || namePack.isEmpty() ) {
-                      openMetadataGetter();
-                   } else {
-                      openGallery(namePack);
-                   }
-                }
+         permissionRequestBottomSheetDialogFragment.setCallback(new PermissionRequestBottomSheetDialogFragment.PermissionCallback() {
+            @Override
+            public void onPermissionsGranted() {
+               if ( namePack == null || namePack.isEmpty() ) {
+                  openMetadataGetter();
+               } else {
+                  openGallery(namePack);
+               }
+            }
 
-                @Override
-                public void onPermissionsDenied() {
-                   Toast.makeText(StickerFirstPackCreatorActivity.this, "Galeria não foi liberada.",
-                                  Toast.LENGTH_SHORT
-                   ).show();
-                }
-             });
+            @Override
+            public void onPermissionsDenied() {
+               Toast.makeText(StickerFirstPackCreatorActivity.this, "Galeria não foi liberada.", Toast.LENGTH_SHORT).show();
+            }
+         });
 
-         permissionRequestBottomSheetDialogFragment.show(getSupportFragmentManager(),
-                                                         "permissionRequestBottomSheetDialogFragment"
-         );
+         permissionRequestBottomSheetDialogFragment.show(getSupportFragmentManager(), "permissionRequestBottomSheetDialogFragment");
       } else {
          if ( namePack == null || namePack.isEmpty() ) {
             openMetadataGetter();
@@ -127,24 +122,20 @@ public class StickerFirstPackCreatorActivity extends BaseActivity {
 
    private void openMetadataGetter() {
       PackMetadataBottomSheetDialogFragment packMetadataBottomSheetDialogFragment = new PackMetadataBottomSheetDialogFragment();
-      packMetadataBottomSheetDialogFragment.setCallback(
-          new PackMetadataBottomSheetDialogFragment.MetadataCallback() {
-             @Override
-             public void onGetMetadata(String namePack) {
-                saveNamePack(namePack);
-                openGallery(namePack);
-             }
+      packMetadataBottomSheetDialogFragment.setCallback(new PackMetadataBottomSheetDialogFragment.MetadataCallback() {
+         @Override
+         public void onGetMetadata(String namePack) {
+            saveNamePack(namePack);
+            openGallery(namePack);
+         }
 
-             @Override
-             public void onError(String error) {
-                Toast.makeText(StickerFirstPackCreatorActivity.this, error, Toast.LENGTH_SHORT)
-                    .show();
-             }
-          });
+         @Override
+         public void onError(String error) {
+            Toast.makeText(StickerFirstPackCreatorActivity.this, error, Toast.LENGTH_SHORT).show();
+         }
+      });
 
-      packMetadataBottomSheetDialogFragment.show(getSupportFragmentManager(),
-                                                 "PackMetadataBottomSheetDialogFragment"
-      );
+      packMetadataBottomSheetDialogFragment.show(getSupportFragmentManager(), "PackMetadataBottomSheetDialogFragment");
    }
 
    private void openGallery(String namePack) {

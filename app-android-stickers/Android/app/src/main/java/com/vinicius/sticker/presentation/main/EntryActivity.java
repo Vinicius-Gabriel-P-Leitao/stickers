@@ -55,18 +55,14 @@ public class EntryActivity extends BaseActivity {
       progressBar.setVisibility(View.GONE);
       if ( stickerPackList.size() > 1 ) {
          final Intent intent = new Intent(this, StickerPackListActivity.class);
-         intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA,
-                                            stickerPackList
-         );
+         intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA, stickerPackList);
          startActivity(intent);
          finish();
          overridePendingTransition(0, 0);
       } else {
          final Intent intent = new Intent(this, StickerPackDetailsActivity.class);
          intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, false);
-         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA,
-                         stickerPackList.get(0)
-         );
+         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, stickerPackList.get(0));
          startActivity(intent);
          finish();
          overridePendingTransition(0, 0);
@@ -88,10 +84,8 @@ public class EntryActivity extends BaseActivity {
       }
    }
 
-   // Carrega a lista de sticker de forma assincrona
    static class LoadListAsyncTask extends AsyncTask<Void, Void, Pair<String, ArrayList<StickerPack>>> {
       private final WeakReference<EntryActivity> contextWeakReference;
-
       LoadListAsyncTask(EntryActivity activity) {
          this.contextWeakReference = new WeakReference<>(activity);
       }
@@ -122,6 +116,7 @@ public class EntryActivity extends BaseActivity {
                intent.putExtra("database_empty", true);
                context.startActivity(intent);
             }
+            Log.e("EntryActivity", "Error fetching sticker packs, database empty", exception);
             return new Pair<>("Error encountered, redirecting...", null);
          } catch (Exception exception) {
             Log.e("EntryActivity", "Error fetching sticker packs", exception);

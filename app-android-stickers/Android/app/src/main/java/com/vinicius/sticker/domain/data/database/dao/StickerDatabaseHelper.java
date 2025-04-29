@@ -11,7 +11,7 @@
  * Original GPLv3 license text begins below.
  */
 
-package com.vinicius.sticker.domain.data.database;
+package com.vinicius.sticker.domain.data.database.dao;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -56,9 +56,9 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
                                  ID_STICKER_PACKS +
                                  " INTEGER PRIMARY KEY AUTOINCREMENT," +
                                  ANDROID_APP_DOWNLOAD_LINK_IN_QUERY +
-                                 " TEXT," +
+                                 " VARCHAR(100)," +
                                  IOS_APP_DOWNLOAD_LINK_IN_QUERY +
-                                 " TEXT" +
+                                 " VARCHAR(100)" +
                                  ")");
 
       String fkStickerPacks = String.format("FOREIGN KEY( %s ) REFERENCES sticker_packs( %s ) ON DELETE CASCADE", FK_STICKER_PACKS, ID_STICKER_PACKS);
@@ -66,29 +66,29 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
                                  ID_STICKER_PACK +
                                  " INTEGER PRIMARY KEY AUTOINCREMENT," +
                                  STICKER_PACK_IDENTIFIER_IN_QUERY +
-                                 " TEXT UNIQUE," +
+                                 " UUID TEXT NOT NULL UNIQUE," +
                                  STICKER_PACK_NAME_IN_QUERY +
-                                 " TEXT," +
+                                 " VARCHAR(20) NOT NULL," +
                                  STICKER_PACK_PUBLISHER_IN_QUERY +
-                                 " TEXT," +
+                                 " VARCHAR(20) NOT NULL," +
                                  STICKER_PACK_ICON_IN_QUERY +
-                                 " TEXT," +
+                                 " CHAR(3) NOT NULL," +
                                  PUBLISHER_EMAIL +
-                                 " TEXT," +
+                                 " VARCHAR(60)," +
                                  PUBLISHER_WEBSITE +
-                                 " TEXT," +
+                                 " VARCHAR(40)," +
                                  PRIVACY_POLICY_WEBSITE +
-                                 " TEXT," +
+                                 " VARCHAR(100)," +
                                  LICENSE_AGREEMENT_WEBSITE +
-                                 " TEXT," +
+                                 " VARCHAR(100)," +
                                  ANIMATED_STICKER_PACK +
-                                 " TEXT," +
+                                 " CHAR(1) NOT NULL," +
+                                 IMAGE_DATA_VERSION +
+                                 " CHAR(4)," +
+                                 AVOID_CACHE +
+                                 " CHAR(5)," +
                                  FK_STICKER_PACKS +
                                  " INTEGER," +
-                                 IMAGE_DATA_VERSION +
-                                 " TEXT," +
-                                 AVOID_CACHE +
-                                 " TEXT," +
                                  fkStickerPacks +
                                  ")");
 
@@ -97,11 +97,11 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
                                  ID_STICKER +
                                  " INTEGER PRIMARY KEY AUTOINCREMENT," +
                                  STICKER_FILE_NAME_IN_QUERY +
-                                 " TEXT UNIQUE," +
+                                 " VARCHAR(255) NOT NULL," +
                                  STICKER_FILE_EMOJI_IN_QUERY +
-                                 " TEXT," +
+                                 " TEXT NOT NULL," +
                                  STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY +
-                                 " TEXT," +
+                                 " TEXT NOT NULL," +
                                  FK_STICKER_PACK +
                                  " INTEGER," +
                                  fkSticker +

@@ -13,7 +13,7 @@
 
 package com.vinicius.sticker.presentation.feature.media.util;
 
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKERS_ASSET;
+import static com.vinicius.sticker.domain.data.content.provider.StickerContentProvider.STICKERS_ASSET;
 import static com.vinicius.sticker.domain.service.ContentFileParserService.readStickerPack;
 
 import android.content.Context;

@@ -19,7 +19,7 @@ import android.content.Context;
 import android.util.JsonReader;
 import android.util.Log;
 
-import com.vinicius.sticker.domain.builder.ContentJsonBuilder;
+import com.vinicius.sticker.domain.builder.StickerPackContentJsonBuilder;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.pattern.CallbackResult;
@@ -55,12 +55,12 @@ public class StickerPackCreatorManager {
    ) {
       try {
          stickers.clear();
-         ContentJsonBuilder builder = new ContentJsonBuilder();
+         StickerPackContentJsonBuilder builder = new StickerPackContentJsonBuilder();
 
          builder.setIdentifier(uuidPack)
              .setName(namePack)
              .setPublisher("vinicius")
-             .setTrayImageFile(fileList.get(0).getName())
+             .setTrayImageFile("thumbnail.jpg")
              .setImageDataVersion("1")
              .setAvoidCache(false)
              .setPublisherWebsite("")
@@ -100,8 +100,7 @@ public class StickerPackCreatorManager {
                    switch (callbackResult.getStatus()) {
                       case SUCCESS:
                          if ( savedStickerPackCallback != null ) {
-                            savedStickerPackCallback.onSavedStickerPack(
-                                CallbackResult.success(callbackResult.getData()));
+                            savedStickerPackCallback.onSavedStickerPack(CallbackResult.success(callbackResult.getData()));
                          } else {
                             Log.d("SaveStickerPack", "Callback não foi retornada corretamente!");
                          }
@@ -110,10 +109,7 @@ public class StickerPackCreatorManager {
                          Log.w("SaveStickerPack", callbackResult.getWarningMessage());
                          break;
                       case FAILURE:
-                         Log.e(
-                             "SaveStickerPack",
-                             Objects.requireNonNull(callbackResult.getError().getMessage())
-                         );
+                         Log.e("SaveStickerPack", Objects.requireNonNull(callbackResult.getError().getMessage()));
                          break;
                    }
                 }

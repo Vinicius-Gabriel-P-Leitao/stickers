@@ -19,61 +19,61 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-public class ContentJsonBuilder {
+public class StickerPackContentJsonBuilder {
    private final JSONObject stickerPackJson;
    private final JSONArray stickersArray;
 
-   public ContentJsonBuilder() {
+   public StickerPackContentJsonBuilder() {
       stickerPackJson = new JSONObject();
       stickersArray = new JSONArray();
    }
 
-   public ContentJsonBuilder setIdentifier(String identifier) throws JSONException {
+   public StickerPackContentJsonBuilder setIdentifier(String identifier) throws JSONException {
       stickerPackJson.put("identifier", identifier);
       return this;
    }
 
-   public ContentJsonBuilder setName(String name) throws JSONException {
+   public StickerPackContentJsonBuilder setName(String name) throws JSONException {
       stickerPackJson.put("name", name);
       return this;
    }
 
-   public ContentJsonBuilder setPublisher(String publisher) throws JSONException {
+   public StickerPackContentJsonBuilder setPublisher(String publisher) throws JSONException {
       stickerPackJson.put("publisher", publisher);
       return this;
    }
 
-   public ContentJsonBuilder setTrayImageFile(String trayImageFile) throws JSONException {
+   public StickerPackContentJsonBuilder setTrayImageFile(String trayImageFile) throws JSONException {
       stickerPackJson.put("tray_image_file", trayImageFile);
       return this;
    }
 
-   public ContentJsonBuilder setImageDataVersion(String version) throws JSONException {
+   public StickerPackContentJsonBuilder setImageDataVersion(String version) throws JSONException {
       stickerPackJson.put("image_data_version", version);
       return this;
    }
 
-   public ContentJsonBuilder setAvoidCache(boolean avoidCache) throws JSONException {
+   public StickerPackContentJsonBuilder setAvoidCache(boolean avoidCache) throws JSONException {
       stickerPackJson.put("avoid_cache", avoidCache);
       return this;
    }
 
-   public ContentJsonBuilder setPublisherEmail(String email) throws JSONException {
+   public StickerPackContentJsonBuilder setPublisherEmail(String email) throws JSONException {
       stickerPackJson.put("publisher_email", email);
       return this;
    }
 
-   public ContentJsonBuilder setPublisherWebsite(String website) throws JSONException {
+   public StickerPackContentJsonBuilder setPublisherWebsite(String website) throws JSONException {
       stickerPackJson.put("publisher_website", website);
       return this;
    }
 
-   public ContentJsonBuilder setPrivacyPolicyWebsite(String url) throws JSONException {
+   public StickerPackContentJsonBuilder setPrivacyPolicyWebsite(String url) throws JSONException {
       stickerPackJson.put("privacy_policy_website", url);
       return this;
    }
 
-   public ContentJsonBuilder setLicenseAgreementWebsite(String url) throws JSONException {
+   public StickerPackContentJsonBuilder setLicenseAgreementWebsite(String url) throws JSONException {
       stickerPackJson.put("license_agreement_website", url);
       return this;
    }

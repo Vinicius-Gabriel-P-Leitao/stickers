@@ -13,20 +13,25 @@
 
 package com.vinicius.sticker.domain.service;
 
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKERS_ASSET;
+import static com.vinicius.sticker.domain.data.content.provider.StickerContentProvider.STICKERS_ASSET;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.util.Log;
 
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
-import com.vinicius.sticker.domain.data.database.StickerDatabaseHelper;
+import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
+import com.vinicius.sticker.domain.data.database.repository.InsertStickerPacks;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.data.repository.InsertStickerPacks;
 import com.vinicius.sticker.domain.pattern.CallbackResult;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,7 +45,6 @@ public class SaveStickerPackService {
    }
 
    public static void generateStructureForSavePack(Context context, StickerPack stickerPack, SaveStickerPackCallback callback) {
-
       File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
 
       if ( !mainDirectory.exists() ) {
@@ -71,7 +75,13 @@ public class SaveStickerPackService {
       }
 
       cleanDirectory(stickerPackDirectory, callback);
+
       List<Sticker> stickerList = stickerPack.getStickers();
+
+      Sticker firstSticker = stickerList.get(0);
+
+      File thumbnailSticker = new File(context.getCacheDir(), firstSticker.imageFileName);
+      compressAndSaveThumbnail(context, thumbnailSticker, stickerPackDirectory);
       for (Sticker sticker : stickerList) {
          String fileName = sticker.imageFileName;
          File sourceFile = new File(context.getCacheDir(), fileName);
@@ -103,6 +113,43 @@ public class SaveStickerPackService {
       SQLiteDatabase db = dbHelper.getWritableDatabase();
 
       new InsertStickerPacks().insertStickerPack(db, stickerPack);
+   }
+
+   public static void compressAndSaveThumbnail(Context context, File originalFile, File destinationDir) {
+      if ( !originalFile.exists() ) {
+         Log.e("Thumbnail", "Arquivo original não encontrado: " + originalFile.getAbsolutePath());
+         return;
+      }
+
+      try {
+         Bitmap bitmap = BitmapFactory.decodeFile(originalFile.getAbsolutePath());
+         if ( bitmap == null ) {
+            Log.e("Thumbnail", "Erro ao decodificar o bitmap.");
+            return;
+         }
+
+         File thumbnailFile = new File(destinationDir, "thumbnail.jpg");
+         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+         int quality = 100;
+         byte[] compressedBytes;
+
+         do {
+            outStream.reset();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outStream);
+            compressedBytes = outStream.toByteArray();
+            quality -= 5;
+         } while (compressedBytes.length > 40 * 1024 && quality > 5);
+
+         FileOutputStream fos = new FileOutputStream(thumbnailFile);
+         fos.write(compressedBytes);
+         fos.flush();
+         fos.close();
+
+         Log.d("Thumbnail", "Thumbnail salva com sucesso: " + thumbnailFile.getAbsolutePath());
+      } catch (IOException exception) {
+         Log.e("Thumbnail", "Erro ao salvar thumbnail: " + exception.getMessage());
+      }
    }
 
    private static void cleanDirectory(File directory, SaveStickerPackCallback callback) {

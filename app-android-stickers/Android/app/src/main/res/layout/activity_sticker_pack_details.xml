@@ -137,10 +137,21 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_redirect_create_stickers"
+                style="@style/WhiteOutlineButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:layout_marginBottom="10dp"
+                android:padding="16dp"
+                android:text="@string/button_create_sticker_package" />
 
             <FrameLayout
                 android:id="@+id/add_to_whatsapp_button"

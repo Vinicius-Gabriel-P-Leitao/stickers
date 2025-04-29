@@ -13,9 +13,150 @@
 
 package com.vinicius.sticker.domain.manager;
 
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.ANIMATED_STICKER_PACK;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.AVOID_CACHE;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.IMAGE_DATA_VERSION;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.LICENSE_AGREEMENT_WEBSITE;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.PRIVACY_POLICY_WEBSITE;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.PUBLISHER_EMAIL;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.PUBLISHER_WEBSITE;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_FILE_EMOJI_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_FILE_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_PACK_ICON_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_PACK_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_PACK_PUBLISHER_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.getPackForAllStickerPacks;
+
+import android.database.Cursor;
+import android.util.JsonReader;
+
+import com.vinicius.sticker.domain.builder.StickerPackContentJsonBuilder;
+import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
+import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.service.ContentFileParserService;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 public class StickerPackLoaderManager {
-   // TODO: Implementar lógica que vai abstrair a StickerPackLoaderService para que ela seja
-   //  responsável somente por buscar os arquivos e dar a callback com os dados necessários, após
-   //  isso essa implementára a lógica de conversão de dados e etc, pore exemplo transformar oque
-   //  a classe pegar dos arquivos e metaddos e montar os Objetos e Json e servir a UI.
+   private static List<StickerPack> stickerPackList;
+
+   public static List<StickerPack> getStickerPackList(StickerDatabaseHelper dbHelper) {
+      if ( stickerPackList == null ) {
+         readContentFile(Objects.requireNonNull(dbHelper));
+      }
+      return stickerPackList;
+   }
+
+   public static synchronized void readContentFile(
+       StickerDatabaseHelper dbHelper
+   ) {
+      StringReader stringReaderStickerPack = new StringReader(getPackForAllContentJsonBuilder(dbHelper));
+      JsonReader jsonReaderStickerPack = new JsonReader(stringReaderStickerPack);
+      try {
+         stickerPackList = ContentFileParserService.readStickerPacks(jsonReaderStickerPack);
+      } catch (IOException exception) {
+         throw new RuntimeException(exception);
+      }
+
+   }
+
+   public static String getPackForAllContentJsonBuilder(StickerDatabaseHelper dbHelper) {
+      Cursor cursor = getPackForAllStickerPacks(dbHelper);
+      Map<String, StickerPackContentJsonBuilder> packMap = new LinkedHashMap<>();
+
+      if ( cursor != null && cursor.moveToFirst() ) {
+         do {
+            String identifier = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_IDENTIFIER_IN_QUERY));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_NAME_IN_QUERY));
+            String publisher = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_PUBLISHER_IN_QUERY));
+            String trayImageFile = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_ICON_IN_QUERY));
+            String imageDataVersion = cursor.getString(cursor.getColumnIndexOrThrow(IMAGE_DATA_VERSION));
+            boolean avoidCache = cursor.getInt(cursor.getColumnIndexOrThrow(AVOID_CACHE)) != 0;
+            String publisherEmail = cursor.getString(cursor.getColumnIndexOrThrow(PUBLISHER_EMAIL));
+            String publisherWebsite = cursor.getString(cursor.getColumnIndexOrThrow(PUBLISHER_WEBSITE));
+            String privacyPolicyWebsite = cursor.getString(cursor.getColumnIndexOrThrow(PRIVACY_POLICY_WEBSITE));
+            String licenseAgreementWebsite = cursor.getString(cursor.getColumnIndexOrThrow(LICENSE_AGREEMENT_WEBSITE));
+            boolean animatedStickerPack = cursor.getInt(cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) != 0;
+
+            String imageFile = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_NAME_IN_QUERY));
+            String emojisRaw = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_EMOJI_IN_QUERY));
+            String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
+
+            StickerPackContentJsonBuilder builder = packMap.get(identifier);
+            if ( builder == null ) {
+               try {
+                  builder = new StickerPackContentJsonBuilder().setIdentifier(identifier)
+                      .setName(name)
+                      .setPublisher(publisher)
+                      .setTrayImageFile(trayImageFile)
+                      .setImageDataVersion(imageDataVersion)
+                      .setAvoidCache(avoidCache)
+                      .setPublisherEmail(publisherEmail)
+                      .setPublisherWebsite(publisherWebsite)
+                      .setPrivacyPolicyWebsite(privacyPolicyWebsite)
+                      .setLicenseAgreementWebsite(licenseAgreementWebsite);
+               } catch (JSONException exception) {
+                  throw new RuntimeException(exception);
+               }
+
+               try {
+                  builder.setAnimatedStickerPack(animatedStickerPack);
+               } catch (JSONException exception) {
+                  throw new RuntimeException(exception);
+               }
+               packMap.put(identifier, builder);
+            }
+
+            List<String> emojis = parseEmojiString(emojisRaw);
+            try {
+               builder.addSticker(imageFile, emojis, accessibilityText);
+            } catch (JSONException exception) {
+               throw new RuntimeException(exception);
+            }
+
+         } while (cursor.moveToNext());
+         cursor.close();
+      }
+
+      JSONArray stickerPacksArray = new JSONArray();
+      for (StickerPackContentJsonBuilder builder : packMap.values()) {
+         JSONObject packJson = null;
+         try {
+            packJson = new JSONObject(builder.build());
+         } catch (JSONException exception) {
+            throw new RuntimeException(exception);
+         }
+         stickerPacksArray.put(packJson);
+      }
+
+      JSONObject finalJson = new JSONObject();
+      try {
+         finalJson.put("android_play_store_link", "");
+         finalJson.put("ios_app_store_link", "");
+         finalJson.put("sticker_packs", stickerPacksArray);
+      } catch (JSONException exception) {
+         throw new RuntimeException(exception);
+      }
+
+      try {
+         return finalJson.toString(2);
+      } catch (JSONException exception) {
+         throw new RuntimeException(exception);
+      }
+   }
+
+   private static List<String> parseEmojiString(String emojisRaw) {
+      return java.util.List.of(emojisRaw.split(","));
+   }
 }
