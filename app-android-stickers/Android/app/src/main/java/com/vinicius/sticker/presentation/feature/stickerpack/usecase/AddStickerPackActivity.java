@@ -62,8 +62,8 @@ public abstract class AddStickerPackActivity extends BaseActivity {
             Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG)
                 .show();
          }
-      } catch (Exception e) {
-         Log.e(TAG, "error adding sticker pack to WhatsApp", e);
+      } catch (Exception exception) {
+         Log.e(TAG, "error adding sticker pack to WhatsApp", exception);
          Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG)
              .show();
       }
@@ -76,7 +76,7 @@ public abstract class AddStickerPackActivity extends BaseActivity {
       intent.setPackage(whatsappPackageName);
       try {
          startActivityForResult(intent, ADD_PACK);
-      } catch (ActivityNotFoundException e) {
+      } catch (ActivityNotFoundException exception) {
          Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG)
              .show();
       }
@@ -89,7 +89,7 @@ public abstract class AddStickerPackActivity extends BaseActivity {
          startActivityForResult(Intent.createChooser(intent, getString(R.string.add_to_whatsapp)),
              ADD_PACK
          );
-      } catch (ActivityNotFoundException e) {
+      } catch (ActivityNotFoundException exception) {
          Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG)
              .show();
       }
@@ -174,7 +174,7 @@ public abstract class AddStickerPackActivity extends BaseActivity {
          intent.setPackage("com.android.vending");
          try {
             startActivity(intent);
-         } catch (ActivityNotFoundException e) {
+         } catch (ActivityNotFoundException exception) {
             Toast.makeText(getActivity(), R.string.cannot_find_play_store, Toast.LENGTH_LONG)
                 .show();
          }
