@@ -11,7 +11,7 @@
  * Original GPLv3 license text begins below.
  */
 
-package com.vinicius.sticker.presentation.feature.media.presentation;
+package com.vinicius.sticker.presentation.feature.media.fragment;
 
 import static com.vinicius.sticker.presentation.feature.media.util.ConvertMediaToStickerFormat.convertMediaToWebP;
 
@@ -210,6 +210,9 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                        "SaveStickerPack",
                        "Pacote salvo com sucesso -> " + callbackResult.getData()
                    );
+
+                   Toast.makeText(getContext(), "Pacote salvo com sucesso!", Toast.LENGTH_SHORT)
+                       .show();
                 } else {
                    Log.e("SaveStickerPack", "Erro ao salvar pacote: " + callbackResult.getError());
                 }

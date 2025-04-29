@@ -13,29 +13,33 @@
 
 package com.vinicius.sticker.domain.data.database;
 
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.ANIMATED_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.LICENSE_AGREEMENT_WEBSITE;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.PRIVACY_POLICY_WEBSITE;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.PUBLISHER_EMAIL;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.PUBLISHER_WEBSITE;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_FILE_EMOJI_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_FILE_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_ICON_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_IDENTIFIER_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_PUBLISHER_IN_QUERY;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class StickerDatabaseHelper extends SQLiteOpenHelper {
+   private static StickerDatabaseHelper instance;
+
    private static final String DATABASE_NAME = "stickers.db";
    private static final int DATABASE_VERSION = 1;
+
+   public static final String STICKER_PACK_IDENTIFIER_IN_QUERY = "sticker_pack_identifier";
+   public static final String STICKER_PACK_NAME_IN_QUERY = "sticker_pack_name";
+   public static final String STICKER_PACK_PUBLISHER_IN_QUERY = "sticker_pack_publisher";
+   public static final String STICKER_PACK_ICON_IN_QUERY = "sticker_pack_icon";
+   public static final String ANDROID_APP_DOWNLOAD_LINK_IN_QUERY = "android_play_store_link";
+   public static final String IOS_APP_DOWNLOAD_LINK_IN_QUERY = "ios_app_download_link";
+   public static final String PUBLISHER_EMAIL = "sticker_pack_publisher_email";
+   public static final String PUBLISHER_WEBSITE = "sticker_pack_publisher_website";
+   public static final String PRIVACY_POLICY_WEBSITE = "sticker_pack_privacy_policy_website";
+   public static final String IMAGE_DATA_VERSION = "image_data_version";
+   public static final String AVOID_CACHE = "whatsapp_will_not_cache_stickers";
+   public static final String LICENSE_AGREEMENT_WEBSITE = "sticker_pack_license_agreement_website";
+   public static final String ANIMATED_STICKER_PACK = "animated_sticker_pack";
+   public static final String STICKER_FILE_NAME_IN_QUERY = "sticker_file_name";
+   public static final String STICKER_FILE_EMOJI_IN_QUERY = "sticker_emoji";
+   public static final String STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY = "sticker_accessibility_text";
    public static final String ID_STICKER_PACKS = "id_sticker_packs";
    public static final String FK_STICKER_PACKS = "fk_sticker_packs";
    public static final String ID_STICKER_PACK = "id_sticker_pack";
@@ -57,10 +61,7 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
                                  " TEXT" +
                                  ")");
 
-      String fkStickerPacks = String.format(
-          "FOREIGN KEY( %s ) REFERENCES sticker_packs( %s ) ON DELETE CASCADE", FK_STICKER_PACKS,
-          ID_STICKER_PACKS
-      );
+      String fkStickerPacks = String.format("FOREIGN KEY( %s ) REFERENCES sticker_packs( %s ) ON DELETE CASCADE", FK_STICKER_PACKS, ID_STICKER_PACKS);
       sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS  sticker_pack(" +
                                  ID_STICKER_PACK +
                                  " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -84,13 +85,14 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
                                  " TEXT," +
                                  FK_STICKER_PACKS +
                                  " INTEGER," +
+                                 IMAGE_DATA_VERSION +
+                                 " TEXT," +
+                                 AVOID_CACHE +
+                                 " TEXT," +
                                  fkStickerPacks +
                                  ")");
 
-      String fkSticker = String.format(
-          "FOREIGN KEY( %s ) REFERENCES sticker_pack( %s ) ON DELETE CASCADE", FK_STICKER_PACK,
-          ID_STICKER_PACK
-      );
+      String fkSticker = String.format("FOREIGN KEY( %s ) REFERENCES sticker_pack( %s ) ON DELETE CASCADE", FK_STICKER_PACK, ID_STICKER_PACK);
       sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS sticker(" +
                                  ID_STICKER +
                                  " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -112,6 +114,13 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
       db.execSQL("DROP TABLE IF EXISTS sticker_pack");
       db.execSQL("DROP TABLE IF EXISTS sticker");
       onCreate(db);
+   }
+
+   public static synchronized StickerDatabaseHelper getInstance(Context context) {
+      if ( instance == null ) {
+         instance = new StickerDatabaseHelper(context.getApplicationContext());
+      }
+      return instance;
    }
 
    public static boolean isDatabaseEmpty(SQLiteDatabase database) {

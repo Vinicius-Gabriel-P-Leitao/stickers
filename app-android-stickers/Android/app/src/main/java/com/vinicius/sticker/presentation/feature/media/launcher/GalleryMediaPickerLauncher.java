@@ -21,7 +21,7 @@ import android.net.Uri;
 import androidx.fragment.app.FragmentActivity;
 
 import com.vinicius.sticker.presentation.feature.media.adapter.PickMediaListAdapter;
-import com.vinicius.sticker.presentation.feature.media.presentation.MediaPickerBottomSheetDialogFragment;
+import com.vinicius.sticker.presentation.feature.media.fragment.MediaPickerBottomSheetDialogFragment;
 
 import java.io.File;
 import java.util.ArrayList;

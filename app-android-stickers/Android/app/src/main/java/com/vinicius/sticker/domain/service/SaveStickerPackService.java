@@ -16,12 +16,14 @@ package com.vinicius.sticker.domain.service;
 import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKERS_ASSET;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
-import android.os.Environment;
 
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
+import com.vinicius.sticker.domain.data.database.StickerDatabaseHelper;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.data.repository.InsertStickerPacks;
 import com.vinicius.sticker.domain.pattern.CallbackResult;
 
 import java.io.File;
@@ -37,25 +39,21 @@ public class SaveStickerPackService {
       void onStickerPackSaveCompleted(CallbackResult callbackResult);
    }
 
-   public static void generateStructureForSavePack(
-       Context context, StickerPack stickerPack, SaveStickerPackCallback callback) {
+   public static void generateStructureForSavePack(Context context, StickerPack stickerPack, SaveStickerPackCallback callback) {
 
-      File mainDirectory =
-          new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), STICKERS_ASSET);
+      File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
 
       if ( !mainDirectory.exists() ) {
          boolean created = mainDirectory.mkdirs();
          if ( !created ) {
-            callback.onStickerPackSaveCompleted(CallbackResult.failure(new StickerPackSaveException(
-                "Falha ao criar o mainDirectory: " + mainDirectory.getPath())));
+            callback.onStickerPackSaveCompleted(
+                CallbackResult.failure(new StickerPackSaveException("Falha ao criar o mainDirectory: " + mainDirectory.getPath())));
             return;
          } else {
-            callback.onStickerPackSaveCompleted(CallbackResult.success(
-                "mainDirectory criado com sucesso: " + mainDirectory.getPath()));
+            callback.onStickerPackSaveCompleted(CallbackResult.success("mainDirectory criado com sucesso: " + mainDirectory.getPath()));
          }
       } else {
-         callback.onStickerPackSaveCompleted(
-             CallbackResult.success("mainDirectory já existe: " + mainDirectory.getPath()));
+         callback.onStickerPackSaveCompleted(CallbackResult.success("mainDirectory já existe: " + mainDirectory.getPath()));
       }
 
       String folderName = stickerPack.identifier;
@@ -63,15 +61,13 @@ public class SaveStickerPackService {
       if ( !stickerPackDirectory.exists() ) {
          boolean created = stickerPackDirectory.mkdirs();
          if ( !created ) {
-            callback.onStickerPackSaveCompleted(CallbackResult.failure(new StickerPackSaveException(
-                "Falha ao criar a pasta: " + stickerPackDirectory.getPath())));
+            callback.onStickerPackSaveCompleted(
+                CallbackResult.failure(new StickerPackSaveException("Falha ao criar a pasta: " + stickerPackDirectory.getPath())));
             return;
          }
-         callback.onStickerPackSaveCompleted(
-             CallbackResult.success("Pasta criada com sucesso: " + stickerPackDirectory.getPath()));
+         callback.onStickerPackSaveCompleted(CallbackResult.success("Pasta criada com sucesso: " + stickerPackDirectory.getPath()));
       } else {
-         callback.onStickerPackSaveCompleted(
-             CallbackResult.warning("Pasta já existe: " + stickerPackDirectory.getPath()));
+         callback.onStickerPackSaveCompleted(CallbackResult.warning("Pasta já existe: " + stickerPackDirectory.getPath()));
       }
 
       cleanDirectory(stickerPackDirectory, callback);
@@ -88,19 +84,25 @@ public class SaveStickerPackService {
                   Path destPath = destFile.toPath();
                   Files.copy(sourcePath, destPath);
 
-                  callback.onStickerPackSaveCompleted(
-                      CallbackResult.success("Arquivo copiado para: " + destFile.getPath()));
+                  callback.onStickerPackSaveCompleted(CallbackResult.success("Arquivo copiado para: " + destFile.getPath()));
                }
             } catch (IOException exception) {
-               callback.onStickerPackSaveCompleted(CallbackResult.failure(
-                   new StickerPackSaveException("Arquivo não encontrado: " + fileName, exception)));
+               callback.onStickerPackSaveCompleted(
+                   CallbackResult.failure(new StickerPackSaveException("Arquivo não encontrado: " + fileName, exception)));
             }
          } else {
-            callback.onStickerPackSaveCompleted(CallbackResult.failure(
-                new StickerPackSaveException("Arquivo não encontrado: " + fileName)));
+            callback.onStickerPackSaveCompleted(CallbackResult.failure(new StickerPackSaveException("Arquivo não encontrado: " + fileName)));
          }
       }
-      // Todo: Usar repositorio para salvar o stickerPack metadata dentro do Sqlite}
+
+      insertStickerPack(context, stickerPack);
+   }
+
+   private static void insertStickerPack(Context context, StickerPack stickerPack) {
+      StickerDatabaseHelper dbHelper = StickerDatabaseHelper.getInstance(context);
+      SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+      new InsertStickerPacks().insertStickerPack(db, stickerPack);
    }
 
    private static void cleanDirectory(File directory, SaveStickerPackCallback callback) {
@@ -110,16 +112,13 @@ public class SaveStickerPackService {
             if ( file.isFile() ) {
                boolean deleted = file.delete();
                if ( deleted ) {
-                  callback.onStickerPackSaveCompleted(
-                      CallbackResult.success("Arquivo excluído: " + file.getName()));
+                  callback.onStickerPackSaveCompleted(CallbackResult.success("Arquivo excluído: " + file.getName()));
                } else {
-                  callback.onStickerPackSaveCompleted(CallbackResult.failure(
-                      new StickerPackSaveException(
-                          "Erro ao excluir o arquivo: " + file.getName())));
+                  callback.onStickerPackSaveCompleted(
+                      CallbackResult.failure(new StickerPackSaveException("Erro ao excluir o arquivo: " + file.getName())));
                }
             }
          }
       }
    }
-
 }

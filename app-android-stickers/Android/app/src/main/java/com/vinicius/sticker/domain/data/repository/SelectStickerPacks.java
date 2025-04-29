@@ -14,20 +14,13 @@
 package com.vinicius.sticker.domain.data.repository;
 
 import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.FK_STICKER_PACK;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.FK_STICKER_PACKS;
 import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.ID_STICKER;
 import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.ID_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.ANIMATED_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.LICENSE_AGREEMENT_WEBSITE;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.PRIVACY_POLICY_WEBSITE;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.PUBLISHER_EMAIL;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.PUBLISHER_WEBSITE;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_FILE_EMOJI_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_FILE_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_ICON_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_IDENTIFIER_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_PUBLISHER_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.ID_STICKER_PACKS;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.STICKER_FILE_EMOJI_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.STICKER_FILE_NAME_IN_QUERY;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -38,25 +31,46 @@ import com.vinicius.sticker.domain.data.database.StickerDatabaseHelper;
 public class SelectStickerPacks {
    public static Cursor getPackForAllStickerPacks(Uri uri, StickerDatabaseHelper dbHelper) {
       SQLiteDatabase db = dbHelper.getReadableDatabase();
-      String[] projection = {ID_STICKER_PACK, STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_ICON_IN_QUERY};
-      return db.query("sticker_pack", projection, null, null, null, null, null);
+
+      String query = "SELECT * FROM sticker_packs " +
+          "INNER JOIN sticker_pack ON sticker_packs." +
+          ID_STICKER_PACKS +
+          " = sticker_pack." +
+          FK_STICKER_PACKS +
+          " " +
+          "INNER JOIN sticker  ON sticker_pack." +
+          ID_STICKER_PACK +
+          " = sticker." +
+          FK_STICKER_PACK;
+
+      return db.rawQuery(query, null);
    }
 
    public static Cursor getCursorForSingleStickerPack(Uri uri, StickerDatabaseHelper dbHelper) {
       SQLiteDatabase db = dbHelper.getReadableDatabase();
-      String[] projection = {ID_STICKER_PACK, STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_ICON_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, ANIMATED_STICKER_PACK};
-      String selection = ID_STICKER_PACK + " = ?";
-      String[] selectionArgs = new String[]{uri.getLastPathSegment()};
 
-      return db.query("sticker_pack", projection, selection, selectionArgs, null, null, null);
+      String query = "SELECT * FROM sticker_packs " +
+          "INNER JOIN sticker_pack ON sticker_packs." +
+          ID_STICKER_PACKS +
+          " = sticker_pack." +
+          FK_STICKER_PACKS +
+          " " +
+          "INNER JOIN sticker  ON sticker_pack." +
+          ID_STICKER_PACK +
+          " = STICKER_TABLE." +
+          FK_STICKER_PACK;
+
+      return db.rawQuery(query, null);
    }
 
    public static Cursor getStickersForAStickerPack(Uri uri, StickerDatabaseHelper dbHelper) {
       SQLiteDatabase db = dbHelper.getReadableDatabase();
-      String[] projection = {ID_STICKER, STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY};
-      String selection = FK_STICKER_PACK + " = ?";
-      String[] selectionArgs = new String[]{uri.getLastPathSegment()};
 
-      return db.query("sticker", projection, selection, selectionArgs, null, null, null);
+      String[] projectionStickerPack =
+          {ID_STICKER, STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY};
+      String selectionStickerPack = FK_STICKER_PACK + " = ?";
+      String[] selectionArgsStickerPack = new String[]{uri.getLastPathSegment()};
+
+      return db.query("sticker", projectionStickerPack, selectionStickerPack, selectionArgsStickerPack, null, null, null);
    }
 }

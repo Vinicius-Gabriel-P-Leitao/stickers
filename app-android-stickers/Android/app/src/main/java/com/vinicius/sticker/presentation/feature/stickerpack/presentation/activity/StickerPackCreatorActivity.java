@@ -29,7 +29,7 @@ import androidx.annotation.NonNull;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.BaseActivity;
-import com.vinicius.sticker.presentation.feature.permission.presentation.PermissionRequestBottomSheetDialogFragment;
+import com.vinicius.sticker.presentation.feature.permission.fragment.PermissionRequestBottomSheetDialogFragment;
 import com.vinicius.sticker.presentation.feature.stickerpack.presentation.fragment.PackMetadataBottomSheetDialogFragment;
 
 import java.util.Arrays;

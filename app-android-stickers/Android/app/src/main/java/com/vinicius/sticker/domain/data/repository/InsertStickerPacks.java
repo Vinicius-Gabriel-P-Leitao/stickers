@@ -13,22 +13,24 @@
 
 package com.vinicius.sticker.domain.data.repository;
 
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.ANIMATED_STICKER_PACK;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.AVOID_CACHE;
 import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.FK_STICKER_PACK;
 import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.FK_STICKER_PACKS;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.ANIMATED_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.LICENSE_AGREEMENT_WEBSITE;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.PRIVACY_POLICY_WEBSITE;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.PUBLISHER_EMAIL;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.PUBLISHER_WEBSITE;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_FILE_EMOJI_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_FILE_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_ICON_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_IDENTIFIER_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.provider.StickerContentProvider.STICKER_PACK_PUBLISHER_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.IMAGE_DATA_VERSION;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.LICENSE_AGREEMENT_WEBSITE;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.PRIVACY_POLICY_WEBSITE;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.PUBLISHER_EMAIL;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.PUBLISHER_WEBSITE;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.STICKER_FILE_EMOJI_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.STICKER_FILE_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.STICKER_PACK_ICON_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.STICKER_PACK_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabaseHelper.STICKER_PACK_PUBLISHER_IN_QUERY;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
@@ -37,7 +39,7 @@ import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 
 public class InsertStickerPacks {
-   private void insertStickerPack(SQLiteDatabase dbHelper, StickerPack pack) {
+   public void insertStickerPack(SQLiteDatabase dbHelper, StickerPack pack) {
       ContentValues stickerPacksValues = new ContentValues();
       stickerPacksValues.put(ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, pack.androidPlayStoreLink);
       stickerPacksValues.put(IOS_APP_DOWNLOAD_LINK_IN_QUERY, pack.iosAppStoreLink);
@@ -55,6 +57,8 @@ public class InsertStickerPacks {
          stickerPackValues.put(LICENSE_AGREEMENT_WEBSITE, pack.licenseAgreementWebsite);
          stickerPackValues.put(ANIMATED_STICKER_PACK, pack.animatedStickerPack ? 1 : 0);
          stickerPackValues.put(FK_STICKER_PACKS, stickerPackId);
+         stickerPackValues.put(IMAGE_DATA_VERSION, pack.imageDataVersion);
+         stickerPackValues.put(AVOID_CACHE, pack.avoidCache ? 1 : 0);
          long result = dbHelper.insert("sticker_pack", null, stickerPackValues);
 
          if ( result != -1 ) {
@@ -62,8 +66,7 @@ public class InsertStickerPacks {
                ContentValues stickerValues = new ContentValues();
                stickerValues.put(STICKER_FILE_NAME_IN_QUERY, sticker.imageFileName);
                stickerValues.put(STICKER_FILE_EMOJI_IN_QUERY, String.valueOf(sticker.emojis));
-               stickerValues.put(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY,
-                                 sticker.accessibilityText);
+               stickerValues.put(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY, sticker.accessibilityText);
                stickerValues.put(FK_STICKER_PACK, stickerPackId);
                dbHelper.insert("sticker", null, stickerValues);
             }

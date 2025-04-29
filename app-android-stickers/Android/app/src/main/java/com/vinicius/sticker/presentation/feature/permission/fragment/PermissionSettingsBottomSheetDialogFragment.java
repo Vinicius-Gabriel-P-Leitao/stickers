@@ -11,7 +11,7 @@
  * Original GPLv3 license text begins below.
  */
 
-package com.vinicius.sticker.presentation.feature.permission.presentation;
+package com.vinicius.sticker.presentation.feature.permission.fragment;
 
 import android.content.Intent;
 import android.net.Uri;
