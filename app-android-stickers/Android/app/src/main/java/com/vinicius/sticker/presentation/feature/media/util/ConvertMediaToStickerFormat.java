@@ -25,6 +25,7 @@ import android.os.Build;
 import android.util.Log;
 
 import com.vinicius.sticker.core.exception.MediaConversionException;
+import com.vinicius.sticker.domain.libs.ConvertToWebp;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -98,26 +99,15 @@ public class ConvertMediaToStickerFormat {
 
         File outputFile = new File(context.getCacheDir(), outputFileName);
 
-        ConvertToWebp convertToWebp = new ConvertToWebp();
-        String output = convertToWebp.convertToWebp(inputPath);
-        Log.i("NativeLoader", "Imagem carregada por classe nativa: " + output);
+        String ffmpegCommand = "-y -i \"%s\" -ss 0 -t 5 "
+                + "-filter_complex \"[0:v]crop='min(in_w\\,in_h)':'min(in_w\\,in_h)',scale=320:320,fps=10\" -vcodec "
+                + "libwebp -lossless 0 -compression_level 9 -q:v 6 -loop 0 -preset default -s 512x512 \"%s\"";
+        String command = String.format(ffmpegCommand, inputPath, outputFile.getAbsolutePath());
 
-//        String ffmpegCommand = "-y -i \"%s\" -ss 0 -t 5 "
-//                + "-filter_complex \"[0:v]crop='min(in_w\\,in_h)':'min(in_w\\,in_h)',scale=320:320,fps=10\" -vcodec "
-//                + "libwebp -lossless 0 -compression_level 9 -q:v 6 -loop 0 -preset default -s 512x512 \"%s\"";
-//        String command = String.format(ffmpegCommand, inputPath, outputFile.getAbsolutePath());
-//      FFmpegKit.executeAsync(
-//          command, session -> {
-//             if ( ReturnCode.isSuccess(session.getReturnCode()) ) {
-//                callback.onSuccess(outputFile);
-//             } else {
-//                String fullErrorLog = session.getAllLogsAsString();
-//                Log.e("MediaConversion", "Erro FFmpeg:\n" + fullErrorLog);
-//
-//                callback.onError(new MediaConversionException("Falha ao converter vídeo para o formato WebP"));
-//             }
-//          }
-//      );
+        ConvertToWebp convertToWebp = new ConvertToWebp();
+        String output = convertToWebp.convertToWebp(inputPath, command);
+
+        Log.i("NativeLoader", "Imagem carregada por classe nativa: " + output);
     }
 
     private static Bitmap cropAndResizeToSquare(Bitmap bitmap) {
@@ -131,13 +121,5 @@ public class ConvertMediaToStickerFormat {
         Bitmap squareBitmap = Bitmap.createBitmap(bitmap, xOffset, yOffset, newEdge, newEdge);
 
         return Bitmap.createScaledBitmap(squareBitmap, 512, 512, true);
-    }
-
-    static class ConvertToWebp {
-        static {
-            System.loadLibrary("sticker");
-        }
-
-        public native String convertToWebp(String inputPath);
     }
 }

@@ -1,33 +1,25 @@
 #include <jni.h>
-
-// Write C++ code here.
-//
-// Do not forget to dynamically load the C++ library into your application.
-//
-// For instance,
-//
-// In MainActivity.java:
-//    static {
-//       System.loadLibrary("sticker");
-//    }
-#include <jni.h>
-#include <string>
 #include <android/log.h>
 
-#define LOG_TAG "ConvertMediaWebpCPP"
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/avutil.h>
+#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
 
-extern "C"
-JNIEXPORT jstring JNICALL
-Java_com_vinicius_sticker_presentation_feature_media_util_ConvertMediaToStickerFormat_00024ConvertToWebp_convertToWebp(
-        JNIEnv *env, jobject thiz, jstring inputPath) {
+#define LOG_TAG "FFmpegJNI"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
-    const char *nativeInputPath = env->GetStringUTFChars(inputPath, nullptr);
-    std::string inputFilePath(nativeInputPath);
-    env->ReleaseStringUTFChars(inputPath, nativeInputPath);
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_vinicius_sticker_domain_libs_ConvertToWebp_convertToWebp(JNIEnv *env, jobject /* this */,
+                                                                  jstring inputPath,
+                                                                  jstring outputPath) {
+    const char *inPath = env->GetStringUTFChars(inputPath, nullptr);
+    const char *outPath = env->GetStringUTFChars(outputPath, nullptr);
 
-    std::string output = "Caminho do arquivo de entrada: " + inputFilePath;
+    unsigned version = avformat_version();
+    LOGD("Versão do FFmpeg: %u", version);
 
-    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "Input path recebido: %s", nativeInputPath);
-
-    return env->NewStringUTF(output.c_str());
+    LOGD("Conversão concluída: %s -> %s", inPath, outPath);
+    return 0;
 }
