@@ -24,8 +24,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
-import com.arthenica.ffmpegkit.FFmpegKit;
-import com.arthenica.ffmpegkit.ReturnCode;
 import com.vinicius.sticker.core.exception.MediaConversionException;
 
 import java.io.File;
@@ -34,101 +32,112 @@ import java.io.IOException;
 import java.util.Map;
 
 public class ConvertMediaToStickerFormat {
-   private static MediaConversionCallback callback;
+    private static MediaConversionCallback callback;
 
-   public interface MediaConversionCallback {
-      void onSuccess(File outputFile);
+    public interface MediaConversionCallback {
+        void onSuccess(File outputFile);
 
-      void onError(Exception exception);
-   }
+        void onError(Exception exception);
+    }
 
-   public static void convertMediaToWebP(Context context, Uri inputUri, String outputFile, MediaConversionCallback callback) {
-      Map<String, String> mapDetailsFile = getFileDetailsFromUri(context, inputUri);
-      if ( mapDetailsFile.isEmpty() ) {
-         throw new MediaConversionException("Não foi possível determinar o tipo MIME do arquivo!");
-      }
+    public static void convertMediaToWebP(Context context, Uri inputUri, String outputFile, MediaConversionCallback callback) {
+        Map<String, String> mapDetailsFile = getFileDetailsFromUri(context, inputUri);
+        if (mapDetailsFile.isEmpty()) {
+            throw new MediaConversionException("Não foi possível determinar o tipo MIME do arquivo!");
+        }
 
-      mapDetailsFile.forEach((String fileName, String mimeType) -> {
-         try {
-            if ( validateUniqueMimeType(mimeType, IMAGE_MIME_TYPES) ) {
-               File imageOutputFile = convertImageToWebP(context, fileName, outputFile);
-               callback.onSuccess(imageOutputFile);
-            } else if ( validateUniqueMimeType(mimeType, ANIMATED_MIME_TYPES) ) {
-               // NOTE: Callback já é dada no método
-               convertVideoToWebP(context, fileName, outputFile, callback);
-            } else {
-               throw new IllegalArgumentException("Tipo MIME não suportado para conversão: " + mimeType);
+        mapDetailsFile.forEach((String fileName, String mimeType) -> {
+            try {
+                if (validateUniqueMimeType(mimeType, IMAGE_MIME_TYPES)) {
+                    File imageOutputFile = convertImageToWebP(context, fileName, outputFile);
+                    callback.onSuccess(imageOutputFile);
+                } else if (validateUniqueMimeType(mimeType, ANIMATED_MIME_TYPES)) {
+                    // NOTE: Callback já é dada no método
+                    convertVideoToWebP(context, fileName, outputFile, callback);
+                } else {
+                    throw new IllegalArgumentException("Tipo MIME não suportado para conversão: " + mimeType);
+                }
+            } catch (IOException exception) {
+                throw new RuntimeException(exception);
             }
-         } catch (IOException exception) {
-            throw new RuntimeException(exception);
-         }
-      });
-   }
+        });
+    }
 
-   public static File convertImageToWebP(Context context, String inputPath, String outputFileName) throws IOException {
-      if ( !outputFileName.toLowerCase().endsWith(".webp") ) {
-         outputFileName = outputFileName.replaceAll("\\.\\w+$", "") + ".webp";
-      }
+    public static File convertImageToWebP(Context context, String inputPath, String outputFileName) throws IOException {
+        if (!outputFileName.toLowerCase().endsWith(".webp")) {
+            outputFileName = outputFileName.replaceAll("\\.\\w+$", "") + ".webp";
+        }
 
-      String cleanedPath = inputPath.startsWith("file://") ? inputPath.substring(7) : inputPath;
-      Bitmap bitmap = BitmapFactory.decodeFile(cleanedPath);
+        String cleanedPath = inputPath.startsWith("file://") ? inputPath.substring(7) : inputPath;
+        Bitmap bitmap = BitmapFactory.decodeFile(cleanedPath);
 
-      if ( bitmap != null ) {
-         Bitmap squareBitmap = cropAndResizeToSquare(bitmap);
+        if (bitmap != null) {
+            Bitmap squareBitmap = cropAndResizeToSquare(bitmap);
 
-         File outputFile = new File(context.getCacheDir(), outputFileName);
-         try (FileOutputStream out = new FileOutputStream(outputFile)) {
-            if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ) {
-               squareBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 80, out);
-            } else {
-               squareBitmap.compress(Bitmap.CompressFormat.WEBP, 80, out);
+            File outputFile = new File(context.getCacheDir(), outputFileName);
+            try (FileOutputStream out = new FileOutputStream(outputFile)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    squareBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 80, out);
+                } else {
+                    squareBitmap.compress(Bitmap.CompressFormat.WEBP, 80, out);
+                }
+
+                return outputFile.getAbsoluteFile();
+            } catch (IOException exception) {
+                callback.onError(new MediaConversionException(exception.getMessage(), exception.getCause()));
             }
+        }
 
-            return outputFile.getAbsoluteFile();
-         } catch (IOException exception) {
-            callback.onError(new MediaConversionException(exception.getMessage(), exception.getCause()));
-         }
-      }
+        return null;
+    }
 
-      return null;
-   }
+    public static void convertVideoToWebP(Context context, String inputPath, String outputFileName, MediaConversionCallback callback) {
+        if (!outputFileName.toLowerCase().endsWith(".webp")) {
+            outputFileName = outputFileName.replaceAll("\\.\\w+$", "") + ".webp";
+        }
 
-   public static void convertVideoToWebP(Context context, String inputPath, String outputFileName, MediaConversionCallback callback) {
-      if ( !outputFileName.toLowerCase().endsWith(".webp") ) {
-         outputFileName = outputFileName.replaceAll("\\.\\w+$", "") + ".webp";
-      }
+        File outputFile = new File(context.getCacheDir(), outputFileName);
 
-      File outputFile = new File(context.getCacheDir(), outputFileName);
+        ConvertToWebp convertToWebp = new ConvertToWebp();
+        String output = convertToWebp.convertToWebp(inputPath);
+        Log.i("NativeLoader", "Imagem carregada por classe nativa: " + output);
 
-      String ffmpegCommand = "-y -i \"%s\" -ss 0 -t 5 "
-                             + "-filter_complex \"[0:v]crop='min(in_w\\,in_h)':'min(in_w\\,in_h)',scale=320:320,fps=10\" -vcodec "
-                             + "libwebp -lossless 0 -compression_level 9 -q:v 6 -loop 0 -preset default -s 512x512 \"%s\"";
-      String command = String.format(ffmpegCommand, inputPath, outputFile.getAbsolutePath());
+//        String ffmpegCommand = "-y -i \"%s\" -ss 0 -t 5 "
+//                + "-filter_complex \"[0:v]crop='min(in_w\\,in_h)':'min(in_w\\,in_h)',scale=320:320,fps=10\" -vcodec "
+//                + "libwebp -lossless 0 -compression_level 9 -q:v 6 -loop 0 -preset default -s 512x512 \"%s\"";
+//        String command = String.format(ffmpegCommand, inputPath, outputFile.getAbsolutePath());
+//      FFmpegKit.executeAsync(
+//          command, session -> {
+//             if ( ReturnCode.isSuccess(session.getReturnCode()) ) {
+//                callback.onSuccess(outputFile);
+//             } else {
+//                String fullErrorLog = session.getAllLogsAsString();
+//                Log.e("MediaConversion", "Erro FFmpeg:\n" + fullErrorLog);
+//
+//                callback.onError(new MediaConversionException("Falha ao converter vídeo para o formato WebP"));
+//             }
+//          }
+//      );
+    }
 
-      FFmpegKit.executeAsync(
-          command, session -> {
-             if ( ReturnCode.isSuccess(session.getReturnCode()) ) {
-                callback.onSuccess(outputFile);
-             } else {
-                String fullErrorLog = session.getAllLogsAsString();
-                Log.e("MediaConversion", "Erro FFmpeg:\n" + fullErrorLog);
+    private static Bitmap cropAndResizeToSquare(Bitmap bitmap) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int newEdge = Math.min(width, height);
 
-                callback.onError(new MediaConversionException("Falha ao converter vídeo para o formato WebP"));
-             }
-          }
-      );
-   }
+        int xOffset = (width - newEdge) / 2;
+        int yOffset = (height - newEdge) / 2;
 
-   private static Bitmap cropAndResizeToSquare(Bitmap bitmap) {
-      int width = bitmap.getWidth();
-      int height = bitmap.getHeight();
-      int newEdge = Math.min(width, height);
+        Bitmap squareBitmap = Bitmap.createBitmap(bitmap, xOffset, yOffset, newEdge, newEdge);
 
-      int xOffset = (width - newEdge) / 2;
-      int yOffset = (height - newEdge) / 2;
+        return Bitmap.createScaledBitmap(squareBitmap, 512, 512, true);
+    }
 
-      Bitmap squareBitmap = Bitmap.createBitmap(bitmap, xOffset, yOffset, newEdge, newEdge);
+    static class ConvertToWebp {
+        static {
+            System.loadLibrary("sticker");
+        }
 
-      return Bitmap.createScaledBitmap(squareBitmap, 512, 512, true);
-   }
+        public native String convertToWebp(String inputPath);
+    }
 }

@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 35
 
-    //the compression of webp file during build causes problem with FileDescriptor in ContentProvider.
     defaultConfig {
         applicationId "com.vinicius.sticker"
         minSdkVersion 24
@@ -11,13 +10,22 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
         def contentProviderAuthority = applicationId + ".stickercontentprovider"
-        // Creates a placeholder property to use in the manifest.
         manifestPlaceholders = [contentProviderAuthority: contentProviderAuthority]
-        // Adds a new field for the authority to the BuildConfig class.
         buildConfigField("String",
                 "CONTENT_PROVIDER_AUTHORITY",
                 "\"${contentProviderAuthority}\"")
+
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+            }
+        }
+
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
     }
     buildTypes {
         debug {
@@ -38,6 +46,12 @@ android {
     packagingOptions {
         jniLibs {
             excludes += ['lib/*/libnative-imagetranscoder.so', 'lib/*/libnative-filters.so']
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.22.1'
         }
     }
 
@@ -95,7 +109,6 @@ tasks.configureEach { task ->
 
 dependencies {
     implementation 'com.github.bumptech.glide:glide:4.16.0'
-    implementation 'com.arthenica:ffmpeg-kit-full:6.0-2'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
