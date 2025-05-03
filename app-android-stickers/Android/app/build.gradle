@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 35
 
-    //the compression of webp file during build causes problem with FileDescriptor in ContentProvider.
     defaultConfig {
         applicationId "com.vinicius.sticker"
         minSdkVersion 24
@@ -11,33 +10,59 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
         def contentProviderAuthority = applicationId + ".stickercontentprovider"
-        // Creates a placeholder property to use in the manifest.
         manifestPlaceholders = [contentProviderAuthority: contentProviderAuthority]
-        // Adds a new field for the authority to the BuildConfig class.
         buildConfigField("String",
                 "CONTENT_PROVIDER_AUTHORITY",
                 "\"${contentProviderAuthority}\"")
+
+        externalNativeBuild {
+            cmake {
+                cppFlags '-std=c++11'
+            }
+        }
+
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a",' "x86", "x86_64"'
+        }
     }
+
     buildTypes {
         debug {
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility = "17"
         targetCompatibility = "17"
     }
+
     packagingOptions {
         jniLibs {
             excludes += ['lib/*/libnative-imagetranscoder.so', 'lib/*/libnative-filters.so']
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['src/main/cpp/vendor/ffmpeg/lib']
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.22.1'
         }
     }
 
@@ -45,18 +70,9 @@ android {
     androidResources {
         noCompress 'webp'
     }
+
     buildFeatures {
         buildConfig true
-    }
-}
-
-tasks.register('checkDebug') {
-    doLast {
-        def androidExtension = project.extensions.findByName("android")
-        if (androidExtension != null && androidExtension.defaultConfig.applicationId.startsWith("com.example")) {
-            throw new GradleException("applicationId in defaultConfig cannot start with com.example, please change your applicationId in app/build.gradle")
-        }
-        checkApplicationIdInDebug(androidExtension)
     }
 }
 
@@ -70,6 +86,17 @@ private void checkApplicationIdInDebug(def androidExtension) {
         }
     } else {
         println("application id check ignored")
+    }
+}
+
+
+tasks.register('checkDebug') {
+    doLast {
+        def androidExtension = project.extensions.findByName("android")
+        if (androidExtension != null && androidExtension.defaultConfig.applicationId.startsWith("com.example")) {
+            throw new GradleException("applicationId in defaultConfig cannot start with com.example, please change your applicationId in app/build.gradle")
+        }
+        checkApplicationIdInDebug(androidExtension)
     }
 }
 
@@ -92,10 +119,8 @@ tasks.configureEach { task ->
     }
 }
 
-
 dependencies {
     implementation 'com.github.bumptech.glide:glide:4.16.0'
-    implementation 'com.arthenica:ffmpeg-kit-full:6.0-2'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.12.0'
