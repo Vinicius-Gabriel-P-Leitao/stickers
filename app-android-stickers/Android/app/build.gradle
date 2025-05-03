@@ -19,12 +19,12 @@ android {
 
         externalNativeBuild {
             cmake {
-                cppFlags '-std=c++11'
+                cppFlags ''
             }
         }
 
         ndk {
-            abiFilters "armeabi-v7a", "arm64-v8a",' "x86", "x86_64"'
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
         }
     }
 
