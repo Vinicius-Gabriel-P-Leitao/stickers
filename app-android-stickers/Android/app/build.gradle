@@ -28,6 +28,15 @@ android {
         }
     }
 
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+            universalApk true
+        }
+    }
+
     buildTypes {
         debug {
             minifyEnabled false
@@ -55,7 +64,9 @@ android {
 
     sourceSets {
         main {
-            jniLibs.srcDirs = ['src/main/cpp/vendor/ffmpeg/lib']
+            jniLibs.srcDirs = [
+                    'src/main/jniLibs'
+            ]
         }
     }
 
