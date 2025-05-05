@@ -7,7 +7,7 @@
 
 ------------------------------------------------------------------------------
 
-                            Preamble
+                        Preamble
 
 Additional Terms – Non-Commercial Clause:
 
@@ -25,12 +25,26 @@ These additional terms take precedence over any conflicting terms in the GNU GPL
 
 ------------------------------------------------------------------------------
 
-NOTICE:
+                           NOTICE:
 
 This license is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.  
 This is **not an official GNU license**, and it is **not endorsed by the Free Software Foundation (FSF)**.
 
 Original GPLv3 license text begins below.
+
+------------------------------------------------------------------------------
+
+            Exemptions – Allowed Commercial Use (Whitelist):
+
+Commercial use is allowed under the following situations, **provided it does not generate any direct or indirect profit**:
+
+- Use in **non-commercial open-source projects** that do not generate any form of revenue or profit, directly or through donations, advertisements, or other means.
+- Use in **non-profit organizations** or **educational/academic activities**, as long as no charge is made to the end users.
+- Use in **academic research environments**, where the software is used for educational or research purposes without any commercialization or charging of users.
+
+**These permissions must be documented and do not apply to any situation involving direct or indirect charging for the use of the software.**
+
+These conditions take precedence over any conflicting terms in the GNU GPLv3.
 
 ------------------------------------------------------------------------------
 
