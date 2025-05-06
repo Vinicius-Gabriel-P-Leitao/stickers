@@ -1,7 +1,7 @@
-prefix=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/x86_64
+prefix=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/x86_64
 exec_prefix=${prefix}
-libdir=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/x86_64/lib
-includedir=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/x86_64/include
+libdir=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/x86_64/lib
+includedir=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/x86_64/include
 
 Name: libavformat
 Description: FFmpeg container format library

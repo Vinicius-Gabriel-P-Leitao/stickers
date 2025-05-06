@@ -1,4 +1,4 @@
-prefix=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/external/x86_64
+prefix=/home/vinicius/Downloads/ffmpeg-android-maker/build/external/x86_64
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

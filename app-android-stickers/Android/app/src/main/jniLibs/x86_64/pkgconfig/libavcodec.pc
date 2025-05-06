@@ -1,7 +1,7 @@
-prefix=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/x86_64
+prefix=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/x86_64
 exec_prefix=${prefix}
-libdir=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/x86_64/lib
-includedir=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/x86_64/include
+libdir=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/x86_64/lib
+includedir=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/x86_64/include
 
 Name: libavcodec
 Description: FFmpeg codec library
@@ -10,5 +10,5 @@ Requires:
 Requires.private: libswresample >= 5.3.100, libavutil >= 59.39.100
 Conflicts:
 Libs: -L${libdir}  -lavcodec 
-Libs.private: -pthread -lm -latomic -L/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/external/x86_64/lib -lwebp -lz
+Libs.private: -pthread -lm -latomic -L/home/vinicius/Downloads/ffmpeg-android-maker/build/external/x86_64/lib -lwebp -lz
 Cflags: -I${includedir}

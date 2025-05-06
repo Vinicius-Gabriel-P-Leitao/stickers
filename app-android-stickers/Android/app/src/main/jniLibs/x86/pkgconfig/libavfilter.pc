@@ -1,7 +1,7 @@
-prefix=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/x86
+prefix=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/x86
 exec_prefix=${prefix}
-libdir=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/x86/lib
-includedir=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/x86/include
+libdir=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/x86/lib
+includedir=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/x86/include
 
 Name: libavfilter
 Description: FFmpeg audio/video filtering library

@@ -1,7 +1,7 @@
-prefix=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/armeabi-v7a
+prefix=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/armeabi-v7a
 exec_prefix=${prefix}
-libdir=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/armeabi-v7a/lib
-includedir=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/armeabi-v7a/include
+libdir=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/armeabi-v7a/lib
+includedir=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/armeabi-v7a/include
 
 Name: libswscale
 Description: FFmpeg image rescaling library

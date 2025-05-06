@@ -1,7 +1,7 @@
-prefix=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/arm64-v8a
+prefix=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/arm64-v8a
 exec_prefix=${prefix}
-libdir=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/arm64-v8a/lib
-includedir=/home/vinicius/Workdir/downloads/ffmpeg-android-maker/build/ffmpeg/arm64-v8a/include
+libdir=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/arm64-v8a/lib
+includedir=/home/vinicius/Downloads/ffmpeg-android-maker/build/ffmpeg/arm64-v8a/include
 
 Name: libswresample
 Description: FFmpeg audio resampling library
