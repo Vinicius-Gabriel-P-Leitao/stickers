@@ -85,6 +85,7 @@ android {
     buildFeatures {
         buildConfig true
     }
+    ndkVersion '27.0.12077973'
 }
 
 private void checkApplicationIdInDebug(def androidExtension) {
