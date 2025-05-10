@@ -26,12 +26,11 @@ import android.os.Build;
 import android.util.Log;
 
 import com.vinicius.sticker.core.exception.MediaConversionException;
-import com.vinicius.sticker.domain.libs.ConvertToWebp;
+import com.vinicius.sticker.domain.libs.NativeConvertToWebp;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Map;
 
 public class ConvertMediaToStickerFormat {
@@ -100,14 +99,18 @@ public class ConvertMediaToStickerFormat {
         }
         File outputFile = new File(context.getCacheDir(), outputFileName);
 
-        ConvertToWebp convertToWebp = new ConvertToWebp();
-        boolean converted = convertToWebp.convertToWebp(getAbsolutePath(context, inputPath), outputFile.getAbsolutePath());
-        if (converted) {
-//            callback.onSuccess(new File(outputFileName));
-            Log.i("ConvertMediaToStickerFormat", "convertVideoToWebP: " + converted);
-        } else {
-            callback.onError(new MediaConversionException("Erro ao converter vídeo para WebP!"));
-        }
+        NativeConvertToWebp nativeConvertToWebp = new NativeConvertToWebp();
+        nativeConvertToWebp.convertToWebpAsync(getAbsolutePath(context, inputPath), outputFile.getAbsolutePath(), new NativeConvertToWebp.ConversionListener() {
+            @Override
+            public void onSuccess(File file) {
+                callback.onSuccess(file);
+            }
+
+            @Override
+            public void onError(Exception exception) {
+                callback.onError(new MediaConversionException(exception.getMessage(), exception.getCause()));
+            }
+        });
     }
 
     private static Bitmap cropAndResizeToSquare(Bitmap bitmap) {
