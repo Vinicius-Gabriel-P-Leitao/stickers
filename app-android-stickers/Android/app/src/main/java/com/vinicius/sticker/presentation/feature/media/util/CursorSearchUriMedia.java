@@ -30,91 +30,95 @@ import java.util.Map;
 
 public class CursorSearchUriMedia {
 
-   public static List<Uri> getMediaUris(Context context, String[] mimeTypes) {
-      List<Uri> mediaUris;
+    public static List<Uri> getMediaUris(Context context, String[] mimeTypes) {
+        List<Uri> mediaUris;
 
-      if ( validateArraysMimeTypes(mimeTypes, IMAGE_MIME_TYPES) ) {
-         mediaUris = getImagesUris(context);
-      } else if ( validateArraysMimeTypes(mimeTypes, ANIMATED_MIME_TYPES) ) {
-         mediaUris = getVideosUris(context);
-      } else {
-         throw new IllegalArgumentException("Tipo MIME não suportado para conversão: " + mimeTypes);
-      }
+        if (validateArraysMimeTypes(mimeTypes, IMAGE_MIME_TYPES)) {
+            mediaUris = getImagesUris(context);
+        } else if (validateArraysMimeTypes(mimeTypes, ANIMATED_MIME_TYPES)) {
+            mediaUris = getVideosUris(context);
+        } else {
+            throw new IllegalArgumentException("Tipo MIME não suportado para conversão: " + mimeTypes);
+        }
 
-      return mediaUris;
-   }
+        return mediaUris;
+    }
 
-   public static Map<String, String> getFileDetailsFromUri(Context context, Uri uri) {
-      Map<String, String> fileDetails = new HashMap<>();
+    public static Map<String, String> getFileDetailsFromUri(Context context, Uri uri) {
+        Map<String, String> fileDetails = new HashMap<>();
+        fileDetails.put(getAbsolutePath(context, uri), context.getContentResolver().getType(uri));
 
-      String fileName = null;
-      String[] projection = {MediaStore.Files.FileColumns.DATA};
-      Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
+        return fileDetails;
+    }
 
-      if ( cursor != null && cursor.moveToFirst() ) {
-         int dataColumn = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-         if ( dataColumn != -1 ) {
-            fileName = cursor.getString(dataColumn);
-         }
-         cursor.close();
-      }
-      String mimeType = context.getContentResolver().getType(uri);
-      fileDetails.put(fileName, mimeType);
+    public static String getAbsolutePath(Context context, Uri uri) {
+        String[] projection = {MediaStore.Files.FileColumns.DATA};
+        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
 
-      return fileDetails;
-   }
+        if (cursor == null) {
+            return uri.getPath();
+        } else {
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
 
-   private static List<Uri> getImagesUris(Context context) {
-      List<Uri> imageUris = new ArrayList<>();
+            String path = cursor.getString(column_index);
 
-      String[] projection = {MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA, MediaStore.Images.Media.MIME_TYPE};
-      Uri collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-      String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC";
-      String selection = MediaStore.Images.Media.MIME_TYPE + "=? OR " + MediaStore.Images.Media.MIME_TYPE + "=?";
+            cursor.close();
+            return path;
+        }
+    }
 
-      Cursor cursor = context.getContentResolver().query(collection, projection, selection, IMAGE_MIME_TYPES, sortOrder);
+    private static List<Uri> getImagesUris(Context context) {
+        List<Uri> imageUris = new ArrayList<>();
 
-      if ( cursor != null ) {
-         int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-         int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        String[] projection = {MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA, MediaStore.Images.Media.MIME_TYPE};
+        Uri collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC";
+        String selection = MediaStore.Images.Media.MIME_TYPE + "=? OR " + MediaStore.Images.Media.MIME_TYPE + "=?";
 
-         while (cursor.moveToNext()) {
-            long id = cursor.getLong(idColumn);
-            Uri imageUri = ContentUris.withAppendedId(collection, id);
-            imageUris.add(imageUri);
+        Cursor cursor = context.getContentResolver().query(collection, projection, selection, IMAGE_MIME_TYPES, sortOrder);
 
-            Log.i("imageUri", "Uri: " + cursor.getString(dataColumn));
-         }
-         cursor.close();
-      }
-      return imageUris;
-   }
+        if (cursor != null) {
+            int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+            int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
 
-   private static List<Uri> getVideosUris(Context context) {
-      List<Uri> videosUris = new ArrayList<>();
+            while (cursor.moveToNext()) {
+                long id = cursor.getLong(idColumn);
+                Uri imageUri = ContentUris.withAppendedId(collection, id);
+                imageUris.add(imageUri);
 
-      Uri collection = MediaStore.Files.getContentUri("external");
-      String[] projection = {MediaStore.Files.FileColumns._ID, MediaStore.Files.FileColumns.MEDIA_TYPE, MediaStore.Files.FileColumns.MIME_TYPE};
-      String selection = MediaStore.Files.FileColumns.MIME_TYPE + "=? OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?";
-      String sortOrder = MediaStore.Files.FileColumns.DATE_ADDED + " DESC";
+                Log.i("imageUri", "Uri: " + cursor.getString(dataColumn));
+            }
+            cursor.close();
+        }
+        return imageUris;
+    }
 
-      Cursor cursor = context.getContentResolver().query(collection, projection, selection, ANIMATED_MIME_TYPES, sortOrder);
+    private static List<Uri> getVideosUris(Context context) {
+        List<Uri> videosUris = new ArrayList<>();
 
-      if ( cursor != null ) {
-         int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID);
-         int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
+        Uri collection = MediaStore.Files.getContentUri("external");
+        String[] projection = {MediaStore.Files.FileColumns._ID, MediaStore.Files.FileColumns.MEDIA_TYPE, MediaStore.Files.FileColumns.MIME_TYPE};
+        String selection = MediaStore.Files.FileColumns.MIME_TYPE + "=? OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?";
+        String sortOrder = MediaStore.Files.FileColumns.DATE_ADDED + " DESC";
 
-         while (cursor.moveToNext()) {
-            long id = cursor.getLong(idColumn);
-            Uri fileUri = ContentUris.withAppendedId(collection, id);
-            videosUris.add(fileUri);
+        Cursor cursor = context.getContentResolver().query(collection, projection, selection, ANIMATED_MIME_TYPES, sortOrder);
 
-            Log.i("animatedUri", "Uri: " + cursor.getString(dataColumn));
-         }
+        if (cursor != null) {
+            int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID);
+            int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
 
-         cursor.close();
-      }
+            while (cursor.moveToNext()) {
+                long id = cursor.getLong(idColumn);
+                Uri fileUri = ContentUris.withAppendedId(collection, id);
+                videosUris.add(fileUri);
 
-      return videosUris;
-   }
+                Log.i("animatedUri", "Uri: " + cursor.getString(dataColumn));
+            }
+
+            cursor.close();
+        }
+
+        return videosUris;
+    }
 }

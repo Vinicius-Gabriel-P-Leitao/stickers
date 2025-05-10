@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.22.1)
 project("sticker")
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 set(ENV{PKG_CONFIG_LIBDIR} "${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/pkgconfig")
 
 include_directories(${CMAKE_SOURCE_DIR}/../include/ffmpeg/)
@@ -53,28 +54,28 @@ set_target_properties(
 )
 
 # Libs do libwebp
-add_library(webp SHARED IMPORTED)
+add_library(webp STATIC IMPORTED)
 set_target_properties(
         webp
         PROPERTIES IMPORTED_LOCATION
         ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libwebp.a
 )
 
-add_library(sharpyuv SHARED IMPORTED)
+add_library(sharpyuv STATIC IMPORTED)
 set_target_properties(
         sharpyuv
         PROPERTIES IMPORTED_LOCATION
         ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libsharpyuv.a
 )
 
-add_library(webpmux SHARED IMPORTED)
+add_library(webpmux STATIC IMPORTED)
 set_target_properties(
         webpmux
         PROPERTIES IMPORTED_LOCATION
         ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libwebpmux.a
 )
 
-add_library(webpdemux SHARED IMPORTED)
+add_library(webpdemux STATIC IMPORTED)
 set_target_properties(
         webpdemux
         PROPERTIES IMPORTED_LOCATION
@@ -88,16 +89,16 @@ pkg_check_modules(AVFORMAT REQUIRED IMPORTED_TARGET libavformat)
 
 target_link_libraries(
         ${CMAKE_PROJECT_NAME}
+        avutil
         avcodec
         avformat
-        avutil
         swscale
         swresample
         avdevice
+        webpdemux
+        webpmux
         webp
         sharpyuv
-        webpmux
-        webpdemux
         android
         log
 )

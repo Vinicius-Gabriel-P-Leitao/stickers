@@ -15,6 +15,7 @@ package com.vinicius.sticker.presentation.feature.media.util;
 import static com.vinicius.sticker.core.validation.MimeTypesValidator.validateUniqueMimeType;
 import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
 import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
+import static com.vinicius.sticker.presentation.feature.media.util.CursorSearchUriMedia.getAbsolutePath;
 import static com.vinicius.sticker.presentation.feature.media.util.CursorSearchUriMedia.getFileDetailsFromUri;
 
 import android.content.Context;
@@ -30,6 +31,7 @@ import com.vinicius.sticker.domain.libs.ConvertToWebp;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Map;
 
 public class ConvertMediaToStickerFormat {
@@ -54,7 +56,7 @@ public class ConvertMediaToStickerFormat {
                     callback.onSuccess(imageOutputFile);
                 } else if (validateUniqueMimeType(mimeType, ANIMATED_MIME_TYPES)) {
                     // NOTE: Callback já é dada no método
-                    convertVideoToWebP(context, fileName, outputFile, callback);
+                    convertVideoToWebP(context, inputUri, outputFile, callback);
                 } else {
                     throw new IllegalArgumentException("Tipo MIME não suportado para conversão: " + mimeType);
                 }
@@ -92,22 +94,20 @@ public class ConvertMediaToStickerFormat {
         return null;
     }
 
-    public static void convertVideoToWebP(Context context, String inputPath, String outputFileName, MediaConversionCallback callback) {
+    public static void convertVideoToWebP(Context context, Uri inputPath, String outputFileName, MediaConversionCallback callback) {
         if (!outputFileName.toLowerCase().endsWith(".webp")) {
             outputFileName = outputFileName.replaceAll("\\.\\w+$", "") + ".webp";
         }
-
         File outputFile = new File(context.getCacheDir(), outputFileName);
 
-        String ffmpegCommand = "-y -i \"%s\" -ss 0 -t 5 "
-                + "-filter_complex \"[0:v]crop='min(in_w\\,in_h)':'min(in_w\\,in_h)',scale=320:320,fps=10\" -vcodec "
-                + "libwebp -lossless 0 -compression_level 9 -q:v 6 -loop 0 -preset default -s 512x512 \"%s\"";
-        String command = String.format(ffmpegCommand, inputPath, outputFile.getAbsolutePath());
-
         ConvertToWebp convertToWebp = new ConvertToWebp();
-        String output = convertToWebp.convertToWebp(inputPath, command);
-
-        Log.i("NativeLoader", "Imagem carregada por classe nativa: " + output);
+        boolean converted = convertToWebp.convertToWebp(getAbsolutePath(context, inputPath), outputFile.getAbsolutePath());
+        if (converted) {
+//            callback.onSuccess(new File(outputFileName));
+            Log.i("ConvertMediaToStickerFormat", "convertVideoToWebP: " + converted);
+        } else {
+            callback.onError(new MediaConversionException("Erro ao converter vídeo para WebP!"));
+        }
     }
 
     private static Bitmap cropAndResizeToSquare(Bitmap bitmap) {

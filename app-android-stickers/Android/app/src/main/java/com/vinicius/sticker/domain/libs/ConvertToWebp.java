@@ -18,5 +18,5 @@ public class ConvertToWebp {
         System.loadLibrary("sticker");
     }
 
-    public native String convertToWebp(String inputPath, String command);
+    public native boolean convertToWebp(String inputPath, String outputPath);
 }
