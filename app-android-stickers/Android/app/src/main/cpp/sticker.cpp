@@ -140,13 +140,22 @@ CreateAnimatedWebP(const char *outputPath, std::vector<FrameWithBuffer> &frames,
         return 0;
     }
 
+    // Definindo opções de animação
+    WebPAnimEncoderOptionsInit(&encOptions);
+    encOptions.minimize_size = 1;
+
     WebPConfig webPConfig;
     if (!WebPConfigInit(&webPConfig)) {
         __android_log_print(ANDROID_LOG_ERROR, "WebP", "Falha ao inicializar WebPConfig");
         return 0;
     }
+
     webPConfig.lossless = 0;
-    webPConfig.quality = 20;
+    webPConfig.quality = 10.0f;
+    webPConfig.method = 2;
+    webPConfig.filter_strength = 70;
+    webPConfig.segments = 4;
+    webPConfig.preprocessing = 2;
 
     WebPAnimEncoderPtr encoder(WebPAnimEncoderNew(width, height, &encOptions));
     if (!encoder) {
@@ -177,7 +186,9 @@ CreateAnimatedWebP(const char *outputPath, std::vector<FrameWithBuffer> &frames,
         }
 
         if (!WebPAnimEncoderAdd(encoder.get(), &webPPicture, timestampMs, &webPConfig)) {
-            __android_log_print(ANDROID_LOG_ERROR, "WebP", "Erro ao adicionar frame");
+            __android_log_print(ANDROID_LOG_ERROR, "WebP",
+                                "Erro ao adicionar frame ao encoder: %s",
+                                WebPAnimEncoderGetError(encoder.get()));
             WebPPictureFree(&webPPicture);
             return 0;
         }
@@ -218,9 +229,10 @@ CreateAnimatedWebP(const char *outputPath, std::vector<FrameWithBuffer> &frames,
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_com_vinicius_sticker_domain_libs_ConvertToWebp_convertToWebp(JNIEnv *env, jobject /* this */,
-                                                                  jstring inputPath,
-                                                                  jstring outputPath) {
+Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *env,
+                                                                        jobject /* this */,
+                                                                        jstring inputPath,
+                                                                        jstring outputPath) {
     // Gerenciamento de strings JNI com o RAII
     JniString inPath(env, inputPath);
     JniString outPath(env, outputPath);
