@@ -201,11 +201,11 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
 
     AVRational framerate = av_guess_frame_rate(formatContext.get(), videoStream, nullptr);
     double fpsOriginal = av_q2d(framerate);
-    int frameInterval = std::max(1, static_cast<int>(fpsOriginal / 15.0 + 0.5));
+    int frameInterval = std::max(1, static_cast<int>(fpsOriginal / 10.0 + 0.5));
     int frameCount = 0;
 
-    int width = 512;
-    int height = 512;
+    int width = codecContext->width;
+    int height = codecContext->height;
     SwsContextPtr swsContext(
             sws_getContext(width, height, codecContext->pix_fmt, width, height, AV_PIX_FMT_RGB24,
                            SWS_BILINEAR, nullptr, nullptr, nullptr));

@@ -95,10 +95,9 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
     }
 
     webPConfig.lossless = 0;
-    webPConfig.quality = 10.0f;
+    webPConfig.quality = 20.0f;
     webPConfig.method = 2;
     webPConfig.filter_strength = 70;
-    webPConfig.segments = 4;
     webPConfig.preprocessing = 2;
 
     LOGINF("Criando encoder");
