@@ -29,6 +29,18 @@ extern "C" {
 #include "mux.h"
 }
 
+#define LOG_TAG_JNI "StickerConverterNative"
+#define LOG_TAG_FFMPEG "FFFmpeg"
+
+#define LOGEJ(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG_JNI, __VA_ARGS__)
+#define LOGEF(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG_FFMPEG, __VA_ARGS__)
+
+#define LOGIJ(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_JNI, __VA_ARGS__)
+#define LOGIF(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_FFMPEG, __VA_ARGS__)
+
+#define  LOGDJ(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG_JNI, __VA_ARGS__)
+#define  LOGDF(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG_FFMPEG, __VA_ARGS__)
+
 // RAII para AVFrame
 struct AVFrameDeleter {
     void operator()(AVFrame *frame) const {
@@ -41,7 +53,7 @@ using AVFramePtr = std::unique_ptr<AVFrame, AVFrameDeleter>;
 AVFramePtr create_av_frame() {
     AVFrame *frame = av_frame_alloc();
     if (!frame) {
-        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg", "Falha ao alocar AVFrame");
+        LOGEJ("Falha ao alocar AVFrame");
     }
 
     return AVFramePtr(frame);
@@ -123,21 +135,20 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     JniString outPath(env, outputPath);
 
     if (!inPath.get() || !outPath.get()) {
-        __android_log_print(ANDROID_LOG_ERROR, "JNI", "Caminhos de entrada ou saída inválidos");
+        LOGEJ("Caminhos de entrada ou saída inválidos");
         return JNI_FALSE;
     }
 
     // Inicialização de contextos com RAII
     AVFormatContext *formatContextRaw = nullptr;
     if (avformat_open_input(&formatContextRaw, inPath.get(), nullptr, nullptr) != 0) {
-        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg", "Erro ao abrir arquivo: %s", inPath.get());
+        LOGEF("Erro ao abrir arquivo: %s", inPath.get());
         return JNI_FALSE;
     }
 
     AVFormatContextPtr formatContext(formatContextRaw);
     if (avformat_find_stream_info(formatContext.get(), nullptr) < 0) {
-        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg",
-                            "Erro ao encontrar informações do stream em: %s", inPath.get());
+        LOGEF("Erro ao encontrar informações do stream em: %s", inPath.get());
         return JNI_FALSE;
     }
 
@@ -150,26 +161,25 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     }
 
     if (videoStreamIndex == -1) {
-        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg", "Nenhum stream de vídeo encontrado");
+        LOGEF("Nenhum stream de vídeo encontrado em: %s", inPath.get());
         return JNI_FALSE;
     }
 
     AVStream *videoStream = formatContext->streams[videoStreamIndex];
     const AVCodec *codec = avcodec_find_decoder(videoStream->codecpar->codec_id);
     if (!codec) {
-        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg", "Codec não encontrado");
+        LOGEF("Nenhum codec encontrado para o stream de vídeo");
         return JNI_FALSE;
     }
 
     AVCodecContextPtr codecContext(avcodec_alloc_context3(codec));
     if (!codecContext) {
-        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg",
-                            "Não foi possível alocar o contexto do codec");
+        LOGEF("Não foi possível alocar o contexto do codec");
         return JNI_FALSE;
     }
 
     if (avcodec_parameters_to_context(codecContext.get(), videoStream->codecpar) < 0) {
-        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg", "Erro ao configurar o contexto do codec");
+        LOGEF("Erro ao configurar o contexto do codec");
         return JNI_FALSE;
     }
 
@@ -177,14 +187,15 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     if (ret < 0) {
         char errBuf[128];
         av_strerror(ret, errBuf, sizeof(errBuf));
-        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg", "Erro ao abrir o codec: %s", errBuf);
+
+        LOGEF("Erro ao abrir o codec: %s", errBuf);
         return JNI_FALSE;
     }
 
     AVFramePtr frame = create_av_frame();
     AVFramePtr rgbFrame = create_av_frame();
     if (!frame || !rgbFrame) {
-        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg", "Erro ao alocar frames");
+        LOGEF("Erro ao alocar frames");
         return JNI_FALSE;
     }
 
@@ -199,14 +210,13 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
             sws_getContext(width, height, codecContext->pix_fmt, width, height, AV_PIX_FMT_RGB24,
                            SWS_BILINEAR, nullptr, nullptr, nullptr));
     if (!swsContext) {
-        __android_log_print(ANDROID_LOG_ERROR,
-                            "FFmpeg", "Erro ao criar o contexto de redimensionamento");
+        LOGEF("Erro ao criar o contexto de redimensionamento");
         return JNI_FALSE;
     }
 
     AVBufferPtr buffer(av_malloc(av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1)));
     if (!buffer) {
-        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg", "Erro ao alocar buffer RGB");
+        LOGEF("Erro ao alocar buffer RGB");
         return JNI_FALSE;
     }
     av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, static_cast<uint8_t *>(buffer.get()),
@@ -222,7 +232,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     while (av_read_frame(formatContext.get(), &packet) >= 0) {
         if (packet.stream_index == videoStreamIndex) {
 
-            // Pega os priemeiros 5 segundos de vídeo
+            // Pega os primeiros 5 segundos de vídeo
             if (packet.pts != AV_NOPTS_VALUE) {
                 double seconds = packet.pts * av_q2d(videoStream->time_base);
                 if (seconds > 5.0) {
@@ -235,8 +245,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
             if (ret < 0) {
                 char errBuf[128];
                 av_strerror(ret, errBuf, sizeof(errBuf));
-                __android_log_print(ANDROID_LOG_ERROR,
-                                    "FFmpeg", "Erro ao enviar pacote para o codec: %s", errBuf);
+                LOGEF("Erro ao enviar pacote para o codec: %s", errBuf);
                 av_packet_unref(&packet);
                 break;
             }
@@ -249,17 +258,14 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
                 }
 
                 if (ret == 0) {
-                    __android_log_print(ANDROID_LOG_DEBUG,
-                                        "FFmpeg","Frame decodificado: formato=%d, width=%d, height=%d, linesize[0]=%d",
-                                        frame->format, frame->width, frame->height,
-                                        frame->linesize[0]);
+                    LOGIF("Frame decodificado: formato=%d, width=%d, height=%d, linesize[0]=%d",
+                          frame->format, frame->width, frame->height, frame->linesize[0]);
                 }
 
                 if (ret < 0) {
                     char errBuf[128];
                     av_strerror(ret, errBuf, sizeof(errBuf));
-                    __android_log_print(ANDROID_LOG_ERROR, "FFmpeg",
-                                        "Erro ao receber o quadro decodificado: %s", errBuf);
+                    LOGEF("Erro ao receber o quadro decodificado: %s", errBuf);
                     break;
                 }
 
@@ -270,8 +276,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
                     FrameWithBuffer clone;
                     clone.frame = create_av_frame();
                     if (!clone.frame) {
-                        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg",
-                                            "Erro ao alocar frame clone");
+                        LOGIF("Erro ao alocar frame clone");
                         continue;
                     }
 
@@ -281,9 +286,9 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
 
                     clone.buffer.reset(av_malloc(
                             av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1)));
+
                     if (!clone.buffer) {
-                        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg",
-                                            "Erro ao alocar buffer para clone");
+                        LOGIF("Erro ao alocar buffer clone");
                         continue;
                     }
 
@@ -296,14 +301,12 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
                                   AV_PIX_FMT_RGB24, width, height);
 
                     if (av_frame_copy_props(clone.frame.get(), frame.get()) != 0) {
-                        __android_log_print(ANDROID_LOG_ERROR, "FFmpeg",
-                                            "Erro ao copiar propriedades do frame");
+                        LOGIJ("Erro ao copiar propriedades do frame");
                         continue;
                     }
 
                     frames.push_back(std::move(clone));
-                    __android_log_print(ANDROID_LOG_DEBUG, "FFmpeg",
-                                        "Frame %zu adicionado à lista de animação", frames.size());
+                    LOGDF("Frame %zu adicionado à lista de animação", frames.size());
                 }
 
                 frameCount++;
@@ -314,26 +317,22 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
 
     if (!frames.empty()) {
         int durationMs = 100;
-        __android_log_print(ANDROID_LOG_INFO, "WebP", "Gerando animação com %zu frames...",
-                            frames.size());
+        LOGDF("Gerando animação com %zu frames...", frames.size());
 
         if (frames.size() < 2) {
-            __android_log_print(ANDROID_LOG_WARN, "WebP",
-                                "Apenas %zu frame(s) capturado(s) — a animação pode parecer estática",
-                                frames.size());
+            LOGIF("Apenas %zu frame(s) capturado(s) — a animação pode parecer estática",
+                  frames.size());
         }
 
         int result = WebpAnimationConverter::convertToWebp(outPath.get(), frames, width, height,
                                                            durationMs);
         if (!result) {
-            __android_log_print(ANDROID_LOG_ERROR, "WebP", "Falha ao criar a animação WebP");
+            LOGEF("Falha ao criar a animação WebP");
             return JNI_FALSE;
         }
-        __android_log_print(ANDROID_LOG_INFO, "WebP", "Animação WebP criada com sucesso: %s",
-                            outPath.get());
+        LOGDF("Animação WebP criada com sucesso: %s", outPath.get());
     } else {
-        __android_log_print(ANDROID_LOG_ERROR, "WebP",
-                            "Nenhum frame capturado para criar a animação");
+        LOGEF("Nenhum frame capturado para criar a animação");
         return JNI_FALSE;
     }
 

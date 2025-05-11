@@ -26,6 +26,10 @@ extern "C" {
 #include "mux.h"
 }
 
+#define LOG_TAG_SERVICE "WebPAnimationConverter"
+#define LOGEST(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG_SERVICE, __VA_ARGS__)
+#define LOGDF(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG_SERVICE, __VA_ARGS__)
+#define LOGINF(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_SERVICE, __VA_ARGS__)
 
 // RAII para WebPAnimEncoder
 struct WebPAnimEncoderDeleter {
@@ -76,8 +80,7 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
                                       int durationMs) {
     WebPAnimEncoderOptions encOptions;
     if (!WebPAnimEncoderOptionsInit(&encOptions)) {
-        __android_log_print(ANDROID_LOG_ERROR, "WebP",
-                            "Falha ao inicializar WebPAnimEncoderOptions");
+        LOGEST("Falha ao inicializar WebPAnimEncoderOptions");
         return 0;
     }
 
@@ -87,7 +90,7 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
 
     WebPConfig webPConfig;
     if (!WebPConfigInit(&webPConfig)) {
-        __android_log_print(ANDROID_LOG_ERROR, "WebP", "Falha ao inicializar WebPConfig");
+        LOGEST("Falha ao inicializar WebPConfig");
         return 0;
     }
 
@@ -98,23 +101,22 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
     webPConfig.segments = 4;
     webPConfig.preprocessing = 2;
 
+    LOGINF("Criando encoder");
+
     WebPAnimEncoderPtr encoder(WebPAnimEncoderNew(width, height, &encOptions));
     if (!encoder) {
-        __android_log_print(ANDROID_LOG_ERROR, "WebP", "Erro ao criar WebPAnimEncoder");
+        LOGEST("Erro ao criar WebPAnimEncoder");
         return 0;
     }
 
     int timestampMs = 0;
     for (const auto &frameWithBuffer: frames) {
         const AVFramePtr &frame = frameWithBuffer.frame;
-
-        __android_log_print(ANDROID_LOG_DEBUG,
-                            "WebP", "Adicionando frame ao encoder, timestamp: %d ms",
-                            timestampMs);
+        LOGDF("Adicionando frame ao encoder, timestamp: %d ms", timestampMs);
 
         WebPPicture webPPicture;
         if (!WebPPictureInit(&webPPicture)) {
-            __android_log_print(ANDROID_LOG_ERROR, "WebP", "Erro ao inicializar WebPPicture");
+            LOGEST("Erro ao inicializar WebPPicture");
             return 0;
         }
         webPPicture.width = width;
@@ -122,15 +124,15 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
         webPPicture.use_argb = 1;
 
         if (!WebPPictureImportRGB(&webPPicture, frame->data[0], frame->linesize[0])) {
-            __android_log_print(ANDROID_LOG_ERROR, "WebP", "Erro ao importar dados RGB");
+            LOGEST("Erro ao importar dados RGB");
             WebPPictureFree(&webPPicture);
             return 0;
         }
 
         if (!WebPAnimEncoderAdd(encoder.get(), &webPPicture, timestampMs, &webPConfig)) {
-            __android_log_print(ANDROID_LOG_ERROR,
-                                "WebP", "Erro ao adicionar frame ao encoder: %s",
-                                WebPAnimEncoderGetError(encoder.get()));
+            LOGEST("Erro ao adicionar frame ao encoder: %s",
+                   WebPAnimEncoderGetError(encoder.get()));
+
             WebPPictureFree(&webPPicture);
             return 0;
         }
@@ -140,7 +142,7 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
     }
 
     if (!WebPAnimEncoderAdd(encoder.get(), nullptr, timestampMs, nullptr)) {
-        __android_log_print(ANDROID_LOG_ERROR, "WebP", "Erro ao finalizar frames");
+        LOGEST("Erro ao finalizar frames: %s", WebPAnimEncoderGetError(encoder.get()));
         return 0;
     }
 
@@ -149,24 +151,20 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
 
     WebPDataPtr webp_data_ptr(&webpData);
     if (!WebPAnimEncoderAssemble(encoder.get(), &webpData)) {
-        __android_log_print(ANDROID_LOG_ERROR, "WebP", "Erro ao montar animação");
+        LOGEST("Erro ao montar animação: %s", WebPAnimEncoderGetError(encoder.get()));
         return 0;
     }
 
     FILE *pFile = fopen(outputPath, "wb");
     if (!pFile) {
-        __android_log_print(ANDROID_LOG_ERROR,
-                            "WebP", "Erro ao abrir arquivo de saída: %s",
-                            outputPath);
+        LOGEST("Erro ao abrir arquivo de saída: %s", outputPath);
         return 0;
     }
 
     fwrite(webpData.bytes, 1, webpData.size, pFile);
     fclose(pFile);
-    __android_log_print(ANDROID_LOG_INFO,
-                        "WebP", "Arquivo WebP salvo com sucesso em: %s (%zu bytes)", outputPath,
-                        webpData.size);
 
+    LOGINF("Arquivo WebP salvo com sucesso em: %s (%zu bytes)", outputPath, webpData.size);
     return 1;
 }
 
