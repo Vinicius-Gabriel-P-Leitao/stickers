@@ -4,10 +4,16 @@ project("sticker")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 set(ENV{PKG_CONFIG_LIBDIR} "${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/pkgconfig")
 
+file(GLOB_RECURSE SOURCES
+        "jni/*.cpp"
+)
+
 include_directories(${CMAKE_SOURCE_DIR}/../include/ffmpeg/)
 include_directories(${CMAKE_SOURCE_DIR}/../include/libwebp/)
 
-add_library(${CMAKE_PROJECT_NAME} SHARED sticker.cpp)
+add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCES})
+add_library(${CMAKE_PROJECT_SERVICE_WEBP} SHARED ${SOURCES})
+
 add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS)
 
 # Libs do ffmepg
@@ -89,6 +95,7 @@ pkg_check_modules(AVFORMAT REQUIRED IMPORTED_TARGET libavformat)
 
 target_link_libraries(
         ${CMAKE_PROJECT_NAME}
+        ${CMAKE_PROJECT_SERVICE_WEBP}
         avutil
         avcodec
         avformat
