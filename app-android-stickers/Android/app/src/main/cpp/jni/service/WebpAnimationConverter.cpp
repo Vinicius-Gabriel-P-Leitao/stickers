@@ -11,6 +11,7 @@
  * Original GPLv3 license text begins below.
  */
 #include "WebpAnimationConverter.h"
+#include "format.h"
 
 #include <jni.h>
 #include <vector>
@@ -73,14 +74,35 @@ struct FrameWithBuffer {
 };
 
 int
-WebpAnimationConverter::convertToWebp(const char *outputPath,
+WebpAnimationConverter::convertToWebp(JNIEnv *env,
+                                      const char *outputPath,
                                       std::vector<FrameWithBuffer> &frames,
                                       int width,
                                       int height,
                                       int durationMs) {
+    jclass nativeMediaException = env->FindClass(
+            "com/vinicius/sticker/core/exception/NativeConversionException");
+
+    if (nativeMediaException == nullptr) {
+        jclass fallback = env->FindClass("java/lang/RuntimeException");
+
+        if (fallback != nullptr) {
+            env->ThrowNew(fallback, "Classe NativeConversionException não encontrada");
+            return JNI_FALSE;
+        } else {
+            // Caso nem a Runtime seja encontrada
+            env->FatalError("Falha crítica: nenhuma classe de exceção encontrada");
+            return JNI_FALSE;
+        }
+    }
+
     WebPAnimEncoderOptions encOptions;
     if (!WebPAnimEncoderOptionsInit(&encOptions)) {
-        LOGEST("Falha ao inicializar WebPAnimEncoderOptions");
+        std::string msgError = fmt::format("Falha ao inicializar WebPAnimEncoderOptions");
+
+        LOGEST("%s", msgError.c_str());
+        env->ThrowNew(nativeMediaException, msgError.c_str());
+
         return 0;
     }
 
@@ -90,7 +112,11 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
 
     WebPConfig webPConfig;
     if (!WebPConfigInit(&webPConfig)) {
-        LOGEST("Falha ao inicializar WebPConfig");
+        std::string msgError = fmt::format("Falha ao inicializar WebPConfig");
+
+        LOGEST("%s", msgError.c_str());
+        env->ThrowNew(nativeMediaException, msgError.c_str());
+
         return 0;
     }
 
@@ -104,7 +130,11 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
 
     WebPAnimEncoderPtr encoder(WebPAnimEncoderNew(width, height, &encOptions));
     if (!encoder) {
-        LOGEST("Erro ao criar WebPAnimEncoder");
+        std::string msgError = fmt::format("Erro ao criar WebPAnimEncoder");
+
+        LOGEST("%s", msgError.c_str());
+        env->ThrowNew(nativeMediaException, msgError.c_str());
+
         return 0;
     }
 
@@ -115,7 +145,11 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
 
         WebPPicture webPPicture;
         if (!WebPPictureInit(&webPPicture)) {
-            LOGEST("Erro ao inicializar WebPPicture");
+            std::string msgError = fmt::format("Erro ao inicializar WebPPicture");
+
+            LOGEST("%s", msgError.c_str());
+            env->ThrowNew(nativeMediaException, msgError.c_str());
+
             return 0;
         }
         webPPicture.width = width;
@@ -123,14 +157,20 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
         webPPicture.use_argb = 1;
 
         if (!WebPPictureImportRGB(&webPPicture, frame->data[0], frame->linesize[0])) {
-            LOGEST("Erro ao importar dados RGB");
+            std::string msgError = fmt::format("Erro ao importar dados RGB");
+
+            LOGEST("%s", msgError.c_str());
+            env->ThrowNew(nativeMediaException, msgError.c_str());
+
             WebPPictureFree(&webPPicture);
             return 0;
         }
 
         if (!WebPAnimEncoderAdd(encoder.get(), &webPPicture, timestampMs, &webPConfig)) {
-            LOGEST("Erro ao adicionar frame ao encoder: %s",
-                   WebPAnimEncoderGetError(encoder.get()));
+            std::string msgError = fmt::format("Erro ao adicionar frame ao encoder: %s", WebPAnimEncoderGetError(encoder.get()));
+
+            LOGEST("%s", msgError.c_str());
+            env->ThrowNew(nativeMediaException, msgError.c_str());
 
             WebPPictureFree(&webPPicture);
             return 0;
@@ -141,7 +181,11 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
     }
 
     if (!WebPAnimEncoderAdd(encoder.get(), nullptr, timestampMs, nullptr)) {
-        LOGEST("Erro ao finalizar frames: %s", WebPAnimEncoderGetError(encoder.get()));
+        std::string msgError = fmt::format("Erro ao finalizar frames: %s", WebPAnimEncoderGetError(encoder.get()));
+
+        LOGEST("%s", msgError.c_str());
+        env->ThrowNew(nativeMediaException, msgError.c_str());
+
         return 0;
     }
 
@@ -150,13 +194,21 @@ WebpAnimationConverter::convertToWebp(const char *outputPath,
 
     WebPDataPtr webp_data_ptr(&webpData);
     if (!WebPAnimEncoderAssemble(encoder.get(), &webpData)) {
-        LOGEST("Erro ao montar animação: %s", WebPAnimEncoderGetError(encoder.get()));
+        std::string msgError = fmt::format("Erro ao montar animação: %s", WebPAnimEncoderGetError(encoder.get()));
+
+        LOGEST("%s", msgError.c_str());
+        env->ThrowNew(nativeMediaException, msgError.c_str());
+
         return 0;
     }
 
     FILE *pFile = fopen(outputPath, "wb");
     if (!pFile) {
-        LOGEST("Erro ao abrir arquivo de saída: %s", outputPath);
+        std::string msgError = fmt::format("Erro ao abrir arquivo de saída: %s", outputPath);
+
+        LOGEST("%s", msgError.c_str());
+        env->ThrowNew(nativeMediaException, msgError.c_str());
+
         return 0;
     }
 
