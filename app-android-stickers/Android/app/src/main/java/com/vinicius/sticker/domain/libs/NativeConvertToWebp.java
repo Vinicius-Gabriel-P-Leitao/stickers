@@ -34,7 +34,7 @@ public class NativeConvertToWebp {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public void convertToWebpAsync(String inputPath, String outputPath, ConversionListener listener) {
+    public void convertToWebpAsync(String inputPath, String outputPath, ConversionListener listener) throws MediaConversionException {
         executorService.submit(() -> {
             try {
                 boolean success = convertToWebp(inputPath, outputPath);
@@ -43,8 +43,8 @@ public class NativeConvertToWebp {
                 if (success && outputFile.exists()) {
                     try {
                         Thread.sleep(100);
-                    } catch (InterruptedException ignored) {
-                        // Todo: Tratar a exceção
+                    } catch (InterruptedException exception) {
+                        throw new MediaConversionException(exception.getMessage(), exception.getCause());
                     }
 
                     listener.onSuccess(outputFile);
@@ -52,7 +52,7 @@ public class NativeConvertToWebp {
                     listener.onError(new MediaConversionException("Falha na conversão ou arquivo não gerado."));
                 }
             } catch (Exception exception) {
-                listener.onError(new MediaConversionException("Erro inesperado durante a conversão.", exception));
+                listener.onError(new MediaConversionException("Erro inesperado durante a conversão nativa: ", exception));
             }
         });
     }
