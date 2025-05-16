@@ -14,12 +14,12 @@
 #include <string>
 #include <android/log.h>
 
-#include "HandlerException.h"
+#include "HandlerJavaException.h"
 
-#define LOG_TAG_HANDLER "HandlerException"
+#define LOG_TAG_HANDLER "HandlerJavaException"
 #define LOGEH(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG_HANDLER, __VA_ARGS__)
 
-void HandlerException::throwException(JNIEnv *env, jclass exClass, const std::string &message) {
+void HandlerJavaException::throwNativeConversionException(JNIEnv *env, jclass exClass, const std::string &message) {
 
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
@@ -41,6 +41,6 @@ void HandlerException::throwException(JNIEnv *env, jclass exClass, const std::st
     logException(message);
 }
 
-void HandlerException::logException(const std::string &message) {
+void HandlerJavaException::logException(const std::string &message) {
     LOGEH("%s", message.c_str());
 }

@@ -11,19 +11,19 @@
  * Original GPLv3 license text begins below.
  */
 
-#ifndef ANDROID_HANDLEREXCEPTION_H
-#define ANDROID_HANDLEREXCEPTION_H
+#ifndef ANDROID_HANDLERJAVAEXCEPTION_H
+#define ANDROID_HANDLERJAVAEXCEPTION_H
 
 #include <jni.h>
 #include <string>
 
-class HandlerException {
+class HandlerJavaException {
 public:
-    static void throwException(JNIEnv *env, jclass exClass, const std::string &message);
+    static void throwNativeConversionException(JNIEnv *env, jclass exClass, const std::string &message);
 
 private:
     static void logException(const std::string &message);
 };
 
 
-#endif //ANDROID_HANDLEREXCEPTION_H
+#endif //ANDROID_HANDLERJAVAEXCEPTION_H
