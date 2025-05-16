@@ -20,7 +20,7 @@
 #include <iostream>
 #include <android/log.h>
 
-#include "../exception/HandlerException.h"
+#include "../exception/HandlerJavaException.h"
 
 extern "C" {
 #include "mux.h"
@@ -87,7 +87,7 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
     WebPAnimEncoderOptions encOptions;
     if (!WebPAnimEncoderOptionsInit(&encOptions)) {
         std::string msgError = fmt::format("Falha ao inicializar WebPAnimEncoderOptions");
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return 0;
     }
@@ -99,7 +99,7 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
     WebPConfig webPConfig;
     if (!WebPConfigInit(&webPConfig)) {
         std::string msgError = fmt::format("Falha ao inicializar WebPConfig");
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return 0;
     }
@@ -115,7 +115,7 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
     WebPAnimEncoderPtr encoder(WebPAnimEncoderNew(width, height, &encOptions));
     if (!encoder) {
         std::string msgError = fmt::format("Erro ao criar WebPAnimEncoder");
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return 0;
     }
@@ -128,7 +128,7 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
         WebPPicture webPPicture;
         if (!WebPPictureInit(&webPPicture)) {
             std::string msgError = fmt::format("Erro ao inicializar WebPPicture");
-            HandlerException::throwException(env, nativeMediaException, msgError);
+            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
             return 0;
         }
@@ -138,7 +138,7 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
 
         if (!WebPPictureImportRGB(&webPPicture, frame->data[0], frame->linesize[0])) {
             std::string msgError = fmt::format("Erro ao importar dados RGB");
-            HandlerException::throwException(env, nativeMediaException, msgError);
+            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
             WebPPictureFree(&webPPicture);
             return 0;
@@ -146,7 +146,7 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
 
         if (!WebPAnimEncoderAdd(encoder.get(), &webPPicture, timestampMs, &webPConfig)) {
             std::string msgError = fmt::format("Erro ao adicionar frame ao encoder: %s", WebPAnimEncoderGetError(encoder.get()));
-            HandlerException::throwException(env, nativeMediaException, msgError);
+            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
             WebPPictureFree(&webPPicture);
             return 0;
@@ -158,7 +158,7 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
 
     if (!WebPAnimEncoderAdd(encoder.get(), nullptr, timestampMs, nullptr)) {
         std::string msgError = fmt::format("Erro ao finalizar vFrameBuffer: %s", WebPAnimEncoderGetError(encoder.get()));
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return 0;
     }
@@ -169,7 +169,7 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
     WebPDataPtr webp_data_ptr(&webpData);
     if (!WebPAnimEncoderAssemble(encoder.get(), &webpData)) {
         std::string msgError = fmt::format("Erro ao montar animação: %s", WebPAnimEncoderGetError(encoder.get()));
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return 0;
     }
@@ -177,7 +177,7 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
     FILE *pFile = fopen(outputPath, "wb");
     if (!pFile) {
         std::string msgError = fmt::format("Erro ao abrir arquivo de saída: %s", outputPath);
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return 0;
     }

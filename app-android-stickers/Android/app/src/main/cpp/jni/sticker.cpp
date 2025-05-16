@@ -11,6 +11,7 @@
  * Original GPLv3 license text begins below.
  */
 #include <jni.h>
+#include <cmath>
 #include <vector>
 #include <memory>
 #include <string>
@@ -18,7 +19,7 @@
 #include <format.h>
 #include <android/log.h>
 
-#include "exception/HandlerException.h"
+#include "exception/HandlerJavaException.h"
 #include "service/WebpAnimationConverter.h"
 
 #include "raii/AVFrameDeleter.h"
@@ -43,11 +44,8 @@ extern "C" {
 #define LOG_TAG_JNI "NativeStickerConverter"
 #define LOG_TAG_FFMPEG "NativeFFmpeg"
 
-#define LOGEJ(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG_JNI, __VA_ARGS__)
-
 #define LOGIJ(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_JNI, __VA_ARGS__)
 #define LOGIF(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_FFMPEG, __VA_ARGS__)
-
 #define  LOGDF(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG_FFMPEG, __VA_ARGS__)
 
 struct FrameWithBuffer {
@@ -79,13 +77,13 @@ AVFramePtr create_av_frame(JNIEnv *env, jclass exClass) {
     AVFramePtr frame(av_frame_alloc());
     if (!frame) {
         std::string msgError = fmt::format("Falha ao alocar AVFramePtr");
-        HandlerException::throwException(env, exClass, msgError);
+        HandlerJavaException::throwNativeConversionException(env, exClass, msgError);
 
         return nullptr;
     }
 
     return frame;
-};
+}
 
 extern "C"
 JNIEXPORT jboolean JNICALL
@@ -100,7 +98,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
 
     if (!inPath.get() || !outPath.get()) {
         std::string msgError = fmt::format("Caminhos de entrada ou saída inválidos");
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
@@ -108,7 +106,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     AVFormatContext *formatContextRaw = nullptr;
     if (avformat_open_input(&formatContextRaw, inPath.get(), nullptr, nullptr) != 0) {
         std::string msgError = fmt::format("Erro ao abrir arquivo: {}", inPath.get());
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
@@ -117,7 +115,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     if (avformat_find_stream_info(formatContext.get(), nullptr) < 0) {
         std::string msgError = fmt::format("Erro ao encontrar informações do stream em: {}",
                                            inPath.get());
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
@@ -133,7 +131,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     if (videoStreamIndex == -1) {
         std::string msgError = fmt::format("Nenhum stream encontrado no vídeo no arquivo: {}",
                                            inPath.get());
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
@@ -142,7 +140,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     const AVCodec *codec = avcodec_find_decoder(videoStream->codecpar->codec_id);
     if (!codec) {
         std::string msgError = fmt::format("Nenhum codec encontrado para o stream de vídeo");
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
@@ -150,25 +148,25 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     AVCodecContextPtr codecContext(avcodec_alloc_context3(codec));
     if (!codecContext) {
         std::string msgError = fmt::format("Não foi possível alocar o contexto do codec");
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
 
     if (avcodec_parameters_to_context(codecContext.get(), videoStream->codecpar) < 0) {
         std::string msgError = fmt::format("Erro ao configurar o contexto do codec");
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
 
-    int ret = avcodec_open2(codecContext.get(), codec, nullptr);
-    if (ret < 0) {
+    int retAvCodec2 = avcodec_open2(codecContext.get(), codec, nullptr);
+    if (retAvCodec2 < 0) {
         char errBuf[128];
-        av_strerror(ret, errBuf, sizeof(errBuf));
+        av_strerror(retAvCodec2, errBuf, sizeof(errBuf));
 
         std::string msgError = fmt::format("Erro ao abrir o codec: {}", errBuf);
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
@@ -177,14 +175,14 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     AVFramePtr rgbFrame = create_av_frame(env, nativeMediaException);
     if (!frame || !rgbFrame) {
         std::string msgError = fmt::format("Erro ao alocar vFrameBuffer");
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
 
     AVRational frameRate = av_guess_frame_rate(formatContext.get(), videoStream, nullptr);
     double fpsOriginal = av_q2d(frameRate);
-    int frameInterval = std::max(1, static_cast<int>(fpsOriginal / 10.0 + 0.5));
+    int frameInterval = std::max(1, static_cast<int>(std::lround(fpsOriginal / 10.0)));
     int frameCount = 0;
 
     int width = codecContext->width;
@@ -194,7 +192,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
                            SWS_BILINEAR, nullptr, nullptr, nullptr));
     if (!swsContext) {
         std::string msgError = fmt::format("Erro ao criar o contexto de redimensionamento");
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
@@ -202,7 +200,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     AVBufferPtr buffer(av_malloc(av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1)));
     if (!buffer) {
         std::string msgError = fmt::format("Erro ao alocar buffer RGB");
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
@@ -214,7 +212,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     AVPacket *packet = av_packet_alloc();
     if (!packet) {
         std::string msgError = "Erro ao alocar packet";
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
@@ -228,45 +226,45 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
             // Pega os primeiros 5 segundos de vídeo
             // TODO: Validar videos de -5s
             if (packet->pts != AV_NOPTS_VALUE) {
-                double seconds = packet->pts * av_q2d(videoStream->time_base);
+                double seconds = static_cast<double>(packet->pts) * av_q2d(videoStream->time_base);
+
                 if (seconds > 5.0) {
                     av_packet_unref(packet);
                     break;
                 }
             }
 
-            int ret = avcodec_send_packet(codecContext.get(), packet);
-            if (ret < 0) {
+            retAvCodec2 = avcodec_send_packet(codecContext.get(), packet);
+            if (retAvCodec2 < 0) {
                 char errBuf[128];
-                av_strerror(ret, errBuf, sizeof(errBuf));
+                av_strerror(retAvCodec2, errBuf, sizeof(errBuf));
 
                 std::string msgError = fmt::format("Erro ao enviar pacote para o codec: {}",
                                                    errBuf);
-                HandlerException::throwException(env, nativeMediaException, msgError);
+                HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
                 av_packet_unref(packet);
                 break;
             }
 
-            while (ret >= 0) {
-                ret = avcodec_receive_frame(codecContext.get(), frame.get());
-
-                if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+            while (true) {
+                retAvCodec2 = avcodec_receive_frame(codecContext.get(), frame.get());
+                if (retAvCodec2 == AVERROR(EAGAIN) || retAvCodec2 == AVERROR_EOF) {
                     break;
                 }
 
-                if (ret == 0) {
+                if (retAvCodec2 == 0) {
                     LOGIF("Frame decodificado: formato=%d, width=%d, height=%d, linesize[0]=%d",
                           frame->format, frame->width, frame->height, frame->linesize[0]);
                 }
 
-                if (ret < 0) {
+                if (retAvCodec2 < 0) {
                     char errBuf[128];
-                    av_strerror(ret, errBuf, sizeof(errBuf));
+                    av_strerror(retAvCodec2, errBuf, sizeof(errBuf));
 
                     std::string msgError = fmt::format("Erro ao receber o quadro decodificado: {}",
                                                        errBuf);
-                    HandlerException::throwException(env, nativeMediaException, msgError);
+                    HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
                     break;
                 }
 
@@ -275,7 +273,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
 
                 if (frameCount % frameInterval == 0) {
                     FrameWithBuffer clone;
-                    clone.frame = create_av_frame();
+                    clone.frame = create_av_frame(env, nativeMediaException);
                     if (!clone.frame) {
                         LOGIF("Erro ao alocar frame clone");
                         continue;
@@ -331,14 +329,14 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
 
         if (!result) {
             std::string msgError = fmt::format("Falha ao criar a animação WebP");
-            HandlerException::throwException(env, nativeMediaException, msgError);
+            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
             return JNI_FALSE;
         }
         LOGDF("Animação WebP criada com sucesso: %s", outPath.get());
     } else {
         std::string msgError = fmt::format("Nenhum frame capturado para criar a animação");
-        HandlerException::throwException(env, nativeMediaException, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
     }
