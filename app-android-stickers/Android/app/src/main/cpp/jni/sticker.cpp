@@ -55,9 +55,6 @@ struct FrameWithBuffer {
     AVBufferPtr buffer;
 };
 
-std::vector<FrameWithBuffer> vFrameBuffer;
-
-// RAII para strings JNI e converter em char*
 struct JniString {
     JNIEnv *env;
     jstring jstr;
@@ -78,13 +75,16 @@ struct JniString {
     [[nodiscard]] const char *get() const { return cstr; }
 };
 
-AVFramePtr create_av_frame() {
-    AVFrame *frame = av_frame_alloc();
+AVFramePtr create_av_frame(JNIEnv *env, jclass exClass) {
+    AVFramePtr frame(av_frame_alloc());
     if (!frame) {
-        LOGEJ("Falha ao alocar AVFrame");
+        std::string msgError = fmt::format("Falha ao alocar AVFramePtr");
+        HandlerException::throwException(env, exClass, msgError);
+
+        return nullptr;
     }
 
-    return AVFramePtr(frame);
+    return frame;
 };
 
 extern "C"
@@ -115,7 +115,8 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
 
     AVFormatContextPtr formatContext(formatContextRaw);
     if (avformat_find_stream_info(formatContext.get(), nullptr) < 0) {
-        std::string msgError = fmt::format("Erro ao encontrar informações do stream em: {}", inPath.get());
+        std::string msgError = fmt::format("Erro ao encontrar informações do stream em: {}",
+                                           inPath.get());
         HandlerException::throwException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
@@ -130,7 +131,8 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
     }
 
     if (videoStreamIndex == -1) {
-        std::string msgError = fmt::format("Nenhum stream encontrado no vídeo no arquivo: {}", inPath.get());
+        std::string msgError = fmt::format("Nenhum stream encontrado no vídeo no arquivo: {}",
+                                           inPath.get());
         HandlerException::throwException(env, nativeMediaException, msgError);
 
         return JNI_FALSE;
@@ -171,8 +173,8 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
         return JNI_FALSE;
     }
 
-    AVFramePtr frame = create_av_frame();
-    AVFramePtr rgbFrame = create_av_frame();
+    AVFramePtr frame = create_av_frame(env, nativeMediaException);
+    AVFramePtr rgbFrame = create_av_frame(env, nativeMediaException);
     if (!frame || !rgbFrame) {
         std::string msgError = fmt::format("Erro ao alocar vFrameBuffer");
         HandlerException::throwException(env, nativeMediaException, msgError);
@@ -238,7 +240,8 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
                 char errBuf[128];
                 av_strerror(ret, errBuf, sizeof(errBuf));
 
-                std::string msgError = fmt::format("Erro ao enviar pacote para o codec: {}", errBuf);
+                std::string msgError = fmt::format("Erro ao enviar pacote para o codec: {}",
+                                                   errBuf);
                 HandlerException::throwException(env, nativeMediaException, msgError);
 
                 av_packet_unref(packet);
@@ -261,7 +264,8 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
                     char errBuf[128];
                     av_strerror(ret, errBuf, sizeof(errBuf));
 
-                    std::string msgError = fmt::format("Erro ao receber o quadro decodificado: {}", errBuf);
+                    std::string msgError = fmt::format("Erro ao receber o quadro decodificado: {}",
+                                                       errBuf);
                     HandlerException::throwException(env, nativeMediaException, msgError);
                     break;
                 }
@@ -322,7 +326,8 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
                   frames.size());
         }
 
-        int result = WebpAnimationConverter::convertToWebp(env, outPath.get(), frames, width, height, durationMs);
+        int result = WebpAnimationConverter::convertToWebp(env, outPath.get(), frames, width,
+                                                           height, durationMs);
 
         if (!result) {
             std::string msgError = fmt::format("Falha ao criar a animação WebP");
