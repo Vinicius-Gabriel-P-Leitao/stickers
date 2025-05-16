@@ -19,5 +19,4 @@ struct AVBufferDeleter {
 
 using AVBufferPtr = std::unique_ptr<void, AVBufferDeleter>;
 
-
 #endif //ANDROID_AVBUFFERDELETER_H

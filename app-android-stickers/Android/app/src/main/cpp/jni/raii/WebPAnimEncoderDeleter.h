@@ -5,7 +5,7 @@
 #ifndef ANDROID_WEBPANIMENCODERDELETER_H
 #define ANDROID_WEBPANIMENCODERDELETER_H
 
-#include <string>
+#include <memory>
 
 extern "C" {
 #include <mux.h>

@@ -5,7 +5,7 @@
 #ifndef ANDROID_AVFRAMEDELETER_H
 #define ANDROID_AVFRAMEDELETER_H
 
-#include <string>
+#include <memory>
 
 extern "C" {
 #include "libavutil/frame.h"

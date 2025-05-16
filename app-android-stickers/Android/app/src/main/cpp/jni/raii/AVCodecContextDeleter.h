@@ -5,7 +5,7 @@
 #ifndef ANDROID_AVCODECCONTEXTDELETER_H
 #define ANDROID_AVCODECCONTEXTDELETER_H
 
-#include <string>
+#include <memory>
 
 extern "C" {
 #include "libavcodec/avcodec.h"

@@ -5,7 +5,7 @@
 #ifndef ANDROID_SWSCONTEXTDELETER_H
 #define ANDROID_SWSCONTEXTDELETER_H
 
-#include <string>
+#include <memory>
 
 extern "C" {
 #include "libswscale/swscale.h"

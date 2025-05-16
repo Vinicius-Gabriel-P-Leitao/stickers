@@ -5,7 +5,7 @@
 #ifndef ANDROID_WEBPDATADELETER_H
 #define ANDROID_WEBPDATADELETER_H
 
-#include <string>
+#include <memory>
 
 extern "C" {
 #include <mux.h>

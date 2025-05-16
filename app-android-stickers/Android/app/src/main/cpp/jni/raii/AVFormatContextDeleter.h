@@ -5,7 +5,7 @@
 #ifndef ANDROID_AVFORMATCONTEXTDELETER_H
 #define ANDROID_AVFORMATCONTEXTDELETER_H
 
-#include <string>
+#include <memory>
 
 extern "C" {
 #include "libavformat/avformat.h"
