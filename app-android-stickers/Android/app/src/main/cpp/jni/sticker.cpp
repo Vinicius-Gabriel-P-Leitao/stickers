@@ -10,6 +10,7 @@
  *
  * Original GPLv3 license text begins below.
  */
+
 #include <jni.h>
 #include <cmath>
 #include <vector>
@@ -29,16 +30,16 @@
 #include "raii/AVFormatContextDeleter.h"
 
 extern "C" {
-#include "libswresample/swresample.h"
-#include "libavformat/avformat.h"
-#include "libavcodec/avcodec.h"
-#include "libswscale/swscale.h"
-#include "libavutil/imgutils.h"
-#include "libavutil/avutil.h"
-#include "libavutil/frame.h"
+#include "mux.h"
 #include "decode.h"
 #include "encode.h"
-#include "mux.h"
+#include "libavutil/frame.h"
+#include "libavutil/avutil.h"
+#include "libavutil/imgutils.h"
+#include "libavcodec/avcodec.h"
+#include "libswscale/swscale.h"
+#include "libavformat/avformat.h"
+#include "libswresample/swresample.h"
 }
 
 #define LOG_TAG_JNI "NativeStickerConverter"
@@ -224,7 +225,6 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
         if (packet->stream_index == videoStreamIndex) {
 
             // Pega os primeiros 5 segundos de vídeo
-            // TODO: Validar videos de -5s
             if (packet->pts != AV_NOPTS_VALUE) {
                 double seconds = static_cast<double>(packet->pts) * av_q2d(videoStream->time_base);
 
@@ -239,8 +239,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
                 char errBuf[128];
                 av_strerror(retAvCodec2, errBuf, sizeof(errBuf));
 
-                std::string msgError = fmt::format("Erro ao enviar pacote para o codec: {}",
-                                                   errBuf);
+                std::string msgError = fmt::format("Erro ao enviar pacote para o codec: {}", errBuf);
                 HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
                 av_packet_unref(packet);
@@ -262,8 +261,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
                     char errBuf[128];
                     av_strerror(retAvCodec2, errBuf, sizeof(errBuf));
 
-                    std::string msgError = fmt::format("Erro ao receber o quadro decodificado: {}",
-                                                       errBuf);
+                    std::string msgError = fmt::format("Erro ao receber o quadro decodificado: {}", errBuf);
                     HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
                     break;
                 }
@@ -272,39 +270,41 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
                           0, height, rgbFrame->data, rgbFrame->linesize);
 
                 if (frameCount % frameInterval == 0) {
-                    FrameWithBuffer clone;
-                    clone.frame = create_av_frame(env, nativeMediaException);
-                    if (!clone.frame) {
-                        LOGIF("Erro ao alocar frame clone");
+                    FrameWithBuffer frameWithBuffer;
+                    frameWithBuffer.frame = create_av_frame(env, nativeMediaException);
+                    if (!frameWithBuffer.frame) {
+                        LOGIF("Erro ao alocar frame frameWithBuffer");
                         continue;
                     }
 
-                    clone.frame->format = AV_PIX_FMT_RGB24;
-                    clone.frame->width = width;
-                    clone.frame->height = height;
+                    frameWithBuffer.frame->format = AV_PIX_FMT_RGB24;
+                    frameWithBuffer.frame->width = width;
+                    frameWithBuffer.frame->height = height;
 
-                    clone.buffer.reset(av_malloc(
-                            av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1)));
+                    int targetCloneBufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1);
+                    frameWithBuffer.buffer.reset(av_malloc(targetCloneBufferSize));
 
-                    if (!clone.buffer) {
-                        LOGIF("Erro ao alocar buffer clone");
+                    if (!frameWithBuffer.buffer) {
+                        LOGIF("Erro ao alocar buffer frameWithBuffer");
                         continue;
                     }
 
-                    av_image_fill_arrays(clone.frame->data, clone.frame->linesize,
-                                         static_cast<uint8_t *>(clone.buffer.get()),
+                    // TODO implementar antes de copiar o frame ele já redimencionar
+                    av_image_fill_arrays(frameWithBuffer.frame->data, frameWithBuffer.frame->linesize,
+                                         static_cast<uint8_t *>(frameWithBuffer.buffer.get()),
                                          AV_PIX_FMT_RGB24, width, height, 1);
 
-                    av_image_copy(clone.frame->data, clone.frame->linesize,
+                    // Copia o frame original para o novo
+                    av_image_copy(frameWithBuffer.frame->data, frameWithBuffer.frame->linesize,
                                   (const uint8_t **) rgbFrame->data, rgbFrame->linesize,
                                   AV_PIX_FMT_RGB24, width, height);
 
-                    if (av_frame_copy_props(clone.frame.get(), frame.get()) != 0) {
+                    if (av_frame_copy_props(frameWithBuffer.frame.get(), frame.get()) != 0) {
                         LOGIJ("Erro ao copiar propriedades do frame");
                         continue;
                     }
 
-                    frames.push_back(std::move(clone));
+                    frames.push_back(std::move(frameWithBuffer));
                     LOGDF("Frame %zu adicionado à lista de animação", frames.size());
                 }
 
@@ -324,8 +324,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
                   frames.size());
         }
 
-        int result = WebpAnimationConverter::convertToWebp(env, outPath.get(), frames, width,
-                                                           height, durationMs);
+        int result = WebpAnimationConverter::convertToWebp(env, outPath.get(), frames, width, height, durationMs);
 
         if (!result) {
             std::string msgError = fmt::format("Falha ao criar a animação WebP");

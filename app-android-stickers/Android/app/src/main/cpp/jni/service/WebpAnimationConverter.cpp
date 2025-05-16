@@ -10,8 +10,9 @@
  *
  * Original GPLv3 license text begins below.
  */
-#include "WebpAnimationConverter.h"
+
 #include "format.h"
+#include "WebpAnimationConverter.h"
 
 #include <jni.h>
 #include <vector>
@@ -22,6 +23,11 @@
 
 #include "../exception/HandlerJavaException.h"
 
+#include "../raii/AVFrameDeleter.h"
+#include "../raii/WebPDataDeleter.h"
+#include "../raii/AVBufferDeleter.h"
+#include "../raii/WebPAnimEncoderDeleter.h"
+
 extern "C" {
 #include "mux.h"
 #include "decode.h"
@@ -30,46 +36,9 @@ extern "C" {
 }
 
 #define LOG_TAG_SERVICE "WebPAnimationConverter"
-#define LOGEST(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG_SERVICE, __VA_ARGS__)
 #define LOGDF(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG_SERVICE, __VA_ARGS__)
 #define LOGINF(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_SERVICE, __VA_ARGS__)
 
-// RAII para WebPAnimEncoder
-struct WebPAnimEncoderDeleter {
-    void operator()(WebPAnimEncoder *enc) const {
-        WebPAnimEncoderDelete(enc);
-    }
-};
-
-using WebPAnimEncoderPtr = std::unique_ptr<WebPAnimEncoder, WebPAnimEncoderDeleter>;
-
-// RAII para WebPData
-struct WebPDataDeleter {
-    void operator()(WebPData *data) const {
-        WebPDataClear(data);
-    }
-};
-
-using WebPDataPtr = std::unique_ptr<WebPData, WebPDataDeleter>;
-
-// RAII para frame
-struct AVFrameDeleter {
-    void operator()(AVFrame *frame) const {
-        av_frame_free(&frame);
-    }
-};
-
-// RAII para buffer
-struct AVBufferDeleter {
-    void operator()(void *ptr) const {
-        av_free(ptr);
-    }
-};
-
-using AVBufferPtr = std::unique_ptr<void, AVBufferDeleter>;
-using AVFramePtr = std::unique_ptr<AVFrame, AVFrameDeleter>;
-
-// RAII para AVBufferRef para referencia dos vFrameBuffer e buffers
 struct FrameWithBuffer {
     AVFramePtr frame;
     AVBufferPtr buffer;
