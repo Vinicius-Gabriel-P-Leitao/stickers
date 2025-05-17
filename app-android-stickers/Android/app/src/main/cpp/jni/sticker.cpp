@@ -22,6 +22,7 @@
 
 #include "exception/HandlerJavaException.h"
 #include "service/WebpAnimationConverter.h"
+#include "service/ResizeCropFrame.h"
 
 #include "raii/AVFrameDeleter.h"
 #include "raii/AVBufferDeleter.h"
@@ -42,17 +43,11 @@ extern "C" {
 #include "libswresample/swresample.h"
 }
 
-#define LOG_TAG_JNI "NativeStickerConverter"
+#define LOG_TAG_RESIZE_CROP "NativeStickerConverter"
 #define LOG_TAG_FFMPEG "NativeFFmpeg"
 
-#define LOGIJ(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_JNI, __VA_ARGS__)
 #define LOGIF(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_FFMPEG, __VA_ARGS__)
 #define  LOGDF(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG_FFMPEG, __VA_ARGS__)
-
-struct FrameWithBuffer {
-    AVFramePtr frame;
-    AVBufferPtr buffer;
-};
 
 struct JniString {
     JNIEnv *env;
@@ -73,18 +68,6 @@ struct JniString {
 
     [[nodiscard]] const char *get() const { return cstr; }
 };
-
-AVFramePtr create_av_frame(JNIEnv *env, jclass exClass) {
-    AVFramePtr frame(av_frame_alloc());
-    if (!frame) {
-        std::string msgError = fmt::format("Falha ao alocar AVFramePtr");
-        HandlerJavaException::throwNativeConversionException(env, exClass, msgError);
-
-        return nullptr;
-    }
-
-    return frame;
-}
 
 extern "C"
 JNIEXPORT jboolean JNICALL
@@ -172,12 +155,10 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
         return JNI_FALSE;
     }
 
-    AVFramePtr frame = create_av_frame(env, nativeMediaException);
-    AVFramePtr rgbFrame = create_av_frame(env, nativeMediaException);
-    if (!frame || !rgbFrame) {
-        std::string msgError = fmt::format("Erro ao alocar vFrameBuffer");
+    AVFramePtr rgbFrame = ResizeCropFrame::createAvFrame(env, nativeMediaException, 512, 512, AV_PIX_FMT_RGB24);
+    if (!rgbFrame) {
+        std::string msgError = fmt::format("Erro ao alocar frame RGB");
         HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
-
         return JNI_FALSE;
     }
 
@@ -198,17 +179,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
         return JNI_FALSE;
     }
 
-    AVBufferPtr buffer(av_malloc(av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1)));
-    if (!buffer) {
-        std::string msgError = fmt::format("Erro ao alocar buffer RGB");
-        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
-
-        return JNI_FALSE;
-    }
-    av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, static_cast<uint8_t *>(buffer.get()),
-                         AV_PIX_FMT_RGB24, width, height, 1);
-
-    std::vector<FrameWithBuffer> frames;
+    std::vector<FrameWithBuffer> vFramesWithBuffer;
 
     AVPacket *packet = av_packet_alloc();
     if (!packet) {
@@ -247,14 +218,14 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
             }
 
             while (true) {
-                retAvCodec2 = avcodec_receive_frame(codecContext.get(), frame.get());
+                retAvCodec2 = avcodec_receive_frame(codecContext.get(), rgbFrame.get());
                 if (retAvCodec2 == AVERROR(EAGAIN) || retAvCodec2 == AVERROR_EOF) {
                     break;
                 }
 
                 if (retAvCodec2 == 0) {
                     LOGIF("Frame decodificado: formato=%d, width=%d, height=%d, linesize[0]=%d",
-                          frame->format, frame->width, frame->height, frame->linesize[0]);
+                          rgbFrame->format, rgbFrame->width, rgbFrame->height, rgbFrame->linesize[0]);
                 }
 
                 if (retAvCodec2 < 0) {
@@ -263,49 +234,12 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
 
                     std::string msgError = fmt::format("Erro ao receber o quadro decodificado: {}", errBuf);
                     HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
+
                     break;
                 }
 
-                sws_scale(swsContext.get(), frame->data, frame->linesize,
-                          0, height, rgbFrame->data, rgbFrame->linesize);
-
                 if (frameCount % frameInterval == 0) {
-                    FrameWithBuffer frameWithBuffer;
-                    frameWithBuffer.frame = create_av_frame(env, nativeMediaException);
-                    if (!frameWithBuffer.frame) {
-                        LOGIF("Erro ao alocar frame frameWithBuffer");
-                        continue;
-                    }
-
-                    frameWithBuffer.frame->format = AV_PIX_FMT_RGB24;
-                    frameWithBuffer.frame->width = width;
-                    frameWithBuffer.frame->height = height;
-
-                    int targetCloneBufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1);
-                    frameWithBuffer.buffer.reset(av_malloc(targetCloneBufferSize));
-
-                    if (!frameWithBuffer.buffer) {
-                        LOGIF("Erro ao alocar buffer frameWithBuffer");
-                        continue;
-                    }
-
-                    // TODO implementar antes de copiar o frame ele já redimencionar
-                    av_image_fill_arrays(frameWithBuffer.frame->data, frameWithBuffer.frame->linesize,
-                                         static_cast<uint8_t *>(frameWithBuffer.buffer.get()),
-                                         AV_PIX_FMT_RGB24, width, height, 1);
-
-                    // Copia o frame original para o novo
-                    av_image_copy(frameWithBuffer.frame->data, frameWithBuffer.frame->linesize,
-                                  (const uint8_t **) rgbFrame->data, rgbFrame->linesize,
-                                  AV_PIX_FMT_RGB24, width, height);
-
-                    if (av_frame_copy_props(frameWithBuffer.frame.get(), frame.get()) != 0) {
-                        LOGIJ("Erro ao copiar propriedades do frame");
-                        continue;
-                    }
-
-                    frames.push_back(std::move(frameWithBuffer));
-                    LOGDF("Frame %zu adicionado à lista de animação", frames.size());
+                    ResizeCropFrame::processFrame(env, nativeMediaException, rgbFrame, 512, 512, vFramesWithBuffer);
                 }
 
                 frameCount++;
@@ -315,16 +249,16 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
         av_packet_unref(packet);
     }
 
-    if (!frames.empty()) {
+    if (!vFramesWithBuffer.empty()) {
         int durationMs = 100;
-        LOGDF("Gerando animação com %zu vFrameBuffer...", frames.size());
+        LOGDF("Gerando animação com %zu vFrameBuffer...", vFramesWithBuffer.size());
 
-        if (frames.size() < 2) {
+        if (vFramesWithBuffer.size() < 2) {
             LOGIF("Apenas %zu frame(s) capturado(s) — a animação pode parecer estática",
-                  frames.size());
+                  vFramesWithBuffer.size());
         }
 
-        int result = WebpAnimationConverter::convertToWebp(env, outPath.get(), frames, width, height, durationMs);
+        int result = WebpAnimationConverter::convertToWebp(env, outPath.get(), vFramesWithBuffer, width, height, durationMs);
 
         if (!result) {
             std::string msgError = fmt::format("Falha ao criar a animação WebP");
