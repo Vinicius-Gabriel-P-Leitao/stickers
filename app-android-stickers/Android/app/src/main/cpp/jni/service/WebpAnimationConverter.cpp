@@ -143,16 +143,16 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
         return 0;
     }
 
-    FILE *pFile = fopen(outputPath, "wb");
-    if (!pFile) {
+    FILE *outputFopenFile = fopen(outputPath, "wb");
+    if (!outputFopenFile) {
         std::string msgError = fmt::format("Erro ao abrir arquivo de saída: %s", outputPath);
         HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return 0;
     }
 
-    fwrite(webpData.bytes, 1, webpData.size, pFile);
-    fclose(pFile);
+    fwrite(webpData.bytes, 1, webpData.size, outputFopenFile);
+    fclose(outputFopenFile);
 
     LOGINF("Arquivo WebP salvo com sucesso em: %s (%zu bytes)", outputPath, webpData.size);
     return 1;

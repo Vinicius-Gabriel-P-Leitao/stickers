@@ -6,7 +6,7 @@
 #include <vector>
 #include <format.h>
 #include <android/log.h>
-#include "ResizeCropFrame.h"
+#include "ProcessFramesToFormat.h"
 
 #include "../exception/HandlerJavaException.h"
 
@@ -19,11 +19,11 @@ extern "C" {
 #include <libavutil/frame.h>
 }
 
-#define LOG_TAG_RESIZE_CROP "ResizeCropFrame"
+#define LOG_TAG_RESIZE_CROP "ProcessFramesToFormat"
 
 #define LOGIRCF(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_RESIZE_CROP, __VA_ARGS__)
 
-AVFramePtr ResizeCropFrame::createAvFrame(JNIEnv *env, jclass exClass, int width, int height, AVPixelFormat format) {
+AVFramePtr ProcessFramesToFormat::createAvFrame(JNIEnv *env, jclass exClass, int width, int height, AVPixelFormat format) {
     AVFramePtr frame(av_frame_alloc());
     if (!frame) {
         std::string msgError = fmt::format("Falha ao alocar AVFramePtr");
@@ -46,7 +46,7 @@ bool FrameWithBuffer::allocate(JNIEnv *env, jclass exClass, int width, int heigh
         return false;
     }
 
-    frame = ResizeCropFrame::createAvFrame(env, exClass, width, height, format);
+    frame = ProcessFramesToFormat::createAvFrame(env, exClass, width, height, format);
     if (!frame) {
         LOGIRCF("Erro ao alocar AVFrame");
         return false;
@@ -60,21 +60,24 @@ bool FrameWithBuffer::allocate(JNIEnv *env, jclass exClass, int width, int heigh
     return true;
 }
 
-bool ResizeCropFrame::resizeAndCropFrame(JNIEnv *env, jclass exClass, const AVFramePtr &srcFrame,
-                                         FrameWithBuffer &dstFrame, int targetWidth, int targetHeight) {
+bool ProcessFramesToFormat::cropFrame(JNIEnv *env, jclass exClass, const AVFramePtr &srcFrame,
+                                      FrameWithBuffer &dstFrame, int targetWidth, int targetHeight) {
     const AVFrame *frame = srcFrame.get();
 
     int srcWidth = frame->width;
     int srcHeight = frame->height;
 
-    int cropX = (srcWidth - targetWidth) / 2;
-    int cropY = (srcHeight - targetHeight) / 2;
+    int cropWidth = std::min(targetWidth, srcWidth);
+    int cropHeight = std::min(targetHeight, srcHeight);
+
+    int cropX = (srcWidth - cropWidth) / 2;
+    int cropY = (srcHeight - cropHeight) / 2;
     if (cropX < 0) cropX = 0;
     if (cropY < 0) cropY = 0;
 
     SwsContext *swsCtx = sws_getContext(
             srcWidth, srcHeight, (AVPixelFormat) frame->format,
-            targetWidth, targetHeight, AV_PIX_FMT_RGB24,
+            cropWidth, cropHeight, AV_PIX_FMT_RGB24,
             SWS_BILINEAR, nullptr, nullptr, nullptr);
 
     if (!swsCtx) {
@@ -82,16 +85,22 @@ bool ResizeCropFrame::resizeAndCropFrame(JNIEnv *env, jclass exClass, const AVFr
         return false;
     }
 
-    if (!dstFrame.allocate(env, exClass, targetWidth, targetHeight, AV_PIX_FMT_RGB24)) {
+    if (!dstFrame.allocate(env, exClass, cropWidth, cropHeight, AV_PIX_FMT_RGB24)) {
         sws_freeContext(swsCtx);
         return false;
     }
 
-    sws_scale(
-            swsCtx,
-            frame->data, frame->linesize,
-            0, srcHeight, dstFrame.frame->data, dstFrame.frame->linesize);
+    const uint8_t *srcSlice[AV_NUM_DATA_POINTERS] = {nullptr};
+    int srcStride[AV_NUM_DATA_POINTERS] = {0};
+    int pixelSize = av_get_bits_per_pixel(av_pix_fmt_desc_get((AVPixelFormat) frame->format)) / 8;
 
+    for (int i = 0; i < AV_NUM_DATA_POINTERS && frame->data[i]; ++i) {
+        srcSlice[i] = frame->data[i] + cropY * frame->linesize[i] + cropX * pixelSize;
+        srcStride[i] = frame->linesize[i];
+    }
+
+    sws_scale(swsCtx, srcSlice, srcStride, 0,
+              cropHeight, dstFrame.frame->data, dstFrame.frame->linesize);
     sws_freeContext(swsCtx);
 
     if (av_frame_copy_props(dstFrame.frame.get(), frame) != 0) {
@@ -102,10 +111,10 @@ bool ResizeCropFrame::resizeAndCropFrame(JNIEnv *env, jclass exClass, const AVFr
     return true;
 }
 
-void ResizeCropFrame::processFrame(JNIEnv *env, jclass exClass, AVFramePtr &rgbFrame, int width, int height, std::vector<FrameWithBuffer> &frames) {
+void ProcessFramesToFormat::processFrame(JNIEnv *env, jclass exClass, AVFramePtr &rgbFrame, int width, int height, std::vector<FrameWithBuffer> &frames) {
     FrameWithBuffer frameWithBuffer;
 
-    if (!resizeAndCropFrame(env, exClass, rgbFrame, frameWithBuffer, width, height)) {
+    if (!cropFrame(env, exClass, rgbFrame, frameWithBuffer, width, height)) {
         LOGIRCF("Erro ao redimensionar/cortar o frame");
         return;
     }

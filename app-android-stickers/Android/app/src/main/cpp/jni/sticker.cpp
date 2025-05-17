@@ -22,7 +22,7 @@
 
 #include "exception/HandlerJavaException.h"
 #include "service/WebpAnimationConverter.h"
-#include "service/ResizeCropFrame.h"
+#include "service/ProcessFramesToFormat.h"
 
 #include "raii/AVFrameDeleter.h"
 #include "raii/AVBufferDeleter.h"
@@ -155,7 +155,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
         return JNI_FALSE;
     }
 
-    AVFramePtr rgbFrame = ResizeCropFrame::createAvFrame(env, nativeMediaException, 512, 512, AV_PIX_FMT_RGB24);
+    AVFramePtr rgbFrame = ProcessFramesToFormat::createAvFrame(env, nativeMediaException, 512, 512, AV_PIX_FMT_RGB24);
     if (!rgbFrame) {
         std::string msgError = fmt::format("Erro ao alocar frame RGB");
         HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
@@ -169,10 +169,13 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
 
     int width = codecContext->width;
     int height = codecContext->height;
-    SwsContextPtr swsContext(
-            sws_getContext(width, height, codecContext->pix_fmt, width, height, AV_PIX_FMT_RGB24,
-                           SWS_BILINEAR, nullptr, nullptr, nullptr));
-    if (!swsContext) {
+
+    SwsContextPtr swsContextPtr(
+            sws_getContext(width, height, codecContext->pix_fmt,
+                           width, height, AV_PIX_FMT_RGB24,
+                           SWS_BILINEAR, nullptr, nullptr, nullptr)
+    );
+    if (!swsContextPtr) {
         std::string msgError = fmt::format("Erro ao criar o contexto de redimensionamento");
         HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
@@ -239,7 +242,7 @@ Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *
                 }
 
                 if (frameCount % frameInterval == 0) {
-                    ResizeCropFrame::processFrame(env, nativeMediaException, rgbFrame, 512, 512, vFramesWithBuffer);
+                    ProcessFramesToFormat::processFrame(env, nativeMediaException, rgbFrame, 512, 512, vFramesWithBuffer);
                 }
 
                 frameCount++;
