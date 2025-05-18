@@ -10,6 +10,7 @@
  *
  * Original GPLv3 license text begins below.
  */
+
 #ifndef ANDROID_WEBPANIMATIONCONVERTER_H
 #define ANDROID_WEBPANIMATIONCONVERTER  _H
 
@@ -30,6 +31,5 @@ public:
 
 private:
 };
-
 
 #endif //ANDROID_WEBPANIMATIONCONVERTER_H

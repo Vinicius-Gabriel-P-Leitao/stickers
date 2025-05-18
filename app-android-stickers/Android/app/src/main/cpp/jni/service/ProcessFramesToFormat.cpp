@@ -100,6 +100,7 @@ bool ProcessFramesToFormat::cropFrame(JNIEnv *env, jclass exClass, const AVFrame
         return false;
     }
 
+    // Preenche o frame com pixel preto
     for (int orderedY = 0; orderedY < targetHeight; ++orderedY) {
         uint8_t *row = dstFrame.frame->data[0] + orderedY * dstFrame.frame->linesize[0];
         std::fill(row, row + targetWidth * 3, 0);
