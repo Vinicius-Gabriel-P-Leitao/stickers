@@ -11,12 +11,13 @@
  * Original GPLv3 license text begins below.
  */
 #ifndef ANDROID_WEBPANIMATIONCONVERTER_H
-#define ANDROID_WEBPANIMATIONCONVERTER_H
+#define ANDROID_WEBPANIMATIONCONVERTER  _H
 
 #include <string>
 #include <jni.h>
+#include "ProcessFramesToFormat.h"
 
-struct FrameWithBuffer;
+#include "../raii/AVFrameDeleter.h"
 
 class WebpAnimationConverter {
 public:

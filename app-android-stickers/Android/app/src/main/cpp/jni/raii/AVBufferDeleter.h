@@ -12,11 +12,11 @@ extern "C" {
 }
 
 struct AVBufferDeleter {
-    void operator()(void *ptr) const {
+    void operator()(uint8_t *ptr) const {
         av_free(ptr);
     }
 };
 
-using AVBufferPtr = std::unique_ptr<void, AVBufferDeleter>;
+using AVBufferPtr = std::unique_ptr<uint8_t, AVBufferDeleter>;
 
 #endif //ANDROID_AVBUFFERDELETER_H

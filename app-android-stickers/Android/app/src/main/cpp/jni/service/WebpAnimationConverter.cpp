@@ -39,11 +39,6 @@ extern "C" {
 #define LOGDF(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG_SERVICE, __VA_ARGS__)
 #define LOGINF(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_SERVICE, __VA_ARGS__)
 
-struct FrameWithBuffer {
-    AVFramePtr frame;
-    AVBufferPtr buffer;
-};
-
 int
 WebpAnimationConverter::convertToWebp(JNIEnv *env,
                                       const char *outputPath,

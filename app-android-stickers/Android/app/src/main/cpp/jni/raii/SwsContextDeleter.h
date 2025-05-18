@@ -12,8 +12,8 @@ extern "C" {
 }
 
 struct SwsContextDeleter {
-    void operator()(SwsContext *ctx) const {
-        sws_freeContext(ctx);
+    void operator()(SwsContext *swsContext) const {
+        sws_freeContext(swsContext);
     }
 };
 
