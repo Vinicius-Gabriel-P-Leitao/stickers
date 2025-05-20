@@ -10,6 +10,7 @@
  */
 package com.vinicius.sticker.domain.service;
 
+import static com.vinicius.sticker.core.validation.StickerValidator.EMOJI_MAX_LIMIT;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.ANIMATED_STICKER_PACK;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.AVOID_CACHE;
@@ -40,6 +41,7 @@ import androidx.annotation.NonNull;
 import com.vinicius.sticker.BuildConfig;
 import com.vinicius.sticker.core.exception.StickerSizeFileLimitException;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
+import com.vinicius.sticker.core.validation.StickerValidator;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.data.content.provider.StickerContentProvider;
@@ -58,9 +60,7 @@ public class StickerPackLoaderService {
      * Get the list of sticker packs for the sticker content provider
      */
     @NonNull
-    public static ArrayList<StickerPack> fetchStickerPacks(
-            Context context
-    ) throws IllegalStateException {
+    public static ArrayList<StickerPack> fetchStickerPacks(Context context) throws IllegalStateException {
         final Cursor cursor = context.getContentResolver().query(StickerContentProvider.AUTHORITY_URI, null, null, null, null);
 
         if (cursor == null) {
@@ -92,6 +92,17 @@ public class StickerPackLoaderService {
 
         for (StickerPack stickerPack : stickerPackList) {
             final List<Sticker> stickers = getStickersForPack(context, stickerPack);
+
+            try {
+                for (Sticker sticker : stickers) {
+                    StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
+                }
+            } catch (IllegalStateException exception) {
+                if (exception instanceof StickerSizeFileLimitException sizeFileLimitException) {
+                    deleteStickerByIdentifier(context, sizeFileLimitException.getStickerPackIdentifier(), sizeFileLimitException.getFileName());
+                }
+            }
+
             stickerPack.setStickers(stickers);
 
             Log.i("StickerPackLoaderService", "Sticker pack: " + stickerPack.identifier + ", stickers: " + stickerPack.getStickers().size());
@@ -120,10 +131,8 @@ public class StickerPackLoaderService {
             final boolean avoidCache = cursor.getShort(cursor.getColumnIndexOrThrow(AVOID_CACHE)) > 0;
             final boolean animatedStickerPack = cursor.getShort(cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) > 0;
 
-            final StickerPack stickerPack = new StickerPack(
-                    identifier, name, publisher, trayImage, publisherEmail, publisherWebsite, privacyPolicyWebsite, licenseAgreementWebsite,
-                    imageDataVersion, avoidCache, animatedStickerPack
-            );
+            final StickerPack stickerPack =
+                    new StickerPack(identifier, name, publisher, trayImage, publisherEmail, publisherWebsite, privacyPolicyWebsite, licenseAgreementWebsite, imageDataVersion, avoidCache, animatedStickerPack);
             stickerPack.setAndroidPlayStoreLink(androidPlayStoreLink);
             stickerPack.setIosAppStoreLink(iosAppLink);
             stickerPackList.add(stickerPack);
@@ -142,9 +151,9 @@ public class StickerPackLoaderService {
                     throw new IllegalStateException("Asset file is empty, pack: " + stickerPack.name + ", sticker: " + sticker.imageFileName);
                 }
                 sticker.setSize(bytes.length);
-            } catch (IOException |
-                     IllegalArgumentException exception) {
-                throw new IllegalStateException("Asset file doesn't exist. pack: " + stickerPack.name + ", sticker: " + sticker.imageFileName, exception);
+            } catch (IOException | IllegalArgumentException exception) {
+                throw new IllegalStateException(
+                        "Asset file doesn't exist. pack: " + stickerPack.name + ", sticker: " + sticker.imageFileName, exception);
             }
         }
         return stickers;
@@ -163,7 +172,7 @@ public class StickerPackLoaderService {
                 final String name = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_NAME_IN_QUERY));
                 final String emojisConcatenated = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_EMOJI_IN_QUERY));
                 final String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
-                List<String> emojis = new ArrayList<>(StickerPackValidator.EMOJI_MAX_LIMIT);
+                List<String> emojis = new ArrayList<>(EMOJI_MAX_LIMIT);
                 if (!TextUtils.isEmpty(emojisConcatenated)) {
                     emojis = Arrays.asList(emojisConcatenated.split(","));
                 }
@@ -177,11 +186,8 @@ public class StickerPackLoaderService {
     }
 
     public static byte[] fetchStickerAsset(
-            @NonNull final String identifier,
-            @NonNull final String name, ContentResolver contentResolver
-    ) throws IOException {
-        try (final InputStream inputStream = contentResolver.openInputStream(
-                getStickerAssetUri(identifier, name)); final ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+            @NonNull final String identifier, @NonNull final String name, ContentResolver contentResolver) throws IOException {
+        try (final InputStream inputStream = contentResolver.openInputStream(getStickerAssetUri(identifier, name)); final ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
             if (inputStream == null) {
                 throw new IOException("cannot read sticker asset:" + identifier + "/" + name);
             }
@@ -196,19 +202,10 @@ public class StickerPackLoaderService {
     }
 
     private static Uri getStickerListUri(String identifier) {
-        return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
-                .authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
-                .appendPath(StickerContentProvider.STICKERS)
-                .appendPath(identifier)
-                .build();
+        return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(StickerContentProvider.STICKERS).appendPath(identifier).build();
     }
 
     public static Uri getStickerAssetUri(String identifier, String stickerName) {
-        return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
-                .authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
-                .appendPath(StickerContentProvider.STICKERS_ASSET)
-                .appendPath(identifier)
-                .appendPath(stickerName)
-                .build();
+        return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(StickerContentProvider.STICKERS_ASSET).appendPath(identifier).appendPath(stickerName).build();
     }
 }
