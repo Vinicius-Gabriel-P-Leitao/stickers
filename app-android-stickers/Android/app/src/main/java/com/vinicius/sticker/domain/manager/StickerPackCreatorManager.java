@@ -28,7 +28,7 @@ import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.pattern.CallbackResult;
-import com.vinicius.sticker.domain.service.SaveStickerPackService;
+import com.vinicius.sticker.domain.service.StickerPackSaveService;
 
 import org.json.JSONException;
 
@@ -109,7 +109,7 @@ public class StickerPackCreatorManager {
                isPresent = getStickerPackIdentifier(db, stickerPack.identifier);
             }
 
-            SaveStickerPackService.generateStructureForSavePack(
+            StickerPackSaveService.generateStructureForSavePack(
                 context, stickerPack, isPresent, callbackResult -> {
                    switch (callbackResult.getStatus()) {
                       case SUCCESS:

@@ -10,11 +10,20 @@ file(GLOB_RECURSE SOURCES
 
 include_directories(${CMAKE_SOURCE_DIR}/../include/ffmpeg/)
 include_directories(${CMAKE_SOURCE_DIR}/../include/libwebp/)
+include_directories(${CMAKE_SOURCE_DIR}/../include/fmt/)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${SOURCES})
 add_library(${CMAKE_PROJECT_SERVICE_WEBP} SHARED ${SOURCES})
 
 add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS)
+
+# Libs do fmt
+add_library(fmt STATIC IMPORTED)
+set_target_properties(
+        fmt
+        PROPERTIES IMPORTED_LOCATION
+        ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libfmt.a
+)
 
 # Libs do ffmepg
 add_library(avcodec SHARED IMPORTED)
@@ -100,12 +109,13 @@ target_link_libraries(
         avcodec
         avformat
         swscale
-        swresample
         avdevice
+        swresample
         webpdemux
+        sharpyuv
         webpmux
         webp
-        sharpyuv
+        fmt
         android
         log
 )

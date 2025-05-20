@@ -10,26 +10,21 @@
  *
  * Original GPLv3 license text begins below.
  */
-
-#ifndef ANDROID_WEBPANIMATIONCONVERTER_H
-#define ANDROID_WEBPANIMATIONCONVERTER  _H
+#ifndef ANDROID_AVBUFFERDELETER_H
+#define ANDROID_AVBUFFERDELETER_H
 
 #include <string>
-#include <jni.h>
-#include "ProcessFramesToFormat.h"
 
-#include "../raii/AVFrameDeleter.h"
+extern "C" {
+#include "libavutil/avutil.h"
+}
 
-class WebpAnimationConverter {
-public:
-    static int convertToWebp(JNIEnv *env,
-                             const char *outputPath,
-                             std::vector<FrameWithBuffer> &frames,
-                             int width,
-                             int height,
-                             int durationMs);
-
-private:
+struct AVBufferDeleter {
+    void operator()(uint8_t *ptr) const {
+        av_free(ptr);
+    }
 };
 
-#endif //ANDROID_WEBPANIMATIONCONVERTER_H
+using AVBufferPtr = std::unique_ptr<uint8_t, AVBufferDeleter>;
+
+#endif //ANDROID_AVBUFFERDELETER_H

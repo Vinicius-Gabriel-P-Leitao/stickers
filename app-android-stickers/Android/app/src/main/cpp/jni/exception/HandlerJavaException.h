@@ -11,25 +11,19 @@
  * Original GPLv3 license text begins below.
  */
 
-#ifndef ANDROID_WEBPANIMATIONCONVERTER_H
-#define ANDROID_WEBPANIMATIONCONVERTER  _H
+#ifndef ANDROID_HANDLERJAVAEXCEPTION_H
+#define ANDROID_HANDLERJAVAEXCEPTION_H
 
-#include <string>
 #include <jni.h>
-#include "ProcessFramesToFormat.h"
+#include <string>
 
-#include "../raii/AVFrameDeleter.h"
-
-class WebpAnimationConverter {
+class HandlerJavaException {
 public:
-    static int convertToWebp(JNIEnv *env,
-                             const char *outputPath,
-                             std::vector<FrameWithBuffer> &frames,
-                             int width,
-                             int height,
-                             int durationMs);
+    static void throwNativeConversionException(JNIEnv *env, jclass exClass, const std::string &message);
 
 private:
+    static void logException(const std::string &message);
 };
 
-#endif //ANDROID_WEBPANIMATIONCONVERTER_H
+
+#endif //ANDROID_HANDLERJAVAEXCEPTION_H
