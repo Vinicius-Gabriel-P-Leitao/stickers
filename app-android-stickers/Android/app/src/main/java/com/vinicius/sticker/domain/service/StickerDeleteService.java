@@ -66,4 +66,28 @@ public class StickerDeleteService {
             return Boolean.FALSE;
         }
     }
+
+    public static CallbackResult<Void> deleteOldFilesInPack(Context context, String stickerPackIdentifier) {
+        try {
+            File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
+            File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);
+
+            if (stickerPackDirectory.exists() && stickerPackDirectory.isDirectory()) {
+                File[] files = stickerPackDirectory.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (!file.delete()) {
+                            return CallbackResult.failure(new Exception("Falha ao deletar o arquivo: " + file.getAbsolutePath()));
+                        }
+                    }
+                }
+
+                return CallbackResult.success(null);
+            } else {
+                return CallbackResult.warning("Diretório não encontrado: " + stickerPackDirectory.getAbsolutePath());
+            }
+        } catch (Exception exception) {
+            return CallbackResult.failure(exception);
+        }
+    }
 }

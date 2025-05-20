@@ -33,6 +33,7 @@ import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelpe
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_PACK_PUBLISHER_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.identifierPackIsPresent;
 import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.namePackIsPresent;
+import static com.vinicius.sticker.domain.data.model.StickerPack.toContentValues;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
@@ -46,79 +47,59 @@ import com.vinicius.sticker.domain.pattern.CallbackResult;
 
 public class InsertStickerPacks {
 
-   public interface InsertStickerPackCallback {
-      void onInsertResult(CallbackResult result);
-   }
+    public interface InsertStickerPackCallback<T> {
+        void onInsertResult(CallbackResult<T> result);
+    }
 
-   public void insertStickerPack(SQLiteDatabase dbHelper, StickerPack pack, InsertStickerPackCallback callback) {
-      new Handler(Looper.getMainLooper()).postDelayed(
-          () -> {
-             if ( namePackIsPresent(dbHelper, pack.name) ) {
+    public void insertStickerPack(SQLiteDatabase dbHelper, StickerPack pack, InsertStickerPackCallback<StickerPack> callback) {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (namePackIsPresent(dbHelper, pack.name)) {
                 callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("O nome do pacote já está no banco de dados.")));
-             }
-             if ( identifierPackIsPresent(dbHelper, pack.identifier) ) {
+            }
+            if (identifierPackIsPresent(dbHelper, pack.identifier)) {
                 callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("O identificador do pacote já está no banco de dados.")));
-             }
-             if ( pack.getStickers().size() < 3 ) {
-                callback.onInsertResult(
-                    CallbackResult.failure(new StickerPackSaveException("O pacote de adesivos deve conter pelo menos 3 adesivos.")));
-             }
-             if ( pack.getStickers().size() > 30 ) {
-                callback.onInsertResult(
-                    CallbackResult.failure(new StickerPackSaveException("O pacote de adesivos deve conter no máximo 30 adesivos.")));
-             }
-             if ( pack.trayImageFile == null ) {
+            }
+            if (pack.getStickers().size() < 3) {
+                callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("O pacote de adesivos deve conter pelo menos 3 adesivos.")));
+            }
+            if (pack.getStickers().size() > 30) {
+                callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("O pacote de adesivos deve conter no máximo 30 adesivos.")));
+            }
+            if (pack.trayImageFile == null) {
                 callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("O arquivo de imagem da bandeja não pode ser nulo.")));
-             }
-             if ( pack.identifier == null || pack.identifier.isEmpty() ) {
+            }
+            if (pack.identifier == null || pack.identifier.isEmpty()) {
                 callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("O identificador não pode ser nulo ou vazio.")));
-             } else {
+            } else {
                 ContentValues stickerPacksValues = new ContentValues();
                 stickerPacksValues.put(ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, pack.androidPlayStoreLink);
                 stickerPacksValues.put(IOS_APP_DOWNLOAD_LINK_IN_QUERY, pack.iosAppStoreLink);
                 long stickerPackId = dbHelper.insert("sticker_packs", null, stickerPacksValues);
 
-                if ( stickerPackId != -1 ) {
-                   ContentValues stickerPackValues = new ContentValues();
-                   stickerPackValues.put(STICKER_PACK_IDENTIFIER_IN_QUERY, pack.identifier);
-                   stickerPackValues.put(STICKER_PACK_NAME_IN_QUERY, pack.name);
-                   stickerPackValues.put(STICKER_PACK_PUBLISHER_IN_QUERY, pack.publisher);
-                   stickerPackValues.put(STICKER_PACK_ICON_IN_QUERY, pack.trayImageFile);
-                   stickerPackValues.put(PUBLISHER_EMAIL, pack.publisherEmail);
-                   stickerPackValues.put(PUBLISHER_WEBSITE, pack.publisherWebsite);
-                   stickerPackValues.put(PRIVACY_POLICY_WEBSITE, pack.privacyPolicyWebsite);
-                   stickerPackValues.put(LICENSE_AGREEMENT_WEBSITE, pack.licenseAgreementWebsite);
-                   stickerPackValues.put(ANIMATED_STICKER_PACK, pack.animatedStickerPack ? 1 : 0);
-                   stickerPackValues.put(FK_STICKER_PACKS, stickerPackId);
-                   stickerPackValues.put(IMAGE_DATA_VERSION, pack.imageDataVersion);
-                   stickerPackValues.put(AVOID_CACHE, pack.avoidCache ? 1 : 0);
-                   long result = dbHelper.insert("sticker_pack", null, stickerPackValues);
+                if (stickerPackId != -1) {
+                    ContentValues stickerPackValues = StickerPack.toContentValues(pack, stickerPackId);
+                    long result = dbHelper.insert("sticker_pack", null, stickerPackValues);
 
-                   if ( result != -1 ) {
-                      for (Sticker sticker : pack.getStickers()) {
-                         ContentValues stickerValues = new ContentValues();
-                         stickerValues.put(STICKER_FILE_NAME_IN_QUERY, sticker.imageFileName);
-                         stickerValues.put(STICKER_FILE_EMOJI_IN_QUERY, String.valueOf(sticker.emojis));
-                         stickerValues.put(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY, sticker.accessibilityText);
-                         stickerValues.put(FK_STICKER_PACK, stickerPackId);
-                         dbHelper.insert("sticker", null, stickerValues);
-                      }
+                    if (result != -1) {
+                        for (Sticker sticker : pack.getStickers()) {
+                            ContentValues stickerValues = Sticker.toContentValues(sticker, stickerPackId);
+                            dbHelper.insert("sticker", null, stickerValues);
+                        }
 
-                      if ( callback != null ) {
-                         callback.onInsertResult(CallbackResult.success(pack));
-                      }
-                   } else {
-                      if ( callback != null ) {
-                         callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Failed to insert sticker pack.")));
-                      }
-                   }
+                        if (callback != null) {
+                            callback.onInsertResult(CallbackResult.success(pack));
+                        }
+                    } else {
+                        if (callback != null) {
+                            callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Failed to insert sticker pack.")));
+                        }
+                    }
                 } else {
-                   if ( callback != null ) {
-                      callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Failed to insert sticker pack details.")));
-                   }
+                    if (callback != null) {
+                        callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Failed to insert sticker pack details.")));
+                    }
                 }
-             }
-          }, 1000
-      );
-   }
+            }
+        }, 1000);
+    }
 }

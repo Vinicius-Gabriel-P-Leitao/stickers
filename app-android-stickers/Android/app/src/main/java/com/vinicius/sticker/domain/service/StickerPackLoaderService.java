@@ -79,8 +79,7 @@ public class StickerPackLoaderService {
 
         for (StickerPack stickerPack : stickerPackList) {
             if (identifierSet.contains(stickerPack.identifier)) {
-                throw new IllegalStateException(
-                        "sticker pack identifiers should be unique, there are more than one pack with identifier: " + stickerPack.identifier);
+                throw new IllegalStateException("sticker pack identifiers should be unique, there are more than one pack with identifier: " + stickerPack.identifier);
             } else {
                 identifierSet.add(stickerPack.identifier);
             }
@@ -99,6 +98,9 @@ public class StickerPackLoaderService {
                 }
             } catch (IllegalStateException exception) {
                 if (exception instanceof StickerSizeFileLimitException sizeFileLimitException) {
+                    // TODO: Trocar por método que vai marcar no banco de dados o pacote e figurinha como não valido e o motivo de cada figurinha,
+                    //  modigficar para quando ele passar para as activity ele ter um Intent que marca que tem sticker com erros, e adiciona um botão de erro que abre
+                    //  um editor para modificar os stickers com erros, no caso ou deletar todos ou criar novamente.
                     deleteStickerByIdentifier(context, sizeFileLimitException.getStickerPackIdentifier(), sizeFileLimitException.getFileName());
                 }
             }
@@ -133,10 +135,12 @@ public class StickerPackLoaderService {
 
             final StickerPack stickerPack =
                     new StickerPack(identifier, name, publisher, trayImage, publisherEmail, publisherWebsite, privacyPolicyWebsite, licenseAgreementWebsite, imageDataVersion, avoidCache, animatedStickerPack);
+
             stickerPack.setAndroidPlayStoreLink(androidPlayStoreLink);
             stickerPack.setIosAppStoreLink(iosAppLink);
             stickerPackList.add(stickerPack);
         } while (cursor.moveToNext());
+
         return stickerPackList;
     }
 
@@ -152,8 +156,7 @@ public class StickerPackLoaderService {
                 }
                 sticker.setSize(bytes.length);
             } catch (IOException | IllegalArgumentException exception) {
-                throw new IllegalStateException(
-                        "Asset file doesn't exist. pack: " + stickerPack.name + ", sticker: " + sticker.imageFileName, exception);
+                throw new IllegalStateException("Asset file doesn't exist. pack: " + stickerPack.name + ", sticker: " + sticker.imageFileName, exception);
             }
         }
         return stickers;
@@ -185,8 +188,7 @@ public class StickerPackLoaderService {
         return stickers;
     }
 
-    public static byte[] fetchStickerAsset(
-            @NonNull final String identifier, @NonNull final String name, ContentResolver contentResolver) throws IOException {
+    public static byte[] fetchStickerAsset(@NonNull final String identifier, @NonNull final String name, ContentResolver contentResolver) throws IOException {
         try (final InputStream inputStream = contentResolver.openInputStream(getStickerAssetUri(identifier, name)); final ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
             if (inputStream == null) {
                 throw new IOException("cannot read sticker asset:" + identifier + "/" + name);
