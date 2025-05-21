@@ -33,6 +33,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GalleryMediaPickerLauncher extends ViewModel {
+
+    public static final String[] IMAGE_MIME_TYPES = {"image/jpeg", "image/png"};
+    public static final String[] ANIMATED_MIME_TYPES = {"video/mp4", "image/gif"};
+
     private final MutableLiveData<StickerPack> stickerPackPreview = new MutableLiveData<>();
     private final MutableLiveData<Boolean> fragmentVisibility = new MutableLiveData<>(false);
 
@@ -50,5 +54,37 @@ public class GalleryMediaPickerLauncher extends ViewModel {
 
     public void closeFragmentState() {
         fragmentVisibility.setValue(true);
+    }
+
+    public enum MediaType {
+        IMAGE_MIME_TYPES, ANIMATED_MIME_TYPES
+    }
+
+    public static void launchOwnGallery(FragmentActivity activity, String[] mimeType, String namePack) {
+        List<Uri> uris = new ArrayList<>();
+        boolean isAnimatedPack = false;
+
+        if (Arrays.equals(mimeType, IMAGE_MIME_TYPES)) {
+            uris = getMediaUris(activity, IMAGE_MIME_TYPES);
+        }
+
+        if (Arrays.equals(mimeType, ANIMATED_MIME_TYPES)) {
+            uris = getMediaUris(activity, ANIMATED_MIME_TYPES);
+            isAnimatedPack = true;
+        }
+
+        MediaPickerBottomSheetDialogFragment fragment = MediaPickerBottomSheetDialogFragment.newInstance(new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(String imagePath) {
+                        Uri selectedImageUri = Uri.fromFile(new File(imagePath));
+                        Intent resultIntent = new Intent();
+                        resultIntent.setData(selectedImageUri);
+
+                        activity.setResult(RESULT_OK, resultIntent);
+                        activity.finish();
+                    }
+                });
+
+        fragment.show(activity.getSupportFragmentManager(), "MediaPickerBottomSheetDialogFragment");
     }
 }

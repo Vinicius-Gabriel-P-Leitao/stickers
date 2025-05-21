@@ -12,10 +12,10 @@
  */
 package com.vinicius.sticker.presentation.feature.stickerpack.presentation.activity;
 
+import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
+import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
+import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.launchOwnGallery;
 import static com.vinicius.sticker.presentation.feature.permission.util.DefinePermissionsToRequest.getPermissionsToRequest;
-import static com.vinicius.sticker.presentation.feature.stickerpack.util.LaunchOwenGallery.ANIMATED_MIME_TYPES;
-import static com.vinicius.sticker.presentation.feature.stickerpack.util.LaunchOwenGallery.IMAGE_MIME_TYPES;
-import static com.vinicius.sticker.presentation.feature.stickerpack.util.LaunchOwenGallery.launchOwnGallery;
 
 import android.animation.ObjectAnimator;
 import android.content.Intent;

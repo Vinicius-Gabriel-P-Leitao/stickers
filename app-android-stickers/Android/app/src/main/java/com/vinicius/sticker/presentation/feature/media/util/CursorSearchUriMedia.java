@@ -13,8 +13,8 @@
 
 package com.vinicius.sticker.presentation.feature.media.util;
 
-import static com.vinicius.sticker.presentation.feature.stickerpack.util.LaunchOwenGallery.ANIMATED_MIME_TYPES;
-import static com.vinicius.sticker.presentation.feature.stickerpack.util.LaunchOwenGallery.IMAGE_MIME_TYPES;
+import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
+import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -23,7 +23,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.vinicius.sticker.presentation.feature.stickerpack.util.LaunchOwenGallery;
+import com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,9 +42,9 @@ public class CursorSearchUriMedia {
         List<Uri> mediaUris;
 
         if (validateArraysMimeTypes(mimeTypes, IMAGE_MIME_TYPES)) {
-            mediaUris = getMediaUris(context, LaunchOwenGallery.MediaType.IMAGE_MIME_TYPES);
+            mediaUris = getMediaUris(context, GalleryMediaPickerLauncher.MediaType.IMAGE_MIME_TYPES);
         } else if (validateArraysMimeTypes(mimeTypes, ANIMATED_MIME_TYPES)) {
-            mediaUris = getMediaUris(context, LaunchOwenGallery.MediaType.ANIMATED_MIME_TYPES);
+            mediaUris = getMediaUris(context, GalleryMediaPickerLauncher.MediaType.ANIMATED_MIME_TYPES);
         } else {
             throw new IllegalArgumentException("Tipo MIME não suportado para conversão: " + mimeTypes);
         }
@@ -83,7 +83,7 @@ public class CursorSearchUriMedia {
      * @param mediaType mimeType recebido para buscar as URI.
      * @return Lista com as URIs.
      */
-    public static List<Uri> getMediaUris(Context context, LaunchOwenGallery.MediaType mediaType) {
+    public static List<Uri> getMediaUris(Context context, GalleryMediaPickerLauncher.MediaType mediaType) {
         List<Uri> mediaUris = new ArrayList<>();
 
         Uri collection;
@@ -92,7 +92,7 @@ public class CursorSearchUriMedia {
         String[] mimeTypes;
         String logTag;
 
-        if (mediaType == LaunchOwenGallery.MediaType.IMAGE_MIME_TYPES) {
+        if (mediaType == GalleryMediaPickerLauncher.MediaType.IMAGE_MIME_TYPES) {
             collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
             projection = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA, MediaStore.Images.Media.MIME_TYPE};
             selection = MediaStore.Images.Media.MIME_TYPE + "=? OR " + MediaStore.Images.Media.MIME_TYPE + "=?";
@@ -114,7 +114,7 @@ public class CursorSearchUriMedia {
         if (cursor != null) {
             int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
 
-            int dataColumn = cursor.getColumnIndexOrThrow(mediaType == LaunchOwenGallery.MediaType.IMAGE_MIME_TYPES ?
+            int dataColumn = cursor.getColumnIndexOrThrow(mediaType == GalleryMediaPickerLauncher.MediaType.IMAGE_MIME_TYPES ?
                                                           MediaStore.Images.Media.DATA :
                                                           MediaStore.Files.FileColumns.MEDIA_TYPE);
 
