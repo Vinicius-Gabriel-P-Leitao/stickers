@@ -10,13 +10,12 @@
  *
  * Original GPLv3 license text begins below.
  */
+
 package com.vinicius.sticker.presentation.feature.media.util;
 
-import static com.vinicius.sticker.core.validation.MimeTypesValidator.validateUniqueMimeType;
 import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
 import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
 import static com.vinicius.sticker.presentation.feature.media.util.CursorSearchUriMedia.getAbsolutePath;
-import static com.vinicius.sticker.presentation.feature.media.util.CursorSearchUriMedia.getFileDetailsFromUri;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -31,7 +30,9 @@ import com.vinicius.sticker.domain.libs.NativeConvertToWebp;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ConvertMediaToStickerFormat {
     private static MediaConversionCallback callback;
@@ -70,7 +71,9 @@ public class ConvertMediaToStickerFormat {
             outputFileName = outputFileName.replaceAll("\\.\\w+$", "") + ".webp";
         }
 
-        String cleanedPath = inputPath.startsWith("file://") ? inputPath.substring(7) : inputPath;
+        String cleanedPath = inputPath.startsWith("file://") ?
+                             inputPath.substring(7) :
+                             inputPath;
         Bitmap bitmap = BitmapFactory.decodeFile(cleanedPath);
 
         if (bitmap != null) {
@@ -125,4 +128,29 @@ public class ConvertMediaToStickerFormat {
 
         return Bitmap.createScaledBitmap(squareBitmap, 512, 512, true);
     }
+
+    public static boolean validateUniqueMimeType(String mimeType, String[] mimeTypesList) {
+        for (String type : mimeTypesList) {
+            Log.d("MimeTypeCheck", "Comparando MIME: " + mimeType + " com " + type);
+            if (Objects.equals(mimeType, type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * <p><b>Descrição:</b>Captura o caminho absoluto da URI de um arquivo.</p>
+     *
+     * @param context Contexto da aplicação.
+     * @param uri     Uri do arquivo.
+     * @return Caminho do arquivo.
+     */
+    public static Map<String, String> getFileDetailsFromUri(Context context, Uri uri) {
+        Map<String, String> fileDetails = new HashMap<>();
+        fileDetails.put(getAbsolutePath(context, uri), context.getContentResolver().getType(uri));
+
+        return fileDetails;
+    }
+
 }
