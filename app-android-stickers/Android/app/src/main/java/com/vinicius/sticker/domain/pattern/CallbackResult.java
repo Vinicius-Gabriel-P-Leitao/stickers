@@ -15,61 +15,78 @@ package com.vinicius.sticker.domain.pattern;
 
 public class CallbackResult<T> {
 
-   public enum Status {
-      SUCCESS, FAILURE, WARNING
-   }
+    public enum Status {
+        SUCCESS, FAILURE, WARNING, DEBUG
+    }
 
-   private Status status;
-   private T data;
-   private Exception error;
-   private String warningMessage;
+    private Status status;
+    private T data;
+    private Exception error;
+    private String warningMessage;
 
-   public static <T> CallbackResult<T> success(T data) {
-      CallbackResult<T> callbackResult = new CallbackResult<>();
-      callbackResult.status = Status.SUCCESS;
-      callbackResult.data = data;
-      return callbackResult;
-   }
+    private String debugMessage;
 
-   public static <T> CallbackResult<T> failure(Exception error) {
-      CallbackResult<T> callbackResult = new CallbackResult<>();
-      callbackResult.status = Status.FAILURE;
-      callbackResult.error = error;
-      return callbackResult;
-   }
+    public static <T> CallbackResult<T> success(T data) {
+        CallbackResult<T> callbackResult = new CallbackResult<>();
+        callbackResult.status = Status.SUCCESS;
+        callbackResult.data = data;
+        return callbackResult;
+    }
 
-   public static <T> CallbackResult<T> warning(String warningMessage) {
-      CallbackResult<T> callbackResult = new CallbackResult<>();
-      callbackResult.status = Status.WARNING;
-      callbackResult.warningMessage = warningMessage;
-      return callbackResult;
-   }
+    public static <T> CallbackResult<T> failure(Exception error) {
+        CallbackResult<T> callbackResult = new CallbackResult<>();
+        callbackResult.status = Status.FAILURE;
+        callbackResult.error = error;
+        return callbackResult;
+    }
 
-   public boolean isSuccess() {
-      return status == Status.SUCCESS;
-   }
+    public static <T> CallbackResult<T> warning(String warningMessage) {
+        CallbackResult<T> callbackResult = new CallbackResult<>();
+        callbackResult.status = Status.WARNING;
+        callbackResult.warningMessage = warningMessage;
+        return callbackResult;
+    }
 
-   public boolean isFailure() {
-      return status == Status.FAILURE;
-   }
+    public static <T> CallbackResult<T> debug(String debugMessage) {
+        CallbackResult<T> callbackResult = new CallbackResult<>();
+        callbackResult.status = Status.DEBUG;
+        callbackResult.debugMessage = debugMessage;
+        return callbackResult;
+    }
 
-   public boolean isWarning() {
-      return status == Status.WARNING;
-   }
+    public boolean isSuccess() {
+        return status == Status.SUCCESS;
+    }
 
-   public T getData() {
-      return data;
-   }
+    public boolean isFailure() {
+        return status == Status.FAILURE;
+    }
 
-   public Exception getError() {
-      return error;
-   }
+    public boolean isWarning() {
+        return status == Status.WARNING;
+    }
 
-   public String getWarningMessage() {
-      return warningMessage;
-   }
+    public boolean isDebug() {
+        return status == Status.DEBUG;
+    }
 
-   public Status getStatus() {
-      return status;
-   }
+    public Status getStatus() {
+        return status;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public Exception getError() {
+        return error;
+    }
+
+    public String getWarningMessage() {
+        return warningMessage;
+    }
+
+    public String getDebugMessage() {
+        return debugMessage;
+    }
 }
