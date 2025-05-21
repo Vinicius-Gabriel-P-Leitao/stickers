@@ -23,7 +23,7 @@ import com.facebook.animated.webp.WebPImage;
 import com.facebook.imagepipeline.common.ImageDecodeOptions;
 import com.vinicius.sticker.core.exception.StickerSizeFileLimitException;
 import com.vinicius.sticker.domain.data.model.Sticker;
-import com.vinicius.sticker.domain.service.StickerPackLoaderService;
+import com.vinicius.sticker.domain.service.load.StickerLoaderService;
 
 import java.io.IOException;
 
@@ -79,7 +79,7 @@ public class StickerValidator {
             @NonNull Context context,
             @NonNull String identifier, @NonNull final String fileName, final boolean animatedStickerPack) throws IllegalStateException {
         try {
-            final byte[] stickerInBytes = StickerPackLoaderService.fetchStickerAsset(identifier, fileName, context.getContentResolver());
+            final byte[] stickerInBytes = StickerLoaderService.fetchStickerAsset(identifier, fileName, context.getContentResolver());
 
             if (!animatedStickerPack && stickerInBytes.length > STATIC_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
                 throw new StickerSizeFileLimitException(

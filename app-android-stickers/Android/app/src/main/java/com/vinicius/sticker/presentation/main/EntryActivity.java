@@ -10,8 +10,6 @@
  */
 package com.vinicius.sticker.presentation.main;
 
-import static com.vinicius.sticker.domain.service.StickerDeleteService.deleteStickerByIdentifier;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -20,23 +18,19 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.BaseActivity;
-import com.vinicius.sticker.core.exception.StickerSizeFileLimitException;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.pattern.CallbackResult;
-import com.vinicius.sticker.domain.service.StickerPackLoaderService;
+import com.vinicius.sticker.domain.service.load.StickerPackLoaderService;
 import com.vinicius.sticker.presentation.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
 import com.vinicius.sticker.presentation.feature.stickerpack.presentation.activity.StickerPackListActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class EntryActivity extends BaseActivity {
     private View progressBar;

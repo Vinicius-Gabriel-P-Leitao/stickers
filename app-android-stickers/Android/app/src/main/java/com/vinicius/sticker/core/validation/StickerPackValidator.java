@@ -12,7 +12,6 @@
 package com.vinicius.sticker.core.validation;
 
 import static com.vinicius.sticker.core.validation.StickerValidator.KB_IN_BYTES;
-import static com.vinicius.sticker.core.validation.StickerValidator.verifyStickerValidity;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -23,14 +22,10 @@ import android.util.Patterns;
 import android.webkit.URLUtil;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import com.facebook.animated.webp.WebPImage;
-import com.facebook.imagepipeline.common.ImageDecodeOptions;
-import com.vinicius.sticker.core.exception.StickerSizeFileLimitException;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.StickerPackLoaderService;
+import com.vinicius.sticker.domain.service.load.StickerLoaderService;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -106,7 +101,7 @@ public class StickerPackValidator {
         }
         try {
             final byte[] stickerAssetBytes =
-                    StickerPackLoaderService.fetchStickerAsset(stickerPack.identifier, stickerPack.trayImageFile, context.getContentResolver());
+                    StickerLoaderService.fetchStickerAsset(stickerPack.identifier, stickerPack.trayImageFile, context.getContentResolver());
             if (stickerAssetBytes.length > TRAY_IMAGE_FILE_SIZE_MAX_KB * KB_IN_BYTES) {
                 throw new IllegalStateException(
                         "tray image should be less than " + TRAY_IMAGE_FILE_SIZE_MAX_KB + " KB, tray image file: " + stickerPack.trayImageFile);

@@ -20,6 +20,7 @@ import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelpe
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
 import com.vinicius.sticker.domain.pattern.CallbackResult;
@@ -33,7 +34,8 @@ public class DeleteStickerPacks {
 
         Integer stickerPackId = SelectStickerPacks.getStickerPackId(db, stickerPackIdentifier);
 
-        return db.delete("sticker", FK_STICKER_PACK + " = ? AND " + STICKER_FILE_NAME_IN_QUERY + " = ?", new String[]{String.valueOf(stickerPackId), fileName});
+        return db.delete("sticker",
+                FK_STICKER_PACK + " = ? AND " + STICKER_FILE_NAME_IN_QUERY + " = ?", new String[]{String.valueOf(stickerPackId), fileName});
     }
 
     public static CallbackResult<Integer> deleteStickersOfPack(Context context, String stickerPackIdentifier) {

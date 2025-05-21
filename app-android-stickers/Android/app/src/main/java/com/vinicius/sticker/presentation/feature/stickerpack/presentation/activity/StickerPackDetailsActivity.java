@@ -34,7 +34,8 @@ import com.google.android.material.button.MaterialButton;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.StickerPackLoaderService;
+import com.vinicius.sticker.domain.service.load.StickerLoaderService;
+import com.vinicius.sticker.domain.service.load.StickerPackLoaderService;
 import com.vinicius.sticker.presentation.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.presentation.feature.stickerpack.adapter.StickerPreviewAdapter;
 import com.vinicius.sticker.presentation.feature.stickerpack.usecase.AddStickerPackActivity;
@@ -104,7 +105,7 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
       packNameTextView.setText(stickerPack.name);
       packPublisherTextView.setText(stickerPack.publisher);
 
-      packTrayIcon.setImageURI(StickerPackLoaderService.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile));
+      packTrayIcon.setImageURI(StickerLoaderService.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile));
       packSizeTextView.setText(Formatter.formatShortFileSize(this, stickerPack.getTotalSize()));
 
       buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
@@ -198,7 +199,7 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
       if ( item.getItemId() == R.id.action_info && stickerPack != null ) {
-         Uri trayIconUri = StickerPackLoaderService.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile);
+         Uri trayIconUri = StickerLoaderService.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile);
          launchInfoActivity(
              stickerPack.publisherWebsite, stickerPack.publisherEmail, stickerPack.privacyPolicyWebsite, stickerPack.licenseAgreementWebsite,
              trayIconUri.toString()

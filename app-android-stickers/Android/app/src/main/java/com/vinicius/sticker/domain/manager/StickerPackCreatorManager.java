@@ -15,7 +15,7 @@ package com.vinicius.sticker.domain.manager;
 
 import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.getStickerPackIdentifier;
 import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.identifierPackIsPresent;
-import static com.vinicius.sticker.domain.service.ContentFileParserService.readStickerPack;
+import static com.vinicius.sticker.domain.builder.StickerPackContentJsonParserBuilder.readStickerPack;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -28,7 +28,7 @@ import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.pattern.CallbackResult;
-import com.vinicius.sticker.domain.service.StickerPackSaveService;
+import com.vinicius.sticker.domain.service.save.StickerPackSaveService;
 
 import org.json.JSONException;
 
