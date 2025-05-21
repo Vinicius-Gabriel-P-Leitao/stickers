@@ -52,7 +52,7 @@ public class StickerPackCreatorManager {
 
     @FunctionalInterface
     public interface SavedStickerPackCallback {
-        void onSavedStickerPack(CallbackResult callbackResult);
+        void onSavedStickerPack(CallbackResult<StickerPack> callbackResult);
     }
 
     public static void generateJsonPack(Context context, boolean isAnimatedPack, List<File> fileList, String namePack, JsonValidateCallback jsonValidateCallback, SavedStickerPackCallback savedStickerPackCallback) {
@@ -107,6 +107,9 @@ public class StickerPackCreatorManager {
                             break;
                         case WARNING:
                             Log.w("SaveStickerPack", callbackResult.getWarningMessage());
+                            break;
+                        case DEBUG:
+                            Log.d("SaveStickerPack", callbackResult.getDebugMessage());
                             break;
                         case FAILURE:
                             if (callbackResult.getError() instanceof StickerPackSaveException exception) {

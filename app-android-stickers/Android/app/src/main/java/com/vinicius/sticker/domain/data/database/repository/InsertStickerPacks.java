@@ -47,11 +47,11 @@ import com.vinicius.sticker.domain.pattern.CallbackResult;
 
 public class InsertStickerPacks {
 
-    public interface InsertStickerPackCallback<T> {
-        void onInsertResult(CallbackResult<T> result);
+    public interface InsertStickerPackCallback {
+        void onInsertResult(CallbackResult<StickerPack> result);
     }
 
-    public void insertStickerPack(SQLiteDatabase dbHelper, StickerPack pack, InsertStickerPackCallback<StickerPack> callback) {
+    public void insertStickerPack(SQLiteDatabase dbHelper, StickerPack pack, InsertStickerPackCallback callback) {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (namePackIsPresent(dbHelper, pack.name)) {
                 callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("O nome do pacote já está no banco de dados.")));

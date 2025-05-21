@@ -31,13 +31,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.exception.MediaConversionException;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.manager.StickerPackCreatorManager;
+import com.vinicius.sticker.presentation.component.BottomFadingRecyclerView;
 import com.vinicius.sticker.presentation.feature.media.adapter.PickMediaListAdapter;
 import com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher;
 import com.vinicius.sticker.presentation.feature.media.util.ConvertMediaToStickerFormat;
@@ -55,177 +55,176 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragment {
-   private static final String KEY_MEDIA_URIS = "key_media_uris";
-   private static final String KEY_NAME_PACK = "key_name_pack";
-   private static final String KEY_IS_ANIMATED = "key_is_animated";
+    private static final String KEY_MEDIA_URIS = "key_media_uris";
+    private static final String KEY_NAME_PACK = "key_name_pack";
+    private static final String KEY_IS_ANIMATED = "key_is_animated";
 
-   private final List<File> mediaConvertedFile = new ArrayList<>();
-   private GalleryMediaPickerLauncher viewModel;
-   private boolean isAnimatedPack;
-   private List<Uri> mediaUris;
-   private String namePack;
+    private final List<File> mediaConvertedFile = new ArrayList<>();
+    private GalleryMediaPickerLauncher viewModel;
+    private boolean isAnimatedPack;
+    private List<Uri> mediaUris;
+    private String namePack;
 
-   private int completedConversions = 0;
-   private int totalConversions = 0;
-   private ProgressBar progressBar;
+    private int completedConversions = 0;
+    private int totalConversions = 0;
+    private ProgressBar progressBar;
 
-   ExecutorService executor = new ThreadPoolExecutor(5, 20, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
-   private PickMediaListAdapter.OnItemClickListener listener;
+    ExecutorService executor = new ThreadPoolExecutor(5, 20, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
-   public MediaPickerBottomSheetDialogFragment() {
-   }
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
-   public static MediaPickerBottomSheetDialogFragment newInstance(
-       ArrayList<Uri> mediaUris, String namePack, boolean isAnimatedPack,
-       PickMediaListAdapter.OnItemClickListener listener
-   ) {
-      MediaPickerBottomSheetDialogFragment fragment = new MediaPickerBottomSheetDialogFragment();
-      Bundle args = new Bundle();
+    private PickMediaListAdapter.OnItemClickListener listener;
 
-      args.putParcelableArrayList(KEY_MEDIA_URIS, mediaUris);
-      args.putString(KEY_NAME_PACK, namePack);
-      args.putBoolean(KEY_IS_ANIMATED, isAnimatedPack);
+    public MediaPickerBottomSheetDialogFragment() {
+    }
 
-      fragment.setArguments(args);
-      fragment.setListener(listener);
-      return fragment;
-   }
+    public static MediaPickerBottomSheetDialogFragment newInstance(ArrayList<Uri> mediaUris, String namePack, boolean isAnimatedPack, PickMediaListAdapter.OnItemClickListener listener) {
+        MediaPickerBottomSheetDialogFragment fragment = new MediaPickerBottomSheetDialogFragment();
+        Bundle args = new Bundle();
 
-   private void setListener(PickMediaListAdapter.OnItemClickListener listener) {
-      this.listener = listener;
-   }
+        args.putParcelableArrayList(KEY_MEDIA_URIS, mediaUris);
+        args.putString(KEY_NAME_PACK, namePack);
+        args.putBoolean(KEY_IS_ANIMATED, isAnimatedPack);
 
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      if ( getArguments() != null ) {
-         mediaUris = getArguments().getParcelableArrayList(KEY_MEDIA_URIS);
-         namePack = getArguments().getString(KEY_NAME_PACK);
-         isAnimatedPack = getArguments().getBoolean(KEY_IS_ANIMATED);
-      }
-   }
+        fragment.setArguments(args);
+        fragment.setListener(listener);
+        return fragment;
+    }
 
-   @Override
-   public int getTheme() {
-      return R.style.TransparentBottomSheet;
-   }
+    private void setListener(PickMediaListAdapter.OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
-   @Nullable
-   @Override
-   public View onCreateView(
-       @NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-      return inflater.inflate(R.layout.dialog_fragment_recyclerview_select_media, container, false);
-   }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mediaUris = getArguments().getParcelableArrayList(KEY_MEDIA_URIS);
+            namePack = getArguments().getString(KEY_NAME_PACK);
+            isAnimatedPack = getArguments().getBoolean(KEY_IS_ANIMATED);
+        }
+    }
 
-   @Override
-   public void onViewCreated(
-       @NonNull View view, @Nullable Bundle savedInstanceState) {
-      super.onViewCreated(view, savedInstanceState);
-      viewModel = new ViewModelProvider(requireActivity()).get(GalleryMediaPickerLauncher.class);
+    @Override
+    public int getTheme() {
+        return R.style.TransparentBottomSheet;
+    }
 
-      RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
-      recyclerView.setHasFixedSize(true);
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.dialog_fragment_recyclerview_select_media, container, false);
+    }
 
-      GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        viewModel = new ViewModelProvider(requireActivity()).get(GalleryMediaPickerLauncher.class);
+        viewModel.getFragment().observe(getViewLifecycleOwner(), isVisible -> {
+            if (isVisible && isAdded() && getActivity() != null) {
+                handler.postDelayed(() -> {
+                    if (isAdded() && getActivity() != null) {
+                        getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
 
-      PickMediaListAdapter mediaListAdapter = new PickMediaListAdapter(
-          getContext(), mediaUri -> {
-         listener.onItemClick(mediaUri);
-         dismiss();
-      }
-      );
-      mediaListAdapter.submitList(mediaUris);
-
-      recyclerView.setLayoutManager(layoutManager);
-      recyclerView.setAdapter(mediaListAdapter);
-
-      progressBar = view.findViewById(R.id.progress_bar_media);
-      if ( progressBar == null ) {
-         Log.e("MediaPickerFragment", "ProgressBar não encontrado!");
-      } else {
-         progressBar.setVisibility(View.GONE);
-      }
-
-      Button selectButton = view.findViewById(R.id.select_medias_button);
-      selectButton.setOnClickListener(buttonView -> {
-         Set<Uri> selectedMediaPaths = mediaListAdapter.getSelectedMediaPaths();
-
-         if ( selectedMediaPaths.size() >= STICKER_SIZE_MIN ) {
-            totalConversions = selectedMediaPaths.size();
-            completedConversions = 0;
-            progressBar.setVisibility(View.VISIBLE);
-
-            for (Uri uri : selectedMediaPaths) {
-               convertMediaAndSaveAsync(uri);
+                    }
+                }, 2000);
             }
-         } else {
-            Toast.makeText(view.getContext(), "Numero minimo de itens selecionados, adicione no minimo 3!", Toast.LENGTH_SHORT).show();
-         }
-      });
-   }
+        });
 
-   private void convertMediaAndSaveAsync(Uri uri) {
-      executor.submit(() -> {
-         convertMediaToWebP(
-             getContext(), uri, new File(Objects.requireNonNull(uri.getPath())).getName(), new ConvertMediaToStickerFormat.MediaConversionCallback() {
+        BottomFadingRecyclerView recyclerView = view.findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+
+        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
+
+        PickMediaListAdapter mediaListAdapter = new PickMediaListAdapter(getContext(), mediaUri -> {
+            listener.onItemClick(mediaUri);
+            dismiss();
+        });
+        mediaListAdapter.submitList(mediaUris);
+
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(mediaListAdapter);
+
+        progressBar = view.findViewById(R.id.progress_bar_media);
+        if (progressBar == null) {
+            Log.e("MediaPickerFragment", "ProgressBar não encontrado!");
+        } else {
+            progressBar.setVisibility(View.GONE);
+        }
+
+        Button selectButton = view.findViewById(R.id.select_medias_button);
+        selectButton.setOnClickListener(buttonView -> {
+            Set<Uri> selectedMediaPaths = mediaListAdapter.getSelectedMediaPaths();
+
+            if (selectedMediaPaths.size() >= STICKER_SIZE_MIN) {
+                totalConversions = selectedMediaPaths.size();
+                completedConversions = 0;
+                progressBar.setVisibility(View.VISIBLE);
+
+                for (Uri uri : selectedMediaPaths) {
+                    convertMediaAndSaveAsync(uri);
+                }
+            } else {
+                Toast.makeText(view.getContext(), "Numero minimo de itens selecionados, adicione no minimo 3!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void convertMediaAndSaveAsync(Uri uri) {
+        executor.submit(() -> {
+            convertMediaToWebP(getContext(), uri, new File(Objects.requireNonNull(uri.getPath())).getName(), new ConvertMediaToStickerFormat.MediaConversionCallback() {
                 @Override
                 public void onSuccess(File outputFile) {
-                   new Handler(Looper.getMainLooper()).post(() -> {
-                      mediaConvertedFile.add(outputFile);
-                      checkAllConversionsCompleted();
-                   });
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        mediaConvertedFile.add(outputFile);
+                        checkAllConversionsCompleted();
+                    });
                 }
 
                 @Override
                 public void onError(Exception exception) {
-                   new Handler(Looper.getMainLooper()).post(() -> {
-                      if ( exception instanceof MediaConversionException ) {
-                         Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
-                      } else {
-                         Toast.makeText(getContext(), "Erro critico ao converter imagens!", Toast.LENGTH_SHORT).show();
-                      }
-                   });
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        if (exception instanceof MediaConversionException) {
+                            Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "Erro critico ao converter imagens!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
-             }
-         );
-      });
-   }
+            });
+        });
+    }
 
-   private void checkAllConversionsCompleted() {
-      completedConversions++;
+    private void checkAllConversionsCompleted() {
+        completedConversions++;
 
-      if ( completedConversions == totalConversions ) {
-         progressBar.setVisibility(View.GONE);
+        if (completedConversions == totalConversions) {
+            progressBar.setVisibility(View.GONE);
 
-         StickerPackCreatorManager.generateJsonPack(
-             requireContext(), isAnimatedPack, mediaConvertedFile, namePack, contentJson -> {
-                if ( contentJson != null ) {
-                   Log.i("StickerPackCreator", "JSON validado com sucesso: " + contentJson);
+            StickerPackCreatorManager.generateJsonPack(requireContext(), isAnimatedPack, mediaConvertedFile, namePack, contentJson -> {
+                if (contentJson != null) {
+                    Log.i("StickerPackCreator", "JSON validado com sucesso: " + contentJson);
                 } else {
-                   Log.e("StickerPackCreator", "Erro ao validar JSON");
+                    Log.e("StickerPackCreator", "Erro ao validar JSON");
                 }
-             }, callbackResult -> {
-                if ( getContext() != null && isAdded() ) {
-                   switch (callbackResult.getStatus()) {
-                      case SUCCESS:
-                         if ( callbackResult.getData() instanceof StickerPack pack ) {
-                            viewModel.setStickerPackToPreview(pack);
-                         } else {
-                            Log.i("MediaPickerFragment", (String) callbackResult.getData());
-                         }
-                         break;
-                      case WARNING:
-                         Toast.makeText(getContext(), "Aviso: " + callbackResult.getWarningMessage(), Toast.LENGTH_SHORT).show();
-                         break;
-                      case FAILURE:
-                         Toast.makeText(getContext(), callbackResult.getError().getMessage(), Toast.LENGTH_SHORT).show();
-                         break;
-                   }
+            }, callbackResult -> {
+                if (getContext() != null && isAdded()) {
+                    switch (callbackResult.getStatus()) {
+                        case SUCCESS:
+                            viewModel.setStickerPackToPreview(callbackResult.getData());
+                            viewModel.closeFragment();
+                            break;
+                        case WARNING:
+                            Toast.makeText(getContext(), "Aviso: " + callbackResult.getWarningMessage(), Toast.LENGTH_SHORT).show();
+                            break;
+                        case FAILURE:
+                            Toast.makeText(getContext(), callbackResult.getError().getMessage(), Toast.LENGTH_SHORT).show();
+                            break;
+                    }
                 } else {
-                   Log.e("MediaPickerFragment", "Fragment ou Contexto não estão mais válidos.");
+                    Log.e("MediaPickerFragment", "Fragment ou Contexto não estão mais válidos.");
                 }
-             }
-         );
-      }
-   }
+            });
+        }
+    }
 }

@@ -41,13 +41,22 @@ public class GalleryMediaPickerLauncher extends ViewModel {
     }
 
     private final MutableLiveData<StickerPack> stickerPackPreview = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> closedFragment = new MutableLiveData<>(false);
 
     public LiveData<StickerPack> getStickerPackToPreview() {
         return stickerPackPreview;
     }
 
+    public LiveData<Boolean> getFragment() {
+        return closedFragment;
+    }
+
     public void setStickerPackToPreview(StickerPack stickerPack) {
         stickerPackPreview.setValue(stickerPack);
+    }
+
+    public void closeFragment() {
+        closedFragment.setValue(true);
     }
 
     public static void launchOwnGallery(FragmentActivity activity, String[] mimeType, String namePack) {
@@ -63,17 +72,18 @@ public class GalleryMediaPickerLauncher extends ViewModel {
             isAnimatedPack = true;
         }
 
-        MediaPickerBottomSheetDialogFragment sheet = MediaPickerBottomSheetDialogFragment.newInstance(new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(String imagePath) {
-                Uri selectedImageUri = Uri.fromFile(new File(imagePath));
-                Intent resultIntent = new Intent();
-                resultIntent.setData(selectedImageUri);
+        MediaPickerBottomSheetDialogFragment sheet =
+                MediaPickerBottomSheetDialogFragment.newInstance(new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(String imagePath) {
+                        Uri selectedImageUri = Uri.fromFile(new File(imagePath));
+                        Intent resultIntent = new Intent();
+                        resultIntent.setData(selectedImageUri);
 
-                activity.setResult(RESULT_OK, resultIntent);
-                activity.finish();
-            }
-        });
+                        activity.setResult(RESULT_OK, resultIntent);
+                        activity.finish();
+                    }
+                });
 
         sheet.show(activity.getSupportFragmentManager(), "MediaPickerBottomSheetDialogFragment");
     }
