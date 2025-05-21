@@ -13,12 +13,14 @@
 
 package com.vinicius.sticker.core.exception;
 
+import androidx.annotation.NonNull;
+
 public class NativeConversionException extends RuntimeException {
-    public NativeConversionException(String message) {
+    public NativeConversionException(@NonNull String message) {
         super(message);
     }
 
-    public NativeConversionException(String message, Throwable cause) {
+    public NativeConversionException(@NonNull String message, Throwable cause) {
         super(message, cause);
     }
 }

@@ -34,7 +34,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.vinicius.sticker.BuildConfig;
-import com.vinicius.sticker.core.exception.StickerSizeFileLimitException;
+import com.vinicius.sticker.core.exception.StickerFileException;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.core.validation.StickerValidator;
 import com.vinicius.sticker.domain.data.model.Sticker;
@@ -99,7 +99,7 @@ public class StickerPackLoaderService {
                     StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
                 }
             } catch (IllegalStateException exception) {
-                if (exception instanceof StickerSizeFileLimitException sizeFileLimitException) {
+                if (exception instanceof StickerFileException sizeFileLimitException) {
                     // TODO: Trocar por método que vai marcar no banco de dados o pacote e figurinha como não valido e o motivo de cada figurinha,
                     //  modigficar para quando ele passar para as activity ele ter um Intent que marca que tem sticker com erros, e adiciona um botão de erro que abre
                     //  um editor para modificar os stickers com erros, no caso ou deletar todos ou criar novamente.

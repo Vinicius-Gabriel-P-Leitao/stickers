@@ -14,15 +14,16 @@
 package com.vinicius.sticker.core.exception;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.core.exception.main.AppCoreStateException;
 
-public class MediaConversionException extends AppCoreStateException {
-    public MediaConversionException(@NonNull String message) {
-        super(message, "MEDIA_CONVERSION");
+public class PackValidatorException extends AppCoreStateException {
+    public PackValidatorException(@NonNull String message) {
+        super(message, "PACK_VALIDATOR_ERROR");
     }
 
-    public MediaConversionException(@NonNull String message, Throwable cause) {
-        super(message, cause, "MEDIA_CONVERSION");
+    public PackValidatorException(@NonNull String message, @Nullable Throwable cause) {
+        super(message, cause, "PACK_VALIDATOR_ERROR");
     }
 }

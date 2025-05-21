@@ -24,6 +24,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.vinicius.sticker.core.exception.MediaConversionException;
 import com.vinicius.sticker.domain.libs.NativeConvertToWebp;
 
@@ -43,7 +45,7 @@ public class ConvertMediaToStickerFormat {
         void onError(Exception exception);
     }
 
-    public static void convertMediaToWebP(Context context, Uri inputUri, String outputFile, MediaConversionCallback callback) {
+    public static void convertMediaToWebP(Context context, @NonNull Uri inputUri, @NonNull String outputFile, MediaConversionCallback callback) {
         Map<String, String> mapDetailsFile = getFileDetailsFromUri(context, inputUri);
         if (mapDetailsFile.isEmpty()) {
             throw new MediaConversionException("Não foi possível determinar o tipo MIME do arquivo!");
@@ -71,9 +73,7 @@ public class ConvertMediaToStickerFormat {
             outputFileName = outputFileName.replaceAll("\\.\\w+$", "") + ".webp";
         }
 
-        String cleanedPath = inputPath.startsWith("file://") ?
-                             inputPath.substring(7) :
-                             inputPath;
+        String cleanedPath = inputPath.startsWith("file://") ? inputPath.substring(7) : inputPath;
         Bitmap bitmap = BitmapFactory.decodeFile(cleanedPath);
 
         if (bitmap != null) {
@@ -103,7 +103,7 @@ public class ConvertMediaToStickerFormat {
         File outputFile = new File(context.getCacheDir(), outputFileName);
 
         NativeConvertToWebp nativeConvertToWebp = new NativeConvertToWebp();
-        nativeConvertToWebp.convertToWebpAsync(getAbsolutePath(context, inputPath), outputFile.getAbsolutePath(), new NativeConvertToWebp.ConversionListener() {
+        nativeConvertToWebp.convertToWebpAsync(getAbsolutePath(context, inputPath), outputFile.getAbsolutePath(), new NativeConvertToWebp.ConversionCallback() {
             @Override
             public void onSuccess(File file) {
                 callback.onSuccess(file);

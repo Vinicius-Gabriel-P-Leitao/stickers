@@ -13,18 +13,27 @@
 
 package com.vinicius.sticker.core.exception;
 
-public class StickerSizeFileLimitException extends IllegalStateException {
-    private final String stickerPackIdentifier;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+public class StickerFileException extends IllegalStateException {
+    private final String stickerPackIdentifier;
+    @Nullable
     private final String fileName;
 
-    public StickerSizeFileLimitException(String message) {
+    public StickerFileException(@NonNull String message) {
         super(message);
         this.stickerPackIdentifier = null;
         this.fileName = null;
     }
 
-    public StickerSizeFileLimitException(String message, String stickerPackIdentifier, String fileName) {
+    public StickerFileException(@NonNull String message, String stickerPackIdentifier) {
+        super(message);
+        this.stickerPackIdentifier = stickerPackIdentifier;
+        this.fileName = null;
+    }
+
+    public StickerFileException(@NonNull String message, String stickerPackIdentifier, @Nullable String fileName) {
         super(message);
         this.stickerPackIdentifier = stickerPackIdentifier;
         this.fileName = fileName;

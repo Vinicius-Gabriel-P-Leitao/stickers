@@ -25,7 +25,11 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.Log;
 
+import com.vinicius.sticker.core.exception.PackValidatorException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
+import com.vinicius.sticker.core.exception.StickerValidatorException;
+import com.vinicius.sticker.core.validation.StickerPackValidator;
+import com.vinicius.sticker.core.validation.StickerValidator;
 import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
 import com.vinicius.sticker.domain.data.database.repository.InsertStickerPacks;
 import com.vinicius.sticker.domain.data.model.Sticker;
@@ -68,6 +72,17 @@ public class StickerPackSaveService {
         }
 
         if (!copyStickers(context, stickerPack, stickerPackDirectory, callback)) {
+            return;
+        }
+
+        try {
+            StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
+
+            for (Sticker sticker : stickerPack.getStickers()) {
+                StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
+            }
+        } catch (PackValidatorException | StickerValidatorException exception) {
+            callback.onStickerPackSaveResult(CallbackResult.failure(exception));
             return;
         }
 

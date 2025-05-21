@@ -13,16 +13,18 @@
 
 package com.vinicius.sticker.domain.manager;
 
+import static com.vinicius.sticker.domain.builder.StickerPackContentJsonParserBuilder.readStickerPack;
 import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.getStickerPackIdentifier;
 import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.identifierPackIsPresent;
-import static com.vinicius.sticker.domain.builder.StickerPackContentJsonParserBuilder.readStickerPack;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.JsonReader;
 import android.util.Log;
 
+import com.vinicius.sticker.core.exception.PackValidatorException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
+import com.vinicius.sticker.core.exception.main.InternalAppException;
 import com.vinicius.sticker.domain.builder.StickerPackContentJsonBuilder;
 import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
 import com.vinicius.sticker.domain.data.model.Sticker;
@@ -112,18 +114,36 @@ public class StickerPackCreatorManager {
                             Log.d("SaveStickerPack", callbackResult.getDebugMessage());
                             break;
                         case FAILURE:
-                            if (callbackResult.getError() instanceof StickerPackSaveException exception) {
-                                Log.e("SaveStickerPack", Objects.requireNonNull(callbackResult.getError().getMessage()));
-                                savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(exception));
-                            } else {
-                                savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(new StickerPackSaveException("Erro interno desconhecido!")));
+                            if (callbackResult.getError() instanceof StickerPackSaveException stickerPackSaveException) {
+                                Log.e("SaveStickerPack", stickerPackSaveException.getMessage() != null ? stickerPackSaveException.getMessage() :
+                                                         "Erro interno desconhecido!");
+                                savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(stickerPackSaveException));
+                                break;
                             }
+
+                            if (callbackResult.getError() instanceof PackValidatorException packValidatorException) {
+                                // NOTE: É garantido que não vai nulos, caso lançe nullpointer o erro é no código do projeto
+                                Log.e("SaveStickerPack", Objects.requireNonNull(packValidatorException.getMessage()));
+                                // TODO: Caso receba essa exception aplicar tratamento para pacote invalido
+                            }
+
+                            if (callbackResult.getError() instanceof StickerPackSaveException stickerPackSaveException) {
+                                // NOTE: É garantido que não vai nulos, caso lançe nullpointer o erro é no código do projeto
+                                Log.e("SaveStickerPack", Objects.requireNonNull(stickerPackSaveException.getMessage()));
+                                // TODO: Caso receba essa exception aplicar tratamento para pacote invalido
+                                break;
+                            }
+
+                            savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(new InternalAppException("Erro interno desconhecido!")));
                             break;
                     }
                 });
             }
         } catch (JSONException | IOException exception) {
-            throw new RuntimeException(exception);
+            savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(new InternalAppException(
+                    exception.getMessage() != null ? exception.getMessage() : "Erro interno desconhecido!", exception,
+                    exception instanceof JSONException ? exception.getMessage() : null)));
+
         }
     }
 }

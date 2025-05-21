@@ -14,15 +14,16 @@
 package com.vinicius.sticker.core.exception;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.core.exception.main.AppCoreStateException;
 
-public class MediaConversionException extends AppCoreStateException {
-    public MediaConversionException(@NonNull String message) {
-        super(message, "MEDIA_CONVERSION");
+public class DeleteStickerException extends AppCoreStateException {
+    public DeleteStickerException(@NonNull String message) {
+        super(message, "DELETE_SQL_STICKER");
     }
 
-    public MediaConversionException(@NonNull String message, Throwable cause) {
-        super(message, cause, "MEDIA_CONVERSION");
+    public DeleteStickerException(@NonNull String message, @Nullable Throwable cause) {
+        super(message, cause, "DELETE_SQL_STICKER");
     }
 }

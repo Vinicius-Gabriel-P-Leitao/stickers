@@ -11,28 +11,26 @@
  * Original GPLv3 license text begins below.
  */
 
-package com.vinicius.sticker.core.exception;
+package com.vinicius.sticker.core.exception.main;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.vinicius.sticker.core.exception.main.AppCoreStateException;
-
-public class StickerPackSaveException extends AppCoreStateException {
-    public StickerPackSaveException(@NonNull String message) {
-        super(message, "PACK_SAVE");
+public class InternalAppException extends AppCoreStateException {
+    public InternalAppException(@NonNull String message) {
+        super(message, "INTERNAL_ERROR");
     }
 
-    public StickerPackSaveException(@NonNull String message, Exception exception) {
-        super(message, exception, "PACK_SAVE");
+    public InternalAppException(@NonNull String message, Exception exception) {
+        super(message, exception, "INTERNAL_ERROR");
     }
 
-    public StickerPackSaveException(@NonNull String message, @Nullable Throwable cause, @Nullable String packSaveError) {
-        super(message, cause, "PACK_SAVE", new Object[]{packSaveError});
+    public InternalAppException(@NonNull String message, @Nullable Throwable cause, @Nullable String errorDetails) {
+        super(message, cause, "INTERNAL_ERROR", new Object[]{errorDetails});
     }
 
     @Nullable
-    public String getSaveErrorDetails() {
+    public String getErrorDetails() {
         Object[] details = getDetails();
         return details != null && details.length > 0 ? (String) details[0] : null;
     }

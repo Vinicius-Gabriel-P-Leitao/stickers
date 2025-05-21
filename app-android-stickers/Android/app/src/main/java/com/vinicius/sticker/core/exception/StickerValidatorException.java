@@ -17,12 +17,8 @@ import androidx.annotation.NonNull;
 
 import com.vinicius.sticker.core.exception.main.AppCoreStateException;
 
-public class MediaConversionException extends AppCoreStateException {
-    public MediaConversionException(@NonNull String message) {
-        super(message, "MEDIA_CONVERSION");
-    }
-
-    public MediaConversionException(@NonNull String message, Throwable cause) {
-        super(message, cause, "MEDIA_CONVERSION");
+public class StickerValidatorException extends AppCoreStateException {
+    public StickerValidatorException(@NonNull String message) {
+        super(message, "sticker_VALIDATOR_ERROR");
     }
 }

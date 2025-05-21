@@ -26,7 +26,7 @@ public class NativeConvertToWebp {
 
     public native boolean convertToWebp(String inputPath, String outputPath);
 
-    public interface ConversionListener {
+    public interface ConversionCallback {
         void onSuccess(File file);
 
         void onError(Exception exception);
@@ -34,7 +34,7 @@ public class NativeConvertToWebp {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public void convertToWebpAsync(String inputPath, String outputPath, ConversionListener listener) throws MediaConversionException {
+    public void convertToWebpAsync(String inputPath, String outputPath, ConversionCallback callback) throws MediaConversionException {
         executorService.submit(() -> {
             try {
                 boolean success = convertToWebp(inputPath, outputPath);
@@ -44,15 +44,16 @@ public class NativeConvertToWebp {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException exception) {
-                        throw new MediaConversionException(exception.getMessage(), exception.getCause());
+                        throw new MediaConversionException(exception.getMessage() != null ? exception.getMessage() :
+                                                           "Erro fazer ao pausar a thread, e não foi retornado mensagem de erro!", exception.getCause());
                     }
 
-                    listener.onSuccess(outputFile);
+                    callback.onSuccess(outputFile);
                 } else {
-                    listener.onError(new MediaConversionException("Falha na conversão ou arquivo não gerado."));
+                    callback.onError(new MediaConversionException("Falha na conversão ou arquivo não gerado."));
                 }
             } catch (Exception exception) {
-                listener.onError(new MediaConversionException("Erro inesperado durante a conversão nativa: ", exception));
+                callback.onError(new MediaConversionException("Erro inesperado durante a conversão nativa: ", exception));
             }
         });
     }
