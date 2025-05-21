@@ -10,7 +10,7 @@
  *
  * Original GPLv3 license text begins below.
  */
-package com.vinicius.sticker.presentation.feature.media.util;
+package com.vinicius.sticker.presentation.feature.media.transformation;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;

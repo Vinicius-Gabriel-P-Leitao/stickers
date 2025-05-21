@@ -11,7 +11,7 @@
  * Original GPLv3 license text begins below.
  */
 
-package com.vinicius.sticker.domain.service;
+package com.vinicius.sticker.domain.service.delete;
 
 import static com.vinicius.sticker.domain.data.content.provider.StickerContentProvider.STICKERS_ASSET;
 import static com.vinicius.sticker.domain.data.database.repository.DeleteStickerPacks.deleteSticker;
@@ -24,8 +24,19 @@ import com.vinicius.sticker.domain.pattern.CallbackResult;
 import java.io.File;
 import java.sql.SQLException;
 
+/**
+ * <p>Deleta o sticker tanto no banco de dados quanto o arquivo.</p>
+ */
 public class StickerDeleteService {
-    // TODO: Fazer exceptions personalizadas.
+
+    /**
+     * <p><b>Descrição:</b>Deleta o sticker tanto no banco de dados quanto o arquivo, os métadados são deletados via repositório.</p>
+     *
+     * @param context               Contexto da aplicação.
+     * @param stickerPackIdentifier Identificador do pacote que está o sticker.
+     * @param fileName              nome do arquivo.
+     * @return Patter para resultado com booleano para retorno.
+     */
     public static CallbackResult<Boolean> deleteStickerByIdentifier(Context context, String stickerPackIdentifier, String fileName) {
         if (stickerPackIdentifier == null || fileName == null) {
             return CallbackResult.failure(new IllegalArgumentException("stickerPackIdentifier e fileName não podem ser null"));
@@ -46,6 +57,14 @@ public class StickerDeleteService {
 
     }
 
+    /**
+     * <p><b>Descrição:</b>Deleta arquivo da figurinha apenas um arquivo.</p>
+     *
+     * @param context               Contexto da aplicação.
+     * @param stickerPackIdentifier Identificador do pacote que está sticker.
+     * @param fileName              nome do arquivo.
+     * @return Patter para resultado com booleano para retorno.
+     */
     private static Boolean deleteFileSticker(Context context, String stickerPackIdentifier, String fileName) {
         File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
         File stickerDirectory = new File(mainDirectory, stickerPackIdentifier + File.separator + fileName);
@@ -67,7 +86,14 @@ public class StickerDeleteService {
         }
     }
 
-    public static CallbackResult<Void> deleteOldFilesInPack(Context context, String stickerPackIdentifier) {
+    /**
+     * <p><b>Descrição:</b>Deleta todos os stickers de um pacote.</p>
+     *
+     * @param context               Contexto da aplicação.
+     * @param stickerPackIdentifier Identificador do sticker.
+     * @return Patter para resultado com booleano para retorno.
+     */
+    public static CallbackResult<Void> deleteAllFilesInPack(Context context, String stickerPackIdentifier) {
         try {
             File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
             File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);
