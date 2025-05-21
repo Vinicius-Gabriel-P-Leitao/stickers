@@ -10,6 +10,7 @@
  *
  * Original GPLv3 license text begins below.
  */
+
 package com.vinicius.sticker.presentation.feature.stickerpack.presentation.activity;
 
 import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
@@ -69,17 +70,19 @@ public class StickerPackCreatorActivity extends BaseActivity {
             getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
         }
 
+        GalleryMediaPickerLauncher viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
+        viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
+
         ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
         buttonSelectMedia.setOnClickListener(view -> {
             ObjectAnimator rotation = ObjectAnimator.ofFloat(buttonSelectMedia, "rotation", 0f, 360f);
             rotation.setDuration(500);
             rotation.start();
 
+            viewModel.openFragmentState();
+
             createStickerPackFlow();
         });
-
-        GalleryMediaPickerLauncher viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
-        viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
     }
 
     @Override

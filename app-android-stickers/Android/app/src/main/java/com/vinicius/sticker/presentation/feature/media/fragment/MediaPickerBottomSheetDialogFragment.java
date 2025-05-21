@@ -125,7 +125,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                     if (isAdded() && getActivity() != null) {
                         dismiss();
                     }
-                }, 2000);
+                }, 1500);
             }
         });
 

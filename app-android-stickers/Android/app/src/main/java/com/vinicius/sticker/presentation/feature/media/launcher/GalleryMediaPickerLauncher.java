@@ -10,6 +10,7 @@
  *
  * Original GPLv3 license text begins below.
  */
+
 package com.vinicius.sticker.presentation.feature.media.launcher;
 
 import static android.app.Activity.RESULT_OK;
@@ -37,12 +38,17 @@ public class GalleryMediaPickerLauncher extends ViewModel {
     public static final String[] IMAGE_MIME_TYPES = {"image/jpeg", "image/png"};
     public static final String[] ANIMATED_MIME_TYPES = {"video/mp4", "image/gif"};
 
+    public enum MediaType {
+        IMAGE_MIME_TYPES, ANIMATED_MIME_TYPES
+    }
+
     private final MutableLiveData<StickerPack> stickerPackPreview = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> fragmentVisibility = new MutableLiveData<>(false);
 
     public LiveData<StickerPack> getStickerPackToPreview() {
         return stickerPackPreview;
     }
+
+    private final MutableLiveData<Boolean> fragmentVisibility = new MutableLiveData<>(false);
 
     public LiveData<Boolean> getFragment() {
         return fragmentVisibility;
@@ -52,12 +58,12 @@ public class GalleryMediaPickerLauncher extends ViewModel {
         stickerPackPreview.setValue(stickerPack);
     }
 
-    public void closeFragmentState() {
-        fragmentVisibility.setValue(true);
+    public void openFragmentState() {
+        fragmentVisibility.setValue(false);
     }
 
-    public enum MediaType {
-        IMAGE_MIME_TYPES, ANIMATED_MIME_TYPES
+    public void closeFragmentState() {
+        fragmentVisibility.setValue(true);
     }
 
     public static void launchOwnGallery(FragmentActivity activity, String[] mimeType, String namePack) {
@@ -73,7 +79,8 @@ public class GalleryMediaPickerLauncher extends ViewModel {
             isAnimatedPack = true;
         }
 
-        MediaPickerBottomSheetDialogFragment fragment = MediaPickerBottomSheetDialogFragment.newInstance(new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
+        MediaPickerBottomSheetDialogFragment fragment =
+                MediaPickerBottomSheetDialogFragment.newInstance(new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(String imagePath) {
                         Uri selectedImageUri = Uri.fromFile(new File(imagePath));
