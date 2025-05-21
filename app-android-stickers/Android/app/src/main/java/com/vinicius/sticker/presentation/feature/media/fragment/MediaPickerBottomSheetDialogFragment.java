@@ -35,7 +35,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.exception.MediaConversionException;
-import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.manager.StickerPackCreatorManager;
 import com.vinicius.sticker.presentation.component.BottomFadingRecyclerView;
 import com.vinicius.sticker.presentation.feature.media.adapter.PickMediaListAdapter;
@@ -124,8 +123,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
             if (isVisible && isAdded() && getActivity() != null) {
                 handler.postDelayed(() -> {
                     if (isAdded() && getActivity() != null) {
-                        getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
-
+                        dismiss();
                     }
                 }, 2000);
             }
@@ -212,7 +210,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                     switch (callbackResult.getStatus()) {
                         case SUCCESS:
                             viewModel.setStickerPackToPreview(callbackResult.getData());
-                            viewModel.closeFragment();
+                            viewModel.closeFragmentState();
                             break;
                         case WARNING:
                             Toast.makeText(getContext(), "Aviso: " + callbackResult.getWarningMessage(), Toast.LENGTH_SHORT).show();

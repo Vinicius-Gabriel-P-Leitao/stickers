@@ -13,9 +13,9 @@
 
 package com.vinicius.sticker.presentation.feature.media.util;
 
-import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
-import static com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
 import static com.vinicius.sticker.presentation.feature.media.util.CursorSearchUriMedia.getAbsolutePath;
+import static com.vinicius.sticker.presentation.feature.stickerpack.util.LaunchOwenGallery.ANIMATED_MIME_TYPES;
+import static com.vinicius.sticker.presentation.feature.stickerpack.util.LaunchOwenGallery.IMAGE_MIME_TYPES;
 
 import android.content.Context;
 import android.graphics.Bitmap;
