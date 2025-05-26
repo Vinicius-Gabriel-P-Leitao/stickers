@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.22.1)
 project("sticker")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
-set(ENV{PKG_CONFIG_LIBDIR} "${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/pkgconfig")
 
 file(GLOB_RECURSE SOURCES
         "jni/*.cpp"
@@ -96,11 +95,6 @@ set_target_properties(
         PROPERTIES IMPORTED_LOCATION
         ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libwebpdemux.a
 )
-
-
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(AVCODEC REQUIRED IMPORTED_TARGET libavcodec)
-pkg_check_modules(AVFORMAT REQUIRED IMPORTED_TARGET libavformat)
 
 target_link_libraries(
         ${CMAKE_PROJECT_NAME}
