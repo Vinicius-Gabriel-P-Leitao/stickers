@@ -8,6 +8,7 @@
  * Modifications by Vinícius, 2025
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
+
 package com.vinicius.sticker.presentation.feature.stickerpack.adapter;
 
 import android.net.Uri;
@@ -24,7 +25,6 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerLoaderService;
-import com.vinicius.sticker.domain.service.load.StickerPackLoaderService;
 import com.vinicius.sticker.presentation.feature.stickerpack.viewholder.StickerPreviewViewHolder;
 
 public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewViewHolder> {

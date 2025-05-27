@@ -5,6 +5,7 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
+
 package com.vinicius.sticker.presentation.feature.stickerpack.viewholder;
 
 import android.view.View;
@@ -16,10 +17,10 @@ import com.vinicius.sticker.R;
 
 public class StickerPreviewViewHolder extends RecyclerView.ViewHolder {
 
-   public final SimpleDraweeView stickerPreviewView;
+    public final SimpleDraweeView stickerPreviewView;
 
-   public StickerPreviewViewHolder(final View itemView) {
-      super(itemView);
-      stickerPreviewView = itemView.findViewById(R.id.sticker_preview);
-   }
+    public StickerPreviewViewHolder(final View itemView) {
+        super(itemView);
+        stickerPreviewView = itemView.findViewById(R.id.sticker_preview);
+    }
 }

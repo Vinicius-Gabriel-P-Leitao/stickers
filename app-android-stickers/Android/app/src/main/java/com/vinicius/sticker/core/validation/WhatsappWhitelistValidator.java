@@ -8,6 +8,7 @@
  * Modifications by Vinícius, 2025
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
+
 package com.vinicius.sticker.core.validation;
 
 import android.content.ContentResolver;

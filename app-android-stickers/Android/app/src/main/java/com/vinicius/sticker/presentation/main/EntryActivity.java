@@ -1,13 +1,11 @@
 /*
- * Copyright (c) WhatsApp Inc. and its affiliates.
+ * Copyright (c) 2025 Vinícius Gabriel Pereira Leitão
  * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * Modifications by Vinícius, 2025
- * Licensed under the Vinícius Non-Commercial Public License (VNCL)
+ * This source code is licensed under the Vinícius Non-Commercial Public License (VNCL),
+ * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
+
 package com.vinicius.sticker.presentation.main;
 
 import android.content.Context;

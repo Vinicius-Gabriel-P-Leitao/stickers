@@ -4,11 +4,6 @@
  *
  * This source code is licensed under the Vinícius Non-Commercial Public License (VNCL),
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
- *
- * This is **not an official GNU license**, and it is **not endorsed by the Free Software Foundation (FSF)**.
- * This license incorporates and modifies portions of the GNU GPLv3 to add a non-commercial use clause.
- *
- * Original GPLv3 license text begins below.
  */
 
 package com.vinicius.sticker.core.validation;
@@ -48,13 +43,13 @@ public class StickerValidator {
         if (sticker.emojis.size() > EMOJI_MAX_LIMIT) {
             throw new StickerValidatorException(
                     "Contagem de emojis excedeu o limite, identificador do pacote de figurinha:" + identifier + ", arquivo: " +
-                    sticker.imageFileName);
+                            sticker.imageFileName);
         }
 
         if (sticker.emojis.size() < EMOJI_MIN_LIMIT) {
             throw new StickerValidatorException(
                     "Para proporcionar a melhor experiência ao usuário, associe pelo menos 1 emoji a este adesivo, identificador do pacote de  figurinhas:" +
-                    identifier + ", arquivo:" + sticker.imageFileName);
+                            identifier + ", arquivo:" + sticker.imageFileName);
         }
 
         if (TextUtils.isEmpty(sticker.imageFileName)) {
@@ -65,7 +60,7 @@ public class StickerValidator {
         if (isInvalidAccessibilityText(accessibilityText, animatedStickerPack)) {
             throw new StickerValidatorException(
                     "Comprimento do texto de acessibilidade excedeu o limite, identificador do pacote de figurinhas:" + identifier + ", arquivo:" +
-                    " " + sticker.imageFileName);
+                            " " + sticker.imageFileName);
         }
 
         validateStickerFile(context, identifier, sticker.imageFileName, animatedStickerPack);
@@ -77,7 +72,7 @@ public class StickerValidator {
         }
         final int length = accessibilityText.length();
         return isAnimatedStickerPack && length > MAX_ANIMATED_STICKER_A11Y_TEXT_CHAR_LIMIT ||
-               !isAnimatedStickerPack && length > MAX_STATIC_STICKER_A11Y_TEXT_CHAR_LIMIT;
+                !isAnimatedStickerPack && length > MAX_STATIC_STICKER_A11Y_TEXT_CHAR_LIMIT;
     }
 
     private static void validateStickerFile(

@@ -4,11 +4,6 @@
  *
  * This source code is licensed under the Vinícius Non-Commercial Public License (VNCL),
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
- *
- * This is **not an official GNU license**, and it is **not endorsed by the Free Software Foundation (FSF)**.
- * This license incorporates and modifies portions of the GNU GPLv3 to add a non-commercial use clause.
- *
- * Original GPLv3 license text begins below.
  */
 
 package com.vinicius.sticker.domain.manager;
@@ -122,13 +117,13 @@ public class StickerPackCreatorManager {
                             }
 
                             if (callbackResult.getError() instanceof PackValidatorException packValidatorException) {
-                                // NOTE: É garantido que não vai nulos, caso lançe nullpointer o erro é no código do projeto
+                                // NOTE: É garantido que não vai nulo, caso lançe nullpointer o erro é no código do projeto
                                 Log.e("SaveStickerPack", Objects.requireNonNull(packValidatorException.getMessage()));
                                 // TODO: Caso receba essa exception aplicar tratamento para pacote invalido
                             }
 
                             if (callbackResult.getError() instanceof StickerPackSaveException stickerPackSaveException) {
-                                // NOTE: É garantido que não vai nulos, caso lançe nullpointer o erro é no código do projeto
+                                // NOTE: É garantido que não vai nulo, caso lançe nullpointer o erro é no código do projeto
                                 Log.e("SaveStickerPack", Objects.requireNonNull(stickerPackSaveException.getMessage()));
                                 // TODO: Caso receba essa exception aplicar tratamento para pacote invalido
                                 break;
