@@ -98,10 +98,11 @@
             android:paddingRight="@dimen/preview_side_margin"
             android:requiresFadingEdge="vertical" />
 
-        <com.facebook.drawee.view.SimpleDraweeView
+        <ImageView
             android:id="@+id/sticker_details_expanded_sticker"
             android:layout_width="128dp"
             android:layout_height="128dp"
+            android:contentDescription="Thumbnail do pacote de figurinhas"
             android:scaleType="centerCrop"
             android:visibility="invisible" />
 

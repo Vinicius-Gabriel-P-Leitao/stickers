@@ -4,6 +4,9 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
+ *
+ * Modifications by Vinícius, 2025
+ * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
 
 package com.vinicius.sticker.view.feature.stickerpack.adapter;
@@ -23,7 +26,6 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerLoaderService;
@@ -72,14 +74,20 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         //if this sticker pack contains less stickers than the max, then take the smaller size.
         int actualNumberOfStickersToShow = Math.min(maxNumberOfStickersInARow, pack.getStickers().size());
         for (int i = 0; i < actualNumberOfStickersToShow; i++) {
-            final SimpleDraweeView rowImage = (SimpleDraweeView) LayoutInflater.from(context).inflate(R.layout.sticker_packs_list_media_item, viewHolder.imageRowView, false);
+            final ImageView rowImage = (ImageView) LayoutInflater.from(context).inflate(
+                    R.layout.sticker_packs_list_media_item, viewHolder.imageRowView, false);
+
             rowImage.setImageURI(StickerLoaderService.getStickerAssetUri(pack.identifier, pack.getStickers().get(i).imageFileName));
-            final LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) rowImage.getLayoutParams();
-            final int marginBetweenImages = minMarginBetweenImages - lp.leftMargin - lp.rightMargin;
+
+            final LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) rowImage.getLayoutParams();
+            final int marginBetweenImages = minMarginBetweenImages - layoutParams.leftMargin - layoutParams.rightMargin;
+
             if (i != actualNumberOfStickersToShow - 1 && marginBetweenImages > 0) { //do not set the margin for the last image
-                lp.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin + marginBetweenImages, lp.bottomMargin);
-                rowImage.setLayoutParams(lp);
+                layoutParams.setMargins(
+                        layoutParams.leftMargin, layoutParams.topMargin, layoutParams.rightMargin + marginBetweenImages, layoutParams.bottomMargin);
+                rowImage.setLayoutParams(layoutParams);
             }
+
             viewHolder.imageRowView.addView(rowImage);
         }
         setAddButtonAppearance(viewHolder.addButton, pack);

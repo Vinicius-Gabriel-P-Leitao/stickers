@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,10 +29,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
 import com.vinicius.sticker.view.feature.permission.fragment.PermissionRequestBottomSheetDialogFragment;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
@@ -165,15 +165,15 @@ public class StickerPackCreatorActivity extends BaseActivity {
     private final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            setNumColumns(recyclerView.getWidth() /
-                          recyclerView.getContext().getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
+            setNumColumns(recyclerView.getWidth() / recyclerView.getContext().getResources().getDimensionPixelSize(
+                    R.dimen.sticker_pack_details_image_size));
         }
     };
 
     private void setupStickerPackView(StickerPack stickerPack) {
         Log.d("StickerPack", "StickerPack recebido: " + stickerPack.toString());
 
-        SimpleDraweeView expandedStickerView = findViewById(R.id.sticker_details_expanded_sticker);
+        ImageView expandedStickerView = findViewById(R.id.sticker_details_expanded_sticker);
         layoutManager = new GridLayoutManager(this, 1);
 
         recyclerView = findViewById(R.id.sticker_list_to_package);
@@ -184,8 +184,9 @@ public class StickerPackCreatorActivity extends BaseActivity {
         divider = findViewById(R.id.divider);
 
         if (stickerPreviewAdapter == null) {
-            stickerPreviewAdapter =
-                    new StickerPreviewAdapter(getLayoutInflater(), R.drawable.sticker_error, getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size), getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, expandedStickerView);
+            stickerPreviewAdapter = new StickerPreviewAdapter(
+                    getLayoutInflater(), R.drawable.sticker_error, getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
+                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, expandedStickerView);
             recyclerView.setAdapter(stickerPreviewAdapter);
         }
     }
@@ -206,9 +207,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
         private void updateDivider(RecyclerView recyclerView) {
             boolean showDivider = recyclerView.computeVerticalScrollOffset() > 0;
             if (divider != null) {
-                divider.setVisibility(showDivider ?
-                                      View.VISIBLE :
-                                      View.INVISIBLE);
+                divider.setVisibility(showDivider ? View.VISIBLE : View.INVISIBLE);
             }
         }
     };

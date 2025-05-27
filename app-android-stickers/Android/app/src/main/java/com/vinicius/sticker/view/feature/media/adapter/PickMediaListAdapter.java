@@ -78,26 +78,26 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
       String fileName = new File(Objects.requireNonNull(uri.getPath())).getName();
       String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
-      RequestManager glide = Glide.with(holder.imageView.getContext());
+         RequestManager glide = Glide.with(holder.imageView.getContext());
 
-      MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
+         MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
 
-      RequestBuilder<?> requestBuilder;
-      if ( extension.endsWith(".mp4") || extension.endsWith(".webm") || extension.endsWith(".3gp") ) {
-         requestBuilder = glide.asBitmap().frame(1_000_000).load(uri);
-      } else if ( extension.endsWith(".gif") ) {
-         requestBuilder = glide.asGif().load(uri);
-      } else {
-         requestBuilder = glide.load(uri);
-      }
-      requestBuilder.override(300, 300).centerCrop().transform(commonTransform).into(holder.imageView);
+         RequestBuilder<?> requestBuilder;
+         if ( extension.endsWith(".mp4") || extension.endsWith(".webm") || extension.endsWith(".3gp") ) {
+            requestBuilder = glide.asBitmap().frame(1_000_000).load(uri);
+         } else if ( extension.endsWith(".gif") ) {
+            requestBuilder = glide.asGif().load(uri);
+         } else {
+            requestBuilder = glide.load(uri);
+         }
+         requestBuilder.override(300, 300).centerCrop().transform(commonTransform).into(holder.imageView);
 
       holder.radioCheckBox.setChecked(selectedItems.contains(position));
       if ( selectedItems.contains(position) ) {
          int index = selectedItems.indexOf(position);
          if ( index >= 0 ) {
             int sequenceNumber = index + 1;
-            // Note: espaço é para dar um "padding" no final do botão
+            // NOTE: espaço é para dar um "padding" no final do botão
             holder.radioCheckBox.setText(String.format("%s  ", sequenceNumber));
          } else {
             holder.radioCheckBox.setText("0  ");
@@ -151,7 +151,7 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
          int index = selectedItems.indexOf(position);
          if ( index >= 0 ) {
             int sequenceNumber = index + 1;
-            // Note: espaços depois é necessário para um "padding"
+            // NOTE: espaços depois é necessário para um "padding"
             holder.radioCheckBox.setText(String.format("%d  ", sequenceNumber));
          } else {
             holder.radioCheckBox.setText("0  ");

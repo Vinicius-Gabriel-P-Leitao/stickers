@@ -9,15 +9,15 @@
 package com.vinicius.sticker.view.feature.stickerpack.viewholder;
 
 import android.view.View;
+import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.vinicius.sticker.R;
 
 public class StickerPreviewViewHolder extends RecyclerView.ViewHolder {
 
-    public final SimpleDraweeView stickerPreviewView;
+    public final ImageView stickerPreviewView;
 
     public StickerPreviewViewHolder(final View itemView) {
         super(itemView);
