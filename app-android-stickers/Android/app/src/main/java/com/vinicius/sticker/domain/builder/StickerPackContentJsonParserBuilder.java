@@ -9,7 +9,7 @@
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
 
-package com.vinicius.sticker.domain.service;
+package com.vinicius.sticker.domain.builder;
 
 import static com.vinicius.sticker.core.validation.StickerValidator.EMOJI_MAX_LIMIT;
 
@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContentFileParserService {
+public class StickerPackContentJsonParserBuilder {
     private static final String FIELD_STICKER_IMAGE_FILE = "image_file";
     private static final String FIELD_STICKER_EMOJIS = "emojis";
     private static final String FIELD_STICKER_ACCESSIBILITY_TEXT = "accessibility_text";
@@ -35,6 +35,7 @@ public class ContentFileParserService {
         List<StickerPack> stickerPackList = new ArrayList<>();
         String androidPlayStoreLink = null;
         String iosAppStoreLink = null;
+
         reader.beginObject();
         while (reader.hasNext()) {
             String key = reader.nextName();
@@ -78,7 +79,9 @@ public class ContentFileParserService {
         String imageDataVersion = "";
         boolean avoidCache = false;
         boolean animatedStickerPack = false;
+
         List<Sticker> stickerList = null;
+
         while (reader.hasNext()) {
             String key = reader.nextName();
             switch (key) {
@@ -187,13 +190,11 @@ public class ContentFileParserService {
                 throw new IllegalStateException("image file for stickers should be webp files, image file is: " + imageFile);
             }
             if (imageFile.contains("..") || imageFile.contains("/")) {
-                throw new IllegalStateException(
-                        "the file name should not contain .. or / to prevent directory traversal, image file is:" + imageFile);
+                throw new IllegalStateException("the file name should not contain .. or / to prevent directory traversal, image file is:" + imageFile);
             }
             stickerList.add(new Sticker(imageFile, emojis, accessibilityText));
         }
         reader.endArray();
         return stickerList;
     }
-
 }

@@ -35,7 +35,7 @@ import android.util.JsonReader;
 import com.vinicius.sticker.domain.builder.StickerPackContentJsonBuilder;
 import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.ContentFileParserService;
+import com.vinicius.sticker.domain.builder.StickerPackContentJsonParserBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,7 +64,7 @@ public class StickerPackLoaderManager {
       StringReader stringReaderStickerPack = new StringReader(getPackForAllContentJsonBuilder(dbHelper));
       JsonReader jsonReaderStickerPack = new JsonReader(stringReaderStickerPack);
       try {
-         stickerPackList = ContentFileParserService.readStickerPacks(jsonReaderStickerPack);
+         stickerPackList = StickerPackContentJsonParserBuilder.readStickerPacks(jsonReaderStickerPack);
       } catch (IOException exception) {
          throw new RuntimeException(exception);
       }

@@ -10,6 +10,7 @@
  *
  * Original GPLv3 license text begins below.
  */
+
 package com.vinicius.sticker.presentation.feature.media.launcher;
 
 import static android.app.Activity.RESULT_OK;
@@ -33,46 +34,64 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GalleryMediaPickerLauncher extends ViewModel {
-   public static final String[] IMAGE_MIME_TYPES = {"image/jpeg", "image/png"};
-   public static final String[] ANIMATED_MIME_TYPES = {"video/mp4", "image/gif"};
 
-   private final MutableLiveData<StickerPack> stickerPackPreview = new MutableLiveData<>();
+    public static final String[] IMAGE_MIME_TYPES = {"image/jpeg", "image/png"};
+    public static final String[] ANIMATED_MIME_TYPES = {"video/mp4", "image/gif"};
 
-   public LiveData<StickerPack> getStickerPackToPreview() {
-      return stickerPackPreview;
-   }
+    public enum MediaType {
+        IMAGE_MIME_TYPES, ANIMATED_MIME_TYPES
+    }
 
-   public void setStickerPackToPreview(StickerPack stickerPack) {
-      stickerPackPreview.setValue(stickerPack);
-   }
+    private final MutableLiveData<StickerPack> stickerPackPreview = new MutableLiveData<>();
 
-   public static void launchOwnGallery(FragmentActivity activity, String[] mimeType, String namePack) {
-      List<Uri> uris = new ArrayList<>();
-      boolean isAnimatedPack = false;
+    public LiveData<StickerPack> getStickerPackToPreview() {
+        return stickerPackPreview;
+    }
 
-      if ( Arrays.equals(mimeType, IMAGE_MIME_TYPES) ) {
-         uris = getMediaUris(activity, IMAGE_MIME_TYPES);
-      }
+    private final MutableLiveData<Boolean> fragmentVisibility = new MutableLiveData<>(false);
 
-      if ( Arrays.equals(mimeType, ANIMATED_MIME_TYPES) ) {
-         uris = getMediaUris(activity, ANIMATED_MIME_TYPES);
-         isAnimatedPack = true;
-      }
+    public LiveData<Boolean> getFragment() {
+        return fragmentVisibility;
+    }
 
-      MediaPickerBottomSheetDialogFragment sheet = MediaPickerBottomSheetDialogFragment.newInstance(
-          new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
-             @Override
-             public void onItemClick(String imagePath) {
-                Uri selectedImageUri = Uri.fromFile(new File(imagePath));
-                Intent resultIntent = new Intent();
-                resultIntent.setData(selectedImageUri);
+    public void setStickerPackToPreview(StickerPack stickerPack) {
+        stickerPackPreview.setValue(stickerPack);
+    }
 
-                activity.setResult(RESULT_OK, resultIntent);
-                activity.finish();
-             }
-          }
-      );
+    public void openFragmentState() {
+        fragmentVisibility.setValue(false);
+    }
 
-      sheet.show(activity.getSupportFragmentManager(), "MediaPickerBottomSheetDialogFragment");
-   }
+    public void closeFragmentState() {
+        fragmentVisibility.setValue(true);
+    }
+
+    public static void launchOwnGallery(FragmentActivity activity, String[] mimeType, String namePack) {
+        List<Uri> uris = new ArrayList<>();
+        boolean isAnimatedPack = false;
+
+        if (Arrays.equals(mimeType, IMAGE_MIME_TYPES)) {
+            uris = getMediaUris(activity, IMAGE_MIME_TYPES);
+        }
+
+        if (Arrays.equals(mimeType, ANIMATED_MIME_TYPES)) {
+            uris = getMediaUris(activity, ANIMATED_MIME_TYPES);
+            isAnimatedPack = true;
+        }
+
+        MediaPickerBottomSheetDialogFragment fragment =
+                MediaPickerBottomSheetDialogFragment.newInstance(new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(String imagePath) {
+                        Uri selectedImageUri = Uri.fromFile(new File(imagePath));
+                        Intent resultIntent = new Intent();
+                        resultIntent.setData(selectedImageUri);
+
+                        activity.setResult(RESULT_OK, resultIntent);
+                        activity.finish();
+                    }
+                });
+
+        fragment.show(activity.getSupportFragmentManager(), "MediaPickerBottomSheetDialogFragment");
+    }
 }

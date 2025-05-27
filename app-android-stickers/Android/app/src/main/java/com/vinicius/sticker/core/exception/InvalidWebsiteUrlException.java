@@ -14,15 +14,19 @@
 package com.vinicius.sticker.core.exception;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.core.exception.main.AppCoreStateException;
 
-public class MediaConversionException extends AppCoreStateException {
-    public MediaConversionException(@NonNull String message) {
-        super(message, "MEDIA_CONVERSION");
+public class InvalidWebsiteUrlException extends AppCoreStateException {
+
+    public InvalidWebsiteUrlException(@NonNull String message, @Nullable Throwable cause, @Nullable String invalidUrl) {
+        super(message, cause, "INVALID_URL", new Object[]{invalidUrl});
     }
 
-    public MediaConversionException(@NonNull String message, Throwable cause) {
-        super(message, cause, "MEDIA_CONVERSION");
+    @Nullable
+    public String getInvalidUrl() {
+        Object[] details = getDetails();
+        return details != null && details.length > 0 ? (String) details[0] : null;
     }
 }

@@ -33,7 +33,7 @@ import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.MultiTransformation;
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.presentation.feature.media.util.CropSquareTransformation;
+import com.vinicius.sticker.presentation.feature.media.transformation.CropSquareTransformation;
 import com.vinicius.sticker.presentation.feature.media.viewholder.MediaViewHolder;
 
 import java.io.File;
