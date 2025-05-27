@@ -9,7 +9,7 @@
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
 
-package com.vinicius.sticker.core;
+package com.vinicius.sticker.presentation.feature.stickerpack.usecase;
 
 import android.app.Dialog;
 import android.os.Bundle;

@@ -28,7 +28,7 @@ import androidx.annotation.IdRes;
 import androidx.core.view.ViewCompat;
 
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.core.BaseActivity;
+import com.vinicius.sticker.presentation.feature.stickerpack.usecase.BaseActivity;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;

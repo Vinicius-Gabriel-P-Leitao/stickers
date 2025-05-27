@@ -27,7 +27,6 @@ import androidx.fragment.app.DialogFragment;
 
 import com.vinicius.sticker.BuildConfig;
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.core.BaseActivity;
 import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.presentation.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
 

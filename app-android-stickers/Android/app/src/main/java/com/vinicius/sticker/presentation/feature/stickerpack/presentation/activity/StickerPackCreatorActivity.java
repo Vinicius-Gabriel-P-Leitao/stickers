@@ -30,7 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.core.BaseActivity;
+import com.vinicius.sticker.presentation.feature.stickerpack.usecase.BaseActivity;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.presentation.feature.media.launcher.GalleryMediaPickerLauncher;
 import com.vinicius.sticker.presentation.feature.permission.fragment.PermissionRequestBottomSheetDialogFragment;

@@ -20,7 +20,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.core.BaseActivity;
+import com.vinicius.sticker.presentation.feature.stickerpack.usecase.BaseActivity;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerPackLoaderService;
