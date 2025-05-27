@@ -13,7 +13,7 @@
         android:layout_weight="1"
         tools:ignore="UselessParent">
 
-        <com.vinicius.sticker.presentation.component.BottomFadingRecyclerView
+        <com.vinicius.sticker.view.core.component.BottomFadingRecyclerView
             android:id="@+id/sticker_list_to_package"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -25,11 +25,12 @@
             android:paddingBottom="72dp"
             android:requiresFadingEdge="vertical" />
 
-        <com.facebook.drawee.view.SimpleDraweeView
+        <ImageView
             android:id="@+id/sticker_details_expanded_sticker"
             android:layout_width="128dp"
             android:layout_height="128dp"
             android:layout_gravity="center"
+            android:contentDescription="Preview do sticker"
             android:scaleType="centerCrop"
             android:visibility="gone" />
 
