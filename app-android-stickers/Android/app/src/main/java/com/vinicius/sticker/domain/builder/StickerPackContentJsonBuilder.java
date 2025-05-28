@@ -77,8 +77,7 @@ public class StickerPackContentJsonBuilder {
         stickerPackJson.put("animated_sticker_pack", animated);
     }
 
-    public void addSticker(
-            String imageFile, List<String> emojis, String accessibilityText) throws JSONException {
+    public void addSticker(String imageFile, List<String> emojis, String accessibilityText) throws JSONException {
         JSONObject stickerJson = new JSONObject();
         stickerJson.put("image_file", imageFile);
 

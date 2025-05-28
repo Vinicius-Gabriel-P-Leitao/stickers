@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -63,6 +64,7 @@ public class StickerPackListActivity extends AddStickerPackActivity {
 
         stickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_STICKER_PACK_LIST_DATA);
         showStickerPackList(stickerPackList);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, stickerPackList.size()));
         }
@@ -109,19 +111,24 @@ public class StickerPackListActivity extends AddStickerPackActivity {
 
         packRecyclerView.addItemDecoration(dividerItemDecoration);
         packRecyclerView.setLayoutManager(packLayoutManager);
-        packRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(this::recalculateColumnCount);
+        packRecyclerView.getViewTreeObserver()
+                .addOnGlobalLayoutListener(this::recalculateColumnCount);
     }
 
     private void recalculateColumnCount() {
         final int previewSize = getResources().getDimensionPixelSize(R.dimen.sticker_pack_list_item_preview_image_size);
         int firstVisibleItemPosition = packLayoutManager.findFirstVisibleItemPosition();
+
         StickerPackListItemViewHolder viewHolder = (StickerPackListItemViewHolder) packRecyclerView.findViewHolderForAdapterPosition(
                 firstVisibleItemPosition);
+
         if (viewHolder != null) {
             final int widthOfImageRow = viewHolder.imageRowView.getMeasuredWidth();
             final int max = Math.max(widthOfImageRow / previewSize, 1);
+
             int maxNumberOfImagesInARow = Math.min(STICKER_PREVIEW_DISPLAY_LIMIT, max);
             int minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) / (maxNumberOfImagesInARow - 1);
+
             allStickerPacksListAdapter.setImageRowSpec(maxNumberOfImagesInARow, minMarginBetweenImages);
         }
     }
@@ -135,8 +142,21 @@ public class StickerPackListActivity extends AddStickerPackActivity {
                         StickerPack newStickerPack = data.getParcelableExtra("new_sticker_pack");
 
                         if (newStickerPack != null) {
-                            stickerPackList.add(newStickerPack);
-                            allStickerPacksListAdapter.updateStickerPackList(stickerPackList);
+                            Executors.newSingleThreadExecutor()
+                                    .execute(() -> {
+                                        boolean isWhitelisted = WhatsappWhitelistValidator.isWhitelisted(this, newStickerPack.identifier);
+                                        newStickerPack.setIsWhitelisted(isWhitelisted);
+
+                                        runOnUiThread(() -> {
+                                            if (newStickerPack.getIsWhitelisted()) {
+                                                stickerPackList.add(newStickerPack);
+                                                allStickerPacksListAdapter.updateStickerPack(newStickerPack);
+                                            } else {
+                                                Toast.makeText(this, "Sticker pack não válido para inserção no WhatsApp", Toast.LENGTH_SHORT)
+                                                        .show();
+                                            }
+                                        });
+                                    });
 
                             if (getSupportActionBar() != null) {
                                 getSupportActionBar().setTitle(
@@ -179,7 +199,7 @@ public class StickerPackListActivity extends AddStickerPackActivity {
                 handler.post(() -> {
                     StickerPackListActivity uiActivity = stickerPackListActivityWeakReference.get();
                     if (uiActivity != null) {
-                        uiActivity.allStickerPacksListAdapter.updateStickerPackList(resultList);
+                        uiActivity.allStickerPacksListAdapter.addStickerPack(resultList);
                     }
                 });
             });

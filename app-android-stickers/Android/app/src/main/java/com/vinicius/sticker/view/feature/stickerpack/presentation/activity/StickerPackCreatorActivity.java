@@ -61,21 +61,14 @@ public class StickerPackCreatorActivity extends BaseActivity {
         setContentView(R.layout.activity_create_sticker_pack);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
         }
 
         GalleryMediaPickerLauncher viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
-        viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
-
-        viewModel.getStickerPackToPreview().observe(
-                this, stickerPack -> {
-                    if (stickerPack != null) {
-                        Intent resultIntent = new Intent();
-                        resultIntent.putExtra("new_sticker_pack", stickerPack);
-                        setResult(RESULT_OK, resultIntent);
-                    }
-                });
+        viewModel.getStickerPackToPreview()
+                .observe(this, this::setupStickerPackView);
+        viewModel.getStickerPackToPreview()
+                .observe(this, this::notifyStickerPackCreated);
 
         ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
         buttonSelectMedia.setOnClickListener(view -> {
@@ -123,7 +116,8 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
                 @Override
                 public void onPermissionsDenied() {
-                    Toast.makeText(StickerPackCreatorActivity.this, "Galeria não foi liberada.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(StickerPackCreatorActivity.this, "Galeria não foi liberada.", Toast.LENGTH_SHORT)
+                            .show();
                 }
             });
 
@@ -148,7 +142,8 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
             @Override
             public void onError(String error) {
-                Toast.makeText(StickerPackCreatorActivity.this, error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(StickerPackCreatorActivity.this, error, Toast.LENGTH_SHORT)
+                        .show();
             }
         });
 
@@ -168,26 +163,29 @@ public class StickerPackCreatorActivity extends BaseActivity {
             return;
         }
 
-        Toast.makeText(this, "Erro ao abrir galeria!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Erro ao abrir galeria!", Toast.LENGTH_SHORT)
+                .show();
     }
 
     private final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            setNumColumns(recyclerView.getWidth() / recyclerView.getContext().getResources().getDimensionPixelSize(
-                    R.dimen.sticker_pack_details_image_size));
+            setNumColumns(recyclerView.getWidth() / recyclerView.getContext()
+                    .getResources()
+                    .getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
         }
     };
 
+    // FIXME: Erro ao renderizar itens, além de renderizar quebrado ele quebra todo o grid se for recriar o pacote, fazer limpeza do pacote antes
+    //  de renderizar
     private void setupStickerPackView(StickerPack stickerPack) {
-        Log.d("StickerPack", "StickerPack recebido: " + stickerPack.toString());
-
         ImageView expandedStickerView = findViewById(R.id.sticker_details_expanded_sticker);
         layoutManager = new GridLayoutManager(this, 1);
 
         recyclerView = findViewById(R.id.sticker_list_to_package);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(pageLayoutListener);
+        recyclerView.getViewTreeObserver()
+                .addOnGlobalLayoutListener(pageLayoutListener);
         recyclerView.addOnScrollListener(dividerScrollListener);
 
         divider = findViewById(R.id.divider);
@@ -198,6 +196,14 @@ public class StickerPackCreatorActivity extends BaseActivity {
                     getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, expandedStickerView);
 
             recyclerView.setAdapter(stickerPreviewAdapter);
+        }
+    }
+
+    private void notifyStickerPackCreated(StickerPack stickerPack) {
+        if (stickerPack != null) {
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("new_sticker_pack", stickerPack);
+            setResult(RESULT_OK, resultIntent);
         }
     }
 

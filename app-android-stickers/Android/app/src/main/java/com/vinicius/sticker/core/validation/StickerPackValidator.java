@@ -63,8 +63,7 @@ public class StickerPackValidator {
         }
         if (stickerPack.publisher.length() > CHAR_COUNT_MAX) {
             throw new PackValidatorException(
-                    "O publisher do pacote de figurinhas não pode exceder " + CHAR_COUNT_MAX + " caracteres, identificador do pacote de figurinhas:" +
-                    stickerPack.identifier);
+                    "O publisher do pacote de figurinhas não pode exceder " + CHAR_COUNT_MAX + " caracteres, identificador do pacote de figurinhas:" + stickerPack.identifier);
         }
         if (TextUtils.isEmpty(stickerPack.name)) {
             throw new PackValidatorException(
@@ -72,8 +71,7 @@ public class StickerPackValidator {
         }
         if (stickerPack.name.length() > CHAR_COUNT_MAX) {
             throw new PackValidatorException(
-                    "O nome do pacote de figurinhas não pode exceder " + CHAR_COUNT_MAX + " caracteres, identificador do pacote de figurinhas:" +
-                    stickerPack.identifier);
+                    "O nome do pacote de figurinhas não pode exceder " + CHAR_COUNT_MAX + " caracteres, identificador do pacote de figurinhas:" + stickerPack.identifier);
         }
         if (TextUtils.isEmpty(stickerPack.trayImageFile)) {
             throw new PackValidatorException(
@@ -81,57 +79,49 @@ public class StickerPackValidator {
         }
         if (!TextUtils.isEmpty(stickerPack.androidPlayStoreLink) && !isValidWebsiteUrl(stickerPack.androidPlayStoreLink)) {
             throw new PackValidatorException(
-                    "Certifique-se de incluir http ou https nas URL, o link da Android Play Store não é uma URL válida:" +
-                    stickerPack.androidPlayStoreLink);
+                    "Certifique-se de incluir http ou https nas URL, o link da Android Play Store não é uma URL válida:" + stickerPack.androidPlayStoreLink);
         }
         if (!TextUtils.isEmpty(stickerPack.androidPlayStoreLink) && !isURLInCorrectDomain(stickerPack.androidPlayStoreLink, PLAY_STORE_DOMAIN)) {
             throw new PackValidatorException("O link da Android Play Store deve usar o domínio da Play Store:" + PLAY_STORE_DOMAIN);
         }
         if (!TextUtils.isEmpty(stickerPack.iosAppStoreLink) && !isValidWebsiteUrl(stickerPack.iosAppStoreLink)) {
             throw new PackValidatorException(
-                    "Certifique-se de incluir http ou https nos links de URL, o link da loja de aplicativos iOS não é uma URL válida:" +
-                    stickerPack.iosAppStoreLink);
+                    "Certifique-se de incluir http ou https nos links de URL, o link da loja de aplicativos iOS não é uma URL válida:" + stickerPack.iosAppStoreLink);
         }
         if (!TextUtils.isEmpty(stickerPack.iosAppStoreLink) && !isURLInCorrectDomain(stickerPack.iosAppStoreLink, APPLE_STORE_DOMAIN)) {
-            throw new PackValidatorException(
-                    "O link da loja de aplicativos iOS deve usar o domínio da loja de aplicativos:" + APPLE_STORE_DOMAIN);
+            throw new PackValidatorException("O link da loja de aplicativos iOS deve usar o domínio da loja de aplicativos:" + APPLE_STORE_DOMAIN);
         }
         if (!TextUtils.isEmpty(stickerPack.licenseAgreementWebsite) && !isValidWebsiteUrl(stickerPack.licenseAgreementWebsite)) {
             throw new PackValidatorException(
-                    "Certifique-se de incluir http ou https nos links de URL, o link do contrato de licença não é uma URL válida:" +
-                    stickerPack.licenseAgreementWebsite);
+                    "Certifique-se de incluir http ou https nos links de URL, o link do contrato de licença não é uma URL válida:" + stickerPack.licenseAgreementWebsite);
         }
         if (!TextUtils.isEmpty(stickerPack.privacyPolicyWebsite) && !isValidWebsiteUrl(stickerPack.privacyPolicyWebsite)) {
             throw new PackValidatorException(
-                    "Certifique-se de incluir http ou https nos links de URL, o link da política de privacidade não é uma URL válida:" +
-                    stickerPack.privacyPolicyWebsite);
+                    "Certifique-se de incluir http ou https nos links de URL, o link da política de privacidade não é uma URL válida:" + stickerPack.privacyPolicyWebsite);
         }
         if (!TextUtils.isEmpty(stickerPack.publisherWebsite) && !isValidWebsiteUrl(stickerPack.publisherWebsite)) {
             throw new PackValidatorException(
-                    "Certifique-se de incluir http ou https nos links de URL, o link do site do editor não é uma URL válida:" +
-                    stickerPack.publisherWebsite);
+                    "Certifique-se de incluir http ou https nos links de URL, o link do site do editor não é uma URL válida:" + stickerPack.publisherWebsite);
         }
-        if (!TextUtils.isEmpty(stickerPack.publisherEmail) && !Patterns.EMAIL_ADDRESS.matcher(stickerPack.publisherEmail).matches()) {
+        if (!TextUtils.isEmpty(stickerPack.publisherEmail) && !Patterns.EMAIL_ADDRESS.matcher(stickerPack.publisherEmail)
+                .matches()) {
             throw new PackValidatorException("O e-mail do publisher não parece válido, o e-mail é:" + stickerPack.publisherEmail);
         }
         try {
-            final byte[] stickerAssetBytes =
-                    StickerLoaderService.fetchStickerAsset(stickerPack.identifier, stickerPack.trayImageFile, context.getContentResolver());
+            final byte[] stickerAssetBytes = StickerLoaderService.fetchStickerAsset(
+                    stickerPack.identifier, stickerPack.trayImageFile, context.getContentResolver());
             if (stickerAssetBytes.length > TRAY_IMAGE_FILE_SIZE_MAX_KB * KB_IN_BYTES) {
                 throw new PackValidatorException(
-                        "A imagem da thumbnail deve ter menos de " + TRAY_IMAGE_FILE_SIZE_MAX_KB + " KB, arquivo de thumbnail:" +
-                        stickerPack.trayImageFile);
+                        "A imagem da thumbnail deve ter menos de " + TRAY_IMAGE_FILE_SIZE_MAX_KB + " KB, arquivo de thumbnail:" + stickerPack.trayImageFile);
             }
             Bitmap bitmap = BitmapFactory.decodeByteArray(stickerAssetBytes, 0, stickerAssetBytes.length);
             if (bitmap.getHeight() > TRAY_IMAGE_DIMENSION_MAX || bitmap.getHeight() < TRAY_IMAGE_DIMENSION_MIN) {
                 throw new PackValidatorException(
-                        "A altura da thumbnail deve estar entre" + TRAY_IMAGE_DIMENSION_MIN + " e " + TRAY_IMAGE_DIMENSION_MAX +
-                        " pixels, a altura atual da imagem da bandeja é" + bitmap.getHeight() + ", arquivo: " + stickerPack.trayImageFile);
+                        "A altura da thumbnail deve estar entre" + TRAY_IMAGE_DIMENSION_MIN + " e " + TRAY_IMAGE_DIMENSION_MAX + " pixels, a altura atual da imagem da bandeja é" + bitmap.getHeight() + ", arquivo: " + stickerPack.trayImageFile);
             }
             if (bitmap.getWidth() > TRAY_IMAGE_DIMENSION_MAX || bitmap.getWidth() < TRAY_IMAGE_DIMENSION_MIN) {
                 throw new PackValidatorException(
-                        "A largura da thumbnail deve estar entre " + TRAY_IMAGE_DIMENSION_MIN + " e " + TRAY_IMAGE_DIMENSION_MAX +
-                        " pixels, a largura atual da imagem da bandeja é " + bitmap.getWidth() + ", arquivo: " + stickerPack.trayImageFile);
+                        "A largura da thumbnail deve estar entre " + TRAY_IMAGE_DIMENSION_MIN + " e " + TRAY_IMAGE_DIMENSION_MAX + " pixels, a largura atual da imagem da bandeja é " + bitmap.getWidth() + ", arquivo: " + stickerPack.trayImageFile);
             }
         } catch (IOException exception) {
             throw new PackValidatorException("Não é possível abrir a thumbnail, " + stickerPack.trayImageFile, exception);
@@ -140,8 +130,7 @@ public class StickerPackValidator {
         final List<Sticker> stickers = stickerPack.getStickers();
         if (stickers.size() < STICKER_SIZE_MIN || stickers.size() > STICKER_SIZE_MAX) {
             throw new PackValidatorException(
-                    "A quantidade de figurinhas do pacote deve estar entre 3 a 30, atualmente tem" + stickers.size() +
-                    ", identificador do pacote de figurinhas: " + stickerPack.identifier);
+                    "A quantidade de figurinhas do pacote deve estar entre 3 a 30, atualmente tem" + stickers.size() + ", identificador do pacote de figurinhas: " + stickerPack.identifier);
         }
 
     }

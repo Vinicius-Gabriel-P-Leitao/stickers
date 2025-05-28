@@ -11,10 +11,9 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.text.format.Formatter;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -38,7 +37,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
     @NonNull
     private final OnAddButtonClickedListener onAddButtonClickedListener;
     @NonNull
-    private List<StickerPack> stickerPacks;
+    private final List<StickerPack> stickerPacks;
 
     private int maxNumberOfStickersInARow;
     private int minMarginBetweenImages;
@@ -74,17 +73,22 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             Intent intent = new Intent(view.getContext(), StickerPackDetailsActivity.class);
             intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
             intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, pack);
-            view.getContext().startActivity(intent);
+            view.getContext()
+                    .startActivity(intent);
         });
         viewHolder.imageRowView.removeAllViews();
 
         //if this sticker pack contains less stickers than the max, then take the smaller size.
-        int actualNumberOfStickersToShow = Math.min(maxNumberOfStickersInARow, pack.getStickers().size());
+        int actualNumberOfStickersToShow = Math.min(
+                maxNumberOfStickersInARow, pack.getStickers()
+                        .size());
         for (int i = 0; i < actualNumberOfStickersToShow; i++) {
-            final ImageView rowImage = (ImageView) LayoutInflater.from(context).inflate(
-                    R.layout.sticker_packs_list_media_item, viewHolder.imageRowView, false);
+            final ImageView rowImage = (ImageView) LayoutInflater.from(context)
+                    .inflate(R.layout.sticker_packs_list_media_item, viewHolder.imageRowView, false);
 
-            rowImage.setImageURI(StickerLoaderService.getStickerAssetUri(pack.identifier, pack.getStickers().get(i).imageFileName));
+            rowImage.setImageURI(StickerLoaderService.getStickerAssetUri(
+                    pack.identifier, pack.getStickers()
+                            .get(i).imageFileName));
 
             final LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) rowImage.getLayoutParams();
             final int marginBetweenImages = minMarginBetweenImages - layoutParams.leftMargin - layoutParams.rightMargin;
@@ -108,24 +112,22 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             addButton.setClickable(false);
             addButton.setOnClickListener(null);
 
-            setBackground(addButton, null);
+            setBackground(addButton);
         } else {
             addButton.setImageResource(R.drawable.sticker_3rdparty_add);
-            addButton.setOnClickListener(v -> onAddButtonClickedListener.onAddButtonClicked(pack));
+            addButton.setOnClickListener(view -> onAddButtonClickedListener.onAddButtonClicked(pack));
 
             TypedValue outValue = new TypedValue();
 
-            addButton.getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+            addButton.getContext()
+                    .getTheme()
+                    .resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
             addButton.setBackgroundResource(outValue.resourceId);
         }
     }
 
-    private void setBackground(View view, Drawable background) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            view.setBackground(background);
-        } else {
-            view.setBackgroundDrawable(background);
-        }
+    private void setBackground(View view) {
+        view.setBackground(null);
     }
 
     @Override
@@ -141,10 +143,15 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         }
     }
 
-    public void updateStickerPackList(List<StickerPack> newStickerPackList) {
+    @SuppressLint("NotifyDataSetChanged")
+    public void addStickerPack(List<StickerPack> stickerPackList) {
         this.stickerPacks.clear();
-        this.stickerPacks.addAll(newStickerPackList);
+        this.stickerPacks.addAll(stickerPackList);
         notifyDataSetChanged();
-        // FIXME: Verificar forma melhor de atualizar a lista.
+    }
+
+    public void updateStickerPack(StickerPack newPack) {
+        stickerPacks.add(newPack);
+        notifyItemInserted(stickerPacks.size() - 1);
     }
 }
