@@ -39,12 +39,17 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
     private final OnAddButtonClickedListener onAddButtonClickedListener;
     @NonNull
     private List<StickerPack> stickerPacks;
+
     private int maxNumberOfStickersInARow;
     private int minMarginBetweenImages;
 
     public StickerPackListAdapter(@NonNull List<StickerPack> stickerPacks, @NonNull OnAddButtonClickedListener onAddButtonClickedListener) {
         this.stickerPacks = stickerPacks;
         this.onAddButtonClickedListener = onAddButtonClickedListener;
+    }
+
+    public interface OnAddButtonClickedListener {
+        void onAddButtonClicked(StickerPack stickerPack);
     }
 
     @NonNull
@@ -60,6 +65,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
     public void onBindViewHolder(@NonNull final StickerPackListItemViewHolder viewHolder, final int index) {
         StickerPack pack = stickerPacks.get(index);
         final Context context = viewHolder.publisherView.getContext();
+
         viewHolder.publisherView.setText(pack.publisher);
         viewHolder.filesizeView.setText(Formatter.formatShortFileSize(context, pack.getTotalSize()));
 
@@ -71,6 +77,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             view.getContext().startActivity(intent);
         });
         viewHolder.imageRowView.removeAllViews();
+
         //if this sticker pack contains less stickers than the max, then take the smaller size.
         int actualNumberOfStickersToShow = Math.min(maxNumberOfStickersInARow, pack.getStickers().size());
         for (int i = 0; i < actualNumberOfStickersToShow; i++) {
@@ -90,6 +97,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
 
             viewHolder.imageRowView.addView(rowImage);
         }
+
         setAddButtonAppearance(viewHolder.addButton, pack);
         viewHolder.animatedStickerPackIndicator.setVisibility(pack.animatedStickerPack ? View.VISIBLE : View.GONE);
     }
@@ -99,11 +107,14 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             addButton.setImageResource(R.drawable.sticker_3rdparty_added);
             addButton.setClickable(false);
             addButton.setOnClickListener(null);
+
             setBackground(addButton, null);
         } else {
             addButton.setImageResource(R.drawable.sticker_3rdparty_add);
             addButton.setOnClickListener(v -> onAddButtonClickedListener.onAddButtonClicked(pack));
+
             TypedValue outValue = new TypedValue();
+
             addButton.getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
             addButton.setBackgroundResource(outValue.resourceId);
         }
@@ -130,11 +141,10 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         }
     }
 
-    public void setStickerPackList(List<StickerPack> stickerPackList) {
-        this.stickerPacks = stickerPackList;
-    }
-
-    public interface OnAddButtonClickedListener {
-        void onAddButtonClicked(StickerPack stickerPack);
+    public void updateStickerPackList(List<StickerPack> newStickerPackList) {
+        this.stickerPacks.clear();
+        this.stickerPacks.addAll(newStickerPackList);
+        notifyDataSetChanged();
+        // FIXME: Verificar forma melhor de atualizar a lista.
     }
 }

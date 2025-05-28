@@ -61,12 +61,21 @@ public class StickerPackCreatorActivity extends BaseActivity {
         setContentView(R.layout.activity_create_sticker_pack);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
         }
 
         GalleryMediaPickerLauncher viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
         viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
+
+        viewModel.getStickerPackToPreview().observe(
+                this, stickerPack -> {
+                    if (stickerPack != null) {
+                        Intent resultIntent = new Intent();
+                        resultIntent.putExtra("new_sticker_pack", stickerPack);
+                        setResult(RESULT_OK, resultIntent);
+                    }
+                });
 
         ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
         buttonSelectMedia.setOnClickListener(view -> {
@@ -187,6 +196,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
             stickerPreviewAdapter = new StickerPreviewAdapter(
                     getLayoutInflater(), R.drawable.sticker_error, getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
                     getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, expandedStickerView);
+
             recyclerView.setAdapter(stickerPreviewAdapter);
         }
     }

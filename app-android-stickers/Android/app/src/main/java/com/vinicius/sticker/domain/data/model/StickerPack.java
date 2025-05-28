@@ -92,6 +92,29 @@ public class StickerPack implements Parcelable {
         animatedStickerPack = in.readByte() != 0;
     }
 
+    public StickerPack(StickerPack stickerPackClone) {
+        this.isWhitelisted = stickerPackClone.isWhitelisted;
+        this.totalSize = stickerPackClone.totalSize;
+        this.stickers = stickerPackClone.stickers;
+        this.androidPlayStoreLink = stickerPackClone.androidPlayStoreLink;
+        this.iosAppStoreLink = stickerPackClone.iosAppStoreLink;
+        this.animatedStickerPack = stickerPackClone.animatedStickerPack;
+        this.avoidCache = stickerPackClone.avoidCache;
+        this.imageDataVersion = stickerPackClone.imageDataVersion;
+        this.licenseAgreementWebsite = stickerPackClone.licenseAgreementWebsite;
+        this.privacyPolicyWebsite = stickerPackClone.privacyPolicyWebsite;
+        this.publisherWebsite = stickerPackClone.publisherWebsite;
+        this.publisherEmail = stickerPackClone.publisherEmail;
+        this.trayImageFile = stickerPackClone.trayImageFile;
+        this.publisher = stickerPackClone.publisher;
+        this.name = stickerPackClone.name;
+        this.identifier = stickerPackClone.identifier;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
     public boolean getIsWhitelisted() {
         return isWhitelisted;
     }
@@ -112,16 +135,16 @@ public class StickerPack implements Parcelable {
         return stickers;
     }
 
+    public long getTotalSize() {
+        return totalSize;
+    }
+
     public void setStickers(List<Sticker> stickers) {
         this.stickers = stickers;
         totalSize = 0;
         for (Sticker sticker : stickers) {
             totalSize += sticker.size;
         }
-    }
-
-    public long getTotalSize() {
-        return totalSize;
     }
 
     @Override

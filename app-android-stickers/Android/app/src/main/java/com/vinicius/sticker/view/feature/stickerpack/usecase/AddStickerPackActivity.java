@@ -42,8 +42,10 @@ public abstract class AddStickerPackActivity extends BaseActivity {
                 Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG).show();
                 return;
             }
+
             final boolean stickerPackWhitelistedInWhatsAppConsumer = WhatsappWhitelistValidator.isStickerPackWhitelistedInWhatsAppConsumer(this, identifier);
             final boolean stickerPackWhitelistedInWhatsAppSmb = WhatsappWhitelistValidator.isStickerPackWhitelistedInWhatsAppSmb(this, identifier);
+
             if (!stickerPackWhitelistedInWhatsAppConsumer && !stickerPackWhitelistedInWhatsAppSmb) {
                 //ask users which app to add the pack to.
                 launchIntentToAddPackToChooser(identifier, stickerPackName);
@@ -64,6 +66,7 @@ public abstract class AddStickerPackActivity extends BaseActivity {
     private void launchIntentToAddPackToSpecificPackage(String identifier, String stickerPackName, String whatsappPackageName) {
         Intent intent = createIntentToAddStickerPack(identifier, stickerPackName);
         intent.setPackage(whatsappPackageName);
+
         try {
             startActivityForResult(intent, ADD_PACK);
         } catch (ActivityNotFoundException exception) {
@@ -142,6 +145,7 @@ public abstract class AddStickerPackActivity extends BaseActivity {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(uriString));
             intent.setPackage("com.android.vending");
+
             try {
                 startActivity(intent);
             } catch (ActivityNotFoundException exception) {

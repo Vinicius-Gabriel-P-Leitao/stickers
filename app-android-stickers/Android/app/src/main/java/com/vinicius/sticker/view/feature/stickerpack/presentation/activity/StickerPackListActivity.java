@@ -19,6 +19,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,12 +42,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class StickerPackListActivity extends AddStickerPackActivity {
-    /* Values */
     public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
-    private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener =
-            pack -> addStickerPackToWhatsApp(pack.identifier, pack.name);
-    /* UI */
+    private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = pack -> addStickerPackToWhatsApp(
+            pack.identifier, pack.name);
+
     private StickerPackListAdapter allStickerPacksListAdapter;
     private WhiteListCheckAsyncTask whiteListCheckAsyncTask;
     private MaterialButton buttonCreateStickerPackage;
@@ -79,15 +80,8 @@ public class StickerPackListActivity extends AddStickerPackActivity {
                         public void onAnimatedStickerSelected() {
                             openCreateStickerPackActivity(ANIMATED_STICKER);
                         }
-                    }
-            );
+                    });
         });
-    }
-
-    private void openCreateStickerPackActivity(String format) {
-        Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreatorActivity.class);
-        intent.putExtra(StickerPackCreatorActivity.EXTRA_STICKER_FORMAT, format);
-        startActivity(intent);
     }
 
     @Override
@@ -121,8 +115,8 @@ public class StickerPackListActivity extends AddStickerPackActivity {
     private void recalculateColumnCount() {
         final int previewSize = getResources().getDimensionPixelSize(R.dimen.sticker_pack_list_item_preview_image_size);
         int firstVisibleItemPosition = packLayoutManager.findFirstVisibleItemPosition();
-        StickerPackListItemViewHolder viewHolder =
-                (StickerPackListItemViewHolder) packRecyclerView.findViewHolderForAdapterPosition(firstVisibleItemPosition);
+        StickerPackListItemViewHolder viewHolder = (StickerPackListItemViewHolder) packRecyclerView.findViewHolderForAdapterPosition(
+                firstVisibleItemPosition);
         if (viewHolder != null) {
             final int widthOfImageRow = viewHolder.imageRowView.getMeasuredWidth();
             final int max = Math.max(widthOfImageRow / previewSize, 1);
@@ -130,6 +124,33 @@ public class StickerPackListActivity extends AddStickerPackActivity {
             int minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) / (maxNumberOfImagesInARow - 1);
             allStickerPacksListAdapter.setImageRowSpec(maxNumberOfImagesInARow, minMarginBetweenImages);
         }
+    }
+
+    private final ActivityResultLauncher<Intent> createPackLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Intent data = result.getData();
+
+                    if (data != null) {
+                        StickerPack newStickerPack = data.getParcelableExtra("new_sticker_pack");
+
+                        if (newStickerPack != null) {
+                            stickerPackList.add(newStickerPack);
+                            allStickerPacksListAdapter.updateStickerPackList(stickerPackList);
+
+                            if (getSupportActionBar() != null) {
+                                getSupportActionBar().setTitle(
+                                        getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, stickerPackList.size()));
+                            }
+                        }
+                    }
+                }
+            });
+
+    private void openCreateStickerPackActivity(String format) {
+        Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreatorActivity.class);
+        intent.putExtra(StickerPackCreatorActivity.EXTRA_STICKER_FORMAT, format);
+        createPackLauncher.launch(intent);
     }
 
     static class WhiteListCheckAsyncTask {
@@ -151,18 +172,14 @@ public class StickerPackListActivity extends AddStickerPackActivity {
                 if (currentActivity == null) return;
 
                 for (StickerPack stickerPack : stickerPackArray) {
-                    stickerPack.setIsWhitelisted(
-                            WhatsappWhitelistValidator.isWhitelisted(currentActivity, stickerPack.identifier)
-                    );
+                    stickerPack.setIsWhitelisted(WhatsappWhitelistValidator.isWhitelisted(currentActivity, stickerPack.identifier));
                 }
 
-                List<StickerPack> resultList = Arrays.asList(stickerPackArray);
-
+                List<StickerPack> resultList = new ArrayList<>(Arrays.asList(stickerPackArray));
                 handler.post(() -> {
                     StickerPackListActivity uiActivity = stickerPackListActivityWeakReference.get();
                     if (uiActivity != null) {
-                        uiActivity.allStickerPacksListAdapter.setStickerPackList(resultList);
-                        uiActivity.allStickerPacksListAdapter.notifyItemRangeInserted(0, resultList.size());
+                        uiActivity.allStickerPacksListAdapter.updateStickerPackList(resultList);
                     }
                 });
             });
