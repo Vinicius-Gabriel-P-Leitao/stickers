@@ -15,8 +15,9 @@ import static com.vinicius.sticker.view.feature.stickerpack.presentation.activit
 import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.STATIC_STICKER;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,6 +36,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class StickerPackListActivity extends AddStickerPackActivity {
     /* Values */
@@ -97,8 +100,8 @@ public class StickerPackListActivity extends AddStickerPackActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (whiteListCheckAsyncTask != null && !whiteListCheckAsyncTask.isCancelled()) {
-            whiteListCheckAsyncTask.cancel(true);
+        if (whiteListCheckAsyncTask != null) {
+            whiteListCheckAsyncTask.shutdown();
         }
     }
 
@@ -129,32 +132,44 @@ public class StickerPackListActivity extends AddStickerPackActivity {
         }
     }
 
-    static class WhiteListCheckAsyncTask extends AsyncTask<StickerPack, Void, List<StickerPack>> {
+    static class WhiteListCheckAsyncTask {
         private final WeakReference<StickerPackListActivity> stickerPackListActivityWeakReference;
+
+        private final ExecutorService executor = Executors.newSingleThreadExecutor();
+        private final Handler handler = new Handler(Looper.getMainLooper());
 
         WhiteListCheckAsyncTask(StickerPackListActivity stickerPackListActivity) {
             this.stickerPackListActivityWeakReference = new WeakReference<>(stickerPackListActivity);
         }
 
-        @Override
-        protected final List<StickerPack> doInBackground(StickerPack... stickerPackArray) {
-            final StickerPackListActivity stickerPackListActivity = stickerPackListActivityWeakReference.get();
-            if (stickerPackListActivity == null) {
-                return Arrays.asList(stickerPackArray);
-            }
-            for (StickerPack stickerPack : stickerPackArray) {
-                stickerPack.setIsWhitelisted(WhatsappWhitelistValidator.isWhitelisted(stickerPackListActivity, stickerPack.identifier));
-            }
-            return Arrays.asList(stickerPackArray);
+        public void execute(StickerPack[] stickerPackArray) {
+            StickerPackListActivity activity = stickerPackListActivityWeakReference.get();
+            if (activity == null) return;
+
+            executor.execute(() -> {
+                StickerPackListActivity currentActivity = stickerPackListActivityWeakReference.get();
+                if (currentActivity == null) return;
+
+                for (StickerPack stickerPack : stickerPackArray) {
+                    stickerPack.setIsWhitelisted(
+                            WhatsappWhitelistValidator.isWhitelisted(currentActivity, stickerPack.identifier)
+                    );
+                }
+
+                List<StickerPack> resultList = Arrays.asList(stickerPackArray);
+
+                handler.post(() -> {
+                    StickerPackListActivity uiActivity = stickerPackListActivityWeakReference.get();
+                    if (uiActivity != null) {
+                        uiActivity.allStickerPacksListAdapter.setStickerPackList(resultList);
+                        uiActivity.allStickerPacksListAdapter.notifyItemRangeInserted(0, resultList.size());
+                    }
+                });
+            });
         }
 
-        @Override
-        protected void onPostExecute(List<StickerPack> stickerPackList) {
-            final StickerPackListActivity stickerPackListActivity = stickerPackListActivityWeakReference.get();
-            if (stickerPackListActivity != null) {
-                stickerPackListActivity.allStickerPacksListAdapter.setStickerPackList(stickerPackList);
-                stickerPackListActivity.allStickerPacksListAdapter.notifyDataSetChanged();
-            }
+        public void shutdown() {
+            executor.shutdown();
         }
     }
 }

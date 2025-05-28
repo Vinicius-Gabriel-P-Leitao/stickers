@@ -51,12 +51,16 @@ public class WhatsappWhitelistValidator {
         if (isPackageInstalled(whatsappPackageName, packageManager)) {
             final String whatsappProviderAuthority = whatsappPackageName + CONTENT_PROVIDER;
             final ProviderInfo providerInfo = packageManager.resolveContentProvider(whatsappProviderAuthority, PackageManager.GET_META_DATA);
+
             // provider is not there. The WhatsApp app may be an old version.
             if (providerInfo == null) {
                 return false;
             }
-            final Uri queryUri =
-                    new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(whatsappProviderAuthority).appendPath(QUERY_PATH).appendQueryParameter(AUTHORITY_QUERY_PARAM, STICKER_APP_AUTHORITY).appendQueryParameter(IDENTIFIER_QUERY_PARAM, identifier).build();
+
+            final Uri queryUri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(whatsappProviderAuthority).appendPath(
+                    QUERY_PATH).appendQueryParameter(AUTHORITY_QUERY_PARAM, STICKER_APP_AUTHORITY).appendQueryParameter(
+                    IDENTIFIER_QUERY_PARAM, identifier).build();
+
             try (final Cursor cursor = context.getContentResolver().query(queryUri, null, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     final int whiteListResult = cursor.getInt(cursor.getColumnIndexOrThrow(QUERY_RESULT_COLUMN_NAME));
@@ -67,12 +71,14 @@ public class WhatsappWhitelistValidator {
             //if app is not installed, then don't need to take into its whitelist info into account.
             return true;
         }
+
         return false;
     }
 
     public static boolean isPackageInstalled(String packageName, PackageManager packageManager) {
         try {
             final ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
+
             //noinspection SimplifiableIfStatement
             if (applicationInfo != null) {
                 return applicationInfo.enabled;
