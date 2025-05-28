@@ -27,10 +27,10 @@ public class NativeConvertToWebp {
         void onError(Exception exception);
     }
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final ExecutorService nativeExecutor = Executors.newFixedThreadPool(2);
 
     public void convertToWebpAsync(String inputPath, String outputPath, ConversionCallback callback) throws MediaConversionException {
-        executorService.submit(() -> {
+        nativeExecutor.submit(() -> {
             try {
                 boolean success = convertToWebp(inputPath, outputPath);
                 File outputFile = new File(outputPath);
@@ -39,8 +39,9 @@ public class NativeConvertToWebp {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException exception) {
-                        throw new MediaConversionException(exception.getMessage() != null ? exception.getMessage() :
-                                "Erro fazer ao pausar a thread, e não foi retornado mensagem de erro!", exception.getCause());
+                        throw new MediaConversionException(
+                                exception.getMessage() != null ? exception.getMessage() :
+                                        "Erro fazer ao pausar a thread, e não foi retornado mensagem de erro!", exception.getCause());
                     }
 
                     callback.onSuccess(outputFile);
