@@ -27,7 +27,6 @@ import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerPackConsumer;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackListActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -134,7 +133,7 @@ public class EntryActivity extends BaseActivity {
                 Context context = contextWeakReference.get();
 
                 if (context != null) {
-                    Intent intent = new Intent(context, StickerFirstPackCreatorActivity.class);
+                    Intent intent = new Intent(context, StickerPackCreatorFirstActivity.class);
 
                     // NOTE: flags para transformar essa activity como main
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

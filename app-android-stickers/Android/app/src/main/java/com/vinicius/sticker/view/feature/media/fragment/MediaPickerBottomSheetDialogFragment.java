@@ -35,9 +35,9 @@ import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.domain.service.save.StickerPackCreatorManager;
 import com.vinicius.sticker.view.core.component.BottomFadingRecyclerView;
+import com.vinicius.sticker.view.core.util.ConvertMediaToStickerFormat;
 import com.vinicius.sticker.view.feature.media.adapter.PickMediaListAdapter;
 import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
-import com.vinicius.sticker.view.core.util.ConvertMediaToStickerFormat;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -66,7 +66,6 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
     private ProgressBar progressBar;
 
     ExecutorService executor = new ThreadPoolExecutor(5, 20, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
-
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private PickMediaListAdapter.OnItemClickListener listener;
@@ -223,11 +222,9 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                                     break;
                                 case FAILURE:
                                     if (callbackResult.getError() instanceof InternalAppException exception) {
-                                        Toast.makeText(getContext(), "Erro interno ao salvar pacote de figurinhas!", Toast.LENGTH_SHORT).show();
-                                        Log.e(
-                                                "StickerPackCreator", String.format(
-                                                        "Erro interno ao salvar pacote de figurinhas, messagem: %s detalhes: %s",
-                                                        exception.getMessage(), exception.getErrorDetails()));
+                                        Toast.makeText(
+                                                getContext(), "Erro interno ao salvar pacote de figurinhas: " + exception.getMessage(),
+                                                Toast.LENGTH_SHORT).show();
                                         break;
                                     }
 

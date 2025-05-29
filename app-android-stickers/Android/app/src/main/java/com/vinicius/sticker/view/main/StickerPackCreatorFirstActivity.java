@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
+package com.vinicius.sticker.view.main;
 
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
@@ -17,18 +17,23 @@ import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.lifecycle.ViewModelProvider;
-
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
+import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.CreateStickerPackActivity;
 
-public class StickerPackCreatorActivity extends CreateStickerPackActivity {
-    public static final String EXTRA_STICKER_FORMAT = "sticker_format";
+public class StickerPackCreatorFirstActivity extends CreateStickerPackActivity {
+    public static final String DATABASE_EMPTY = "database_empty";
+
+    public String selectedFormat = null;
+
+    public void setFormat(String format) {
+        this.selectedFormat = format;
+    }
 
     @Override
     protected void setupUI(Bundle savedInstanceState) {
         if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
         }
 
@@ -38,15 +43,29 @@ public class StickerPackCreatorActivity extends CreateStickerPackActivity {
             rotation.setDuration(500);
             rotation.start();
 
-            viewModel.openFragmentState();
-            createStickerPackFlow();
+            if (getIntent().getBooleanExtra(DATABASE_EMPTY, false)) {
+                FormatStickerPopupWindow.popUpButtonChooserStickerModel(
+                        this, buttonSelectMedia, new FormatStickerPopupWindow.OnOptionClickListener() {
+                            @Override
+                            public void onStaticStickerSelected() {
+                                setFormat(STATIC_STICKER);
+                                viewModel.openFragmentState();
+                                createStickerPackFlow();
+                            }
+
+                            @Override
+                            public void onAnimatedStickerSelected() {
+                                setFormat(ANIMATED_STICKER);
+                                viewModel.openFragmentState();
+                                createStickerPackFlow();
+                            }
+                        });
+            }
         });
     }
 
     @Override
     public void openGallery(String namePack) {
-        String selectedFormat = getIntent().getStringExtra(EXTRA_STICKER_FORMAT);
-
         if (selectedFormat != null && selectedFormat.equals(STATIC_STICKER)) {
             launchOwnGallery(this, IMAGE_MIME_TYPES, namePack);
             return;

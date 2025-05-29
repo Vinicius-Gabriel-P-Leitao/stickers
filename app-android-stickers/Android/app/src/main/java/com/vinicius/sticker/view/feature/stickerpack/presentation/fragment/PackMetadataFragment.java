@@ -20,7 +20,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.textfield.TextInputEditText;
 import com.vinicius.sticker.R;
 
-public class PackMetadataBottomSheetDialogFragment extends BottomSheetDialogFragment {
+public class PackMetadataFragment extends BottomSheetDialogFragment {
    public interface MetadataCallback {
       void onGetMetadata(String namePack);
 
