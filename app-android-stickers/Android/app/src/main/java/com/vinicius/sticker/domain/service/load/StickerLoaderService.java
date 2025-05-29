@@ -38,25 +38,25 @@ public class StickerLoaderService {
    * <b>Descrição:</b>Busca os dados das figurinhas tanto arquivo quando metadados.
    *
    * @param context Contexto da aplicação.
-   * @param stickerPack Sticker pack.
+   * @param stickerPackIdentifier Sticker pack identifier.
    * @return Lista de arquivos e metadados em formato de objeto da figurinhas.
    */
   @NonNull
-  public static List<Sticker> getStickersForPack(Context context, StickerPack stickerPack) {
+  public static List<Sticker> getStickersForPack(Context context, String stickerPackIdentifier) {
     final List<Sticker> stickers =
-        fetchFromContentProviderForStickers(stickerPack.identifier, context.getContentResolver());
+        fetchFromContentProviderForStickers(stickerPackIdentifier, context.getContentResolver());
 
     for (Sticker sticker : stickers) {
       final byte[] bytes;
       try {
         bytes =
             fetchStickerAsset(
-                stickerPack.identifier, sticker.imageFileName, context.getContentResolver());
+                stickerPackIdentifier, sticker.imageFileName, context.getContentResolver());
 
         if (bytes.length == 0) {
           throw new IllegalStateException(
               "Asset file is empty, pack: "
-                  + stickerPack.name
+                  + stickerPackIdentifier
                   + ", sticker: "
                   + sticker.imageFileName);
         }
@@ -65,7 +65,7 @@ public class StickerLoaderService {
       } catch (IOException | IllegalArgumentException exception) {
         throw new IllegalStateException(
             "Asset file doesn't exist. pack: "
-                + stickerPack.name
+                + stickerPackIdentifier
                 + ", sticker: "
                 + sticker.imageFileName,
             exception);
@@ -92,8 +92,8 @@ public class StickerLoaderService {
       STICKER_FILE_EMOJI_IN_QUERY,
       STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY
     };
-    final Cursor cursor = contentResolver.query(uri, projection, null, null, null);
 
+    final Cursor cursor = contentResolver.query(uri, projection, null, null, null);
     List<Sticker> stickers = new ArrayList<>();
 
     if (cursor != null && cursor.getCount() > 0) {

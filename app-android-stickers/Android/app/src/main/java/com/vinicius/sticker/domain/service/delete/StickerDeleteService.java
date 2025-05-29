@@ -9,7 +9,7 @@
 package com.vinicius.sticker.domain.service.delete;
 
 import static com.vinicius.sticker.domain.data.content.provider.StickerContentProvider.STICKERS_ASSET;
-import static com.vinicius.sticker.domain.data.database.repository.DeleteStickerPacks.deleteSticker;
+import static com.vinicius.sticker.domain.data.database.repository.DeleteStickerPack.deleteSticker;
 
 import android.content.Context;
 import android.util.Log;
@@ -24,8 +24,8 @@ import java.util.Optional;
 public class StickerDeleteService {
 
   /**
-   * <b>Descrição:</b>Deleta o sticker tanto no banco de dados quanto o arquivo, os métadados são deletados via
-   * repositório.
+   * <b>Descrição:</b>Deleta o sticker tanto no banco de dados quanto o arquivo, os métadados são
+   * deletados via repositório.
    *
    * @param context Contexto da aplicação.
    * @param stickerPackIdentifier Identificador do pacote que está o sticker.
@@ -35,21 +35,17 @@ public class StickerDeleteService {
   public static CallbackResult<Boolean> deleteStickerByIdentifier(
       @NonNull Context context, @NonNull String stickerPackIdentifier, @NonNull String fileName) {
     try {
-      Optional<Integer> deletedSticker = deleteSticker(context, stickerPackIdentifier, fileName);
-      CallbackResult<Boolean> deletedStickerFile = deleteFileSticker(context, stickerPackIdentifier, fileName);
+      int deletedSticker = deleteSticker(context, stickerPackIdentifier, fileName);
+      CallbackResult<Boolean> deletedStickerFile =
+          deleteFileSticker(context, stickerPackIdentifier, fileName);
 
       if (deletedStickerFile.isSuccess()) {
-        deletedSticker
-            .map(
-                deleted -> {
-                  if (deletedStickerFile.getData() && deleted > 0) {
-                    Log.i("StickerDeleteService", "Sticker deletado com sucesso");
-                    return CallbackResult.success(Boolean.TRUE);
-                  } else {
-                    return CallbackResult.warning("Nenhum sticker deletado para fileName: " + fileName);
-                  }
-                })
-            .orElseGet(() -> CallbackResult.warning("Nenhum sticker deletado: Optional vazio"));
+        if (deletedSticker > 0 && deletedStickerFile.getData()) {
+          Log.i("StickerDeleteService", "Sticker deletado com sucesso");
+          return CallbackResult.success(Boolean.TRUE);
+        } else {
+          return CallbackResult.warning("Nenhum sticker deletado para fileName: " + fileName);
+        }
       }
 
       return CallbackResult.failure(
@@ -57,9 +53,10 @@ public class StickerDeleteService {
               ? deletedStickerFile.getError()
               : new DeleteStickerException("Erro ao deletar arquivo!"));
 
-    } catch (SQLException | DeleteStickerException exception) {
+    } catch (SQLException exception) {
       return CallbackResult.failure(
-          new DeleteStickerException("Erro ao deletar métadados do sticker no  banco de dados!", exception.getCause()));
+          new DeleteStickerException(
+              "Erro ao deletar métadados do sticker no  banco de dados!", exception.getCause()));
     }
   }
 
@@ -74,7 +71,8 @@ public class StickerDeleteService {
   private static CallbackResult<Boolean> deleteFileSticker(
       @NonNull Context context, @NonNull String stickerPackIdentifier, @NonNull String fileName) {
     File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
-    File stickerDirectory = new File(mainDirectory, stickerPackIdentifier + File.separator + fileName);
+    File stickerDirectory =
+        new File(mainDirectory, stickerPackIdentifier + File.separator + fileName);
 
     if (stickerDirectory.exists() && mainDirectory.exists()) {
       boolean deleted = stickerDirectory.delete();
@@ -84,11 +82,13 @@ public class StickerDeleteService {
         return CallbackResult.success(Boolean.TRUE);
       } else {
         return CallbackResult.failure(
-            new DeleteStickerException("Falha ao deletar arquivo: " + stickerDirectory.getAbsolutePath()));
+            new DeleteStickerException(
+                "Falha ao deletar arquivo: " + stickerDirectory.getAbsolutePath()));
       }
     } else {
       return CallbackResult.failure(
-          new DeleteStickerException("Arquivo não encontrado para deletar: " + stickerDirectory.getAbsolutePath()));
+          new DeleteStickerException(
+              "Arquivo não encontrado para deletar: " + stickerDirectory.getAbsolutePath()));
     }
   }
 
@@ -110,14 +110,16 @@ public class StickerDeleteService {
         for (File file : files) {
           if (!file.delete()) {
             return CallbackResult.failure(
-                new DeleteStickerException("Falha ao deletar o arquivo: " + file.getAbsolutePath()));
+                new DeleteStickerException(
+                    "Falha ao deletar o arquivo: " + file.getAbsolutePath()));
           }
         }
       }
 
       return CallbackResult.success(null);
     } else {
-      return CallbackResult.warning("Diretório não encontrado: " + stickerPackDirectory.getAbsolutePath());
+      return CallbackResult.warning(
+          "Diretório não encontrado: " + stickerPackDirectory.getAbsolutePath());
     }
   }
 }

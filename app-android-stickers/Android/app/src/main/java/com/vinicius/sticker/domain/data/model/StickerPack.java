@@ -30,6 +30,7 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StickerPack implements Parcelable {
@@ -94,9 +95,10 @@ public class StickerPack implements Parcelable {
   }
 
   public void setStickers(List<Sticker> stickers) {
-    this.stickers = stickers;
+    this.stickers = (stickers != null) ? stickers : new ArrayList<>();
     totalSize = 0;
-    for (Sticker sticker : stickers) {
+
+    for (Sticker sticker : this.stickers) {
       totalSize += sticker.size;
     }
   }
@@ -206,51 +208,5 @@ public class StickerPack implements Parcelable {
     stickerPackValues.put(AVOID_CACHE, stickerPack.avoidCache ? 1 : 0);
 
     return stickerPackValues;
-  }
-
-  @NonNull
-  public static StickerPack fromCursor(Cursor cursor) {
-    final String identifier =
-        cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_IDENTIFIER_IN_QUERY));
-    final String name = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_NAME_IN_QUERY));
-    final String publisher =
-        cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_PUBLISHER_IN_QUERY));
-    final String trayImage =
-        cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_ICON_IN_QUERY));
-    final String androidPlayStoreLink =
-        cursor.getString(cursor.getColumnIndexOrThrow(ANDROID_APP_DOWNLOAD_LINK_IN_QUERY));
-    final String iosAppLink =
-        cursor.getString(cursor.getColumnIndexOrThrow(IOS_APP_DOWNLOAD_LINK_IN_QUERY));
-    final String publisherEmail = cursor.getString(cursor.getColumnIndexOrThrow(PUBLISHER_EMAIL));
-    final String publisherWebsite =
-        cursor.getString(cursor.getColumnIndexOrThrow(PUBLISHER_WEBSITE));
-    final String privacyPolicyWebsite =
-        cursor.getString(cursor.getColumnIndexOrThrow(PRIVACY_POLICY_WEBSITE));
-    final String licenseAgreementWebsite =
-        cursor.getString(cursor.getColumnIndexOrThrow(LICENSE_AGREEMENT_WEBSITE));
-    final String imageDataVersion =
-        cursor.getString(cursor.getColumnIndexOrThrow(IMAGE_DATA_VERSION));
-    final boolean avoidCache = cursor.getShort(cursor.getColumnIndexOrThrow(AVOID_CACHE)) > 0;
-    final boolean animatedStickerPack =
-        cursor.getShort(cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) > 0;
-
-    final StickerPack stickerPack =
-        new StickerPack(
-            identifier,
-            name,
-            publisher,
-            trayImage,
-            publisherEmail,
-            publisherWebsite,
-            privacyPolicyWebsite,
-            licenseAgreementWebsite,
-            imageDataVersion,
-            avoidCache,
-            animatedStickerPack);
-
-    stickerPack.setAndroidPlayStoreLink(androidPlayStoreLink);
-    stickerPack.setIosAppStoreLink(iosAppLink);
-
-    return stickerPack;
   }
 }
