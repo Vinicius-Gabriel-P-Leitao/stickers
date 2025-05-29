@@ -11,8 +11,6 @@
 
 package com.vinicius.sticker.domain.builder;
 
-import static com.vinicius.sticker.core.validation.StickerValidator.EMOJI_MAX_LIMIT;
-
 import android.text.TextUtils;
 import android.util.JsonReader;
 
@@ -25,7 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StickerPackContentJsonParserBuilder {
+public class JsonParserStickerPackBuilder {
     private static final String FIELD_STICKER_IMAGE_FILE = "image_file";
     private static final String FIELD_STICKER_EMOJIS = "emojis";
     private static final String FIELD_STICKER_ACCESSIBILITY_TEXT = "accessibility_text";
@@ -39,11 +37,11 @@ public class StickerPackContentJsonParserBuilder {
         reader.beginObject();
         while (reader.hasNext()) {
             String key = reader.nextName();
-            if ("android_play_store_link".equals(key)) {
+            if ("android_play_store_link" .equals(key)) {
                 androidPlayStoreLink = reader.nextString();
-            } else if ("ios_app_store_link".equals(key)) {
+            } else if ("ios_app_store_link" .equals(key)) {
                 iosAppStoreLink = reader.nextString();
-            } else if ("sticker_packs".equals(key)) {
+            } else if ("sticker_packs" .equals(key)) {
                 reader.beginArray();
                 while (reader.hasNext()) {
                     StickerPack stickerPack = readStickerPack(reader);
@@ -147,8 +145,9 @@ public class StickerPackContentJsonParserBuilder {
             throw new IllegalStateException("image_data_version should not be empty");
         }
         reader.endObject();
-        final StickerPack stickerPack =
-                new StickerPack(identifier, name, publisher, trayImageFile, publisherEmail, publisherWebsite, privacyPolicyWebsite, licenseAgreementWebsite, imageDataVersion, avoidCache, animatedStickerPack);
+        final StickerPack stickerPack = new StickerPack(
+                identifier, name, publisher, trayImageFile, publisherEmail, publisherWebsite, privacyPolicyWebsite, licenseAgreementWebsite,
+                imageDataVersion, avoidCache, animatedStickerPack);
         stickerPack.setStickers(stickerList);
         return stickerPack;
     }
@@ -162,20 +161,15 @@ public class StickerPackContentJsonParserBuilder {
             reader.beginObject();
             String imageFile = null;
             String accessibilityText = null;
-            List<String> emojis = new ArrayList<>(EMOJI_MAX_LIMIT);
+            String emojis = null;
+
             while (reader.hasNext()) {
                 final String key = reader.nextName();
+
                 if (FIELD_STICKER_IMAGE_FILE.equals(key)) {
                     imageFile = reader.nextString();
                 } else if (FIELD_STICKER_EMOJIS.equals(key)) {
-                    reader.beginArray();
-                    while (reader.hasNext()) {
-                        String emoji = reader.nextString();
-                        if (!TextUtils.isEmpty(emoji)) {
-                            emojis.add(emoji);
-                        }
-                    }
-                    reader.endArray();
+                    emojis = reader.nextString();
                 } else if (FIELD_STICKER_ACCESSIBILITY_TEXT.equals(key)) {
                     accessibilityText = reader.nextString();
                 } else {
@@ -190,7 +184,8 @@ public class StickerPackContentJsonParserBuilder {
                 throw new IllegalStateException("image file for stickers should be webp files, image file is: " + imageFile);
             }
             if (imageFile.contains("..") || imageFile.contains("/")) {
-                throw new IllegalStateException("the file name should not contain .. or / to prevent directory traversal, image file is:" + imageFile);
+                throw new IllegalStateException(
+                        "the file name should not contain .. or / to prevent directory traversal, image file is:" + imageFile);
             }
             stickerList.add(new Sticker(imageFile, emojis, accessibilityText));
         }

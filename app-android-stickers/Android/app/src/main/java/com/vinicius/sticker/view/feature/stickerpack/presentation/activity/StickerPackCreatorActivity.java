@@ -12,6 +12,7 @@ import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPicke
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.launchOwnGallery;
 import static com.vinicius.sticker.view.feature.permission.usecase.DefinePermissionsToRequest.getPermissionsToRequest;
+import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackListActivity.NEW_STICKER_PACK;
 
 import android.animation.ObjectAnimator;
 import android.content.Intent;
@@ -65,10 +66,11 @@ public class StickerPackCreatorActivity extends BaseActivity {
         }
 
         GalleryMediaPickerLauncher viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
-        viewModel.getStickerPackToPreview()
-                .observe(this, this::setupStickerPackView);
-        viewModel.getStickerPackToPreview()
-                .observe(this, this::notifyStickerPackCreated);
+        viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
+        viewModel.getStickerPackToPreview().observe(
+                this, result -> {
+                    notifyStickerPackCreated(result.identifier);
+                });
 
         ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
         buttonSelectMedia.setOnClickListener(view -> {
@@ -116,8 +118,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
                 @Override
                 public void onPermissionsDenied() {
-                    Toast.makeText(StickerPackCreatorActivity.this, "Galeria não foi liberada.", Toast.LENGTH_SHORT)
-                            .show();
+                    Toast.makeText(StickerPackCreatorActivity.this, "Galeria não foi liberada.", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -142,8 +143,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
             @Override
             public void onError(String error) {
-                Toast.makeText(StickerPackCreatorActivity.this, error, Toast.LENGTH_SHORT)
-                        .show();
+                Toast.makeText(StickerPackCreatorActivity.this, error, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -163,15 +163,13 @@ public class StickerPackCreatorActivity extends BaseActivity {
             return;
         }
 
-        Toast.makeText(this, "Erro ao abrir galeria!", Toast.LENGTH_SHORT)
-                .show();
+        Toast.makeText(this, "Erro ao abrir galeria!", Toast.LENGTH_SHORT).show();
     }
 
     private final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            setNumColumns(recyclerView.getWidth() / recyclerView.getContext()
-                    .getResources()
+            setNumColumns(recyclerView.getWidth() / recyclerView.getContext().getResources()
                     .getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
         }
     };
@@ -184,8 +182,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
         recyclerView = findViewById(R.id.sticker_list_to_package);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.getViewTreeObserver()
-                .addOnGlobalLayoutListener(pageLayoutListener);
+        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(pageLayoutListener);
         recyclerView.addOnScrollListener(dividerScrollListener);
 
         divider = findViewById(R.id.divider);
@@ -199,10 +196,10 @@ public class StickerPackCreatorActivity extends BaseActivity {
         }
     }
 
-    private void notifyStickerPackCreated(StickerPack stickerPack) {
-        if (stickerPack != null) {
+    private void notifyStickerPackCreated(String identifier) {
+        if (identifier != null) {
             Intent resultIntent = new Intent();
-            resultIntent.putExtra("new_sticker_pack", stickerPack);
+            resultIntent.putExtra(NEW_STICKER_PACK, identifier);
             setResult(RESULT_OK, resultIntent);
         }
     }

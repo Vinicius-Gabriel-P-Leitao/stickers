@@ -35,11 +35,11 @@ public class Sticker implements Parcelable {
         }
     };
     public final String imageFileName;
-    public final List<String> emojis;
+    public final String emojis;
     public final String accessibilityText;
     long size;
 
-    public Sticker(String imageFileName, List<String> emojis, String accessibilityText) {
+    public Sticker(String imageFileName, String emojis, String accessibilityText) {
         this.imageFileName = imageFileName;
         this.emojis = emojis;
         this.accessibilityText = accessibilityText;
@@ -47,7 +47,7 @@ public class Sticker implements Parcelable {
 
     public Sticker(Parcel in) {
         imageFileName = in.readString();
-        emojis = in.createStringArrayList();
+        emojis = in.readString();
         accessibilityText = in.readString();
         size = in.readLong();
     }
@@ -64,7 +64,7 @@ public class Sticker implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(imageFileName);
-        dest.writeStringList(emojis);
+        dest.writeString(emojis);
         dest.writeString(accessibilityText);
         dest.writeLong(size);
     }

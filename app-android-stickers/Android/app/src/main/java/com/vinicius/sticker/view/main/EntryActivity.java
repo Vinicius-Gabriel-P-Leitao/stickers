@@ -110,7 +110,7 @@ public class EntryActivity extends BaseActivity {
             try {
                 final Context context = contextWeakReference.get();
                 if (context != null) {
-                    stickerPackList = StickerPackLoaderService.fetchStickerPacks(context);
+                    stickerPackList = StickerPackLoaderService.fetchStickerPackList(context);
 
                     if (stickerPackList.isEmpty()) {
                         return new Pair<>("No sticker packs available", null);
@@ -152,8 +152,8 @@ public class EntryActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(Pair<String, ArrayList<StickerPack>> stringListPair) {
-
             final EntryActivity entryActivity = contextWeakReference.get();
+
             if (entryActivity != null) {
                 if (stringListPair.first != null) {
                     entryActivity.showErrorMessage(stringListPair.first);

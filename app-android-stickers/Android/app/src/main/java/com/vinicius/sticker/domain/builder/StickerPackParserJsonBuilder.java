@@ -12,63 +12,61 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
-
-public class StickerPackContentJsonBuilder {
+public class StickerPackParserJsonBuilder {
     private final JSONObject stickerPackJson;
     private final JSONArray stickersArray;
 
-    public StickerPackContentJsonBuilder() {
+    public StickerPackParserJsonBuilder() {
         stickerPackJson = new JSONObject();
         stickersArray = new JSONArray();
     }
 
-    public StickerPackContentJsonBuilder setIdentifier(String identifier) throws JSONException {
+    public StickerPackParserJsonBuilder setIdentifier(String identifier) throws JSONException {
         stickerPackJson.put("identifier", identifier);
         return this;
     }
 
-    public StickerPackContentJsonBuilder setName(String name) throws JSONException {
+    public StickerPackParserJsonBuilder setName(String name) throws JSONException {
         stickerPackJson.put("name", name);
         return this;
     }
 
-    public StickerPackContentJsonBuilder setPublisher(String publisher) throws JSONException {
+    public StickerPackParserJsonBuilder setPublisher(String publisher) throws JSONException {
         stickerPackJson.put("publisher", publisher);
         return this;
     }
 
-    public StickerPackContentJsonBuilder setTrayImageFile(String trayImageFile) throws JSONException {
+    public StickerPackParserJsonBuilder setTrayImageFile(String trayImageFile) throws JSONException {
         stickerPackJson.put("tray_image_file", trayImageFile);
         return this;
     }
 
-    public StickerPackContentJsonBuilder setImageDataVersion(String version) throws JSONException {
+    public StickerPackParserJsonBuilder setImageDataVersion(String version) throws JSONException {
         stickerPackJson.put("image_data_version", version);
         return this;
     }
 
-    public StickerPackContentJsonBuilder setAvoidCache(boolean avoidCache) throws JSONException {
+    public StickerPackParserJsonBuilder setAvoidCache(boolean avoidCache) throws JSONException {
         stickerPackJson.put("avoid_cache", avoidCache);
         return this;
     }
 
-    public StickerPackContentJsonBuilder setPublisherEmail(String email) throws JSONException {
+    public StickerPackParserJsonBuilder setPublisherEmail(String email) throws JSONException {
         stickerPackJson.put("publisher_email", email);
         return this;
     }
 
-    public StickerPackContentJsonBuilder setPublisherWebsite(String website) throws JSONException {
+    public StickerPackParserJsonBuilder setPublisherWebsite(String website) throws JSONException {
         stickerPackJson.put("publisher_website", website);
         return this;
     }
 
-    public StickerPackContentJsonBuilder setPrivacyPolicyWebsite(String url) throws JSONException {
+    public StickerPackParserJsonBuilder setPrivacyPolicyWebsite(String url) throws JSONException {
         stickerPackJson.put("privacy_policy_website", url);
         return this;
     }
 
-    public StickerPackContentJsonBuilder setLicenseAgreementWebsite(String url) throws JSONException {
+    public StickerPackParserJsonBuilder setLicenseAgreementWebsite(String url) throws JSONException {
         stickerPackJson.put("license_agreement_website", url);
         return this;
     }
@@ -77,15 +75,10 @@ public class StickerPackContentJsonBuilder {
         stickerPackJson.put("animated_sticker_pack", animated);
     }
 
-    public void addSticker(String imageFile, List<String> emojis, String accessibilityText) throws JSONException {
+    public void addSticker(String imageFile, String emojis, String accessibilityText) throws JSONException {
         JSONObject stickerJson = new JSONObject();
         stickerJson.put("image_file", imageFile);
-
-        JSONArray emojisArray = new JSONArray();
-        for (String emoji : emojis) {
-            emojisArray.put(emoji);
-        }
-        stickerJson.put("emojis", emojisArray);
+        stickerJson.put("emojis", emojis);
 
         if (accessibilityText != null) {
             stickerJson.put("accessibility_text", accessibilityText);

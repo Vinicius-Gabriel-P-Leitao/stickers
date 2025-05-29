@@ -38,7 +38,8 @@ public abstract class AddStickerPackActivity extends BaseActivity {
     protected void addStickerPackToWhatsApp(String identifier, String stickerPackName) {
         try {
             //if neither WhatsApp Consumer or WhatsApp Business is installed, then tell user to install the apps.
-            if (!WhatsappWhitelistValidator.isWhatsAppConsumerAppInstalled(getPackageManager()) && !WhatsappWhitelistValidator.isWhatsAppSmbAppInstalled(getPackageManager())) {
+            if (WhatsappWhitelistValidator.isWhatsAppConsumerAppInstalled(getPackageManager()) && WhatsappWhitelistValidator.isWhatsAppSmbAppInstalled(
+                    getPackageManager())) {
                 Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG).show();
                 return;
             }

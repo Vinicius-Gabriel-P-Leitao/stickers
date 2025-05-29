@@ -8,20 +8,16 @@
 
 package com.vinicius.sticker.domain.manager;
 
-import static com.vinicius.sticker.domain.builder.StickerPackContentJsonParserBuilder.readStickerPack;
-import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.getStickerPackIdentifier;
-import static com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks.identifierPackIsPresent;
-
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.JsonReader;
 import android.util.Log;
 
+import com.vinicius.sticker.core.exception.DeleteStickerException;
 import com.vinicius.sticker.core.exception.PackValidatorException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.core.exception.main.InternalAppException;
-import com.vinicius.sticker.domain.builder.StickerPackContentJsonBuilder;
-import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
+import com.vinicius.sticker.domain.builder.JsonParserStickerPackBuilder;
+import com.vinicius.sticker.domain.builder.StickerPackParserJsonBuilder;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.pattern.CallbackResult;
@@ -40,8 +36,7 @@ import java.util.UUID;
 public class StickerPackCreatorManager {
 
     private static final List<Sticker> stickers = new ArrayList<>();
-    private final static String uuidPack = UUID.randomUUID()
-            .toString();
+    private static final String uuidPack = UUID.randomUUID().toString();
 
     @FunctionalInterface
     public interface JsonValidateCallback {
@@ -54,12 +49,15 @@ public class StickerPackCreatorManager {
     }
 
     public static void generateJsonPack(
-            Context context, boolean isAnimatedPack, List<File> fileList, String namePack, JsonValidateCallback jsonValidateCallback,
-            SavedStickerPackCallback savedStickerPackCallback
-    ) {
+            Context context,
+            boolean isAnimatedPack,
+            List<File> fileList,
+            String namePack,
+            JsonValidateCallback jsonValidateCallback,
+            SavedStickerPackCallback savedStickerPackCallback) {
         try {
             stickers.clear();
-            StickerPackContentJsonBuilder builder = new StickerPackContentJsonBuilder();
+            StickerPackParserJsonBuilder builder = new StickerPackParserJsonBuilder();
 
             builder.setIdentifier(uuidPack)
                     .setName(namePack.trim())
@@ -83,40 +81,44 @@ public class StickerPackCreatorManager {
                 }
 
                 if (!exists) {
-                    stickers.add(new Sticker(
-                            file.getName()
-                                    .trim(), List.of("\uD83D\uDDFF"), "Sticker pack"));
+                    stickers.add(
+                            new Sticker(file.getName().trim(), "\uD83D\uDDFF", "Sticker pack"));
                 }
             }
 
             for (Sticker sticker : stickers) {
-                builder.addSticker(sticker.imageFileName, sticker.emojis, sticker.accessibilityText);
+
+                builder.addSticker(
+                        sticker.imageFileName, sticker.emojis, sticker.accessibilityText);
             }
 
             String contentJson = builder.build();
             try (JsonReader jsonReader = new JsonReader(new StringReader(contentJson))) {
-                StickerPack stickerPack = readStickerPack(jsonReader);
+                StickerPack stickerPack = JsonParserStickerPackBuilder.readStickerPack(jsonReader);
 
                 if (jsonValidateCallback != null) {
                     jsonValidateCallback.onJsonValidateDataComplete(contentJson);
                 }
 
-                StickerDatabaseHelper dbHelper = StickerDatabaseHelper.getInstance(context);
-                SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-                String isPresent = null;
-                if (identifierPackIsPresent(db, stickerPack.identifier)) {
-                    isPresent = getStickerPackIdentifier(db, stickerPack.identifier);
+                if (stickerPack.identifier == null) {
+                    throw new DeleteStickerException(
+                            "Erro ao encontrar o id do pacote para deletar.");
                 }
 
                 StickerPackSaveService.generateStructureForSavePack(
-                        context, stickerPack, isPresent, callbackResult -> {
+                        context,
+                        stickerPack,
+                        stickerPack.identifier,
+                        callbackResult -> {
                             switch (callbackResult.getStatus()) {
                                 case SUCCESS:
                                     if (savedStickerPackCallback != null) {
-                                        savedStickerPackCallback.onSavedStickerPack(CallbackResult.success(callbackResult.getData()));
+                                        savedStickerPackCallback.onSavedStickerPack(
+                                                CallbackResult.success(callbackResult.getData()));
                                     } else {
-                                        Log.d("SaveStickerPack", "Callback não foi retornada corretamente!");
+                                        Log.d(
+                                                "SaveStickerPack",
+                                                "Callback não foi retornada corretamente!");
                                     }
                                     break;
                                 case WARNING:
@@ -126,38 +128,67 @@ public class StickerPackCreatorManager {
                                     Log.d("SaveStickerPack", callbackResult.getDebugMessage());
                                     break;
                                 case FAILURE:
-                                    if (callbackResult.getError() instanceof StickerPackSaveException stickerPackSaveException) {
+                                    if (callbackResult.getError()
+                                            instanceof
+                                            StickerPackSaveException stickerPackSaveException) {
                                         Log.e(
                                                 "SaveStickerPack",
-                                                stickerPackSaveException.getMessage() != null ? stickerPackSaveException.getMessage() : "Erro interno desconhecido!");
-                                        savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(stickerPackSaveException));
+                                                stickerPackSaveException.getMessage() != null
+                                                        ? stickerPackSaveException.getMessage()
+                                                        : "Erro interno desconhecido!");
+                                        savedStickerPackCallback.onSavedStickerPack(
+                                                CallbackResult.failure(stickerPackSaveException));
                                         break;
                                     }
 
-                                    if (callbackResult.getError() instanceof PackValidatorException packValidatorException) {
-                                        // NOTE: É garantido que não vai nulo, caso lançe nullpointer o erro é no código do projeto
-                                        Log.e("SaveStickerPack", Objects.requireNonNull(packValidatorException.getMessage()));
-                                        // TODO: Caso receba essa exception aplicar tratamento para pacote invalido
+                                    if (callbackResult.getError()
+                                            instanceof
+                                            PackValidatorException packValidatorException) {
+                                        // NOTE: É garantido que não vai nulo, caso lançe
+                                        // nullpointer o erro é no código
+                                        // do projeto
+                                        Log.e(
+                                                "SaveStickerPack",
+                                                Objects.requireNonNull(
+                                                        packValidatorException.getMessage()));
+                                        // TODO: Caso receba essa exception aplicar tratamento para
+                                        // pacote invalido
                                     }
 
-                                    if (callbackResult.getError() instanceof StickerPackSaveException stickerPackSaveException) {
-                                        // NOTE: É garantido que não vai nulo, caso lançe nullpointer o erro é no código do projeto
-                                        Log.e("SaveStickerPack", Objects.requireNonNull(stickerPackSaveException.getMessage()));
-                                        // TODO: Caso receba essa exception aplicar tratamento para pacote invalido
+                                    if (callbackResult.getError()
+                                            instanceof
+                                            StickerPackSaveException stickerPackSaveException) {
+                                        // NOTE: É garantido que não vai nulo, caso lançe
+                                        // nullpointer o erro é no código
+                                        // do projeto
+                                        Log.e(
+                                                "SaveStickerPack",
+                                                Objects.requireNonNull(
+                                                        stickerPackSaveException.getMessage()));
+                                        // TODO: Caso receba essa exception aplicar tratamento para
+                                        // pacote invalido
                                         break;
                                     }
 
                                     savedStickerPackCallback.onSavedStickerPack(
-                                            CallbackResult.failure(new InternalAppException("Erro interno desconhecido!")));
+                                            CallbackResult.failure(
+                                                    new InternalAppException(
+                                                            "Erro interno desconhecido!")));
                                     break;
                             }
                         });
             }
         } catch (JSONException | IOException exception) {
-            savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(new InternalAppException(
-                    exception.getMessage() != null ? exception.getMessage() : "Erro interno desconhecido!", exception,
-                    exception instanceof JSONException ? exception.getMessage() : null)));
-
+            savedStickerPackCallback.onSavedStickerPack(
+                    CallbackResult.failure(
+                            new InternalAppException(
+                                    exception.getMessage() != null
+                                            ? exception.getMessage()
+                                            : "Erro interno desconhecido!",
+                                    exception,
+                                    exception instanceof JSONException
+                                            ? exception.getMessage()
+                                            : null)));
         }
     }
 }

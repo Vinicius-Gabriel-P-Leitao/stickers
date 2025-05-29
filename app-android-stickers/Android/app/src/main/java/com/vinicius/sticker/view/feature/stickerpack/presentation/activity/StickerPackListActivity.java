@@ -18,7 +18,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -30,6 +29,7 @@ import com.google.android.material.button.MaterialButton;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.service.load.StickerPackLoaderService;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPackListAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.AddStickerPackActivity;
@@ -44,9 +44,11 @@ import java.util.concurrent.Executors;
 
 public class StickerPackListActivity extends AddStickerPackActivity {
     public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
+    public static final String NEW_STICKER_PACK = "new_sticker_pack";
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
     private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = pack -> addStickerPackToWhatsApp(
-            pack.identifier, pack.name);
+            pack.identifier,
+            pack.name);
 
     private StickerPackListAdapter allStickerPacksListAdapter;
     private WhiteListCheckAsyncTask whiteListCheckAsyncTask;
@@ -70,20 +72,18 @@ public class StickerPackListActivity extends AddStickerPackActivity {
         }
 
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
-        buttonCreateStickerPackage.setOnClickListener(view -> {
-            FormatStickerPopupWindow.popUpButtonChooserStickerModel(
-                    this, buttonCreateStickerPackage, new FormatStickerPopupWindow.OnOptionClickListener() {
-                        @Override
-                        public void onStaticStickerSelected() {
-                            openCreateStickerPackActivity(STATIC_STICKER);
-                        }
+        buttonCreateStickerPackage.setOnClickListener(view -> FormatStickerPopupWindow.popUpButtonChooserStickerModel(
+                this, buttonCreateStickerPackage, new FormatStickerPopupWindow.OnOptionClickListener() {
+                    @Override
+                    public void onStaticStickerSelected() {
+                        openCreateStickerPackActivity(STATIC_STICKER);
+                    }
 
-                        @Override
-                        public void onAnimatedStickerSelected() {
-                            openCreateStickerPackActivity(ANIMATED_STICKER);
-                        }
-                    });
-        });
+                    @Override
+                    public void onAnimatedStickerSelected() {
+                        openCreateStickerPackActivity(ANIMATED_STICKER);
+                    }
+                }));
     }
 
     @Override
@@ -111,8 +111,7 @@ public class StickerPackListActivity extends AddStickerPackActivity {
 
         packRecyclerView.addItemDecoration(dividerItemDecoration);
         packRecyclerView.setLayoutManager(packLayoutManager);
-        packRecyclerView.getViewTreeObserver()
-                .addOnGlobalLayoutListener(this::recalculateColumnCount);
+        packRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(this::recalculateColumnCount);
     }
 
     private void recalculateColumnCount() {
@@ -139,28 +138,20 @@ public class StickerPackListActivity extends AddStickerPackActivity {
                     Intent data = result.getData();
 
                     if (data != null) {
-                        StickerPack newStickerPack = data.getParcelableExtra("new_sticker_pack");
+                        String identifier = data.getStringExtra(NEW_STICKER_PACK);
 
-                        if (newStickerPack != null) {
-                            Executors.newSingleThreadExecutor()
-                                    .execute(() -> {
-                                        boolean isWhitelisted = WhatsappWhitelistValidator.isWhitelisted(this, newStickerPack.identifier);
-                                        newStickerPack.setIsWhitelisted(isWhitelisted);
+                        if (identifier != null) {
+                            StickerPack stickerPack = StickerPackLoaderService.fetchStickerPack(getBaseContext(), identifier);
 
-                                        runOnUiThread(() -> {
-                                            if (newStickerPack.getIsWhitelisted()) {
-                                                stickerPackList.add(newStickerPack);
-                                                allStickerPacksListAdapter.updateStickerPack(newStickerPack);
-                                            } else {
-                                                Toast.makeText(this, "Sticker pack não válido para inserção no WhatsApp", Toast.LENGTH_SHORT)
-                                                        .show();
-                                            }
-                                        });
-                                    });
+                            if (stickerPackList != null) {
+                                WhatsappWhitelistValidator.isWhitelisted(this, stickerPack.identifier);
 
-                            if (getSupportActionBar() != null) {
-                                getSupportActionBar().setTitle(
-                                        getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, stickerPackList.size()));
+                                allStickerPacksListAdapter.updateStickerPack(stickerPack);
+
+                                if (getSupportActionBar() != null) {
+                                    getSupportActionBar().setTitle(
+                                            getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, stickerPackList.size()));
+                                }
                             }
                         }
                     }

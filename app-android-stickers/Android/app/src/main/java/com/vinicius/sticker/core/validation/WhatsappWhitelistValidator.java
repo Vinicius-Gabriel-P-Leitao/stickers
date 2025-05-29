@@ -18,6 +18,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -35,7 +36,7 @@ public class WhatsappWhitelistValidator {
 
     public static boolean isWhitelisted(@NonNull Context context, @NonNull String identifier) {
         try {
-            if (!isWhatsAppConsumerAppInstalled(context.getPackageManager()) && !isWhatsAppSmbAppInstalled(context.getPackageManager())) {
+            if (isWhatsAppConsumerAppInstalled(context.getPackageManager()) && isWhatsAppSmbAppInstalled(context.getPackageManager())) {
                 return false;
             }
 
@@ -95,11 +96,11 @@ public class WhatsappWhitelistValidator {
     }
 
     public static boolean isWhatsAppConsumerAppInstalled(PackageManager packageManager) {
-        return WhatsappWhitelistValidator.isPackageInstalled(CONSUMER_WHATSAPP_PACKAGE_NAME, packageManager);
+        return !WhatsappWhitelistValidator.isPackageInstalled(CONSUMER_WHATSAPP_PACKAGE_NAME, packageManager);
     }
 
     public static boolean isWhatsAppSmbAppInstalled(PackageManager packageManager) {
-        return WhatsappWhitelistValidator.isPackageInstalled(SMB_WHATSAPP_PACKAGE_NAME, packageManager);
+        return !WhatsappWhitelistValidator.isPackageInstalled(SMB_WHATSAPP_PACKAGE_NAME, packageManager);
     }
 
     public static boolean isStickerPackWhitelistedInWhatsAppConsumer(@NonNull Context context, @NonNull String identifier) {

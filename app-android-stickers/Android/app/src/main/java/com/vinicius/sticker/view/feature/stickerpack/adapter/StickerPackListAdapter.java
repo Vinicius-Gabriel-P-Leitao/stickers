@@ -15,6 +15,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,10 +27,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vinicius.sticker.R;
+import com.vinicius.sticker.domain.builder.StickerPackParserJsonBuilder;
+import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerLoaderService;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
 import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListItemViewHolder;
+
+import org.json.JSONException;
 
 import java.util.List;
 
@@ -63,6 +68,24 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
     @Override
     public void onBindViewHolder(@NonNull final StickerPackListItemViewHolder viewHolder, final int index) {
         StickerPack pack = stickerPacks.get(index);
+
+        StickerPackParserJsonBuilder builder = new StickerPackParserJsonBuilder();
+
+        try {
+            builder.setIdentifier(pack.identifier).setName(pack.name).setPublisher(pack.publisher).setTrayImageFile(pack.trayImageFile)
+                    .setImageDataVersion(pack.imageDataVersion).setAvoidCache(pack.avoidCache).setPublisherWebsite(pack.publisherWebsite)
+                    .setPublisherEmail(pack.publisherEmail).setPrivacyPolicyWebsite(pack.privacyPolicyWebsite)
+                    .setLicenseAgreementWebsite(pack.licenseAgreementWebsite).setAnimatedStickerPack(pack.animatedStickerPack);
+
+            for (Sticker sticker : pack.getStickers()) {
+                builder.addSticker(sticker.imageFileName, sticker.emojis, sticker.accessibilityText);
+            }
+
+            Log.d("BuilderSticker", builder.build());
+        } catch (JSONException jsonException) {
+            throw new RuntimeException(jsonException);
+        }
+
         final Context context = viewHolder.publisherView.getContext();
 
         viewHolder.publisherView.setText(pack.publisher);
@@ -71,31 +94,29 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         viewHolder.titleView.setText(pack.name);
         viewHolder.container.setOnClickListener(view -> {
             Intent intent = new Intent(view.getContext(), StickerPackDetailsActivity.class);
+
             intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
             intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, pack);
-            view.getContext()
-                    .startActivity(intent);
+
+            view.getContext().startActivity(intent);
         });
         viewHolder.imageRowView.removeAllViews();
 
         //if this sticker pack contains less stickers than the max, then take the smaller size.
-        int actualNumberOfStickersToShow = Math.min(
-                maxNumberOfStickersInARow, pack.getStickers()
-                        .size());
+        int actualNumberOfStickersToShow = Math.min(maxNumberOfStickersInARow, pack.getStickers().size());
         for (int i = 0; i < actualNumberOfStickersToShow; i++) {
             final ImageView rowImage = (ImageView) LayoutInflater.from(context)
                     .inflate(R.layout.sticker_packs_list_media_item, viewHolder.imageRowView, false);
 
-            rowImage.setImageURI(StickerLoaderService.getStickerAssetUri(
-                    pack.identifier, pack.getStickers()
-                            .get(i).imageFileName));
+            rowImage.setImageURI(StickerLoaderService.getStickerAssetUri(pack.identifier, pack.getStickers().get(i).imageFileName));
 
             final LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) rowImage.getLayoutParams();
             final int marginBetweenImages = minMarginBetweenImages - layoutParams.leftMargin - layoutParams.rightMargin;
 
             if (i != actualNumberOfStickersToShow - 1 && marginBetweenImages > 0) { //do not set the margin for the last image
                 layoutParams.setMargins(
-                        layoutParams.leftMargin, layoutParams.topMargin, layoutParams.rightMargin + marginBetweenImages, layoutParams.bottomMargin);
+                        layoutParams.leftMargin, layoutParams.topMargin, layoutParams.rightMargin + marginBetweenImages,
+                        layoutParams.bottomMargin);
                 rowImage.setLayoutParams(layoutParams);
             }
 
@@ -119,9 +140,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
 
             TypedValue outValue = new TypedValue();
 
-            addButton.getContext()
-                    .getTheme()
-                    .resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+            addButton.getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
             addButton.setBackgroundResource(outValue.resourceId);
         }
     }
@@ -152,6 +171,6 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
 
     public void updateStickerPack(StickerPack newPack) {
         stickerPacks.add(newPack);
-        notifyItemInserted(stickerPacks.size() - 1);
+        notifyItemRangeChanged(0, stickerPacks.size());
     }
 }
