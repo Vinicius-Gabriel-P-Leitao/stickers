@@ -20,7 +20,7 @@ import android.widget.Button;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
 
-public class PermissionSettingsBottomSheetDialogFragment extends BottomSheetDialogFragment {
+public class PermissionSettingsFragment extends BottomSheetDialogFragment {
    private PermissionCallback callback;
 
    public interface PermissionCallback {
