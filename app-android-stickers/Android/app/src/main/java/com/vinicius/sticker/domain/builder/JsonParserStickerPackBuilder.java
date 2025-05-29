@@ -37,11 +37,11 @@ public class JsonParserStickerPackBuilder {
         reader.beginObject();
         while (reader.hasNext()) {
             String key = reader.nextName();
-            if ("android_play_store_link" .equals(key)) {
+            if ("android_play_store_link".equals(key)) {
                 androidPlayStoreLink = reader.nextString();
-            } else if ("ios_app_store_link" .equals(key)) {
+            } else if ("ios_app_store_link".equals(key)) {
                 iosAppStoreLink = reader.nextString();
-            } else if ("sticker_packs" .equals(key)) {
+            } else if ("sticker_packs".equals(key)) {
                 reader.beginArray();
                 while (reader.hasNext()) {
                     StickerPack stickerPack = readStickerPack(reader);
@@ -153,7 +153,7 @@ public class JsonParserStickerPackBuilder {
     }
 
     @NonNull
-    private static List<Sticker> readStickers(@NonNull JsonReader reader) throws IOException, IllegalStateException {
+    public static List<Sticker> readStickers(@NonNull JsonReader reader) throws IOException, IllegalStateException {
         reader.beginArray();
         List<Sticker> stickerList = new ArrayList<>();
 
@@ -189,6 +189,7 @@ public class JsonParserStickerPackBuilder {
             }
             stickerList.add(new Sticker(imageFile, emojis, accessibilityText));
         }
+
         reader.endArray();
         return stickerList;
     }

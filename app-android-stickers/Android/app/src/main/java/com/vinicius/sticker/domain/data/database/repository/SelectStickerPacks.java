@@ -27,7 +27,7 @@ public class SelectStickerPacks {
         return db.rawQuery(query, null);
     }
 
-    public static Cursor getStickerPackByIdentifier(StickerDatabase dbHelper, String identifier) {
+    public static Cursor getStickerPackByIdentifier(StickerDatabase dbHelper, String stickerPackIdentifier) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         String query = "SELECT DISTINCT " + StickerDatabase.TABLE_STICKER_PACK + ".*, " + StickerDatabase.TABLE_STICKER + ".* " + "FROM " +
@@ -36,6 +36,16 @@ public class SelectStickerPacks {
                 StickerDatabase.FK_STICKER_PACK + " WHERE " + StickerDatabase.TABLE_STICKER_PACK + "." +
                 StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?";
 
-        return db.rawQuery(query, new String[]{identifier});
+        return db.rawQuery(query, new String[]{stickerPackIdentifier});
+    }
+
+    public static Cursor getStickerByStickerPackIdentifier(StickerDatabase dbHelper, String stickerPackIdentifier) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String query = "SELECT * FROM " + StickerDatabase.TABLE_STICKER + " WHERE " + StickerDatabase.FK_STICKER_PACK + " = " + "(SELECT " +
+                StickerDatabase.ID_STICKER_PACK + " FROM " + StickerDatabase.TABLE_STICKER_PACK + " WHERE " +
+                StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?)";
+
+        return db.rawQuery(query, new String[]{stickerPackIdentifier});
     }
 }

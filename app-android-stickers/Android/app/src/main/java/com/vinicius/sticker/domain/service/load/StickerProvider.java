@@ -8,12 +8,9 @@
 
 package com.vinicius.sticker.domain.service.load;
 
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.ANIMATED_STICKER_PACK;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.AVOID_CACHE;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.ID_STICKER_PACKS;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.IMAGE_DATA_VERSION;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.LICENSE_AGREEMENT_WEBSITE;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.PRIVACY_POLICY_WEBSITE;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.PUBLISHER_EMAIL;
@@ -28,31 +25,32 @@ import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STIC
 
 import android.database.Cursor;
 import android.util.JsonReader;
-import android.util.Log;
 
 import com.vinicius.sticker.domain.builder.JsonParserStickerPackBuilder;
 import com.vinicius.sticker.domain.builder.StickerPackParserJsonBuilder;
 import com.vinicius.sticker.domain.data.database.dao.StickerDatabase;
 import com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks;
-import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.data.model.Sticker;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-public class StickerPackProvider {
-    private static StickerPack stickerPack;
+public class StickerProvider {
+    private static List<Sticker> stickerList;
 
-    public static StickerPack getStickerPack(StickerDatabase dbHelper, String stickerPackIdentifier) {
-        if (stickerPack == null) {
+    public static List<Sticker> getStickerList(StickerDatabase dbHelper, String stickerPackIdentifier) {
+        if (stickerList == null) {
             readContentFile(dbHelper, stickerPackIdentifier);
         }
 
-        return stickerPack;
+        return stickerList;
     }
 
     public static synchronized void readContentFile(StickerDatabase dbHelper, String stickerPackIdentifier) {
@@ -60,57 +58,32 @@ public class StickerPackProvider {
         JsonReader jsonReaderStickerPack = new JsonReader(stringReaderStickerPack);
 
         try {
-            stickerPack = JsonParserStickerPackBuilder.readStickerPack(jsonReaderStickerPack);
+            stickerList = JsonParserStickerPackBuilder.readStickers(jsonReaderStickerPack);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
     }
 
     public static String getPackForJsonBuilder(StickerDatabase dbHelper, String stickerPackIdentifier) {
-        Cursor cursor = SelectStickerPacks.getStickerPackByIdentifier(dbHelper, stickerPackIdentifier);
+        Cursor cursor = SelectStickerPacks.getStickerByStickerPackIdentifier(dbHelper, stickerPackIdentifier);
         Map<String, StickerPackParserJsonBuilder> packMap = new LinkedHashMap<>();
 
         if (cursor.moveToFirst()) {
             do {
-                String identifier = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_IDENTIFIER_IN_QUERY));
-                String name = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_NAME_IN_QUERY));
-                String publisher = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_PUBLISHER_IN_QUERY));
-                String trayImageFile = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_ICON_IN_QUERY));
-                String imageDataVersion = cursor.getString(cursor.getColumnIndexOrThrow(IMAGE_DATA_VERSION));
-                boolean avoidCache = cursor.getInt(cursor.getColumnIndexOrThrow(AVOID_CACHE)) != 0;
-                String publisherEmail = cursor.getString(cursor.getColumnIndexOrThrow(PUBLISHER_EMAIL));
-                String publisherWebsite = cursor.getString(cursor.getColumnIndexOrThrow(PUBLISHER_WEBSITE));
-                String privacyPolicyWebsite = cursor.getString(cursor.getColumnIndexOrThrow(PRIVACY_POLICY_WEBSITE));
-                String licenseAgreementWebsite = cursor.getString(cursor.getColumnIndexOrThrow(LICENSE_AGREEMENT_WEBSITE));
-                boolean animatedStickerPack = cursor.getInt(cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) != 0;
-
                 String imageFile = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_NAME_IN_QUERY));
                 String emojis = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_EMOJI_IN_QUERY));
                 String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
 
-                StickerPackParserJsonBuilder builder = packMap.get(identifier);
+                StickerPackParserJsonBuilder builder = packMap.get(stickerPackIdentifier);
                 if (builder == null) {
-                    try {
-                        builder = new StickerPackParserJsonBuilder().setIdentifier(identifier).setName(name).setPublisher(publisher)
-                                .setTrayImageFile(trayImageFile).setImageDataVersion(imageDataVersion).setAvoidCache(avoidCache)
-                                .setPublisherEmail(publisherEmail).setPublisherWebsite(publisherWebsite).setPrivacyPolicyWebsite(privacyPolicyWebsite)
-                                .setLicenseAgreementWebsite(licenseAgreementWebsite);
-                    } catch (JSONException exception) {
-                        throw new RuntimeException(exception);
-                    }
-
-                    try {
-                        builder.setAnimatedStickerPack(animatedStickerPack);
-                    } catch (JSONException exception) {
-                        throw new RuntimeException(exception);
-                    }
-                    packMap.put(identifier, builder);
+                    builder = new StickerPackParserJsonBuilder();
+                    packMap.put(stickerPackIdentifier, builder);
                 }
+
                 try {
                     builder.addSticker(imageFile, emojis, accessibilityText);
-
                 } catch (JSONException exception) {
-                    throw new RuntimeException(exception);
+                    throw new RuntimeException("Failed to add sticker: " + exception.getMessage(), exception);
                 }
             } while (cursor.moveToNext());
 
@@ -118,23 +91,21 @@ public class StickerPackProvider {
         }
 
         StickerPackParserJsonBuilder builder = packMap.get(stickerPackIdentifier);
-
         if (builder == null) {
-            throw new RuntimeException("StickerPackBuilder não encontrado para: " + stickerPackIdentifier);
-        }
-
-        JSONObject finalJson = null;
-        try {
-            finalJson = new JSONObject(builder.build());
-        } catch (JSONException exception) {
-            throw new RuntimeException(exception);
+            throw new RuntimeException("StickerPackBuilder not found for: " + stickerPackIdentifier);
         }
 
         try {
-            return finalJson.toString(2);
+            String jsonString = builder.build();
+
+            if (jsonString.startsWith("{")) {
+                JSONObject jsonObject = new JSONObject(jsonString);
+                JSONArray stickerArray = jsonObject.getJSONArray("stickers");
+                return stickerArray.toString(2);
+            }
+            return jsonString;
         } catch (JSONException exception) {
-            throw new RuntimeException(exception);
+            throw new RuntimeException("Failed to process JSON: " + exception.getMessage(), exception);
         }
     }
 }
-

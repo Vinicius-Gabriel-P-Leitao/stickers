@@ -67,17 +67,17 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
 
     @Override
     public void onBindViewHolder(@NonNull final StickerPackListItemViewHolder viewHolder, final int index) {
-        StickerPack pack = stickerPacks.get(index);
-
+        StickerPack stickerPack = stickerPacks.get(index);
+        // NOTE: DEBUB
         StickerPackParserJsonBuilder builder = new StickerPackParserJsonBuilder();
 
         try {
-            builder.setIdentifier(pack.identifier).setName(pack.name).setPublisher(pack.publisher).setTrayImageFile(pack.trayImageFile)
-                    .setImageDataVersion(pack.imageDataVersion).setAvoidCache(pack.avoidCache).setPublisherWebsite(pack.publisherWebsite)
-                    .setPublisherEmail(pack.publisherEmail).setPrivacyPolicyWebsite(pack.privacyPolicyWebsite)
-                    .setLicenseAgreementWebsite(pack.licenseAgreementWebsite).setAnimatedStickerPack(pack.animatedStickerPack);
+            builder.setIdentifier(stickerPack.identifier).setName(stickerPack.name).setPublisher(stickerPack.publisher).setTrayImageFile(stickerPack.trayImageFile)
+                    .setImageDataVersion(stickerPack.imageDataVersion).setAvoidCache(stickerPack.avoidCache).setPublisherWebsite(stickerPack.publisherWebsite)
+                    .setPublisherEmail(stickerPack.publisherEmail).setPrivacyPolicyWebsite(stickerPack.privacyPolicyWebsite)
+                    .setLicenseAgreementWebsite(stickerPack.licenseAgreementWebsite).setAnimatedStickerPack(stickerPack.animatedStickerPack);
 
-            for (Sticker sticker : pack.getStickers()) {
+            for (Sticker sticker : stickerPack.getStickers()) {
                 builder.addSticker(sticker.imageFileName, sticker.emojis, sticker.accessibilityText);
             }
 
@@ -85,30 +85,30 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         } catch (JSONException jsonException) {
             throw new RuntimeException(jsonException);
         }
-
+        // NOTE: DEBUB
         final Context context = viewHolder.publisherView.getContext();
 
-        viewHolder.publisherView.setText(pack.publisher);
-        viewHolder.filesizeView.setText(Formatter.formatShortFileSize(context, pack.getTotalSize()));
+        viewHolder.publisherView.setText(stickerPack.publisher);
+        viewHolder.filesizeView.setText(Formatter.formatShortFileSize(context, stickerPack.getTotalSize()));
 
-        viewHolder.titleView.setText(pack.name);
+        viewHolder.titleView.setText(stickerPack.name);
         viewHolder.container.setOnClickListener(view -> {
             Intent intent = new Intent(view.getContext(), StickerPackDetailsActivity.class);
 
             intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
-            intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, pack);
+            intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, stickerPack);
 
             view.getContext().startActivity(intent);
         });
         viewHolder.imageRowView.removeAllViews();
 
         //if this sticker pack contains less stickers than the max, then take the smaller size.
-        int actualNumberOfStickersToShow = Math.min(maxNumberOfStickersInARow, pack.getStickers().size());
+        int actualNumberOfStickersToShow = Math.min(maxNumberOfStickersInARow, stickerPack.getStickers().size());
         for (int i = 0; i < actualNumberOfStickersToShow; i++) {
             final ImageView rowImage = (ImageView) LayoutInflater.from(context)
                     .inflate(R.layout.sticker_packs_list_media_item, viewHolder.imageRowView, false);
 
-            rowImage.setImageURI(StickerConsumer.getStickerAssetUri(pack.identifier, pack.getStickers().get(i).imageFileName));
+            rowImage.setImageURI(StickerConsumer.getStickerAssetUri(stickerPack.identifier, stickerPack.getStickers().get(i).imageFileName));
 
             final LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) rowImage.getLayoutParams();
             final int marginBetweenImages = minMarginBetweenImages - layoutParams.leftMargin - layoutParams.rightMargin;
@@ -123,8 +123,8 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             viewHolder.imageRowView.addView(rowImage);
         }
 
-        setAddButtonAppearance(viewHolder.addButton, pack);
-        viewHolder.animatedStickerPackIndicator.setVisibility(pack.animatedStickerPack ? View.VISIBLE : View.GONE);
+        setAddButtonAppearance(viewHolder.addButton, stickerPack);
+        viewHolder.animatedStickerPackIndicator.setVisibility(stickerPack.animatedStickerPack ? View.VISIBLE : View.GONE);
     }
 
     private void setAddButtonAppearance(ImageView addButton, StickerPack pack) {

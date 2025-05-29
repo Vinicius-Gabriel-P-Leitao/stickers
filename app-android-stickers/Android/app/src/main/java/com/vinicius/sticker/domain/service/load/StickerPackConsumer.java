@@ -30,6 +30,7 @@ import static com.vinicius.sticker.domain.service.delete.StickerDeleteService.de
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -37,8 +38,11 @@ import com.vinicius.sticker.BuildConfig;
 import com.vinicius.sticker.core.exception.StickerFileException;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.core.validation.StickerValidator;
+import com.vinicius.sticker.domain.builder.StickerPackParserJsonBuilder;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -62,7 +66,6 @@ public class StickerPackConsumer {
      */
     @NonNull
     public static ArrayList<StickerPack> fetchStickerPackList(Context context) throws IllegalStateException {
-
         final Cursor cursor = context.getContentResolver().query(AUTHORITY_URI, null, null, null, null);
 
         if (cursor == null) {

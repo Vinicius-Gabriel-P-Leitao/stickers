@@ -40,9 +40,9 @@ import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerPackListProvider;
 import com.vinicius.sticker.domain.service.load.StickerPackProvider;
+import com.vinicius.sticker.domain.service.load.StickerProvider;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,7 +54,7 @@ public class StickerPackProviderQueryHelper {
     }
 
     public Cursor getPackForAllStickerPacks(@NonNull Uri uri, StickerDatabase dbHelper) {
-        return getStickerPackInfo(uri, StickerPackListProvider.getStickerPackList(dbHelper));
+        return getListStickerPackInfo(uri, StickerPackListProvider.getStickerPackList(dbHelper));
     }
 
     public Cursor getCursorForSingleStickerPack(@NonNull Uri uri, StickerDatabase dbHelper) {
@@ -62,7 +62,7 @@ public class StickerPackProviderQueryHelper {
 
         if (TextUtils.isEmpty(stickerPackIdentifier)) {
             Log.e("StickerProviderQueryHelper", "Invalid sticker pack identifier in Uri: " + uri);
-            return getStickerPackInfo(uri, new ArrayList<>());
+            return getListStickerPackInfo(uri, new ArrayList<>());
         }
 
         try {
@@ -70,31 +70,42 @@ public class StickerPackProviderQueryHelper {
 
             if (stickerPack == null) {
                 Log.w("StickerProviderQueryHelper", "No sticker pack found for identifier: " + stickerPackIdentifier);
-                return getStickerPackInfo(uri, new ArrayList<>());
+                return getListStickerPackInfo(uri, new ArrayList<>());
             }
 
-            return getStickerPackInfo(uri, Collections.singletonList(stickerPack));
+            return getStickerPackInfo(uri, stickerPack);
         } catch (RuntimeException exception) {
             Log.e("StickerProviderQueryHelper", "Error retrieving sticker pack: " + stickerPackIdentifier, exception);
-            return getStickerPackInfo(uri, new ArrayList<>());
+            return getListStickerPackInfo(uri, new ArrayList<>());
         }
     }
 
     @NonNull
-    public Cursor getStickersForAStickerPack(@NonNull Uri uri, StickerDatabase dbHelper) {
-        final String identifier = uri.getLastPathSegment();
+    public Cursor getCursorForStickersForPack(@NonNull Uri uri, StickerDatabase dbHelper) {
+        final String stickerPackIdentifier = uri.getLastPathSegment();
 
-        for (StickerPack stickerPack : getStickerPackList(dbHelper)) {
-            if (Objects.equals(identifier, stickerPack.identifier)) {
-                return getStickerInfo(uri, stickerPack.getStickers());
+        if (TextUtils.isEmpty(stickerPackIdentifier)) {
+            Log.e("StickerProviderQueryHelper", "Invalid sticker pack identifier in Uri: " + uri);
+            return getListStickerPackInfo(uri, new ArrayList<>());
+        }
+
+        try {
+            List<Sticker> stickerPack = StickerProvider.getStickerList(dbHelper, stickerPackIdentifier);
+
+            if (stickerPack == null) {
+                Log.w("StickerProviderQueryHelper", "No sticker pack found for identifier: " + stickerPackIdentifier);
+                return getListStickerPackInfo(uri, new ArrayList<>());
             }
-        }
 
-        return getStickerInfo(uri, new ArrayList<>());
+            return getStickerInfo(uri, stickerPack);
+        } catch (RuntimeException exception) {
+            Log.e("StickerProviderQueryHelper", "Error retrieving sticker pack: " + stickerPackIdentifier, exception);
+            return getStickerInfo(uri, new ArrayList<>());
+        }
     }
 
     @NonNull
-    private Cursor getStickerPackInfo(@NonNull Uri uri, @NonNull List<StickerPack> stickerPackList) {
+    private Cursor getListStickerPackInfo(@NonNull Uri uri, @NonNull List<StickerPack> stickerPackList) {
         MatrixCursor cursor = new MatrixCursor(
                 new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_ICON_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
         for (StickerPack stickerPack : stickerPackList) {
@@ -113,6 +124,31 @@ public class StickerPackProviderQueryHelper {
             builder.add(stickerPack.avoidCache ? 1 : 0);
             builder.add(stickerPack.animatedStickerPack ? 1 : 0);
         }
+
+        cursor.setNotificationUri(Objects.requireNonNull(context).getContentResolver(), uri);
+        return cursor;
+    }
+
+    @NonNull
+    private Cursor getStickerPackInfo(@NonNull Uri uri, @NonNull StickerPack stickerPack) {
+        MatrixCursor cursor = new MatrixCursor(
+                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_ICON_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
+
+        MatrixCursor.RowBuilder builder = cursor.newRow();
+        builder.add(stickerPack.identifier);
+        builder.add(stickerPack.name);
+        builder.add(stickerPack.publisher);
+        builder.add(stickerPack.trayImageFile);
+        builder.add(stickerPack.androidPlayStoreLink);
+        builder.add(stickerPack.iosAppStoreLink);
+        builder.add(stickerPack.publisherEmail);
+        builder.add(stickerPack.publisherWebsite);
+        builder.add(stickerPack.privacyPolicyWebsite);
+        builder.add(stickerPack.licenseAgreementWebsite);
+        builder.add(stickerPack.imageDataVersion);
+        builder.add(stickerPack.avoidCache ? 1 : 0);
+        builder.add(stickerPack.animatedStickerPack ? 1 : 0);
+
         cursor.setNotificationUri(Objects.requireNonNull(context).getContentResolver(), uri);
         return cursor;
     }
@@ -121,6 +157,7 @@ public class StickerPackProviderQueryHelper {
     private Cursor getStickerInfo(@NonNull Uri uri, @NonNull List<Sticker> stickerList) {
         MatrixCursor cursor = new MatrixCursor(
                 new String[]{STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY});
+
         for (Sticker sticker : stickerList) {
             MatrixCursor.RowBuilder builder = cursor.newRow();
             builder.add(sticker.imageFileName);
@@ -130,4 +167,5 @@ public class StickerPackProviderQueryHelper {
         cursor.setNotificationUri(Objects.requireNonNull(context).getContentResolver(), uri);
         return cursor;
     }
+
 }

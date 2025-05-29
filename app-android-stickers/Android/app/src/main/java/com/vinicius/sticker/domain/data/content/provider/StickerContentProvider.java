@@ -92,7 +92,7 @@ public class StickerContentProvider extends ContentProvider {
         } else if (code == METADATA_CODE_FOR_SINGLE_PACK) {
             return stickerPackProviderQueryHelper.getCursorForSingleStickerPack(uri, dbHelper);
         } else if (code == METADATA_CODE_ALL_STICKERS) {
-            return stickerPackProviderQueryHelper.getStickersForAStickerPack(uri, dbHelper);
+            return stickerPackProviderQueryHelper.getCursorForStickersForPack(uri, dbHelper);
         } else {
             throw new IllegalArgumentException("Unknown URI: " + uri);
         }

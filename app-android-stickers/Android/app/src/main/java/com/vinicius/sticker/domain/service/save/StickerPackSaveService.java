@@ -8,6 +8,7 @@
 
 package com.vinicius.sticker.domain.service.save;
 
+import static com.vinicius.sticker.domain.data.content.provider.StickerContentProvider.AUTHORITY_URI;
 import static com.vinicius.sticker.domain.data.content.provider.StickerContentProvider.STICKERS_ASSET;
 import static com.vinicius.sticker.domain.data.database.repository.DeleteStickerPack.deleteStickerPackFromDatabase;
 import static com.vinicius.sticker.domain.data.database.repository.DeleteStickerPack.deleteStickersOfPack;
@@ -17,6 +18,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
@@ -65,8 +67,7 @@ public class StickerPackSaveService {
         }
 
         File stickerPackDirectory = createStickerPackDirectory(mainDirectory, stickerPack.identifier, callback);
-        if (stickerPackDirectory ==
-                null) {
+        if (stickerPackDirectory == null) {
             return;
         }
 
@@ -92,23 +93,19 @@ public class StickerPackSaveService {
         if (!mainDirectory.exists()) {
             boolean created = mainDirectory.mkdirs();
             if (!created) {
-                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Falha ao criar o mainDirectory: " +
-                        mainDirectory.getPath())));
+                callback.onStickerPackSaveResult(
+                        CallbackResult.failure(new StickerPackSaveException("Falha ao criar o mainDirectory: " + mainDirectory.getPath())));
                 return false;
             }
-            callback.onStickerPackSaveResult(CallbackResult.debug("mainDirectory criado com sucesso: " +
-                    mainDirectory.getPath()));
+            callback.onStickerPackSaveResult(CallbackResult.debug("mainDirectory criado com sucesso: " + mainDirectory.getPath()));
         } else {
-            callback.onStickerPackSaveResult(CallbackResult.debug("mainDirectory já existe: " +
-                    mainDirectory.getPath()));
+            callback.onStickerPackSaveResult(CallbackResult.debug("mainDirectory já existe: " + mainDirectory.getPath()));
         }
         return true;
     }
 
     private static boolean shouldDeletePreviousPack(String currentIdentifier, String previousIdentifier) {
-        return currentIdentifier.equals(previousIdentifier) ||
-                previousIdentifier !=
-                        null;
+        return currentIdentifier.equals(previousIdentifier) || previousIdentifier != null;
     }
 
     private static boolean deletePreviousPack(Context context, String stickerPackIdentifier, SaveStickerPackCallback callback) {
@@ -138,8 +135,8 @@ public class StickerPackSaveService {
         CallbackResult<Integer> stickerPackDeletedInDb = deleteStickerPackFromDatabase(context, stickerPackIdentifier);
         return switch (stickerPackDeletedInDb.getStatus()) {
             case SUCCESS -> {
-                callback.onStickerPackSaveResult(CallbackResult.debug("Pacote de figurinhas deletado com sucesso. Status: " +
-                        stickerPackDeletedInDb.getData()));
+                callback.onStickerPackSaveResult(
+                        CallbackResult.debug("Pacote de figurinhas deletado com sucesso. Status: " + stickerPackDeletedInDb.getData()));
                 yield true;
             }
             case WARNING -> {
@@ -165,16 +162,14 @@ public class StickerPackSaveService {
             boolean created = stickerPackDirectory.mkdirs();
 
             if (!created) {
-                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Falha ao criar a pasta: " +
-                        stickerPackDirectory.getPath())));
+                callback.onStickerPackSaveResult(
+                        CallbackResult.failure(new StickerPackSaveException("Falha ao criar a pasta: " + stickerPackDirectory.getPath())));
                 return null;
             }
 
-            callback.onStickerPackSaveResult(CallbackResult.debug("Pasta criada com sucesso: " +
-                    stickerPackDirectory.getPath()));
+            callback.onStickerPackSaveResult(CallbackResult.debug("Pasta criada com sucesso: " + stickerPackDirectory.getPath()));
         } else {
-            callback.onStickerPackSaveResult(CallbackResult.warning("Pasta já existe: " +
-                    stickerPackDirectory.getPath()));
+            callback.onStickerPackSaveResult(CallbackResult.warning("Pasta já existe: " + stickerPackDirectory.getPath()));
         }
         return stickerPackDirectory;
     }
@@ -193,23 +188,19 @@ public class StickerPackSaveService {
 
             if (sourceFile.exists()) {
                 try {
-                    if (Build.VERSION.SDK_INT >=
-                            Build.VERSION_CODES.O) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         Path sourcePath = sourceFile.toPath();
                         Path destPath = destFile.toPath();
                         Files.copy(sourcePath, destPath);
-                        callback.onStickerPackSaveResult(CallbackResult.debug("Arquivo copiado para: " +
-                                destFile.getPath()));
+                        callback.onStickerPackSaveResult(CallbackResult.debug("Arquivo copiado para: " + destFile.getPath()));
                     }
                 } catch (IOException exception) {
-                    callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException(
-                            "Arquivo não encontrado: " +
-                                    fileName, exception)));
+                    callback.onStickerPackSaveResult(
+                            CallbackResult.failure(new StickerPackSaveException("Arquivo não encontrado: " + fileName, exception)));
                     return false;
                 }
             } else {
-                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Arquivo não encontrado: " +
-                        fileName)));
+                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Arquivo não encontrado: " + fileName)));
                 return false;
             }
         }
@@ -224,8 +215,7 @@ public class StickerPackSaveService {
                 writableDatabase, stickerPack, callbackResult -> {
                     switch (callbackResult.getStatus()) {
                         case SUCCESS:
-                            if (callback !=
-                                    null) {
+                            if (callback != null) {
                                 callback.onStickerPackSaveResult(
                                         CallbackResult.success(callbackResult.getData())); // NOTE: Somente esse deve retornar os dados.
                             } else {
@@ -248,15 +238,14 @@ public class StickerPackSaveService {
 
     private static void compressAndSaveThumbnail(File originalFile, File destinationDir, SaveStickerPackCallback callback) {
         if (!originalFile.exists()) {
-            callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Arquivo original não encontrado: " +
-                    originalFile.getAbsolutePath())));
+            callback.onStickerPackSaveResult(
+                    CallbackResult.failure(new StickerPackSaveException("Arquivo original não encontrado: " + originalFile.getAbsolutePath())));
             return;
         }
 
         try {
             Bitmap bitmap = BitmapFactory.decodeFile(originalFile.getAbsolutePath());
-            if (bitmap ==
-                    null) {
+            if (bitmap == null) {
                 callback.onStickerPackSaveResult(CallbackResult.warning("Erro ao decodificar o bitmap."));
                 return;
             }
@@ -272,19 +261,14 @@ public class StickerPackSaveService {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outStream);
                 compressedBytes = outStream.toByteArray();
                 quality -= 5;
-            } while (compressedBytes.length >
-                    40 *
-                            1024 &&
-                    quality >
-                            5);
+            } while (compressedBytes.length > 40 * 1024 && quality > 5);
 
             FileOutputStream fileOutputStream = new FileOutputStream(thumbnailFile);
             fileOutputStream.write(compressedBytes);
             fileOutputStream.flush();
             fileOutputStream.close();
 
-            callback.onStickerPackSaveResult(CallbackResult.debug("Thumbnail salva com sucesso: " +
-                    thumbnailFile.getAbsolutePath()));
+            callback.onStickerPackSaveResult(CallbackResult.debug("Thumbnail salva com sucesso: " + thumbnailFile.getAbsolutePath()));
         } catch (IOException exception) {
             callback.onStickerPackSaveResult(CallbackResult.failure(exception));
         }
