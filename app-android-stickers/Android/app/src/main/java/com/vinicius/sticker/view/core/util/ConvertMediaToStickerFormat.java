@@ -22,7 +22,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.vinicius.sticker.core.exception.MediaConversionException;
-import com.vinicius.sticker.domain.libs.NativeConvertToWebp;
+import com.vinicius.sticker.core.libs.NativeConvertToWebp;
 
 import java.io.File;
 import java.io.FileOutputStream;

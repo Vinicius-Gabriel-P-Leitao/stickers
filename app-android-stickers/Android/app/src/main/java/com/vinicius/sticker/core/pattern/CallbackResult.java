@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.domain.pattern;
+package com.vinicius.sticker.core.pattern;
 
 public class CallbackResult<T> {
 

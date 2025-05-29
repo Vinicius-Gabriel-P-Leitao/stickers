@@ -32,8 +32,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.exception.MediaConversionException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
-import com.vinicius.sticker.core.exception.main.InternalAppException;
-import com.vinicius.sticker.domain.manager.StickerPackCreatorManager;
+import com.vinicius.sticker.core.exception.base.InternalAppException;
+import com.vinicius.sticker.domain.service.save.StickerPackCreatorManager;
 import com.vinicius.sticker.view.core.component.BottomFadingRecyclerView;
 import com.vinicius.sticker.view.feature.media.adapter.PickMediaListAdapter;
 import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
@@ -74,7 +74,8 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
     public MediaPickerBottomSheetDialogFragment() {
     }
 
-    public static MediaPickerBottomSheetDialogFragment newInstance(ArrayList<Uri> mediaUris, String namePack, boolean isAnimatedPack, PickMediaListAdapter.OnItemClickListener listener) {
+    public static MediaPickerBottomSheetDialogFragment newInstance(
+            ArrayList<Uri> mediaUris, String namePack, boolean isAnimatedPack, PickMediaListAdapter.OnItemClickListener listener) {
         MediaPickerBottomSheetDialogFragment fragment = new MediaPickerBottomSheetDialogFragment();
         Bundle args = new Bundle();
 
@@ -116,20 +117,23 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(requireActivity()).get(GalleryMediaPickerLauncher.class);
-        viewModel.getFragment().observe(getViewLifecycleOwner(), isVisible -> {
-            if (isVisible && isAdded() && getActivity() != null) {
-                handler.postDelayed(() -> {
-                    if (isAdded() && getActivity() != null) {
-                        dismiss();
+        viewModel.getFragment().observe(
+                getViewLifecycleOwner(), isVisible -> {
+                    if (isVisible && isAdded() && getActivity() != null) {
+                        handler.postDelayed(
+                                () -> {
+                                    if (isAdded() && getActivity() != null) {
+                                        dismiss();
+                                    }
+                                }, 1500);
                     }
-                }, 1500);
-            }
-        });
+                });
 
         BottomFadingRecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
 
-        PickMediaListAdapter mediaListAdapter = new PickMediaListAdapter(getContext(), mediaUri -> {
+        PickMediaListAdapter mediaListAdapter = new PickMediaListAdapter(
+                getContext(), mediaUri -> {
             listener.onItemClick(mediaUri);
             dismiss();
         });
@@ -176,26 +180,27 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
         }
 
         executor.submit(() -> {
-            convertMediaToWebP(getContext(), uri, new File(uri.getPath()).getName(), new ConvertMediaToStickerFormat.MediaConversionCallback() {
-                @Override
-                public void onSuccess(File outputFile) {
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        mediaConvertedFile.add(outputFile);
-                        checkAllConversionsCompleted();
-                    });
-                }
+            convertMediaToWebP(
+                    getContext(), uri, new File(uri.getPath()).getName(), new ConvertMediaToStickerFormat.MediaConversionCallback() {
+                        @Override
+                        public void onSuccess(File outputFile) {
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                mediaConvertedFile.add(outputFile);
+                                checkAllConversionsCompleted();
+                            });
+                        }
 
-                @Override
-                public void onError(Exception exception) {
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        if (exception instanceof MediaConversionException) {
-                            Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getContext(), "Erro critico ao converter imagens!", Toast.LENGTH_SHORT).show();
+                        @Override
+                        public void onError(Exception exception) {
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                if (exception instanceof MediaConversionException) {
+                                    Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(getContext(), "Erro critico ao converter imagens!", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
                     });
-                }
-            });
         });
     }
 
@@ -205,38 +210,35 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
         if (completedConversions == totalConversions) {
             progressBar.setVisibility(View.GONE);
 
-            StickerPackCreatorManager.generateJsonPack(requireContext(), isAnimatedPack, mediaConvertedFile, namePack, contentJson -> {
-                if (contentJson != null) {
-                    Log.i("StickerPackCreator", "JSON validado com sucesso: " + contentJson);
-                } else {
-                    Toast.makeText(getContext(), "Métadados do pacote de figurinhas inválido!", Toast.LENGTH_SHORT).show();
-                }
-            }, callbackResult -> {
-                if (getContext() != null && isAdded()) {
-                    switch (callbackResult.getStatus()) {
-                        case SUCCESS:
-                            viewModel.setStickerPackToPreview(callbackResult.getData());
-                            viewModel.closeFragmentState();
-                            break;
-                        case WARNING:
-                            Toast.makeText(getContext(), "Aviso: " + callbackResult.getWarningMessage(), Toast.LENGTH_SHORT).show();
-                            break;
-                        case FAILURE:
-                            if (callbackResult.getError() instanceof InternalAppException exception) {
-                                Toast.makeText(getContext(), "Erro interno ao salvar pacote de figurinhas!", Toast.LENGTH_SHORT).show();
-                                Log.e("StickerPackCreator", String.format("Erro interno ao salvar pacote de figurinhas, messagem: %s detalhes: %s"
-                                        , exception.getMessage(), exception.getErrorDetails()));
-                                break;
-                            }
+            StickerPackCreatorManager.generateJsonPack(
+                    requireContext(), isAnimatedPack, mediaConvertedFile, namePack, callbackResult -> {
+                        if (getContext() != null && isAdded()) {
+                            switch (callbackResult.getStatus()) {
+                                case SUCCESS:
+                                    viewModel.setStickerPackToPreview(callbackResult.getData());
+                                    viewModel.closeFragmentState();
+                                    break;
+                                case WARNING:
+                                    Toast.makeText(getContext(), "Aviso: " + callbackResult.getWarningMessage(), Toast.LENGTH_SHORT).show();
+                                    break;
+                                case FAILURE:
+                                    if (callbackResult.getError() instanceof InternalAppException exception) {
+                                        Toast.makeText(getContext(), "Erro interno ao salvar pacote de figurinhas!", Toast.LENGTH_SHORT).show();
+                                        Log.e(
+                                                "StickerPackCreator", String.format(
+                                                        "Erro interno ao salvar pacote de figurinhas, messagem: %s detalhes: %s",
+                                                        exception.getMessage(), exception.getErrorDetails()));
+                                        break;
+                                    }
 
-                            Toast.makeText(getContext(), callbackResult.getError().getMessage(), Toast.LENGTH_SHORT).show();
-                            break;
-                    }
-                } else {
-                    Log.e("MediaPickerFragment", "Fragment ou Contexto não estão mais válidos.");
-                    throw new StickerPackSaveException("Fragment ou Contexto não estão mais válidos.");
-                }
-            });
+                                    Toast.makeText(getContext(), callbackResult.getError().getMessage(), Toast.LENGTH_SHORT).show();
+                                    break;
+                            }
+                        } else {
+                            Log.e("MediaPickerFragment", "Fragment ou Contexto não estão mais válidos.");
+                            throw new StickerPackSaveException("Fragment ou Contexto não estão mais válidos.");
+                        }
+                    });
         }
     }
 }

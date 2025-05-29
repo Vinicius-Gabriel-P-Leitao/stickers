@@ -12,8 +12,10 @@ import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPicke
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.launchOwnGallery;
 import static com.vinicius.sticker.view.feature.permission.usecase.DefinePermissionsToRequest.getPermissionsToRequest;
+import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackListActivity.NEW_STICKER_PACK;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,7 +35,7 @@ import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
-import com.vinicius.sticker.view.feature.permission.fragment.PermissionRequestBottomSheetDialogFragment;
+import com.vinicius.sticker.view.feature.permission.fragment.PermissionRequestFragment;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.fragment.PackMetadataBottomSheetDialogFragment;
 
@@ -61,12 +63,15 @@ public class StickerPackCreatorActivity extends BaseActivity {
         setContentView(R.layout.activity_create_sticker_pack);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
         }
 
         GalleryMediaPickerLauncher viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
         viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
+        viewModel.getStickerPackToPreview().observe(
+                this, result -> {
+                    notifyStickerPackCreated(result.identifier);
+                });
 
         ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
         buttonSelectMedia.setOnClickListener(view -> {
@@ -96,13 +101,13 @@ public class StickerPackCreatorActivity extends BaseActivity {
     }
 
     private void createStickerPackFlow() {
-        PermissionRequestBottomSheetDialogFragment permissionRequestBottomSheetDialogFragment = new PermissionRequestBottomSheetDialogFragment();
+        PermissionRequestFragment permissionRequestFragment = new PermissionRequestFragment();
 
         String[] permissions = getPermissionsToRequest(this);
         Log.i("Permissions Media", Arrays.toString(permissions));
         if (permissions.length > 0) {
-            permissionRequestBottomSheetDialogFragment.setPermissions(permissions);
-            permissionRequestBottomSheetDialogFragment.setCallback(new PermissionRequestBottomSheetDialogFragment.PermissionCallback() {
+            permissionRequestFragment.setPermissions(permissions);
+            permissionRequestFragment.setCallback(new PermissionRequestFragment.PermissionCallback() {
                 @Override
                 public void onPermissionsGranted() {
                     if (namePack == null || namePack.isEmpty()) {
@@ -118,7 +123,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
                 }
             });
 
-            permissionRequestBottomSheetDialogFragment.show(getSupportFragmentManager(), "permissionRequestBottomSheetDialogFragment");
+            permissionRequestFragment.show(getSupportFragmentManager(), "permissionRequestBottomSheetDialogFragment");
         } else {
             if (namePack == null || namePack.isEmpty()) {
                 openMetadataGetter();
@@ -165,14 +170,14 @@ public class StickerPackCreatorActivity extends BaseActivity {
     private final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            setNumColumns(recyclerView.getWidth() / recyclerView.getContext().getResources().getDimensionPixelSize(
-                    R.dimen.sticker_pack_details_image_size));
+            setNumColumns(recyclerView.getWidth() /
+                    recyclerView.getContext().getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
         }
     };
 
+    // FIXME: Erro ao renderizar itens, além de renderizar quebrado ele quebra todo o grid se for recriar o pacote, fazer limpeza do pacote antes
+    //  de renderizar
     private void setupStickerPackView(StickerPack stickerPack) {
-        Log.d("StickerPack", "StickerPack recebido: " + stickerPack.toString());
-
         ImageView expandedStickerView = findViewById(R.id.sticker_details_expanded_sticker);
         layoutManager = new GridLayoutManager(this, 1);
 
@@ -187,7 +192,14 @@ public class StickerPackCreatorActivity extends BaseActivity {
             stickerPreviewAdapter = new StickerPreviewAdapter(
                     getLayoutInflater(), R.drawable.sticker_error, getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
                     getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, expandedStickerView);
+
             recyclerView.setAdapter(stickerPreviewAdapter);
+        }
+    }
+
+    private void notifyStickerPackCreated(String identifier) {
+        if (identifier != null) {
+            setResult(RESULT_OK);
         }
     }
 
@@ -212,6 +224,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
         }
     };
 
+    @SuppressLint("NotifyDataSetChanged")
     private void setNumColumns(int numColumns) {
         if (this.numColumns != numColumns) {
             layoutManager.setSpanCount(numColumns);

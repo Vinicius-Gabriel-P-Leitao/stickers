@@ -20,10 +20,12 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.R;
+import com.vinicius.sticker.core.validation.StickerValidator;
+import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.load.StickerPackLoaderService;
+import com.vinicius.sticker.domain.service.load.StickerPackConsumer;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackListActivity;
 
@@ -108,28 +110,39 @@ public class EntryActivity extends BaseActivity {
             try {
                 final Context context = contextWeakReference.get();
                 if (context != null) {
-                    stickerPackList = StickerPackLoaderService.fetchStickerPacks(context);
+                    stickerPackList = StickerPackConsumer.fetchStickerPackList(context);
+
                     if (stickerPackList.isEmpty()) {
                         return new Pair<>("No sticker packs available", null);
                     }
+
                     for (StickerPack stickerPack : stickerPackList) {
                         StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
+
+                        for (Sticker sticker : stickerPack.getStickers()) {
+                            StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
+                        }
                     }
+
                     return new Pair<>(null, stickerPackList);
                 } else {
                     return new Pair<>("could not fetch sticker packs", null);
                 }
             } catch (IllegalStateException exception) {
+                // TODO: Aplicar tratamento de erro caso seja um PackValidatorException ou um
+                // StickcerValidatorException
                 Context context = contextWeakReference.get();
+
                 if (context != null) {
                     Intent intent = new Intent(context, StickerFirstPackCreatorActivity.class);
 
-                    // Note: flags para transformar essa activity como main
+                    // NOTE: flags para transformar essa activity como main
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     intent.putExtra("database_empty", true);
 
                     context.startActivity(intent);
                 }
+
                 Log.e("EntryActivity", "Error fetching sticker packs, database empty", exception);
                 return new Pair<>("Error encountered, redirecting...", null);
             } catch (Exception exception) {
@@ -140,8 +153,8 @@ public class EntryActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(Pair<String, ArrayList<StickerPack>> stringListPair) {
-
             final EntryActivity entryActivity = contextWeakReference.get();
+
             if (entryActivity != null) {
                 if (stringListPair.first != null) {
                     entryActivity.showErrorMessage(stringListPair.first);

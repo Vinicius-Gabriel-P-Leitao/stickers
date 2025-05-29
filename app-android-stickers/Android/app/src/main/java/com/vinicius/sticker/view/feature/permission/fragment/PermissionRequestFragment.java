@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class PermissionRequestBottomSheetDialogFragment extends BottomSheetDialogFragment {
+public class PermissionRequestFragment extends BottomSheetDialogFragment {
    private ActivityResultLauncher<String[]> permissionLauncher;
    private String[] permissionsToRequest;
    private PermissionCallback callback;
@@ -140,7 +140,7 @@ public class PermissionRequestBottomSheetDialogFragment extends BottomSheetDialo
                 if ( permanentlyDenied ) {
                    new Handler( Looper.getMainLooper() ).postDelayed(
                        () -> {
-                          PermissionSettingsBottomSheetDialogFragment dialog = getPermissionSettingsDialogFragment();
+                          PermissionSettingsFragment dialog = getPermissionSettingsDialogFragment();
                           dialog.show( getChildFragmentManager(), "PermissionSettingsDialog" );
                        }, 250
                    );
@@ -156,9 +156,9 @@ public class PermissionRequestBottomSheetDialogFragment extends BottomSheetDialo
    }
 
    @NonNull
-   private PermissionSettingsBottomSheetDialogFragment getPermissionSettingsDialogFragment() {
-      PermissionSettingsBottomSheetDialogFragment dialog = new PermissionSettingsBottomSheetDialogFragment();
-      dialog.setCallback( new PermissionSettingsBottomSheetDialogFragment.PermissionCallback() {
+   private PermissionSettingsFragment getPermissionSettingsDialogFragment() {
+      PermissionSettingsFragment dialog = new PermissionSettingsFragment();
+      dialog.setCallback( new PermissionSettingsFragment.PermissionCallback() {
          @Override
          public void onPermissionsGranted() {
             dismiss();

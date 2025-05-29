@@ -34,7 +34,7 @@ import com.google.android.material.button.MaterialButton;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.load.StickerLoaderService;
+import com.vinicius.sticker.domain.service.load.StickerConsumer;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.AddStickerPackActivity;
@@ -96,15 +96,14 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
         if (stickerPreviewAdapter == null) {
             stickerPreviewAdapter = new StickerPreviewAdapter(
                     getLayoutInflater(), R.drawable.sticker_error, getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
-                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, expandedStickerView
-            );
+                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, expandedStickerView);
             recyclerView.setAdapter(stickerPreviewAdapter);
         }
 
         packNameTextView.setText(stickerPack.name);
         packPublisherTextView.setText(stickerPack.publisher);
 
-        packTrayIcon.setImageURI(StickerLoaderService.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile));
+        packTrayIcon.setImageURI(StickerConsumer.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile));
         packSizeTextView.setText(Formatter.formatShortFileSize(this, stickerPack.getTotalSize()));
 
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
@@ -120,17 +119,16 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
                         public void onAnimatedStickerSelected() {
                             openCreateStickerPackActivity(ANIMATED_STICKER);
                         }
-                    }
-            );
+                    });
         });
 
         addButton = findViewById(R.id.add_to_whatsapp_button);
         addButton.setOnClickListener(v -> addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name));
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showUpButton);
-            getSupportActionBar().setTitle(
-                    showUpButton ? getResources().getString(R.string.title_activity_sticker_pack_details_multiple_pack) : getResources().getQuantityString(
-                            R.plurals.title_activity_sticker_packs_list, 1));
+            getSupportActionBar().setTitle(showUpButton ? getResources().getString(
+                    R.string.title_activity_sticker_pack_details_multiple_pack) : getResources().getQuantityString(
+                    R.plurals.title_activity_sticker_packs_list, 1));
         }
 
         findViewById(R.id.sticker_pack_animation_indicator).setVisibility(stickerPack.animatedStickerPack ? View.VISIBLE : View.GONE);
@@ -139,24 +137,20 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
     private final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            setNumColumns(
-                    recyclerView.getWidth() / recyclerView.getContext().getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
+            setNumColumns(recyclerView.getWidth() / recyclerView.getContext().getResources()
+                    .getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
         }
     };
 
     private final RecyclerView.OnScrollListener dividerScrollListener = new RecyclerView.OnScrollListener() {
         @Override
-        public void onScrollStateChanged(
-                @NonNull final RecyclerView recyclerView, final int newState
-        ) {
+        public void onScrollStateChanged(@NonNull final RecyclerView recyclerView, final int newState) {
             super.onScrollStateChanged(recyclerView, newState);
             updateDivider(recyclerView);
         }
 
         @Override
-        public void onScrolled(
-                @NonNull final RecyclerView recyclerView, final int dx, final int dy
-        ) {
+        public void onScrolled(@NonNull final RecyclerView recyclerView, final int dx, final int dy) {
             super.onScrolled(recyclerView, dx, dy);
             updateDivider(recyclerView);
         }
@@ -196,11 +190,10 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_info && stickerPack != null) {
-            Uri trayIconUri = StickerLoaderService.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile);
+            Uri trayIconUri = StickerConsumer.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile);
             launchInfoActivity(
                     stickerPack.publisherWebsite, stickerPack.publisherEmail, stickerPack.privacyPolicyWebsite, stickerPack.licenseAgreementWebsite,
-                    trayIconUri.toString()
-            );
+                    trayIconUri.toString());
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -254,9 +247,11 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
         protected final Boolean doInBackground(StickerPack... stickerPacks) {
             StickerPack stickerPack = stickerPacks[0];
             final StickerPackDetailsActivity stickerPackDetailsActivity = stickerPackDetailsActivityWeakReference.get();
+
             if (stickerPackDetailsActivity == null) {
                 return false;
             }
+
             return WhatsappWhitelistValidator.isWhitelisted(stickerPackDetailsActivity, stickerPack.identifier);
         }
 

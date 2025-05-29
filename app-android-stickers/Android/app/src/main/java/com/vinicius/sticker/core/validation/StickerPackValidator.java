@@ -27,7 +27,7 @@ import com.vinicius.sticker.core.exception.InvalidWebsiteUrlException;
 import com.vinicius.sticker.core.exception.PackValidatorException;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.load.StickerLoaderService;
+import com.vinicius.sticker.domain.service.load.StickerConsumer;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -64,7 +64,7 @@ public class StickerPackValidator {
         if (stickerPack.publisher.length() > CHAR_COUNT_MAX) {
             throw new PackValidatorException(
                     "O publisher do pacote de figurinhas não pode exceder " + CHAR_COUNT_MAX + " caracteres, identificador do pacote de figurinhas:" +
-                    stickerPack.identifier);
+                            stickerPack.identifier);
         }
         if (TextUtils.isEmpty(stickerPack.name)) {
             throw new PackValidatorException(
@@ -73,15 +73,14 @@ public class StickerPackValidator {
         if (stickerPack.name.length() > CHAR_COUNT_MAX) {
             throw new PackValidatorException(
                     "O nome do pacote de figurinhas não pode exceder " + CHAR_COUNT_MAX + " caracteres, identificador do pacote de figurinhas:" +
-                    stickerPack.identifier);
+                            stickerPack.identifier);
         }
         if (TextUtils.isEmpty(stickerPack.trayImageFile)) {
             throw new PackValidatorException(
                     "O ID do pacote de figurinhas está vazio, identificador do pacote de figurinhas:" + stickerPack.identifier);
         }
         if (!TextUtils.isEmpty(stickerPack.androidPlayStoreLink) && !isValidWebsiteUrl(stickerPack.androidPlayStoreLink)) {
-            throw new PackValidatorException(
-                    "Certifique-se de incluir http ou https nas URL, o link da Android Play Store não é uma URL válida:" +
+            throw new PackValidatorException("Certifique-se de incluir http ou https nas URL, o link da Android Play Store não é uma URL válida:" +
                     stickerPack.androidPlayStoreLink);
         }
         if (!TextUtils.isEmpty(stickerPack.androidPlayStoreLink) && !isURLInCorrectDomain(stickerPack.androidPlayStoreLink, PLAY_STORE_DOMAIN)) {
@@ -90,64 +89,63 @@ public class StickerPackValidator {
         if (!TextUtils.isEmpty(stickerPack.iosAppStoreLink) && !isValidWebsiteUrl(stickerPack.iosAppStoreLink)) {
             throw new PackValidatorException(
                     "Certifique-se de incluir http ou https nos links de URL, o link da loja de aplicativos iOS não é uma URL válida:" +
-                    stickerPack.iosAppStoreLink);
+                            stickerPack.iosAppStoreLink);
         }
         if (!TextUtils.isEmpty(stickerPack.iosAppStoreLink) && !isURLInCorrectDomain(stickerPack.iosAppStoreLink, APPLE_STORE_DOMAIN)) {
-            throw new PackValidatorException(
-                    "O link da loja de aplicativos iOS deve usar o domínio da loja de aplicativos:" + APPLE_STORE_DOMAIN);
+            throw new PackValidatorException("O link da loja de aplicativos iOS deve usar o domínio da loja de aplicativos:" + APPLE_STORE_DOMAIN);
         }
         if (!TextUtils.isEmpty(stickerPack.licenseAgreementWebsite) && !isValidWebsiteUrl(stickerPack.licenseAgreementWebsite)) {
             throw new PackValidatorException(
                     "Certifique-se de incluir http ou https nos links de URL, o link do contrato de licença não é uma URL válida:" +
-                    stickerPack.licenseAgreementWebsite);
+                            stickerPack.licenseAgreementWebsite);
         }
         if (!TextUtils.isEmpty(stickerPack.privacyPolicyWebsite) && !isValidWebsiteUrl(stickerPack.privacyPolicyWebsite)) {
             throw new PackValidatorException(
                     "Certifique-se de incluir http ou https nos links de URL, o link da política de privacidade não é uma URL válida:" +
-                    stickerPack.privacyPolicyWebsite);
+                            stickerPack.privacyPolicyWebsite);
         }
         if (!TextUtils.isEmpty(stickerPack.publisherWebsite) && !isValidWebsiteUrl(stickerPack.publisherWebsite)) {
             throw new PackValidatorException(
                     "Certifique-se de incluir http ou https nos links de URL, o link do site do editor não é uma URL válida:" +
-                    stickerPack.publisherWebsite);
+                            stickerPack.publisherWebsite);
         }
         if (!TextUtils.isEmpty(stickerPack.publisherEmail) && !Patterns.EMAIL_ADDRESS.matcher(stickerPack.publisherEmail).matches()) {
             throw new PackValidatorException("O e-mail do publisher não parece válido, o e-mail é:" + stickerPack.publisherEmail);
         }
         try {
-            final byte[] stickerAssetBytes =
-                    StickerLoaderService.fetchStickerAsset(stickerPack.identifier, stickerPack.trayImageFile, context.getContentResolver());
+            final byte[] stickerAssetBytes = StickerConsumer.fetchStickerAsset(
+                    stickerPack.identifier, stickerPack.trayImageFile, context.getContentResolver());
             if (stickerAssetBytes.length > TRAY_IMAGE_FILE_SIZE_MAX_KB * KB_IN_BYTES) {
                 throw new PackValidatorException(
                         "A imagem da thumbnail deve ter menos de " + TRAY_IMAGE_FILE_SIZE_MAX_KB + " KB, arquivo de thumbnail:" +
-                        stickerPack.trayImageFile);
+                                stickerPack.trayImageFile);
             }
             Bitmap bitmap = BitmapFactory.decodeByteArray(stickerAssetBytes, 0, stickerAssetBytes.length);
             if (bitmap.getHeight() > TRAY_IMAGE_DIMENSION_MAX || bitmap.getHeight() < TRAY_IMAGE_DIMENSION_MIN) {
                 throw new PackValidatorException(
                         "A altura da thumbnail deve estar entre" + TRAY_IMAGE_DIMENSION_MIN + " e " + TRAY_IMAGE_DIMENSION_MAX +
-                        " pixels, a altura atual da imagem da bandeja é" + bitmap.getHeight() + ", arquivo: " + stickerPack.trayImageFile);
+                                " pixels, a altura atual da imagem da bandeja é" + bitmap.getHeight() + ", arquivo: " + stickerPack.trayImageFile);
             }
             if (bitmap.getWidth() > TRAY_IMAGE_DIMENSION_MAX || bitmap.getWidth() < TRAY_IMAGE_DIMENSION_MIN) {
                 throw new PackValidatorException(
                         "A largura da thumbnail deve estar entre " + TRAY_IMAGE_DIMENSION_MIN + " e " + TRAY_IMAGE_DIMENSION_MAX +
-                        " pixels, a largura atual da imagem da bandeja é " + bitmap.getWidth() + ", arquivo: " + stickerPack.trayImageFile);
+                                " pixels, a largura atual da imagem da bandeja é " + bitmap.getWidth() + ", arquivo: " + stickerPack.trayImageFile);
             }
         } catch (IOException exception) {
             throw new PackValidatorException("Não é possível abrir a thumbnail, " + stickerPack.trayImageFile, exception);
         }
 
         final List<Sticker> stickers = stickerPack.getStickers();
+
         if (stickers.size() < STICKER_SIZE_MIN || stickers.size() > STICKER_SIZE_MAX) {
-            throw new PackValidatorException(
-                    "A quantidade de figurinhas do pacote deve estar entre 3 a 30, atualmente tem" + stickers.size() +
+            throw new PackValidatorException("A quantidade de figurinhas do pacote deve estar entre 3 a 30, atualmente tem" + stickers.size() +
                     ", identificador do pacote de figurinhas: " + stickerPack.identifier);
         }
-
     }
 
     /**
-     * <p><b>Descrição:</b>Fáz validação simples de string para validar o identifer do stickerpack, mesmo que seja uuid vale validar.</p>
+     * <b>Descrição:</b>Fáz validação simples de string para validar o identifer do stickerpack, mesmo
+     * que seja uuid vale validar.
      *
      * @param string String a ser validada por um regex.
      */
@@ -163,7 +161,7 @@ public class StickerPackValidator {
     }
 
     /**
-     * <p><b>Descrição:</b>Fáz validação simples de url.</p>
+     * <b>Descrição:</b>Fáz validação simples de url.
      *
      * @param websiteUrl Url do site que está no pacote.
      * @throws IllegalStateException Caso a url não seja válida.
@@ -174,14 +172,14 @@ public class StickerPackValidator {
             new URL(websiteUrl);
         } catch (MalformedURLException exception) {
             Log.e("StickerPackValidator", "url: " + websiteUrl + " é malformado");
-            throw new InvalidWebsiteUrlException("url está malformada", exception, websiteUrl);
+            throw new InvalidWebsiteUrlException("Url: " + websiteUrl + " está malformada", exception, websiteUrl);
         }
 
         return URLUtil.isHttpUrl(websiteUrl) || URLUtil.isHttpsUrl(websiteUrl);
     }
 
     /**
-     * <p><b>Descrição:</b>Fáz validação simples de dominio do link.</p>
+     * <b>Descrição:</b>Fáz validação simples de dominio do link.
      *
      * @param urlString Url do app que está no pacote.
      * @param domain    Dominio do site que fica o app.
@@ -191,12 +189,13 @@ public class StickerPackValidator {
     private static boolean isURLInCorrectDomain(String urlString, @NonNull String domain) throws IllegalStateException {
         try {
             URL url = new URL(urlString);
+
             if (domain.equals(url.getHost())) {
                 return true;
             }
         } catch (MalformedURLException exception) {
             Log.e("StickerPackValidator", "url: " + urlString + " é malformado");
-            throw new InvalidWebsiteUrlException("url está malformada", exception.getCause(), urlString);
+            throw new InvalidWebsiteUrlException("Url: " + urlString + " está malformada", exception.getCause(), urlString);
         }
 
         return false;

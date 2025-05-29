@@ -10,7 +10,7 @@ package com.vinicius.sticker.core.exception;
 
 import androidx.annotation.NonNull;
 
-import com.vinicius.sticker.core.exception.main.AppCoreStateException;
+import com.vinicius.sticker.core.exception.base.AppCoreStateException;
 
 public class MediaConversionException extends AppCoreStateException {
     public MediaConversionException(@NonNull String message) {

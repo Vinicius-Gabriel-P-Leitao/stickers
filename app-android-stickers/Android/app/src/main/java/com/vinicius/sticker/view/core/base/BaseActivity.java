@@ -23,7 +23,7 @@ import androidx.fragment.app.DialogFragment;
 public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public boolean onSupportNavigateUp() {
-        getOnBackPressedDispatcher();
+        getOnBackPressedDispatcher().onBackPressed();
         return true;
     }
 
@@ -34,10 +34,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         public static DialogFragment newInstance(
                 @StringRes int titleId, String message) {
             DialogFragment fragment = new MessageDialogFragment();
+
             Bundle arguments = new Bundle();
             arguments.putInt(ARG_TITLE_ID, titleId);
             arguments.putString(ARG_MESSAGE, message);
             fragment.setArguments(arguments);
+
             return fragment;
         }
 

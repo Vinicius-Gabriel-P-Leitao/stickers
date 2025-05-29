@@ -8,35 +8,39 @@
 
 package com.vinicius.sticker.domain.data.database.repository;
 
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.FK_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_FILE_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
-import com.vinicius.sticker.domain.pattern.CallbackResult;
+import com.vinicius.sticker.core.exception.DeleteStickerException;
+import com.vinicius.sticker.domain.data.database.dao.StickerDatabase;
+import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.core.pattern.CallbackResult;
+import com.vinicius.sticker.domain.service.load.StickerPackConsumer;
 
 import java.sql.SQLException;
 
-public class DeleteStickerPacks {
+public class DeleteStickerPack {
     public static int deleteSticker(Context context, String stickerPackIdentifier, String fileName) throws SQLException {
-        StickerDatabaseHelper dbHelper = StickerDatabaseHelper.getInstance(context);
+        StickerDatabase dbHelper = StickerDatabase.getInstance(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        Integer stickerPackId = SelectStickerPacks.getStickerPackId(db, stickerPackIdentifier);
-
-        return db.delete("sticker",
-                FK_STICKER_PACK + " = ? AND " + STICKER_FILE_NAME_IN_QUERY + " = ?", new String[]{String.valueOf(stickerPackId), fileName});
+        StickerPack fetchStickerPack = StickerPackConsumer.fetchStickerPack(context, stickerPackIdentifier);
+        if (fetchStickerPack.identifier == null) {
+            throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar.");
+        }
+        return db.delete(
+                StickerDatabase.TABLE_STICKER, StickerDatabase.FK_STICKER_PACK + " = ? AND " + StickerDatabase.STICKER_FILE_NAME_IN_QUERY + " = ?",
+                new String[]{String.valueOf(fetchStickerPack), fileName});
     }
 
     public static CallbackResult<Integer> deleteStickersOfPack(Context context, String stickerPackIdentifier) {
         try {
-            StickerDatabaseHelper dbHelper = StickerDatabaseHelper.getInstance(context);
+            StickerDatabase dbHelper = StickerDatabase.getInstance(context);
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-            int stickerDeleted = db.delete("sticker", FK_STICKER_PACK + " = ?", new String[]{String.valueOf(stickerPackIdentifier)});
+            int stickerDeleted = db.delete(
+                    StickerDatabase.TABLE_STICKER, StickerDatabase.FK_STICKER_PACK + " = ?",
+                    new String[]{stickerPackIdentifier});
 
             if (stickerDeleted == 0) {
                 return CallbackResult.warning("Nenhuma linha foi deletada. Talvez o ID não exista.");
@@ -50,10 +54,12 @@ public class DeleteStickerPacks {
 
     public static CallbackResult<Integer> deleteStickerPackFromDatabase(Context context, String stickerPackIdentifier) {
         try {
-            StickerDatabaseHelper dbHelper = StickerDatabaseHelper.getInstance(context);
+            StickerDatabase dbHelper = StickerDatabase.getInstance(context);
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-            int stickerPackDeleted = db.delete("sticker_pack", STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?", new String[]{stickerPackIdentifier});
+            int stickerPackDeleted = db.delete(
+                    StickerDatabase.TABLE_STICKER_PACK, StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?",
+                    new String[]{stickerPackIdentifier});
 
             if (stickerPackDeleted == 0) {
                 return CallbackResult.warning("Nenhuma linha foi deletada. Talvez o ID não exista.");
@@ -65,20 +71,3 @@ public class DeleteStickerPacks {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

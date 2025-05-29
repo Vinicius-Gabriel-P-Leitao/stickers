@@ -8,8 +8,8 @@
 
 package com.vinicius.sticker.domain.data.database.repository;
 
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
@@ -19,7 +19,7 @@ import android.os.Looper;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.pattern.CallbackResult;
+import com.vinicius.sticker.core.pattern.CallbackResult;
 
 public class InsertStickerPacks {
 
@@ -28,35 +28,36 @@ public class InsertStickerPacks {
     }
 
     public void insertStickerPack(SQLiteDatabase dbHelper, StickerPack pack, InsertStickerPackCallback callback) {
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            ContentValues stickerPacksValues = new ContentValues();
-            stickerPacksValues.put(ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, pack.androidPlayStoreLink);
-            stickerPacksValues.put(IOS_APP_DOWNLOAD_LINK_IN_QUERY, pack.iosAppStoreLink);
-            long stickerPackId = dbHelper.insert("sticker_packs", null, stickerPacksValues);
+        new Handler(Looper.getMainLooper()).postDelayed(
+                () -> {
+                    ContentValues stickerPacksValues = new ContentValues();
+                    stickerPacksValues.put(ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, pack.androidPlayStoreLink);
+                    stickerPacksValues.put(IOS_APP_DOWNLOAD_LINK_IN_QUERY, pack.iosAppStoreLink);
+                    long stickerPackId = dbHelper.insert("sticker_packs", null, stickerPacksValues);
 
-            if (stickerPackId != -1) {
-                ContentValues stickerPackValues = StickerPack.toContentValues(pack, stickerPackId);
-                long result = dbHelper.insert("sticker_pack", null, stickerPackValues);
+                    if (stickerPackId != -1) {
+                        ContentValues stickerPackValues = StickerPack.toContentValues(pack, stickerPackId);
+                        long result = dbHelper.insert("sticker_pack", null, stickerPackValues);
 
-                if (result != -1) {
-                    for (Sticker sticker : pack.getStickers()) {
-                        ContentValues stickerValues = Sticker.toContentValues(sticker, stickerPackId);
-                        dbHelper.insert("sticker", null, stickerValues);
-                    }
+                        if (result != -1) {
+                            for (Sticker sticker : pack.getStickers()) {
+                                ContentValues stickerValues = Sticker.toContentValues(sticker, stickerPackId);
+                                dbHelper.insert("sticker", null, stickerValues);
+                            }
 
-                    if (callback != null) {
-                        callback.onInsertResult(CallbackResult.success(pack));
+                            if (callback != null) {
+                                callback.onInsertResult(CallbackResult.success(pack));
+                            }
+                        } else {
+                            if (callback != null) {
+                                callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Failed to insert sticker pack.")));
+                            }
+                        }
+                    } else {
+                        if (callback != null) {
+                            callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Failed to insert sticker pack details.")));
+                        }
                     }
-                } else {
-                    if (callback != null) {
-                        callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Failed to insert sticker pack.")));
-                    }
-                }
-            } else {
-                if (callback != null) {
-                    callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Failed to insert sticker pack details.")));
-                }
-            }
-        }, 1000);
+                }, 1000);
     }
 }

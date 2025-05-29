@@ -11,7 +11,7 @@ package com.vinicius.sticker.core.exception;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.vinicius.sticker.core.exception.main.AppCoreStateException;
+import com.vinicius.sticker.core.exception.base.AppCoreStateException;
 
 public class StickerPackSaveException extends AppCoreStateException {
     public StickerPackSaveException(@NonNull String message) {

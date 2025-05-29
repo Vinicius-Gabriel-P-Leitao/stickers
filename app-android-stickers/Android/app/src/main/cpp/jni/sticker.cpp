@@ -67,7 +67,7 @@ struct JniString {
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_com_vinicius_sticker_domain_libs_NativeConvertToWebp_convertToWebp(JNIEnv *env,
+Java_com_vinicius_sticker_core_libs_NativeConvertToWebp_convertToWebp(JNIEnv *env,
                                                                         jobject /* this */,
                                                                         jstring inputPath,
                                                                         jstring outputPath) {

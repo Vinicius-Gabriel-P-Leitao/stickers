@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.core.exception.main;
+package com.vinicius.sticker.core.exception.base;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

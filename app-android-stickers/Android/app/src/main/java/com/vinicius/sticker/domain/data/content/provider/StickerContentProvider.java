@@ -11,7 +11,7 @@
 
 package com.vinicius.sticker.domain.data.content.provider;
 
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.isDatabaseEmpty;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.isDatabaseEmpty;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -30,8 +30,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.BuildConfig;
-import com.vinicius.sticker.domain.data.content.helpers.StickerQueryHelper;
-import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
+import com.vinicius.sticker.domain.data.content.helpers.StickerPackProviderQueryHelper;
+import com.vinicius.sticker.domain.data.database.dao.StickerDatabase;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,39 +39,39 @@ import java.util.List;
 import java.util.Objects;
 
 public class StickerContentProvider extends ContentProvider {
-    public static final Uri AUTHORITY_URI = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
-            .authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
-            .appendPath(StickerContentProvider.METADATA)
-            .build();
     private static final UriMatcher MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 
-    public static final String STICKERS = "stickers";
     public static final String STICKERS_ASSET = "stickers_asset";
     private static final String METADATA = "metadata";
+    public static final String STICKERS = "stickers";
+
     private static final int METADATA_CODE = 1;
     private static final int METADATA_CODE_FOR_SINGLE_PACK = 2;
-    private static final int STICKERS_CODE = 3;
+    private static final int METADATA_CODE_ALL_STICKERS = 3;
     private static final int STICKERS_FILES_CODE = 4;
     private static final int STICKER_PACK_TRAY_ICON_CODE = 5;
     private static final int CREATE_STICKER_PACKS = 6;
 
-    StickerDatabaseHelper dbHelper;
+    StickerDatabase dbHelper;
+
+    public static final Uri AUTHORITY_URI = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
+            .appendPath(StickerContentProvider.METADATA).build();
 
     @Override
     public boolean onCreate() {
         final String authority = BuildConfig.CONTENT_PROVIDER_AUTHORITY;
         if (!authority.startsWith(Objects.requireNonNull(getContext()).getPackageName())) {
-            throw new IllegalStateException(
-                    "your authority (" + authority + ") for the content provider should start with your package name: " + getContext().getPackageName());
+            throw new IllegalStateException("your authority (" + authority + ") for the content provider should start with your package name: " +
+                    getContext().getPackageName());
         }
 
         MATCHER.addURI(authority, METADATA, METADATA_CODE);
         MATCHER.addURI(authority, METADATA + "/*", METADATA_CODE_FOR_SINGLE_PACK);
-        MATCHER.addURI(authority, STICKERS + "/*", STICKERS_CODE);
+        MATCHER.addURI(authority, STICKERS + "/*", METADATA_CODE_ALL_STICKERS);
         MATCHER.addURI(authority, STICKERS_ASSET + "/*/*", STICKERS_FILES_CODE);
         MATCHER.addURI(authority, "create", CREATE_STICKER_PACKS);
 
-        dbHelper = new StickerDatabaseHelper(getContext());
+        dbHelper = new StickerDatabase(getContext());
         SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
 
         if (isDatabaseEmpty(sqLiteDatabase)) {
@@ -83,68 +83,53 @@ public class StickerContentProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(
-            @NonNull Uri uri,
-            @Nullable String[] projection, String selection, String[] selectionArgs, String sortOrder
-    ) {
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         final int code = MATCHER.match(uri);
-        StickerQueryHelper stickerQueryHelper = new StickerQueryHelper(getContext());
+        StickerPackProviderQueryHelper stickerPackProviderQueryHelper = new StickerPackProviderQueryHelper(getContext());
 
         if (code == METADATA_CODE) {
-            return stickerQueryHelper.getPackForAllStickerPacks(uri, dbHelper);
+            return stickerPackProviderQueryHelper.getPackForAllStickerPacks(uri, dbHelper);
         } else if (code == METADATA_CODE_FOR_SINGLE_PACK) {
-            return stickerQueryHelper.getCursorForSingleStickerPack(uri, dbHelper);
-        } else if (code == STICKERS_CODE) {
-            return stickerQueryHelper.getStickersForAStickerPack(uri, dbHelper);
+            return stickerPackProviderQueryHelper.getCursorForSingleStickerPack(uri, dbHelper);
+        } else if (code == METADATA_CODE_ALL_STICKERS) {
+            return stickerPackProviderQueryHelper.getCursorForStickersForPack(uri, dbHelper);
         } else {
             throw new IllegalArgumentException("Unknown URI: " + uri);
         }
     }
 
     @Override
-    public int delete(
-            @NonNull Uri uri,
-            @Nullable String selection, String[] selectionArgs
-    ) {
+    public int delete(@NonNull Uri uri, @Nullable String selection, String[] selectionArgs) {
         throw new UnsupportedOperationException("Not supported");
     }
 
     @Override
-    public Uri insert(
-            @NonNull Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         throw new UnsupportedOperationException("Not supported");
     }
 
     @Override
-    public int update(
-            @NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         throw new UnsupportedOperationException("Not supported");
     }
 
     @Override
-    public AssetFileDescriptor openAssetFile(
-            @NonNull Uri uri,
-            @NonNull String mode
-    ) {
+    public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode) {
         final int matchCode = MATCHER.match(uri);
         if (matchCode == STICKERS_FILES_CODE || matchCode == STICKER_PACK_TRAY_ICON_CODE) {
             return getImageFiles(uri);
         }
+
         return null;
     }
 
     @Override
-    public String getType(
-            @NonNull Uri uri
-    ) {
+    public String getType(@NonNull Uri uri) {
         final int matchCode = MATCHER.match(uri);
         return switch (matchCode) {
-            case METADATA_CODE ->
-                    "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
-            case METADATA_CODE_FOR_SINGLE_PACK ->
-                    "vnd.android.cursor.item/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
-            case STICKERS_CODE ->
-                    "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + STICKERS;
+            case METADATA_CODE -> "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
+            case METADATA_CODE_FOR_SINGLE_PACK -> "vnd.android.cursor.item/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
+            case METADATA_CODE_ALL_STICKERS -> "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + STICKERS;
             case STICKERS_FILES_CODE -> "image/webp";
             case STICKER_PACK_TRAY_ICON_CODE -> "image/png";
             default -> throw new IllegalArgumentException("Unknown URI: " + uri);
