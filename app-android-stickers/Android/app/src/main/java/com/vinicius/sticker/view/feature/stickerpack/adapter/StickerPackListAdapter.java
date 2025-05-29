@@ -30,7 +30,7 @@ import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.builder.StickerPackParserJsonBuilder;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.load.StickerLoaderService;
+import com.vinicius.sticker.domain.service.load.StickerConsumer;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
 import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListItemViewHolder;
 
@@ -108,7 +108,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             final ImageView rowImage = (ImageView) LayoutInflater.from(context)
                     .inflate(R.layout.sticker_packs_list_media_item, viewHolder.imageRowView, false);
 
-            rowImage.setImageURI(StickerLoaderService.getStickerAssetUri(pack.identifier, pack.getStickers().get(i).imageFileName));
+            rowImage.setImageURI(StickerConsumer.getStickerAssetUri(pack.identifier, pack.getStickers().get(i).imageFileName));
 
             final LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) rowImage.getLayoutParams();
             final int marginBetweenImages = minMarginBetweenImages - layoutParams.leftMargin - layoutParams.rightMargin;

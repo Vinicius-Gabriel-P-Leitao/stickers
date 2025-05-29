@@ -8,9 +8,9 @@
 
 package com.vinicius.sticker.domain.service.load;
 
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_FILE_EMOJI_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_FILE_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -23,7 +23,6 @@ import androidx.annotation.NonNull;
 import com.vinicius.sticker.BuildConfig;
 import com.vinicius.sticker.domain.data.content.provider.StickerContentProvider;
 import com.vinicius.sticker.domain.data.model.Sticker;
-import com.vinicius.sticker.domain.data.model.StickerPack;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Busca lista com figurinhas tanto em banco de dados quanto em arquivo. */
-public class StickerLoaderService {
+public class StickerConsumer {
 
   /**
    * <b>Descrição:</b>Busca os dados das figurinhas tanto arquivo quando metadados.

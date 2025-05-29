@@ -13,8 +13,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class StickerDatabaseHelper extends SQLiteOpenHelper {
-  private static StickerDatabaseHelper instance;
+public class StickerDatabase extends SQLiteOpenHelper {
+  private static StickerDatabase instance;
 
   private static final String DATABASE_NAME = "stickers.db";
   private static final int DATABASE_VERSION = 1;
@@ -51,7 +51,7 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
   public static final String STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY = "sticker_accessibility_text";
   public static final String FK_STICKER_PACK = "fk_sticker_pack";
 
-  public StickerDatabaseHelper(Context context) {
+  public StickerDatabase(Context context) {
     super(context, DATABASE_NAME, null, DATABASE_VERSION);
   }
 
@@ -138,9 +138,9 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
     onCreate(db);
   }
 
-  public static synchronized StickerDatabaseHelper getInstance(Context context) {
+  public static synchronized StickerDatabase getInstance(Context context) {
     if (instance == null) {
-      instance = new StickerDatabaseHelper(context.getApplicationContext());
+      instance = new StickerDatabase(context.getApplicationContext());
     }
     return instance;
   }

@@ -8,8 +8,8 @@
 
 package com.vinicius.sticker.domain.data.database.repository;
 
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
@@ -19,7 +19,7 @@ import android.os.Looper;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.pattern.CallbackResult;
+import com.vinicius.sticker.core.pattern.CallbackResult;
 
 public class InsertStickerPacks {
 

@@ -25,11 +25,11 @@ import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.core.exception.StickerValidatorException;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.core.validation.StickerValidator;
-import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
+import com.vinicius.sticker.domain.data.database.dao.StickerDatabase;
 import com.vinicius.sticker.domain.data.database.repository.InsertStickerPacks;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.pattern.CallbackResult;
+import com.vinicius.sticker.core.pattern.CallbackResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 public class StickerPackSaveService {
 
@@ -218,7 +217,7 @@ public class StickerPackSaveService {
     }
 
     private static void insertStickerPack(Context context, StickerPack stickerPack, SaveStickerPackCallback callback) {
-        StickerDatabaseHelper instance = StickerDatabaseHelper.getInstance(context);
+        StickerDatabase instance = StickerDatabase.getInstance(context);
         SQLiteDatabase writableDatabase = instance.getWritableDatabase();
 
         new InsertStickerPacks().insertStickerPack(

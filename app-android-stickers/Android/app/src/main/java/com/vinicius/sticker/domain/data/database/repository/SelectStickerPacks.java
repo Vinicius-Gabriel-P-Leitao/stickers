@@ -11,45 +11,31 @@ package com.vinicius.sticker.domain.data.database.repository;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper;
+import com.vinicius.sticker.domain.data.database.dao.StickerDatabase;
 
 public class SelectStickerPacks {
-    public static Cursor getPackForAllStickerPacks(StickerDatabaseHelper dbHelper) {
+    public static Cursor getAllStickerPacks(StickerDatabase dbHelper) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String query =
-                "SELECT DISTINCT "
-                        + StickerDatabaseHelper.TABLE_STICKER_PACKS
-                        + ".*, "
-                        + StickerDatabaseHelper.TABLE_STICKER_PACK
-                        + ".*, "
-                        + StickerDatabaseHelper.TABLE_STICKER
-                        + ".* "
-                        + "FROM "
-                        + StickerDatabaseHelper.TABLE_STICKER_PACKS
-                        + " "
-                        + "INNER JOIN "
-                        + StickerDatabaseHelper.TABLE_STICKER_PACK
-                        + " ON "
-                        + StickerDatabaseHelper.TABLE_STICKER_PACKS
-                        + "."
-                        + StickerDatabaseHelper.ID_STICKER_PACKS
-                        + " = "
-                        + StickerDatabaseHelper.TABLE_STICKER_PACK
-                        + "."
-                        + StickerDatabaseHelper.FK_STICKER_PACKS
-                        + " "
-                        + "INNER JOIN "
-                        + StickerDatabaseHelper.TABLE_STICKER
-                        + " ON "
-                        + StickerDatabaseHelper.TABLE_STICKER_PACK
-                        + "."
-                        + StickerDatabaseHelper.ID_STICKER_PACK
-                        + " = "
-                        + StickerDatabaseHelper.TABLE_STICKER
-                        + "."
-                        + StickerDatabaseHelper.FK_STICKER_PACK;
+        String query = "SELECT DISTINCT " + StickerDatabase.TABLE_STICKER_PACKS + ".*, " + StickerDatabase.TABLE_STICKER_PACK + ".*, " +
+                StickerDatabase.TABLE_STICKER + ".* " + "FROM " + StickerDatabase.TABLE_STICKER_PACKS + " " + "INNER JOIN " +
+                StickerDatabase.TABLE_STICKER_PACK + " ON " + StickerDatabase.TABLE_STICKER_PACKS + "." + StickerDatabase.ID_STICKER_PACKS + " = " +
+                StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.FK_STICKER_PACKS + " " + "INNER JOIN " + StickerDatabase.TABLE_STICKER +
+                " ON " + StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.ID_STICKER_PACK + " = " + StickerDatabase.TABLE_STICKER + "." +
+                StickerDatabase.FK_STICKER_PACK;
 
         return db.rawQuery(query, null);
+    }
+
+    public static Cursor getStickerPackByIdentifier(StickerDatabase dbHelper, String identifier) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String query = "SELECT DISTINCT " + StickerDatabase.TABLE_STICKER_PACK + ".*, " + StickerDatabase.TABLE_STICKER + ".* " + "FROM " +
+                StickerDatabase.TABLE_STICKER_PACK + " " + "INNER JOIN " + StickerDatabase.TABLE_STICKER + " ON " +
+                StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.ID_STICKER_PACK + " = " + StickerDatabase.TABLE_STICKER + "." +
+                StickerDatabase.FK_STICKER_PACK + " WHERE " + StickerDatabase.TABLE_STICKER_PACK + "." +
+                StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?";
+
+        return db.rawQuery(query, new String[]{identifier});
     }
 }

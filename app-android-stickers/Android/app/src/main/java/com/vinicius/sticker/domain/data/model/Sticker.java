@@ -11,16 +11,14 @@
 
 package com.vinicius.sticker.domain.data.model;
 
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.FK_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_FILE_EMOJI_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabaseHelper.STICKER_FILE_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.FK_STICKER_PACK;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
 
 import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.util.List;
 
 public class Sticker implements Parcelable {
     public static final Creator<Sticker> CREATOR = new Creator<Sticker>() {

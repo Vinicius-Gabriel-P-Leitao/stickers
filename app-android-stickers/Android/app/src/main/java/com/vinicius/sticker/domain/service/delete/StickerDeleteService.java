@@ -15,10 +15,9 @@ import android.content.Context;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import com.vinicius.sticker.core.exception.DeleteStickerException;
-import com.vinicius.sticker.domain.pattern.CallbackResult;
+import com.vinicius.sticker.core.pattern.CallbackResult;
 import java.io.File;
 import java.sql.SQLException;
-import java.util.Optional;
 
 /** Deleta o sticker tanto no banco de dados quanto o arquivo. */
 public class StickerDeleteService {

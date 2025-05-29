@@ -27,7 +27,7 @@ import com.vinicius.sticker.core.exception.InvalidWebsiteUrlException;
 import com.vinicius.sticker.core.exception.PackValidatorException;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.load.StickerLoaderService;
+import com.vinicius.sticker.domain.service.load.StickerConsumer;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -136,7 +136,7 @@ public class StickerPackValidator {
     }
     try {
       final byte[] stickerAssetBytes =
-          StickerLoaderService.fetchStickerAsset(
+          StickerConsumer.fetchStickerAsset(
               stickerPack.identifier, stickerPack.trayImageFile, context.getContentResolver());
       if (stickerAssetBytes.length > TRAY_IMAGE_FILE_SIZE_MAX_KB * KB_IN_BYTES) {
         throw new PackValidatorException(

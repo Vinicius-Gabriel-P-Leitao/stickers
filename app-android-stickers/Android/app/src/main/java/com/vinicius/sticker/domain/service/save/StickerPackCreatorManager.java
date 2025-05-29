@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.domain.manager;
+package com.vinicius.sticker.domain.service.save;
 
 import android.content.Context;
 import android.util.JsonReader;
@@ -15,13 +15,12 @@ import android.util.Log;
 import com.vinicius.sticker.core.exception.DeleteStickerException;
 import com.vinicius.sticker.core.exception.PackValidatorException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
-import com.vinicius.sticker.core.exception.main.InternalAppException;
+import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.domain.builder.JsonParserStickerPackBuilder;
 import com.vinicius.sticker.domain.builder.StickerPackParserJsonBuilder;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.pattern.CallbackResult;
-import com.vinicius.sticker.domain.service.save.StickerPackSaveService;
+import com.vinicius.sticker.core.pattern.CallbackResult;
 
 import org.json.JSONException;
 

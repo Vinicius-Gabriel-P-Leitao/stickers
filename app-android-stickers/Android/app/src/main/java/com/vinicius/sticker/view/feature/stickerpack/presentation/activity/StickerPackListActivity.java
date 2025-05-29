@@ -29,7 +29,7 @@ import com.google.android.material.button.MaterialButton;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.load.StickerPackLoaderService;
+import com.vinicius.sticker.domain.service.load.StickerPackConsumer;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPackListAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.AddStickerPackActivity;
@@ -141,7 +141,7 @@ public class StickerPackListActivity extends AddStickerPackActivity {
                         String identifier = data.getStringExtra(NEW_STICKER_PACK);
 
                         if (identifier != null) {
-                            StickerPack stickerPack = StickerPackLoaderService.fetchStickerPack(getBaseContext(), identifier);
+                            StickerPack stickerPack = StickerPackConsumer.fetchStickerPack(getBaseContext(), identifier);
 
                             if (stickerPackList != null) {
                                 WhatsappWhitelistValidator.isWhitelisted(this, stickerPack.identifier);

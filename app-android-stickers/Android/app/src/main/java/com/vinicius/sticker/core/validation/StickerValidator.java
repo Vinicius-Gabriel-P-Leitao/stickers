@@ -18,9 +18,9 @@ import com.facebook.animated.webp.WebPImage;
 import com.facebook.imagepipeline.common.ImageDecodeOptions;
 import com.vinicius.sticker.core.exception.StickerFileException;
 import com.vinicius.sticker.core.exception.StickerValidatorException;
-import com.vinicius.sticker.core.exception.main.InternalAppException;
+import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.domain.data.model.Sticker;
-import com.vinicius.sticker.domain.service.load.StickerLoaderService;
+import com.vinicius.sticker.domain.service.load.StickerConsumer;
 
 import java.io.IOException;
 
@@ -66,7 +66,7 @@ public class StickerValidator {
             final boolean animatedStickerPack
     ) throws IllegalStateException {
         try {
-            final byte[] stickerInBytes = StickerLoaderService.fetchStickerAsset(identifier, fileName, context.getContentResolver());
+            final byte[] stickerInBytes = StickerConsumer.fetchStickerAsset(identifier, fileName, context.getContentResolver());
 
             if (!animatedStickerPack && stickerInBytes.length > STATIC_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
                 String msgError = String.format(
