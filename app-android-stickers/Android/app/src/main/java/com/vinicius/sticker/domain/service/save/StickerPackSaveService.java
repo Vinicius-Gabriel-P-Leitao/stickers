@@ -22,6 +22,7 @@ import android.util.Log;
 
 import com.vinicius.sticker.core.exception.InvalidWebsiteUrlException;
 import com.vinicius.sticker.core.exception.PackValidatorException;
+import com.vinicius.sticker.core.exception.StickerFileException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.core.exception.StickerValidatorException;
 import com.vinicius.sticker.core.exception.base.InternalAppException;
@@ -82,9 +83,8 @@ public class StickerPackSaveService {
             for (Sticker sticker : stickerPack.getStickers()) {
                 StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
             }
-        } catch (PackValidatorException | StickerValidatorException | InvalidWebsiteUrlException exception) {
-            callback.onStickerPackSaveResult(CallbackResult.failure(exception));
-            return;
+        } catch (PackValidatorException | StickerValidatorException | InvalidWebsiteUrlException | StickerFileException exception) {
+            callback.onStickerPackSaveResult(CallbackResult.failure(exception)); // NOTE: Tratar erro na classe que usar eses método.
         }
 
         insertStickerPack(context, stickerPack, callback);

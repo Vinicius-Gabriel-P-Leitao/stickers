@@ -145,9 +145,4 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         this.stickerPacks.addAll(stickerPackList);
         notifyDataSetChanged();
     }
-
-    public void updateStickerPack(StickerPack newPack) {
-        stickerPacks.add(newPack);
-        notifyItemRangeChanged(0, stickerPacks.size());
-    }
 }

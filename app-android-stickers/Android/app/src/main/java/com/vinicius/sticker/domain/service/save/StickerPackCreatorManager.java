@@ -14,6 +14,7 @@ import android.util.Log;
 import com.vinicius.sticker.core.exception.DeleteStickerException;
 import com.vinicius.sticker.core.exception.InvalidWebsiteUrlException;
 import com.vinicius.sticker.core.exception.PackValidatorException;
+import com.vinicius.sticker.core.exception.StickerFileException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
@@ -93,6 +94,12 @@ public class StickerPackCreatorManager {
                                 case FAILURE:
                                     if (callbackResult.getError() instanceof StickerPackSaveException stickerPackSaveException) {
                                         savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(stickerPackSaveException));
+                                        break;
+                                    }
+
+                                    if (callbackResult.getError() instanceof StickerFileException stickerFileException) {
+                                        Log.d("StickerPackCreatorManager", Objects.requireNonNull(stickerFileException.getMessage()));
+                                        savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(stickerFileException));
                                         break;
                                     }
 

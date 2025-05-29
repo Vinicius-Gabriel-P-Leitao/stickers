@@ -47,7 +47,8 @@ public class StickerValidator {
         final String accessibilityText = sticker.accessibilityText;
         if (isInvalidAccessibilityText(accessibilityText, animatedStickerPack)) {
             throw new StickerValidatorException(
-                    "Comprimento do texto de acessibilidade excedeu o limite, identificador do pacote de figurinhas:" + identifier + ", arquivo:" + " " + sticker.imageFileName);
+                    "Comprimento do texto de acessibilidade excedeu o limite, identificador do pacote de figurinhas:" + identifier + ", arquivo:" +
+                            " " + sticker.imageFileName);
         }
 
         validateStickerFile(context, identifier, sticker.imageFileName, animatedStickerPack);
@@ -58,7 +59,8 @@ public class StickerValidator {
             return false;
         }
         final int length = accessibilityText.length();
-        return isAnimatedStickerPack && length > MAX_ANIMATED_STICKER_A11Y_TEXT_CHAR_LIMIT || !isAnimatedStickerPack && length > MAX_STATIC_STICKER_A11Y_TEXT_CHAR_LIMIT;
+        return isAnimatedStickerPack && length > MAX_ANIMATED_STICKER_A11Y_TEXT_CHAR_LIMIT ||
+                !isAnimatedStickerPack && length > MAX_STATIC_STICKER_A11Y_TEXT_CHAR_LIMIT;
     }
 
     private static void validateStickerFile(

@@ -14,6 +14,7 @@ package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
 import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.ANIMATED_STICKER;
 import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.STATIC_STICKER;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,18 +45,18 @@ import java.util.concurrent.Executors;
 
 public class StickerPackListActivity extends AddStickerPackActivity {
     public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
-    public static final String NEW_STICKER_PACK = "new_sticker_pack";
+    public static final Boolean NEW_STICKER_PACK = false;
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
-    private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = pack -> addStickerPackToWhatsApp(
-            pack.identifier,
-            pack.name);
-
     private StickerPackListAdapter allStickerPacksListAdapter;
     private WhiteListCheckAsyncTask whiteListCheckAsyncTask;
     private MaterialButton buttonCreateStickerPackage;
     private ArrayList<StickerPack> stickerPackList;
     private LinearLayoutManager packLayoutManager;
     private RecyclerView packRecyclerView;
+
+    private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = pack -> addStickerPackToWhatsApp(
+            pack.identifier,
+            pack.name);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,26 +134,20 @@ public class StickerPackListActivity extends AddStickerPackActivity {
     }
 
     private final ActivityResultLauncher<Intent> createPackLauncher = registerForActivityResult(
+            // NOTE: Necessário renderizar a lista toda de novo devido a erros de UI quando tenta atualizar só o ultimo item
             new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK) {
-                    Intent data = result.getData();
+                    List<StickerPack> stickerPackArray = StickerPackConsumer.fetchStickerPackList(getBaseContext());
+                    if (stickerPackList != null) {
 
-                    if (data != null) {
-                        String identifier = data.getStringExtra(NEW_STICKER_PACK);
+                        for (StickerPack stickerPack : stickerPackArray) {
+                            stickerPack.setIsWhitelisted(WhatsappWhitelistValidator.isWhitelisted(getBaseContext(), stickerPack.identifier));
+                        }
 
-                        if (identifier != null) {
-                            StickerPack stickerPack = StickerPackConsumer.fetchStickerPack(getBaseContext(), identifier);
-
-                            if (stickerPackList != null) {
-                                WhatsappWhitelistValidator.isWhitelisted(this, stickerPack.identifier);
-
-                                allStickerPacksListAdapter.updateStickerPack(stickerPack);
-
-                                if (getSupportActionBar() != null) {
-                                    getSupportActionBar().setTitle(
-                                            getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, stickerPackList.size()));
-                                }
-                            }
+                        allStickerPacksListAdapter.addStickerPack(stickerPackArray);
+                        if (getSupportActionBar() != null) {
+                            getSupportActionBar().setTitle(
+                                    getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, stickerPackList.size()));
                         }
                     }
                 }

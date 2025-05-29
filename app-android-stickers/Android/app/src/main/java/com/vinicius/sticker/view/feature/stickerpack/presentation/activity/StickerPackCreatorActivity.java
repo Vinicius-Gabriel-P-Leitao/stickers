@@ -15,6 +15,7 @@ import static com.vinicius.sticker.view.feature.permission.usecase.DefinePermiss
 import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackListActivity.NEW_STICKER_PACK;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -169,8 +170,8 @@ public class StickerPackCreatorActivity extends BaseActivity {
     private final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            setNumColumns(recyclerView.getWidth() / recyclerView.getContext().getResources()
-                    .getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
+            setNumColumns(recyclerView.getWidth() /
+                    recyclerView.getContext().getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
         }
     };
 
@@ -198,9 +199,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
     private void notifyStickerPackCreated(String identifier) {
         if (identifier != null) {
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra(NEW_STICKER_PACK, identifier);
-            setResult(RESULT_OK, resultIntent);
+            setResult(RESULT_OK);
         }
     }
 
@@ -225,6 +224,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
         }
     };
 
+    @SuppressLint("NotifyDataSetChanged")
     private void setNumColumns(int numColumns) {
         if (this.numColumns != numColumns) {
             layoutManager.setSpanCount(numColumns);
