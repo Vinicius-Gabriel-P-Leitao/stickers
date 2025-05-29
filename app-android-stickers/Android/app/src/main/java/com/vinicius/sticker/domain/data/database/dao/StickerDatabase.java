@@ -34,7 +34,7 @@ public class StickerDatabase extends SQLiteOpenHelper {
     public static final String STICKER_PACK_IDENTIFIER_IN_QUERY = "sticker_pack_identifier";
     public static final String STICKER_PACK_NAME_IN_QUERY = "sticker_pack_name";
     public static final String STICKER_PACK_PUBLISHER_IN_QUERY = "sticker_pack_publisher";
-    public static final String STICKER_PACK_ICON_IN_QUERY = "sticker_pack_icon";
+    public static final String STICKER_PACK_TRAY_IMAGE_IN_QUERY = "sticker_pack_icon";
     public static final String PUBLISHER_EMAIL = "sticker_pack_publisher_email";
     public static final String PUBLISHER_WEBSITE = "sticker_pack_publisher_website";
     public static final String PRIVACY_POLICY_WEBSITE = "sticker_pack_privacy_policy_website";
@@ -67,10 +67,10 @@ public class StickerDatabase extends SQLiteOpenHelper {
 
         sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_STICKER_PACK + " (" + ID_STICKER_PACK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 STICKER_PACK_IDENTIFIER_IN_QUERY + " UUID TEXT NOT NULL UNIQUE, " + STICKER_PACK_NAME_IN_QUERY + " VARCHAR(20) NOT NULL, " +
-                STICKER_PACK_PUBLISHER_IN_QUERY + " VARCHAR(20) NOT NULL, " + STICKER_PACK_ICON_IN_QUERY + " CHAR(3) NOT NULL, " + PUBLISHER_EMAIL +
-                " VARCHAR(60), " + PUBLISHER_WEBSITE + " VARCHAR(40), " + PRIVACY_POLICY_WEBSITE + " VARCHAR(100), " + LICENSE_AGREEMENT_WEBSITE +
-                " VARCHAR(100), " + ANIMATED_STICKER_PACK + " CHAR(1) NOT NULL, " + IMAGE_DATA_VERSION + " CHAR(4), " + AVOID_CACHE + " CHAR(5), " +
-                FK_STICKER_PACKS + " INTEGER, " + fkStickerPacks + ")");
+                STICKER_PACK_PUBLISHER_IN_QUERY + " VARCHAR(20) NOT NULL, " + STICKER_PACK_TRAY_IMAGE_IN_QUERY + " CHAR(3) NOT NULL, " +
+                PUBLISHER_EMAIL + " VARCHAR(60), " + PUBLISHER_WEBSITE + " VARCHAR(40), " + PRIVACY_POLICY_WEBSITE + " VARCHAR(100), " +
+                LICENSE_AGREEMENT_WEBSITE + " VARCHAR(100), " + ANIMATED_STICKER_PACK + " CHAR(1) NOT NULL, " + IMAGE_DATA_VERSION + " CHAR(4), " +
+                AVOID_CACHE + " CHAR(5), " + FK_STICKER_PACKS + " INTEGER, " + fkStickerPacks + ")");
 
         String fkSticker = String.format("FOREIGN KEY(%s) REFERENCES %s(%s) ON DELETE CASCADE", FK_STICKER_PACK, TABLE_STICKER_PACK, ID_STICKER_PACK);
 

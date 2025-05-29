@@ -8,7 +8,6 @@
 
 package com.vinicius.sticker.domain.service.save;
 
-import static com.vinicius.sticker.domain.data.content.provider.StickerContentProvider.AUTHORITY_URI;
 import static com.vinicius.sticker.domain.data.content.provider.StickerContentProvider.STICKERS_ASSET;
 import static com.vinicius.sticker.domain.data.database.repository.DeleteStickerPack.deleteStickerPackFromDatabase;
 import static com.vinicius.sticker.domain.data.database.repository.DeleteStickerPack.deleteStickersOfPack;
@@ -18,20 +17,21 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
+import com.vinicius.sticker.core.exception.InvalidWebsiteUrlException;
 import com.vinicius.sticker.core.exception.PackValidatorException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.core.exception.StickerValidatorException;
+import com.vinicius.sticker.core.exception.base.InternalAppException;
+import com.vinicius.sticker.core.pattern.CallbackResult;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.core.validation.StickerValidator;
 import com.vinicius.sticker.domain.data.database.dao.StickerDatabase;
 import com.vinicius.sticker.domain.data.database.repository.InsertStickerPacks;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.core.pattern.CallbackResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+// @formatter:off
 public class StickerPackSaveService {
 
     @FunctionalInterface
@@ -81,7 +82,7 @@ public class StickerPackSaveService {
             for (Sticker sticker : stickerPack.getStickers()) {
                 StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
             }
-        } catch (PackValidatorException | StickerValidatorException exception) {
+        } catch (PackValidatorException | StickerValidatorException | InvalidWebsiteUrlException exception) {
             callback.onStickerPackSaveResult(CallbackResult.failure(exception));
             return;
         }
@@ -125,8 +126,8 @@ public class StickerPackSaveService {
 
         CallbackResult<Integer> stickersDeletedInDb = deleteStickersOfPack(context, stickerPackIdentifier);
         if (stickersDeletedInDb.isFailure()) {
-            callback.onStickerPackSaveResult(CallbackResult.failure(
-                    new StickerPackSaveException("Falha ao limpar figurinhas do banco de dados.", stickersDeletedInDb.getError())));
+            callback.onStickerPackSaveResult(
+                    CallbackResult.failure(new StickerPackSaveException("Falha ao limpar figurinhas do banco de dados.", stickersDeletedInDb.getError())));
             return false;
         }
 
@@ -135,8 +136,7 @@ public class StickerPackSaveService {
         CallbackResult<Integer> stickerPackDeletedInDb = deleteStickerPackFromDatabase(context, stickerPackIdentifier);
         return switch (stickerPackDeletedInDb.getStatus()) {
             case SUCCESS -> {
-                callback.onStickerPackSaveResult(
-                        CallbackResult.debug("Pacote de figurinhas deletado com sucesso. Status: " + stickerPackDeletedInDb.getData()));
+                callback.onStickerPackSaveResult(CallbackResult.debug("Pacote de figurinhas deletado com sucesso. Status: " + stickerPackDeletedInDb.getData()));
                 yield true;
             }
             case WARNING -> {
@@ -148,8 +148,7 @@ public class StickerPackSaveService {
                 yield true;
             }
             case FAILURE -> {
-                callback.onStickerPackSaveResult(CallbackResult.failure(
-                        new StickerPackSaveException("Falha ao limpar pacote de figurinhas do banco.", stickerPackDeletedInDb.getError())));
+                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Falha ao limpar pacote de figurinhas do banco.", stickerPackDeletedInDb.getError())));
                 yield false;
             }
         };
@@ -191,12 +190,13 @@ public class StickerPackSaveService {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         Path sourcePath = sourceFile.toPath();
                         Path destPath = destFile.toPath();
+
                         Files.copy(sourcePath, destPath);
+
                         callback.onStickerPackSaveResult(CallbackResult.debug("Arquivo copiado para: " + destFile.getPath()));
                     }
                 } catch (IOException exception) {
-                    callback.onStickerPackSaveResult(
-                            CallbackResult.failure(new StickerPackSaveException("Arquivo não encontrado: " + fileName, exception)));
+                    callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Arquivo não encontrado: " + fileName, exception)));
                     return false;
                 }
             } else {
@@ -215,12 +215,7 @@ public class StickerPackSaveService {
                 writableDatabase, stickerPack, callbackResult -> {
                     switch (callbackResult.getStatus()) {
                         case SUCCESS:
-                            if (callback != null) {
-                                callback.onStickerPackSaveResult(
-                                        CallbackResult.success(callbackResult.getData())); // NOTE: Somente esse deve retornar os dados.
-                            } else {
-                                Log.d("SaveStickerPack", "Callback é null!");
-                            }
+                            callback.onStickerPackSaveResult(CallbackResult.success(callbackResult.getData())); // NOTE: Somente esse deve retornar os dados.
                             break;
                         case WARNING:
                             Log.w("SaveStickerPack", callbackResult.getWarningMessage());
@@ -229,7 +224,7 @@ public class StickerPackSaveService {
                             if (callbackResult.getError() instanceof StickerPackSaveException exception) {
                                 callback.onStickerPackSaveResult(CallbackResult.failure(exception));
                             } else {
-                                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Erro interno desconhecido!")));
+                                callback.onStickerPackSaveResult(CallbackResult.failure(new InternalAppException("Erro interno desconhecido!")));
                             }
                             break;
                     }

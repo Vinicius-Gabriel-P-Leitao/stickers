@@ -20,11 +20,10 @@ import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.PUBL
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_ICON_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_TRAY_IMAGE_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_NAME_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_PUBLISHER_IN_QUERY;
-import static com.vinicius.sticker.domain.service.load.StickerPackListProvider.getStickerPackList;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -38,7 +37,6 @@ import androidx.annotation.NonNull;
 import com.vinicius.sticker.domain.data.database.dao.StickerDatabase;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.load.StickerPackListProvider;
 import com.vinicius.sticker.domain.service.load.StickerPackProvider;
 import com.vinicius.sticker.domain.service.load.StickerProvider;
 
@@ -54,7 +52,7 @@ public class StickerPackProviderQueryHelper {
     }
 
     public Cursor getPackForAllStickerPacks(@NonNull Uri uri, StickerDatabase dbHelper) {
-        return getListStickerPackInfo(uri, StickerPackListProvider.getStickerPackList(dbHelper));
+        return getListStickerPackInfo(uri, StickerPackProvider.getStickerPackList(dbHelper));
     }
 
     public Cursor getCursorForSingleStickerPack(@NonNull Uri uri, StickerDatabase dbHelper) {
@@ -107,7 +105,7 @@ public class StickerPackProviderQueryHelper {
     @NonNull
     private Cursor getListStickerPackInfo(@NonNull Uri uri, @NonNull List<StickerPack> stickerPackList) {
         MatrixCursor cursor = new MatrixCursor(
-                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_ICON_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
+                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_TRAY_IMAGE_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
         for (StickerPack stickerPack : stickerPackList) {
             MatrixCursor.RowBuilder builder = cursor.newRow();
             builder.add(stickerPack.identifier);
@@ -132,7 +130,7 @@ public class StickerPackProviderQueryHelper {
     @NonNull
     private Cursor getStickerPackInfo(@NonNull Uri uri, @NonNull StickerPack stickerPack) {
         MatrixCursor cursor = new MatrixCursor(
-                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_ICON_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
+                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_TRAY_IMAGE_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
 
         MatrixCursor.RowBuilder builder = cursor.newRow();
         builder.add(stickerPack.identifier);

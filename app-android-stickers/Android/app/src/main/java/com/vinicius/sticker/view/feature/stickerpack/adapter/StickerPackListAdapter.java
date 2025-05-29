@@ -15,7 +15,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,14 +26,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.domain.builder.StickerPackParserJsonBuilder;
-import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerConsumer;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
 import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListItemViewHolder;
-
-import org.json.JSONException;
 
 import java.util.List;
 
@@ -68,24 +63,6 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
     @Override
     public void onBindViewHolder(@NonNull final StickerPackListItemViewHolder viewHolder, final int index) {
         StickerPack stickerPack = stickerPacks.get(index);
-        // NOTE: DEBUB
-        StickerPackParserJsonBuilder builder = new StickerPackParserJsonBuilder();
-
-        try {
-            builder.setIdentifier(stickerPack.identifier).setName(stickerPack.name).setPublisher(stickerPack.publisher).setTrayImageFile(stickerPack.trayImageFile)
-                    .setImageDataVersion(stickerPack.imageDataVersion).setAvoidCache(stickerPack.avoidCache).setPublisherWebsite(stickerPack.publisherWebsite)
-                    .setPublisherEmail(stickerPack.publisherEmail).setPrivacyPolicyWebsite(stickerPack.privacyPolicyWebsite)
-                    .setLicenseAgreementWebsite(stickerPack.licenseAgreementWebsite).setAnimatedStickerPack(stickerPack.animatedStickerPack);
-
-            for (Sticker sticker : stickerPack.getStickers()) {
-                builder.addSticker(sticker.imageFileName, sticker.emojis, sticker.accessibilityText);
-            }
-
-            Log.d("BuilderSticker", builder.build());
-        } catch (JSONException jsonException) {
-            throw new RuntimeException(jsonException);
-        }
-        // NOTE: DEBUB
         final Context context = viewHolder.publisherView.getContext();
 
         viewHolder.publisherView.setText(stickerPack.publisher);

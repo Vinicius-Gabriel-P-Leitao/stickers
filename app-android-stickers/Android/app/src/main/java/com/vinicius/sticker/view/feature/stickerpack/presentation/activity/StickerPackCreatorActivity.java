@@ -34,7 +34,7 @@ import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
-import com.vinicius.sticker.view.feature.permission.fragment.PermissionRequestBottomSheetDialogFragment;
+import com.vinicius.sticker.view.feature.permission.fragment.PermissionRequestFragment;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.fragment.PackMetadataBottomSheetDialogFragment;
 
@@ -100,13 +100,13 @@ public class StickerPackCreatorActivity extends BaseActivity {
     }
 
     private void createStickerPackFlow() {
-        PermissionRequestBottomSheetDialogFragment permissionRequestBottomSheetDialogFragment = new PermissionRequestBottomSheetDialogFragment();
+        PermissionRequestFragment permissionRequestFragment = new PermissionRequestFragment();
 
         String[] permissions = getPermissionsToRequest(this);
         Log.i("Permissions Media", Arrays.toString(permissions));
         if (permissions.length > 0) {
-            permissionRequestBottomSheetDialogFragment.setPermissions(permissions);
-            permissionRequestBottomSheetDialogFragment.setCallback(new PermissionRequestBottomSheetDialogFragment.PermissionCallback() {
+            permissionRequestFragment.setPermissions(permissions);
+            permissionRequestFragment.setCallback(new PermissionRequestFragment.PermissionCallback() {
                 @Override
                 public void onPermissionsGranted() {
                     if (namePack == null || namePack.isEmpty()) {
@@ -122,7 +122,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
                 }
             });
 
-            permissionRequestBottomSheetDialogFragment.show(getSupportFragmentManager(), "permissionRequestBottomSheetDialogFragment");
+            permissionRequestFragment.show(getSupportFragmentManager(), "permissionRequestBottomSheetDialogFragment");
         } else {
             if (namePack == null || namePack.isEmpty()) {
                 openMetadataGetter();

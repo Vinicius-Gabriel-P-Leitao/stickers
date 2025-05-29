@@ -25,15 +25,12 @@ public class DeleteStickerPack {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         StickerPack fetchStickerPack = StickerPackConsumer.fetchStickerPack(context, stickerPackIdentifier);
-        if (fetchStickerPack.identifier ==
-                null) {
+        if (fetchStickerPack.identifier == null) {
             throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar.");
         }
         return db.delete(
-                StickerDatabase.TABLE_STICKER, StickerDatabase.FK_STICKER_PACK +
-                        " = ? AND " +
-                        StickerDatabase.STICKER_FILE_NAME_IN_QUERY +
-                        " = ?", new String[]{String.valueOf(fetchStickerPack), fileName});
+                StickerDatabase.TABLE_STICKER, StickerDatabase.FK_STICKER_PACK + " = ? AND " + StickerDatabase.STICKER_FILE_NAME_IN_QUERY + " = ?",
+                new String[]{String.valueOf(fetchStickerPack), fileName});
     }
 
     public static CallbackResult<Integer> deleteStickersOfPack(Context context, String stickerPackIdentifier) {
@@ -42,11 +39,10 @@ public class DeleteStickerPack {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
             int stickerDeleted = db.delete(
-                    StickerDatabase.TABLE_STICKER, StickerDatabase.FK_STICKER_PACK +
-                            " = ?", new String[]{stickerPackIdentifier});
+                    StickerDatabase.TABLE_STICKER, StickerDatabase.FK_STICKER_PACK + " = ?",
+                    new String[]{stickerPackIdentifier});
 
-            if (stickerDeleted ==
-                    0) {
+            if (stickerDeleted == 0) {
                 return CallbackResult.warning("Nenhuma linha foi deletada. Talvez o ID não exista.");
             }
 
@@ -62,11 +58,10 @@ public class DeleteStickerPack {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
             int stickerPackDeleted = db.delete(
-                    StickerDatabase.TABLE_STICKER_PACK, StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY +
-                            " = ?", new String[]{stickerPackIdentifier});
+                    StickerDatabase.TABLE_STICKER_PACK, StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?",
+                    new String[]{stickerPackIdentifier});
 
-            if (stickerPackDeleted ==
-                    0) {
+            if (stickerPackDeleted == 0) {
                 return CallbackResult.warning("Nenhuma linha foi deletada. Talvez o ID não exista.");
             }
 
