@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.view.main;
+package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
 
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;

@@ -26,7 +26,9 @@ import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerPackConsumer;
+import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorFirstActivity;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
+import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackListActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

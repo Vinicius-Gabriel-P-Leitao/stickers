@@ -43,9 +43,10 @@ public abstract class CreateStickerPackActivity extends BaseActivity {
     public GalleryMediaPickerLauncher viewModel;
     public RecyclerView recyclerView;
     public String namePack;
-    public Context context;
     public int numColumns;
     public View divider;
+
+    public Context context;
 
     public void saveNamePack(String namePack) {
         this.namePack = namePack;

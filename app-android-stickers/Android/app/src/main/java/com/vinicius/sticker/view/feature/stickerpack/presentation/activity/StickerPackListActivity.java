@@ -9,7 +9,7 @@
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
 
-package com.vinicius.sticker.view.main;
+package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
 
 import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.ANIMATED_STICKER;
 import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.STATIC_STICKER;
@@ -32,7 +32,6 @@ import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerPackConsumer;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPackListAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.AddStickerPackActivity;
 import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListItemViewHolder;
 

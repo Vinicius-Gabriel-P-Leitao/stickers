@@ -23,14 +23,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.main.StickerPackListActivity" />
+        <activity android:name=".view.feature.stickerpack.presentation.activity.StickerPackListActivity" />
         <activity
             android:name=".view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity"
-            android:parentActivityName=".view.main.StickerPackListActivity"
+            android:parentActivityName=".view.feature.stickerpack.presentation.activity.StickerPackListActivity"
             tools:ignore="UnusedAttribute">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.main.StickerPackListActivity" />
+                android:value=".view.feature.stickerpack.presentation.activity.StickerPackListActivity" />
         </activity>
         <activity
             android:name=".view.feature.stickerpack.presentation.activity.StickerPackInfoActivity"
@@ -46,10 +46,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity" />
         </activity>
-        <activity android:name=".view.main.StickerPackCreatorFirstActivity">
+        <activity android:name=".view.feature.stickerpack.presentation.activity.StickerPackCreatorFirstActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.main.StickerPackCreatorFirstActivity" />
+                android:value=".view.feature.stickerpack.presentation.activity.StickerPackCreatorFirstActivity" />
         </activity>
 
         <provider
