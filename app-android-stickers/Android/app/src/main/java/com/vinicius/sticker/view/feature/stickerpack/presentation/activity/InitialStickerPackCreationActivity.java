@@ -27,6 +27,7 @@ import com.vinicius.sticker.view.main.EntryActivity;
 public class InitialStickerPackCreationActivity extends StickerPackCreationFlow {
     public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
     public static final String DATABASE_EMPTY = "database_empty";
+
     public String selectedFormat = null;
 
     public void setFormat(String format) {
@@ -84,16 +85,6 @@ public class InitialStickerPackCreationActivity extends StickerPackCreationFlow 
         }
 
         Toast.makeText(this, "Erro ao abrir galeria!", Toast.LENGTH_SHORT).show();
-    }
-
-    // NOTE: Padrão da abstração é notificar a activity passada quando o showup button voltar, porem necessário fazer isso para ela dar o reload
-    //  forçado
-    @Override
-    public boolean onSupportNavigateUp() {
-        Intent intent = new Intent(context, EntryActivity.class);
-        startActivity(intent);
-
-        return true;
     }
 
     private void setStateSupportActionBar(StickerPack stickerPack) {

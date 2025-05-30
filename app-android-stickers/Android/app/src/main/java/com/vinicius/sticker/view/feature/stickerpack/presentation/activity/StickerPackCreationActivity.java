@@ -13,12 +13,14 @@ import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPicke
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.launchOwnGallery;
 
 import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackCreationFlow;
+import com.vinicius.sticker.view.main.EntryActivity;
 
 public class StickerPackCreationActivity extends StickerPackCreationFlow {
     public static final String EXTRA_STICKER_FORMAT = "sticker_format";

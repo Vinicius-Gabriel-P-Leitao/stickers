@@ -34,6 +34,7 @@ import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLaunch
 import com.vinicius.sticker.view.feature.permission.fragment.PermissionRequestFragment;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.fragment.StickerPackMetadataFragment;
+import com.vinicius.sticker.view.main.EntryActivity;
 
 public abstract class StickerPackCreationFlow extends BaseActivity {
     public static final String STATIC_STICKER = "animated";
@@ -60,11 +61,7 @@ public abstract class StickerPackCreationFlow extends BaseActivity {
         setContentView(R.layout.activity_create_sticker_pack);
 
         viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
-        viewModel.getStickerPackToPreview().observe(
-                this, result -> {
-                    setupStickerPackView(result);
-                    notifyStickerPackCreated(result.identifier);
-                });
+        viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
 
         setupUI(savedInstanceState);
     }
@@ -168,10 +165,12 @@ public abstract class StickerPackCreationFlow extends BaseActivity {
         }
     }
 
-    public void notifyStickerPackCreated(@Nullable String stickerPackIdentifier) {
-        if (stickerPackIdentifier != null) {
-            setResult(RESULT_OK);
-        }
+    @Override
+    public boolean onSupportNavigateUp() {
+        Intent intent = new Intent(context, EntryActivity.class);
+        startActivity(intent);
+
+        return true;
     }
 
     public final RecyclerView.OnScrollListener dividerScrollListener = new RecyclerView.OnScrollListener() {

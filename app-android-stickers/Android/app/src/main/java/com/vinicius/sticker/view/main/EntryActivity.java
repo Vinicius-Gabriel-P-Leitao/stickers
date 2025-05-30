@@ -105,7 +105,6 @@ public class EntryActivity extends BaseActivity {
     }
 
     private final ActivityResultLauncher<Intent> createPackLauncher = registerForActivityResult(
-            // NOTE: Necessário renderizar a lista toda de novo devido a erros de UI quando tenta atualizar só o ultimo item
             new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK) {
                     loadStickerPacks();

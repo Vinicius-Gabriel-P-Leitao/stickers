@@ -110,10 +110,6 @@ public class StickerPackDetailsActivity extends StickerPackAddFlow {
         packTrayIcon.setImageURI(StickerConsumer.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile));
         packSizeTextView.setText(Formatter.formatShortFileSize(this, stickerPack.getTotalSize()));
 
-        /**
-        FIXME: Validar o por que de quando se cria um primeiro pacote e ao criar outro ele deleta todos os dados do priemiro pacote e coloca do
-            segundo.
-        */
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
         buttonCreateStickerPackage.setOnClickListener(view -> {
             FormatStickerPopupWindow.popUpButtonChooserStickerModel(

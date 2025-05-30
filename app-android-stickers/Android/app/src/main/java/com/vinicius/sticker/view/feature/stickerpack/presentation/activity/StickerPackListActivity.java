@@ -132,30 +132,10 @@ public class StickerPackListActivity extends StickerPackAddFlow {
         }
     }
 
-    private final ActivityResultLauncher<Intent> createPackLauncher = registerForActivityResult(
-            // NOTE: Necessário renderizar a lista toda de novo devido a erros de UI quando tenta atualizar só o ultimo item
-            new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    List<StickerPack> stickerPackArray = StickerPackConsumer.fetchStickerPackList(getBaseContext());
-                    if (stickerPackList != null) {
-
-                        for (StickerPack stickerPack : stickerPackArray) {
-                            stickerPack.setIsWhitelisted(WhatsappWhitelistValidator.isWhitelisted(getBaseContext(), stickerPack.identifier));
-                        }
-
-                        allStickerPacksListAdapter.addStickerPack(stickerPackArray);
-                        if (getSupportActionBar() != null) {
-                            getSupportActionBar().setTitle(
-                                    getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, stickerPackList.size()));
-                        }
-                    }
-                }
-            });
-
     private void openCreateStickerPackActivity(String format) {
         Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreationActivity.class);
         intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
-        createPackLauncher.launch(intent);
+        startActivity(intent);
     }
 
     static class LoadListStickerPackAsyncTask {
