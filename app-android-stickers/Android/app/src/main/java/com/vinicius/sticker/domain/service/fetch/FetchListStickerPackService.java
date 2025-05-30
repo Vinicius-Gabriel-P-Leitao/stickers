@@ -9,23 +9,23 @@
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
 
-package com.vinicius.sticker.domain.service.load;
+package com.vinicius.sticker.domain.service.fetch;
 
-import static com.vinicius.sticker.domain.data.content.provider.StickerContentProvider.AUTHORITY_URI;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.ANIMATED_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.AVOID_CACHE;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.IMAGE_DATA_VERSION;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.LICENSE_AGREEMENT_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.PRIVACY_POLICY_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.PUBLISHER_EMAIL;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.PUBLISHER_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_TRAY_IMAGE_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_PUBLISHER_IN_QUERY;
-import static com.vinicius.sticker.domain.service.delete.StickerDeleteService.deleteStickerByIdentifier;
+import static com.vinicius.sticker.domain.data.content.StickerContentProvider.AUTHORITY_URI;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.ANIMATED_STICKER_PACK;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.AVOID_CACHE;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.IMAGE_DATA_VERSION;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.LICENSE_AGREEMENT_WEBSITE;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.PRIVACY_POLICY_WEBSITE;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.PUBLISHER_EMAIL;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.PUBLISHER_WEBSITE;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_TRAY_IMAGE_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_PUBLISHER_IN_QUERY;
+import static com.vinicius.sticker.domain.service.delete.DeleteStickerService.deleteStickerByIdentifier;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -34,6 +34,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 
 import com.vinicius.sticker.BuildConfig;
+import com.vinicius.sticker.core.exception.ContentProviderException;
 import com.vinicius.sticker.core.exception.StickerFileException;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.core.validation.StickerValidator;
@@ -47,7 +48,7 @@ import java.util.List;
 /**
  * Busca lista com pacotes de figurinhas.
  */
-public class StickerPackConsumer {
+public class FetchListStickerPackService {
 
     /**
      * <b>Descrição:</b>Busca os pacotes de figurinhas direto do content provider.
@@ -65,7 +66,7 @@ public class StickerPackConsumer {
         final Cursor cursor = context.getContentResolver().query(AUTHORITY_URI, null, null, null, null);
 
         if (cursor == null) {
-            throw new IllegalStateException("could not fetch from content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY);
+            throw new ContentProviderException("Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY);
         }
 
         HashSet<String> identifierSet = new HashSet<>();
@@ -75,20 +76,21 @@ public class StickerPackConsumer {
             stickerPackList = new ArrayList<>(fetchListFromContentProvider(cursor, context));
         } else {
             cursor.close();
-            throw new IllegalStateException("No sticker packs found in the content provider");
+            throw new ContentProviderException("Nenhum pacote de figurinhas encontrado nocontent provider");
         }
 
         for (StickerPack stickerPack : stickerPackList) {
             if (identifierSet.contains(stickerPack.identifier)) {
-                throw new IllegalStateException(
-                        "sticker pack identifiers should be unique, there are more than one pack with identifier: " + stickerPack.identifier);
+                throw new ContentProviderException(
+                        "Os identificadores dos pacotes de figurinhas devem ser únicos, há mais de um pacote com identificador: " +
+                                stickerPack.identifier);
             } else {
                 identifierSet.add(stickerPack.identifier);
             }
         }
 
         if (stickerPackList.isEmpty()) {
-            throw new IllegalStateException("There should be at least one sticker pack in the app");
+            throw new ContentProviderException("Deve haver pelo menos um pacote de adesivos no aplicativo");
         }
 
         for (StickerPack stickerPack : stickerPackList) {
@@ -114,8 +116,8 @@ public class StickerPackConsumer {
     public static StickerPack fetchStickerPack(Context context, String stickerPackIdentifier) throws IllegalStateException {
         Cursor cursor = context.getContentResolver().query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null, null);
 
-        if (cursor == null) {
-            throw new IllegalStateException("could not fetch from content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY);
+        if (cursor == null || cursor.getCount() == 0) {
+            throw new ContentProviderException("Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY);
         }
 
         final StickerPack stickerPack;
@@ -124,7 +126,7 @@ public class StickerPackConsumer {
             stickerPack = fetchFromContentProvider(cursor, context);
         } else {
             cursor.close();
-            throw new IllegalStateException("No sticker packs found in the content provider");
+            throw new ContentProviderException("Nenhum pacote de figurinhas encontrado no content provider");
         }
 
         try {
@@ -184,7 +186,7 @@ public class StickerPackConsumer {
                 identifier, name, publisher, trayImage, publisherEmail, publisherWebsite, privacyPolicyWebsite, licenseAgreementWebsite,
                 imageDataVersion, avoidCache, animatedStickerPack);
 
-        List<Sticker> stickers = StickerConsumer.getStickersForPack(context, identifier);
+        List<Sticker> stickers = FetchListStickerService.fetchListStickerForPack(context, identifier);
         stickerPack.setStickers(stickers);
 
         stickerPack.setAndroidPlayStoreLink(androidPlayStoreLink);

@@ -6,44 +6,94 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.domain.service.load;
+package com.vinicius.sticker.domain.data.content.provider;
 
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.ANIMATED_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.AVOID_CACHE;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.IMAGE_DATA_VERSION;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.LICENSE_AGREEMENT_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.PRIVACY_POLICY_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.PUBLISHER_EMAIL;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.PUBLISHER_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_PUBLISHER_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_PACK_TRAY_IMAGE_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.ANIMATED_STICKER_PACK;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.AVOID_CACHE;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.IMAGE_DATA_VERSION;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.LICENSE_AGREEMENT_WEBSITE;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.PRIVACY_POLICY_WEBSITE;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.PUBLISHER_EMAIL;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.PUBLISHER_WEBSITE;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_PUBLISHER_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_TRAY_IMAGE_IN_QUERY;
 
+import android.content.Context;
 import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.vinicius.sticker.domain.data.database.dao.StickerDatabase;
-import com.vinicius.sticker.domain.data.database.repository.SelectStickerPacks;
+import com.vinicius.sticker.domain.data.database.StickerDatabase;
+import com.vinicius.sticker.domain.data.database.repository.SelectStickerPackRepo;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StickerPackProvider {
+public class StickerPackQueryProvider {
+    @NonNull
+    public static Cursor getListStickerPackInfo(@NonNull Context context, @NonNull Uri uri, @NonNull List<StickerPack> stickerPackList) {
+        MatrixCursor cursor = new MatrixCursor(
+                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_TRAY_IMAGE_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
 
-    public static List<StickerPack> getStickerPackList(StickerDatabase dbHelper) {
-        return getListStickerPackFromDatabase(dbHelper);
+        for (StickerPack stickerPack : stickerPackList) {
+            MatrixCursor.RowBuilder builder = cursor.newRow();
+            builder.add(stickerPack.identifier);
+            builder.add(stickerPack.name);
+            builder.add(stickerPack.publisher);
+            builder.add(stickerPack.trayImageFile);
+            builder.add(stickerPack.androidPlayStoreLink);
+            builder.add(stickerPack.iosAppStoreLink);
+            builder.add(stickerPack.publisherEmail);
+            builder.add(stickerPack.publisherWebsite);
+            builder.add(stickerPack.privacyPolicyWebsite);
+            builder.add(stickerPack.licenseAgreementWebsite);
+            builder.add(stickerPack.imageDataVersion);
+            builder.add(stickerPack.avoidCache ? 1 : 0);
+            builder.add(stickerPack.animatedStickerPack ? 1 : 0);
+        }
+
+        cursor.setNotificationUri(context.getContentResolver(), uri);
+        return cursor;
     }
 
-    private static List<StickerPack> getListStickerPackFromDatabase(StickerDatabase dbHelper) {
-        Cursor cursor = SelectStickerPacks.getAllStickerPacks(dbHelper);
+    @NonNull
+    public static Cursor getStickerPackInfo(@NonNull Context context, @NonNull Uri uri, @NonNull StickerPack stickerPack) {
+        MatrixCursor cursor = new MatrixCursor(
+                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_TRAY_IMAGE_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
+
+        MatrixCursor.RowBuilder builder = cursor.newRow();
+        builder.add(stickerPack.identifier);
+        builder.add(stickerPack.name);
+        builder.add(stickerPack.publisher);
+        builder.add(stickerPack.trayImageFile);
+        builder.add(stickerPack.androidPlayStoreLink);
+        builder.add(stickerPack.iosAppStoreLink);
+        builder.add(stickerPack.publisherEmail);
+        builder.add(stickerPack.publisherWebsite);
+        builder.add(stickerPack.privacyPolicyWebsite);
+        builder.add(stickerPack.licenseAgreementWebsite);
+        builder.add(stickerPack.imageDataVersion);
+        builder.add(stickerPack.avoidCache ? 1 : 0);
+        builder.add(stickerPack.animatedStickerPack ? 1 : 0);
+
+        cursor.setNotificationUri(context.getContentResolver(), uri);
+        return cursor;
+    }
+
+    public static List<StickerPack> getListStickerPackFromDatabase(StickerDatabase dbHelper) {
+        Cursor cursor = SelectStickerPackRepo.getAllStickerPacks(dbHelper);
         List<StickerPack> stickerPackList = new ArrayList<>();
 
         try {
@@ -91,12 +141,8 @@ public class StickerPackProvider {
         return stickerPackList;
     }
 
-    public static StickerPack getStickerPack(@NonNull StickerDatabase dbHelper, @Nullable String stickerPackIdentifier) {
-        return getStickerPackFromDatabase(dbHelper, stickerPackIdentifier);
-    }
-
-    private static StickerPack getStickerPackFromDatabase(@NonNull StickerDatabase dbHelper, @Nullable String stickerPackIdentifier) {
-        Cursor cursor = SelectStickerPacks.getStickerPackByIdentifier(dbHelper, stickerPackIdentifier);
+    public static StickerPack getStickerPackFromDatabase(@NonNull StickerDatabase dbHelper, @Nullable String stickerPackIdentifier) {
+        Cursor cursor = SelectStickerPackRepo.getStickerPackByIdentifier(dbHelper, stickerPackIdentifier);
         StickerPack stickerPack = null;
 
         try {
@@ -136,4 +182,3 @@ public class StickerPackProvider {
         return stickerPack;
     }
 }
-

@@ -6,13 +6,14 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.domain.data.database.dao;
+package com.vinicius.sticker.domain.data.database;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+// @formatter:off
 public class StickerDatabase extends SQLiteOpenHelper {
     private static StickerDatabase instance;
 
@@ -58,25 +59,58 @@ public class StickerDatabase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(
-                "CREATE TABLE IF NOT EXISTS " + TABLE_STICKER_PACKS + " (" + ID_STICKER_PACKS + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        ANDROID_APP_DOWNLOAD_LINK_IN_QUERY + " VARCHAR(100), " + IOS_APP_DOWNLOAD_LINK_IN_QUERY + " VARCHAR(100)" + ")");
+                "CREATE TABLE IF NOT EXISTS " + TABLE_STICKER_PACKS +
+                        " (" +
+                            ID_STICKER_PACKS + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            ANDROID_APP_DOWNLOAD_LINK_IN_QUERY + " VARCHAR(100), " +
+                            IOS_APP_DOWNLOAD_LINK_IN_QUERY + " VARCHAR(100)" +
+                        ")"
+        );
 
         String fkStickerPacks = String.format(
-                "FOREIGN KEY(%s) REFERENCES %s(%s) ON DELETE CASCADE", FK_STICKER_PACKS, TABLE_STICKER_PACKS,
-                ID_STICKER_PACKS);
+                "FOREIGN KEY(%s) REFERENCES %s(%s) ON DELETE CASCADE",
+                FK_STICKER_PACKS,
+                TABLE_STICKER_PACKS,
+                ID_STICKER_PACKS
+        );
 
-        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_STICKER_PACK + " (" + ID_STICKER_PACK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                STICKER_PACK_IDENTIFIER_IN_QUERY + " UUID TEXT NOT NULL UNIQUE, " + STICKER_PACK_NAME_IN_QUERY + " VARCHAR(20) NOT NULL, " +
-                STICKER_PACK_PUBLISHER_IN_QUERY + " VARCHAR(20) NOT NULL, " + STICKER_PACK_TRAY_IMAGE_IN_QUERY + " CHAR(3) NOT NULL, " +
-                PUBLISHER_EMAIL + " VARCHAR(60), " + PUBLISHER_WEBSITE + " VARCHAR(40), " + PRIVACY_POLICY_WEBSITE + " VARCHAR(100), " +
-                LICENSE_AGREEMENT_WEBSITE + " VARCHAR(100), " + ANIMATED_STICKER_PACK + " CHAR(1) NOT NULL, " + IMAGE_DATA_VERSION + " CHAR(4), " +
-                AVOID_CACHE + " CHAR(5), " + FK_STICKER_PACKS + " INTEGER, " + fkStickerPacks + ")");
+        sqLiteDatabase.execSQL(
+                "CREATE TABLE IF NOT EXISTS " + TABLE_STICKER_PACK +
+                        " (" +
+                            ID_STICKER_PACK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            STICKER_PACK_IDENTIFIER_IN_QUERY + " UUID TEXT NOT NULL UNIQUE, " +
+                            STICKER_PACK_NAME_IN_QUERY + " VARCHAR(20) NOT NULL, " +
+                            STICKER_PACK_PUBLISHER_IN_QUERY + " VARCHAR(20) NOT NULL, " +
+                            STICKER_PACK_TRAY_IMAGE_IN_QUERY + " CHAR(3) NOT NULL, " +
+                            PUBLISHER_EMAIL + " VARCHAR(60), " +
+                            PUBLISHER_WEBSITE + " VARCHAR(40), " +
+                            PRIVACY_POLICY_WEBSITE + " VARCHAR(100), " +
+                            LICENSE_AGREEMENT_WEBSITE + " VARCHAR(100), " +
+                            ANIMATED_STICKER_PACK + " CHAR(1) NOT NULL, " +
+                            IMAGE_DATA_VERSION + " CHAR(4), " +
+                            AVOID_CACHE + " CHAR(5), " +
+                            FK_STICKER_PACKS + " INTEGER, " +
+                            fkStickerPacks +
+                        ")"
+        );
 
-        String fkSticker = String.format("FOREIGN KEY(%s) REFERENCES %s(%s) ON DELETE CASCADE", FK_STICKER_PACK, TABLE_STICKER_PACK, ID_STICKER_PACK);
+        String fkSticker = String.format(
+                "FOREIGN KEY(%s) REFERENCES %s(%s) ON DELETE CASCADE",
+                FK_STICKER_PACK,
+                TABLE_STICKER_PACK,
+                ID_STICKER_PACK
+        );
 
-        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_STICKER + " (" + ID_STICKER + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                STICKER_FILE_NAME_IN_QUERY + " VARCHAR(255) NOT NULL, " + STICKER_FILE_EMOJI_IN_QUERY + " TEXT NOT NULL, " +
-                STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY + " TEXT NOT NULL, " + FK_STICKER_PACK + " INTEGER, " + fkSticker + ")");
+        sqLiteDatabase.execSQL(
+                "CREATE TABLE IF NOT EXISTS " + TABLE_STICKER +
+                        " (" +
+                            ID_STICKER + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            STICKER_FILE_NAME_IN_QUERY + " VARCHAR(255) NOT NULL, " +
+                            STICKER_FILE_EMOJI_IN_QUERY + " TEXT NOT NULL, " +
+                            STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY + " TEXT NOT NULL, " +
+                            FK_STICKER_PACK + " INTEGER, " + fkSticker +
+                        ")"
+        );
     }
 
     @Override
@@ -84,6 +118,7 @@ public class StickerDatabase extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_STICKER_PACKS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_STICKER_PACK);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_STICKER);
+
         onCreate(db);
     }
 
@@ -91,6 +126,7 @@ public class StickerDatabase extends SQLiteOpenHelper {
         if (instance == null) {
             instance = new StickerDatabase(context.getApplicationContext());
         }
+
         return instance;
     }
 
@@ -103,7 +139,6 @@ public class StickerDatabase extends SQLiteOpenHelper {
         }
 
         cursor.close();
-
         return empty;
     }
 }

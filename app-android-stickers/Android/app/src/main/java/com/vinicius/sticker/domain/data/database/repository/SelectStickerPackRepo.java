@@ -11,10 +11,10 @@ package com.vinicius.sticker.domain.data.database.repository;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.vinicius.sticker.domain.data.database.dao.StickerDatabase;
+import com.vinicius.sticker.domain.data.database.StickerDatabase;
 
 // @formatter:off
-public class SelectStickerPacks {
+public class SelectStickerPackRepo {
     public static Cursor getAllStickerPacks(StickerDatabase dbHelper) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 

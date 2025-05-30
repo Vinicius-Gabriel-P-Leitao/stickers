@@ -53,7 +53,7 @@
         </activity>
 
         <provider
-            android:name=".domain.data.content.provider.StickerContentProvider"
+            android:name=".domain.data.content.StickerContentProvider"
             android:authorities="${contentProviderAuthority}"
             android:enabled="true"
             android:exported="true"

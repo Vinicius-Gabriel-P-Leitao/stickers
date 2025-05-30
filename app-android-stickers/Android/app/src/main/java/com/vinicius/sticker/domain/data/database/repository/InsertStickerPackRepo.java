@@ -8,11 +8,11 @@
 
 package com.vinicius.sticker.domain.data.database.repository;
 
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.TABLE_STICKER;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.TABLE_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.TABLE_STICKER_PACKS;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.TABLE_STICKER;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.TABLE_STICKER_PACK;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.TABLE_STICKER_PACKS;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
@@ -24,7 +24,8 @@ import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.core.pattern.CallbackResult;
 
-public class InsertStickerPacks {
+// @formatter:off
+public class InsertStickerPackRepo {
 
     public interface InsertStickerPackCallback {
         void onInsertResult(CallbackResult<StickerPack> result);
@@ -36,6 +37,7 @@ public class InsertStickerPacks {
                     ContentValues stickerPacksValues = new ContentValues();
                     stickerPacksValues.put(ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, pack.androidPlayStoreLink);
                     stickerPacksValues.put(IOS_APP_DOWNLOAD_LINK_IN_QUERY, pack.iosAppStoreLink);
+
                     long stickerPackId = dbHelper.insert(TABLE_STICKER_PACKS, null, stickerPacksValues);
 
                     if (stickerPackId != -1) {

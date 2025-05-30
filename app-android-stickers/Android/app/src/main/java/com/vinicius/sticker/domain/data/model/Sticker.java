@@ -11,16 +11,25 @@
 
 package com.vinicius.sticker.domain.data.model;
 
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.FK_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.FK_STICKER_PACK;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
 
 import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Sticker implements Parcelable {
+    public final String imageFileName;
+    public final String emojis;
+    public final String accessibilityText;
+    long size;
+
+    public void setSize(long size) {
+        this.size = size;
+    }
+
     public static final Creator<Sticker> CREATOR = new Creator<Sticker>() {
         @Override
         public Sticker createFromParcel(Parcel in) {
@@ -32,10 +41,6 @@ public class Sticker implements Parcelable {
             return new Sticker[size];
         }
     };
-    public final String imageFileName;
-    public final String emojis;
-    public final String accessibilityText;
-    long size;
 
     public Sticker(String imageFileName, String emojis, String accessibilityText) {
         this.imageFileName = imageFileName;
@@ -43,15 +48,11 @@ public class Sticker implements Parcelable {
         this.accessibilityText = accessibilityText;
     }
 
-    public Sticker(Parcel in) {
-        imageFileName = in.readString();
-        emojis = in.readString();
-        accessibilityText = in.readString();
-        size = in.readLong();
-    }
-
-    public void setSize(long size) {
-        this.size = size;
+    public Sticker(Parcel parcel) {
+        imageFileName = parcel.readString();
+        emojis = parcel.readString();
+        accessibilityText = parcel.readString();
+        size = parcel.readLong();
     }
 
     @Override

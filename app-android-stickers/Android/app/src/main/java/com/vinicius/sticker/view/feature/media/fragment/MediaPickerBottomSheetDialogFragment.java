@@ -33,7 +33,7 @@ import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.exception.MediaConversionException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.core.exception.base.InternalAppException;
-import com.vinicius.sticker.domain.service.save.StickerPackCreatorManager;
+import com.vinicius.sticker.domain.orchestrator.StickerPackOrchestrator;
 import com.vinicius.sticker.view.core.component.BottomFadingRecyclerView;
 import com.vinicius.sticker.view.core.util.ConvertMediaToStickerFormat;
 import com.vinicius.sticker.view.feature.media.adapter.PickMediaListAdapter;
@@ -211,7 +211,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
         if (completedConversions == totalConversions) {
             progressBar.setVisibility(View.GONE);
 
-            StickerPackCreatorManager.generateObjectToSave(
+            StickerPackOrchestrator.generateObjectToSave(
                     requireContext(), isAnimatedPack, mediaConvertedFile, namePack, callbackResult -> {
                         if (getContext() != null && isAdded()) {
                             switch (callbackResult.getStatus()) {
