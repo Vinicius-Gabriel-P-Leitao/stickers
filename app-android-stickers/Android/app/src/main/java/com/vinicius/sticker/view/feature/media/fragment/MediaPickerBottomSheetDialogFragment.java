@@ -116,6 +116,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         viewModel = new ViewModelProvider(requireActivity()).get(GalleryMediaPickerLauncher.class);
         viewModel.getFragment().observe(
                 getViewLifecycleOwner(), isVisible -> {
@@ -210,7 +211,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
         if (completedConversions == totalConversions) {
             progressBar.setVisibility(View.GONE);
 
-            StickerPackCreatorManager.generateJsonPack(
+            StickerPackCreatorManager.generateObjectToSave(
                     requireContext(), isAnimatedPack, mediaConvertedFile, namePack, callbackResult -> {
                         if (getContext() != null && isAdded()) {
                             switch (callbackResult.getStatus()) {
@@ -223,9 +224,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
                                     break;
                                 case FAILURE:
                                     if (callbackResult.getError() instanceof InternalAppException exception) {
-                                        Toast.makeText(
-                                                getContext(), "Erro interno ao salvar pacote de figurinhas: " + exception.getMessage(),
-                                                Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
                                         break;
                                     }
 

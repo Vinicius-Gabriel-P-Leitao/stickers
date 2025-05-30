@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.service.save.StickerPackCreatorManager;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
 import com.vinicius.sticker.view.feature.permission.fragment.PermissionRequestFragment;
@@ -60,8 +61,11 @@ public abstract class StickerPackCreationFlow extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_sticker_pack);
 
+        getViewModelStore().clear();
         viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
         viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
+
+        StickerPackCreatorManager.resetData();
 
         setupUI(savedInstanceState);
     }
@@ -169,6 +173,7 @@ public abstract class StickerPackCreationFlow extends BaseActivity {
     public boolean onSupportNavigateUp() {
         Intent intent = new Intent(context, EntryActivity.class);
         startActivity(intent);
+        finish();
 
         return true;
     }

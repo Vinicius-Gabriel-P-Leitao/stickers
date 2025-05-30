@@ -28,30 +28,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// @formatter:off
 public class GalleryMediaPickerLauncher extends ViewModel {
 
     public static final String[] IMAGE_MIME_TYPES = {"image/jpeg", "image/png"};
     public static final String[] ANIMATED_MIME_TYPES = {"video/mp4", "image/gif"};
+    public enum MediaType { IMAGE_MIME_TYPES, ANIMATED_MIME_TYPES }
 
-    public enum MediaType {
-        IMAGE_MIME_TYPES, ANIMATED_MIME_TYPES
-    }
-
+    // NOTE: Pacote para o preview na activity
     private final MutableLiveData<StickerPack> stickerPackPreview = new MutableLiveData<>();
-
     public LiveData<StickerPack> getStickerPackToPreview() {
         return stickerPackPreview;
     }
 
+    public void setStickerPackToPreview(StickerPack stickerPack) { stickerPackPreview.setValue(stickerPack); }
+
+    // NOTE: Estado do fragment
     private final MutableLiveData<Boolean> fragmentVisibility = new MutableLiveData<>(false);
 
-    public LiveData<Boolean> getFragment() {
-        return fragmentVisibility;
-    }
-
-    public void setStickerPackToPreview(StickerPack stickerPack) {
-        stickerPackPreview.setValue(stickerPack);
-    }
+    public LiveData<Boolean> getFragment() { return fragmentVisibility; }
 
     public void openFragmentState() {
         fragmentVisibility.setValue(false);
@@ -60,6 +55,7 @@ public class GalleryMediaPickerLauncher extends ViewModel {
     public void closeFragmentState() {
         fragmentVisibility.setValue(true);
     }
+
 
     public static void launchOwnGallery(FragmentActivity activity, String[] mimeType, String namePack) {
         List<Uri> uris = new ArrayList<>();

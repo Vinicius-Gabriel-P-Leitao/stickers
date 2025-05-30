@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -182,8 +183,12 @@ public class StickerPackDetailsActivity extends StickerPackAddFlow {
 
     private void openCreateStickerPackActivity(String format) {
         Intent intent = new Intent(StickerPackDetailsActivity.this, StickerPackCreationActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
         startActivity(intent);
+
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        finish();
     }
 
     @Override

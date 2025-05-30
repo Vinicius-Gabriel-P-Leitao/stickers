@@ -51,7 +51,7 @@ public class StickerPackSaveService {
     }
 
     public static void generateStructureForSavePack(
-            Context context, StickerPack stickerPack, String previousIdentifier,
+            Context context, StickerPack stickerPack,
             SaveStickerPackCallback callback
     ) {
 
@@ -60,7 +60,7 @@ public class StickerPackSaveService {
             return;
         }
 
-        if (shouldDeletePreviousPack(stickerPack.identifier, previousIdentifier)) {
+        if (shouldDeletePreviousPack(context, stickerPack.identifier)) {
             if (!deletePreviousPack(context, stickerPack.identifier, callback)) {
                 return;
             }
@@ -105,8 +105,11 @@ public class StickerPackSaveService {
         return true;
     }
 
-    private static boolean shouldDeletePreviousPack(String currentIdentifier, String previousIdentifier) {
-        return currentIdentifier.equals(previousIdentifier) || previousIdentifier != null;
+    private static boolean shouldDeletePreviousPack(Context context,String stickerPackIdentifier ) {
+        File mainDir = new File(context.getFilesDir(), STICKERS_ASSET);
+        File stickerPackDir = new File(mainDir, stickerPackIdentifier);
+
+        return stickerPackDir.exists() && stickerPackDir.isDirectory();
     }
 
     private static boolean deletePreviousPack(Context context, String stickerPackIdentifier, SaveStickerPackCallback callback) {

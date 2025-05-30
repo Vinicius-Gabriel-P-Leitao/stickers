@@ -19,6 +19,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.vinicius.sticker.R;
+import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackCreationFlow;
 import com.vinicius.sticker.view.main.EntryActivity;
 
@@ -47,12 +48,12 @@ public class StickerPackCreationActivity extends StickerPackCreationFlow {
         String selectedFormat = getIntent().getStringExtra(EXTRA_STICKER_FORMAT);
 
         if (selectedFormat != null && selectedFormat.equals(STATIC_STICKER)) {
-            launchOwnGallery(this, IMAGE_MIME_TYPES, namePack);
+            GalleryMediaPickerLauncher.launchOwnGallery(this, IMAGE_MIME_TYPES, namePack);
             return;
         }
 
         if (selectedFormat != null && selectedFormat.equals(ANIMATED_STICKER)) {
-            launchOwnGallery(this, ANIMATED_MIME_TYPES, namePack);
+            GalleryMediaPickerLauncher.launchOwnGallery(this, ANIMATED_MIME_TYPES, namePack);
             return;
         }
 

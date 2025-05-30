@@ -132,11 +132,13 @@ public class StickerPackListActivity extends StickerPackAddFlow {
         }
     }
 
-    private void openCreateStickerPackActivity(String format) {
-        Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreationActivity.class);
-        intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
-        startActivity(intent);
-    }
+        private void openCreateStickerPackActivity(String format) {
+            Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreationActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
+            startActivity(intent);
+            finish();
+        }
 
     static class LoadListStickerPackAsyncTask {
         private final WeakReference<StickerPackListActivity> stickerPackListActivityWeakReference;

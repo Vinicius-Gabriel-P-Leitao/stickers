@@ -31,20 +31,20 @@ import java.util.UUID;
 // @formatter:off
 public class StickerPackCreatorManager {
 
-    private static final List<Sticker> stickers = new ArrayList<>();
-    private static final String uuidPack = UUID.randomUUID().toString();
+    private static final List<Sticker> stickerList = new ArrayList<>();
+    private static String uuidPack = UUID.randomUUID().toString();
 
     @FunctionalInterface
     public interface SavedStickerPackCallback {
         void onSavedStickerPack(CallbackResult<StickerPack> callbackResult);
     }
 
-    public static void generateJsonPack(
+    public static void generateObjectToSave(
             Context context, boolean isAnimatedPack, List<File> fileList, String namePack,
             SavedStickerPackCallback savedStickerPackCallback
     ) {
         try {
-            stickers.clear();
+            stickerList.clear();
             StickerPack stickerPack = new StickerPack(
                     uuidPack,
                     namePack.trim(),
@@ -61,7 +61,7 @@ public class StickerPackCreatorManager {
             for (File file : fileList) {
                 boolean exists = false;
 
-                for (Sticker sticker : stickers) {
+                for (Sticker sticker : stickerList) {
                     if (sticker.imageFileName.equals(file.getName())) {
                         exists = true;
                         break;
@@ -69,18 +69,18 @@ public class StickerPackCreatorManager {
                 }
 
                 if (!exists) {
-                    stickers.add(new Sticker(file.getName().trim(), "\uD83D\uDDFF", "Sticker pack"));
+                    stickerList.add(new Sticker(file.getName().trim(), "\uD83D\uDDFF", "Sticker pack"));
                 }
             }
 
-            stickerPack.setStickers(stickers);
+            stickerPack.setStickers(stickerList);
             try {
                 if (stickerPack.identifier == null) {
                     throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar.");
                 }
 
                 StickerPackSaveService.generateStructureForSavePack(
-                        context, stickerPack, stickerPack.identifier, callbackResult -> {
+                        context, stickerPack, callbackResult -> {
                             switch (callbackResult.getStatus()) {
                                 case SUCCESS:
                                     savedStickerPackCallback.onSavedStickerPack(CallbackResult.success(callbackResult.getData()));
@@ -131,5 +131,10 @@ public class StickerPackCreatorManager {
         } catch (DeleteStickerException exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    public static void resetData() {
+        stickerList.clear();
+        uuidPack = UUID.randomUUID().toString();
     }
 }
