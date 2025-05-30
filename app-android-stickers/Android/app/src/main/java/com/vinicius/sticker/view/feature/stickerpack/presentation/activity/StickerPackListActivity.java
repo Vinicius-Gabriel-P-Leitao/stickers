@@ -47,7 +47,7 @@ public class StickerPackListActivity extends AddStickerPackActivity {
     public static final Boolean NEW_STICKER_PACK = false;
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
     private StickerPackListAdapter allStickerPacksListAdapter;
-    private WhiteListCheckAsyncTask whiteListCheckAsyncTask;
+    private LoadListStickerPackAsyncTask loadListStickerPackAsyncTask;
     private MaterialButton buttonCreateStickerPackage;
     private ArrayList<StickerPack> stickerPackList;
     private LinearLayoutManager packLayoutManager;
@@ -89,15 +89,15 @@ public class StickerPackListActivity extends AddStickerPackActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        whiteListCheckAsyncTask = new WhiteListCheckAsyncTask(this);
-        whiteListCheckAsyncTask.execute(stickerPackList.toArray(new StickerPack[0]));
+        loadListStickerPackAsyncTask = new LoadListStickerPackAsyncTask(this);
+        loadListStickerPackAsyncTask.execute(stickerPackList.toArray(new StickerPack[0]));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (whiteListCheckAsyncTask != null) {
-            whiteListCheckAsyncTask.shutdown();
+        if (loadListStickerPackAsyncTask != null) {
+            loadListStickerPackAsyncTask.shutdown();
         }
     }
 
@@ -158,13 +158,13 @@ public class StickerPackListActivity extends AddStickerPackActivity {
         createPackLauncher.launch(intent);
     }
 
-    static class WhiteListCheckAsyncTask {
+    static class LoadListStickerPackAsyncTask {
         private final WeakReference<StickerPackListActivity> stickerPackListActivityWeakReference;
 
         private final ExecutorService executor = Executors.newSingleThreadExecutor();
         private final Handler handler = new Handler(Looper.getMainLooper());
 
-        WhiteListCheckAsyncTask(StickerPackListActivity stickerPackListActivity) {
+        LoadListStickerPackAsyncTask(StickerPackListActivity stickerPackListActivity) {
             this.stickerPackListActivityWeakReference = new WeakReference<>(stickerPackListActivity);
         }
 

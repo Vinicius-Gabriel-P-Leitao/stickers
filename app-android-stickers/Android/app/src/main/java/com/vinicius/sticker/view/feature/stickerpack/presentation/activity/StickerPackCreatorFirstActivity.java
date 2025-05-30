@@ -13,6 +13,7 @@ import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPicke
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.launchOwnGallery;
 
 import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -20,10 +21,10 @@ import android.widget.Toast;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.CreateStickerPackActivity;
+import com.vinicius.sticker.view.main.EntryActivity;
 
 public class StickerPackCreatorFirstActivity extends CreateStickerPackActivity {
     public static final String DATABASE_EMPTY = "database_empty";
-
     public String selectedFormat = null;
 
     public void setFormat(String format) {
@@ -33,8 +34,7 @@ public class StickerPackCreatorFirstActivity extends CreateStickerPackActivity {
     @Override
     protected void setupUI(Bundle savedInstanceState) {
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
+            getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator_first);
         }
 
         ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
@@ -77,5 +77,13 @@ public class StickerPackCreatorFirstActivity extends CreateStickerPackActivity {
         }
 
         Toast.makeText(this, "Erro ao abrir galeria!", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        Intent intent = new Intent(context, EntryActivity.class);
+        startActivity(intent);
+
+        return true;
     }
 }

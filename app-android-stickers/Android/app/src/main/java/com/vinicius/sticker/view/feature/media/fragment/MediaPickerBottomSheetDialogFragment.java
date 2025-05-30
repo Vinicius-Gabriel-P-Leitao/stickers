@@ -66,6 +66,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
     private ProgressBar progressBar;
 
     ExecutorService executor = new ThreadPoolExecutor(5, 20, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private PickMediaListAdapter.OnItemClickListener listener;

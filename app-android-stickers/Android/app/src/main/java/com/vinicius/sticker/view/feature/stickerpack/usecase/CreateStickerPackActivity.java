@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,6 +33,7 @@ import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
 import com.vinicius.sticker.view.feature.permission.fragment.PermissionRequestFragment;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
+import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorFirstActivity;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.fragment.PackMetadataFragment;
 
 public abstract class CreateStickerPackActivity extends BaseActivity {
@@ -54,15 +56,14 @@ public abstract class CreateStickerPackActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         this.context = this;
-
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_sticker_pack);
 
-        this.viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
-        this.viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
-        this.viewModel.getStickerPackToPreview().observe(
+        viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
+        viewModel.getStickerPackToPreview().observe(
                 this, result -> {
+                    setupStickerPackView(result);
                     notifyStickerPackCreated(result.identifier);
                 });
 
@@ -146,8 +147,6 @@ public abstract class CreateStickerPackActivity extends BaseActivity {
         }
     };
 
-    // FIXME: Erro ao renderizar itens, além de renderizar quebrado ele quebra todo o grid se for recriar o pacote, fazer limpeza do pacote antes
-    //  de renderizar
     public void setupStickerPackView(StickerPack stickerPack) {
         layoutManager = new GridLayoutManager(this, 1);
 
@@ -170,8 +169,8 @@ public abstract class CreateStickerPackActivity extends BaseActivity {
         }
     }
 
-    public void notifyStickerPackCreated(String identifier) {
-        if (identifier != null) {
+    public void notifyStickerPackCreated(@Nullable String stickerPackIdentifier) {
+        if (stickerPackIdentifier != null) {
             setResult(RESULT_OK);
         }
     }
