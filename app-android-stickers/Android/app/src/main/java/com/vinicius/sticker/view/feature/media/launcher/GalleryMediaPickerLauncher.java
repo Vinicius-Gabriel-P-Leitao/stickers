@@ -74,8 +74,8 @@ public class GalleryMediaPickerLauncher extends ViewModel {
             isAnimatedPack = true;
         }
 
-        MediaPickerBottomSheetDialogFragment fragment =
-                MediaPickerBottomSheetDialogFragment.newInstance(new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
+        MediaPickerBottomSheetDialogFragment fragment = MediaPickerBottomSheetDialogFragment.newInstance(
+                new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(String imagePath) {
                         Uri selectedImageUri = Uri.fromFile(new File(imagePath));

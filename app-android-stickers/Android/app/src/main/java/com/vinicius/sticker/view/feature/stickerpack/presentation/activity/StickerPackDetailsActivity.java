@@ -11,13 +11,15 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
 
-import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.ANIMATED_STICKER;
-import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.STATIC_STICKER;
+import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreationActivity.ANIMATED_STICKER;
+import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreationActivity.STATIC_STICKER;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.format.Formatter;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,11 +39,13 @@ import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerConsumer;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.usecase.AddStickerPackActivity;
+import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackAddFlow;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class StickerPackDetailsActivity extends AddStickerPackActivity {
+public class StickerPackDetailsActivity extends StickerPackAddFlow {
 
     /**
      * Do not change below values of below 3 lines as this is also used by WhatsApp
@@ -124,6 +128,7 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
 
         addButton = findViewById(R.id.add_to_whatsapp_button);
         addButton.setOnClickListener(v -> addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name));
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showUpButton);
             getSupportActionBar().setTitle(showUpButton ? getResources().getString(
@@ -137,8 +142,8 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
     private final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            setNumColumns(recyclerView.getWidth() / recyclerView.getContext().getResources()
-                    .getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
+            setNumColumns(recyclerView.getWidth() /
+                    recyclerView.getContext().getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size));
         }
     };
 
@@ -165,7 +170,7 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
 
     private void launchInfoActivity(
             String publisherWebsite, String publisherEmail, String privacyPolicyWebsite, String licenseAgreementWebsite, String trayIconUriString) {
-        Intent intent = new Intent(StickerPackDetailsActivity.this, StickerPackInfoActivity.class);
+        Intent intent = new Intent(StickerPackDetailsActivity.this, StickerPackMetadataActivity.class);
         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_ID, stickerPack.identifier);
         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_WEBSITE, publisherWebsite);
         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_EMAIL, publisherEmail);
@@ -176,8 +181,8 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
     }
 
     private void openCreateStickerPackActivity(String format) {
-        Intent intent = new Intent(StickerPackDetailsActivity.this, StickerPackCreatorActivity.class);
-        intent.putExtra(StickerPackCreatorActivity.EXTRA_STICKER_FORMAT, format);
+        Intent intent = new Intent(StickerPackDetailsActivity.this, StickerPackCreationActivity.class);
+        intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
         startActivity(intent);
     }
 
@@ -199,6 +204,7 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void setNumColumns(int numColumns) {
         if (this.numColumns != numColumns) {
             layoutManager.setSpanCount(numColumns);
@@ -219,8 +225,9 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (whiteListCheckAsyncTask != null && !whiteListCheckAsyncTask.isCancelled()) {
-            whiteListCheckAsyncTask.cancel(true);
+        if (whiteListCheckAsyncTask != null) {
+            whiteListCheckAsyncTask.shutdown();
+            whiteListCheckAsyncTask = null;
         }
     }
 
@@ -236,31 +243,38 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
         }
     }
 
-    static class WhiteListCheckAsyncTask extends AsyncTask<StickerPack, Void, Boolean> {
+    static class WhiteListCheckAsyncTask {
         private final WeakReference<StickerPackDetailsActivity> stickerPackDetailsActivityWeakReference;
+
+        private final ExecutorService executor = Executors.newSingleThreadExecutor();
+        private final Handler handler = new Handler(Looper.getMainLooper());
 
         WhiteListCheckAsyncTask(StickerPackDetailsActivity stickerPackListActivity) {
             this.stickerPackDetailsActivityWeakReference = new WeakReference<>(stickerPackListActivity);
         }
 
-        @Override
-        protected final Boolean doInBackground(StickerPack... stickerPacks) {
-            StickerPack stickerPack = stickerPacks[0];
-            final StickerPackDetailsActivity stickerPackDetailsActivity = stickerPackDetailsActivityWeakReference.get();
+        public void execute(StickerPack stickerPack) {
+            StickerPackDetailsActivity activity = stickerPackDetailsActivityWeakReference.get();
+            if (activity == null) return;
 
-            if (stickerPackDetailsActivity == null) {
-                return false;
-            }
+            executor.execute(() -> {
+                if (Thread.currentThread().isInterrupted()) return;
 
-            return WhatsappWhitelistValidator.isWhitelisted(stickerPackDetailsActivity, stickerPack.identifier);
+                StickerPackDetailsActivity currentActivity = stickerPackDetailsActivityWeakReference.get();
+
+                if (currentActivity == null) return;
+
+                handler.post(() -> {
+                    StickerPackDetailsActivity uiActivity = stickerPackDetailsActivityWeakReference.get();
+                    if (uiActivity != null) {
+                        uiActivity.updateAddUI(WhatsappWhitelistValidator.isWhitelisted(currentActivity, stickerPack.identifier));
+                    }
+                });
+            });
         }
 
-        @Override
-        protected void onPostExecute(Boolean isWhitelisted) {
-            final StickerPackDetailsActivity stickerPackDetailsActivity = stickerPackDetailsActivityWeakReference.get();
-            if (stickerPackDetailsActivity != null) {
-                stickerPackDetailsActivity.updateAddUI(isWhitelisted);
-            }
+        public void shutdown() {
+            executor.shutdown();
         }
     }
 }

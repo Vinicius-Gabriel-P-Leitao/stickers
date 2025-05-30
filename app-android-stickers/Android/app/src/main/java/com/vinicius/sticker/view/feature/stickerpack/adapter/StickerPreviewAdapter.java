@@ -66,7 +66,10 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
         }
     };
 
-    public StickerPreviewAdapter(@NonNull final LayoutInflater layoutInflater, final int errorResource, final int cellSize, final int cellPadding, @NonNull final StickerPack stickerPack, final ImageView expandedStickerView) {
+    public StickerPreviewAdapter(
+            @NonNull final LayoutInflater layoutInflater, final int errorResource, final int cellSize, final int cellPadding,
+            @NonNull final StickerPack stickerPack, final ImageView expandedStickerView
+    ) {
         this.cellSize = cellSize;
         this.cellPadding = cellPadding;
         this.cellLimit = 0;
@@ -78,25 +81,25 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
 
     @NonNull
     @Override
-    public StickerPreviewViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int i) {
+    public StickerPreviewViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int viewType) {
         View itemView = layoutInflater.inflate(R.layout.sticker_icon_item_preview, viewGroup, false);
-        StickerPreviewViewHolder vh = new StickerPreviewViewHolder(itemView);
+        StickerPreviewViewHolder stickerPreviewViewHolder = new StickerPreviewViewHolder(itemView);
 
-        ViewGroup.LayoutParams layoutParams = vh.stickerPreviewView.getLayoutParams();
+        ViewGroup.LayoutParams layoutParams = stickerPreviewViewHolder.stickerPreviewView.getLayoutParams();
         layoutParams.height = cellSize;
         layoutParams.width = cellSize;
-        vh.stickerPreviewView.setLayoutParams(layoutParams);
-        vh.stickerPreviewView.setPadding(cellPadding, cellPadding, cellPadding, cellPadding);
+        stickerPreviewViewHolder.stickerPreviewView.setLayoutParams(layoutParams);
+        stickerPreviewViewHolder.stickerPreviewView.setPadding(cellPadding, cellPadding, cellPadding, cellPadding);
 
-        return vh;
+        return stickerPreviewViewHolder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final StickerPreviewViewHolder stickerPreviewViewHolder, final int i) {
+    public void onBindViewHolder(@NonNull final StickerPreviewViewHolder stickerPreviewViewHolder, final int position) {
         stickerPreviewViewHolder.stickerPreviewView.setImageResource(errorResource);
         stickerPreviewViewHolder.stickerPreviewView.setImageURI(
-                StickerConsumer.getStickerAssetUri(stickerPack.identifier, stickerPack.getStickers().get(i).imageFileName));
-        stickerPreviewViewHolder.stickerPreviewView.setOnClickListener(v -> expandPreview(i, stickerPreviewViewHolder.stickerPreviewView));
+                StickerConsumer.getStickerAssetUri(stickerPack.identifier, stickerPack.getStickers().get(position).imageFileName));
+        stickerPreviewViewHolder.stickerPreviewView.setOnClickListener(v -> expandPreview(position, stickerPreviewViewHolder.stickerPreviewView));
     }
 
     @Override
@@ -194,8 +197,8 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
 
             if (extension.equals("webp") && isAnimatedWebp) {
                 expandedStickerPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                glide.load(stickerAssetUri).apply(requestOptions).transform(WebpDrawable.class, new WebpDrawableTransformation(commonTransform)).into(
-                        expandedStickerPreview);
+                glide.load(stickerAssetUri).apply(requestOptions).transform(WebpDrawable.class, new WebpDrawableTransformation(commonTransform))
+                        .into(expandedStickerPreview);
             } else {
                 glide.asBitmap().load(stickerAssetUri).apply(requestOptions).centerCrop().transform(commonTransform).into(expandedStickerPreview);
             }

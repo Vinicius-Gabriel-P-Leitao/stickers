@@ -10,13 +10,16 @@ package com.vinicius.sticker.view.main;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.R;
@@ -26,15 +29,18 @@ import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerPackConsumer;
+import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.InitialStickerPackCreationActivity;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackListActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EntryActivity extends BaseActivity {
-    private View progressBar;
     private LoadListAsyncTask loadListAsyncTask;
+    private View progressBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,6 +57,12 @@ public class EntryActivity extends BaseActivity {
 
     private void showStickerPack(ArrayList<StickerPack> stickerPackList) {
         progressBar.setVisibility(View.GONE);
+
+        if (stickerPackList == null || stickerPackList.isEmpty()) {
+            showErrorMessage("Nenhum sticker pack encontrado.");
+            return;
+        }
+
         if (stickerPackList.size() > 1) {
             final Intent intent = new Intent(this, StickerPackListActivity.class);
 
@@ -81,87 +93,105 @@ public class EntryActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (loadListAsyncTask != null && !loadListAsyncTask.isCancelled()) {
-            loadListAsyncTask.cancel(true);
+        if (loadListAsyncTask != null) {
+            loadListAsyncTask.shutdown();
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (loadListAsyncTask == null || loadListAsyncTask.getStatus() == AsyncTask.Status.FINISHED) {
-            progressBar.setVisibility(View.VISIBLE);
-            loadListAsyncTask = new LoadListAsyncTask(this);
-            loadListAsyncTask.execute();
-        }
+        loadStickerPacks();
     }
 
-    static class LoadListAsyncTask extends AsyncTask<Void, Void, Pair<String, ArrayList<StickerPack>>> {
+    private final ActivityResultLauncher<Intent> createPackLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    loadStickerPacks();
+                }
+            });
+
+    private void loadStickerPacks() {
+        progressBar.setVisibility(View.VISIBLE);
+
+        loadListAsyncTask = new LoadListAsyncTask(this);
+        loadListAsyncTask.execute(createPackLauncher);
+    }
+
+    static class LoadListAsyncTask {
         private final WeakReference<EntryActivity> contextWeakReference;
+
+        private final ExecutorService executor = Executors.newSingleThreadExecutor();
+        private final Handler handler = new Handler(Looper.getMainLooper());
 
         LoadListAsyncTask(EntryActivity activity) {
             this.contextWeakReference = new WeakReference<>(activity);
         }
 
-        @Override
-        protected Pair<String, ArrayList<StickerPack>> doInBackground(Void... voids) {
-            ArrayList<StickerPack> stickerPackList = null;
-            try {
-                final Context context = contextWeakReference.get();
-                if (context != null) {
-                    stickerPackList = StickerPackConsumer.fetchStickerPackList(context);
+        public void execute(ActivityResultLauncher<Intent> createPackLauncher) {
+            executor.execute(() -> {
+                Pair<String, ArrayList<StickerPack>> result = new Pair<>(null, null);
 
-                    if (stickerPackList.isEmpty()) {
-                        return new Pair<>("No sticker packs available", null);
+                try {
+                    final Context context = contextWeakReference.get();
+
+                    if (context != null) {
+                        ArrayList<StickerPack> stickerPackList = StickerPackConsumer.fetchStickerPackList(context);
+
+                        if (stickerPackList.isEmpty()) {
+                            result = new Pair<>("No sticker packs available", null);
+                            return;
+                        }
+
+                        for (StickerPack stickerPack : stickerPackList) {
+                            StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
+
+                            for (Sticker sticker : stickerPack.getStickers()) {
+                                StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
+                            }
+                        }
+
+                        result = new Pair<>(null, stickerPackList);
+                    } else {
+                        result = new Pair<>("could not fetch sticker packs", null);
+                    }
+                } catch (IllegalStateException exception) {
+                    Context context = contextWeakReference.get();
+
+                    if (context != null) {
+                        Intent intent = new Intent(context, InitialStickerPackCreationActivity.class);
+
+                        intent.putExtra("database_empty", true);
+                        intent.putExtra(InitialStickerPackCreationActivity.EXTRA_SHOW_UP_BUTTON, false);
+
+                        createPackLauncher.launch(intent);
+                        return;
                     }
 
-                    for (StickerPack stickerPack : stickerPackList) {
-                        StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
+                    Log.e("EntryActivity", "Error fetching sticker packs, database empty", exception);
+                    result = new Pair<>("Error encountered, redirecting...", null);
+                } catch (Exception exception) {
+                    Log.e("EntryActivity", "Error fetching sticker packs", exception);
+                    result = new Pair<>(exception.getMessage(), null);
+                }
 
-                        for (Sticker sticker : stickerPack.getStickers()) {
-                            StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
+                Pair<String, ArrayList<StickerPack>> finalResult = result;
+                handler.post(() -> {
+                    EntryActivity entryActivity = contextWeakReference.get();
+                    if (entryActivity != null) {
+                        if (finalResult.first != null) {
+                            entryActivity.showErrorMessage(finalResult.first);
+                        } else {
+                            entryActivity.showStickerPack(finalResult.second);
                         }
                     }
-
-                    return new Pair<>(null, stickerPackList);
-                } else {
-                    return new Pair<>("could not fetch sticker packs", null);
-                }
-            } catch (IllegalStateException exception) {
-                // TODO: Aplicar tratamento de erro caso seja um PackValidatorException ou um
-                // StickcerValidatorException
-                Context context = contextWeakReference.get();
-
-                if (context != null) {
-                    Intent intent = new Intent(context, StickerFirstPackCreatorActivity.class);
-
-                    // NOTE: flags para transformar essa activity como main
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    intent.putExtra("database_empty", true);
-
-                    context.startActivity(intent);
-                }
-
-                Log.e("EntryActivity", "Error fetching sticker packs, database empty", exception);
-                return new Pair<>("Error encountered, redirecting...", null);
-            } catch (Exception exception) {
-                Log.e("EntryActivity", "Error fetching sticker packs", exception);
-                return new Pair<>(exception.getMessage(), null);
-            }
+                });
+            });
         }
 
-        @Override
-        protected void onPostExecute(Pair<String, ArrayList<StickerPack>> stringListPair) {
-            final EntryActivity entryActivity = contextWeakReference.get();
-
-            if (entryActivity != null) {
-                if (stringListPair.first != null) {
-                    entryActivity.showErrorMessage(stringListPair.first);
-                } else {
-                    entryActivity.showStickerPack(stringListPair.second);
-                }
-            }
+        public void shutdown() {
+            executor.shutdown();
         }
+
     }
 }

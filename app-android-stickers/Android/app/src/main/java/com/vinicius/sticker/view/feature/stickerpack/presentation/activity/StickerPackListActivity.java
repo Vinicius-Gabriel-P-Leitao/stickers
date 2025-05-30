@@ -11,10 +11,9 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
 
-import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.ANIMATED_STICKER;
-import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.STATIC_STICKER;
+import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreationActivity.ANIMATED_STICKER;
+import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreationActivity.STATIC_STICKER;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,8 +32,8 @@ import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerPackConsumer;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPackListAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.usecase.AddStickerPackActivity;
-import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListItemViewHolder;
+import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackAddFlow;
+import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListViewHolder;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -43,12 +42,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class StickerPackListActivity extends AddStickerPackActivity {
+public class StickerPackListActivity extends StickerPackAddFlow {
     public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
     public static final Boolean NEW_STICKER_PACK = false;
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
     private StickerPackListAdapter allStickerPacksListAdapter;
-    private WhiteListCheckAsyncTask whiteListCheckAsyncTask;
+    private LoadListStickerPackAsyncTask loadListStickerPackAsyncTask;
     private MaterialButton buttonCreateStickerPackage;
     private ArrayList<StickerPack> stickerPackList;
     private LinearLayoutManager packLayoutManager;
@@ -90,15 +89,15 @@ public class StickerPackListActivity extends AddStickerPackActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        whiteListCheckAsyncTask = new WhiteListCheckAsyncTask(this);
-        whiteListCheckAsyncTask.execute(stickerPackList.toArray(new StickerPack[0]));
+        loadListStickerPackAsyncTask = new LoadListStickerPackAsyncTask(this);
+        loadListStickerPackAsyncTask.execute(stickerPackList.toArray(new StickerPack[0]));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (whiteListCheckAsyncTask != null) {
-            whiteListCheckAsyncTask.shutdown();
+        if (loadListStickerPackAsyncTask != null) {
+            loadListStickerPackAsyncTask.shutdown();
         }
     }
 
@@ -119,7 +118,7 @@ public class StickerPackListActivity extends AddStickerPackActivity {
         final int previewSize = getResources().getDimensionPixelSize(R.dimen.sticker_pack_list_item_preview_image_size);
         int firstVisibleItemPosition = packLayoutManager.findFirstVisibleItemPosition();
 
-        StickerPackListItemViewHolder viewHolder = (StickerPackListItemViewHolder) packRecyclerView.findViewHolderForAdapterPosition(
+        StickerPackListViewHolder viewHolder = (StickerPackListViewHolder) packRecyclerView.findViewHolderForAdapterPosition(
                 firstVisibleItemPosition);
 
         if (viewHolder != null) {
@@ -133,40 +132,20 @@ public class StickerPackListActivity extends AddStickerPackActivity {
         }
     }
 
-    private final ActivityResultLauncher<Intent> createPackLauncher = registerForActivityResult(
-            // NOTE: Necessário renderizar a lista toda de novo devido a erros de UI quando tenta atualizar só o ultimo item
-            new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    List<StickerPack> stickerPackArray = StickerPackConsumer.fetchStickerPackList(getBaseContext());
-                    if (stickerPackList != null) {
-
-                        for (StickerPack stickerPack : stickerPackArray) {
-                            stickerPack.setIsWhitelisted(WhatsappWhitelistValidator.isWhitelisted(getBaseContext(), stickerPack.identifier));
-                        }
-
-                        allStickerPacksListAdapter.addStickerPack(stickerPackArray);
-                        if (getSupportActionBar() != null) {
-                            getSupportActionBar().setTitle(
-                                    getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, stickerPackList.size()));
-                        }
-                    }
-                }
-            });
-
     private void openCreateStickerPackActivity(String format) {
-        Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreatorActivity.class);
-        intent.putExtra(StickerPackCreatorActivity.EXTRA_STICKER_FORMAT, format);
-        createPackLauncher.launch(intent);
+        Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreationActivity.class);
+        intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
+        startActivity(intent);
     }
 
-    static class WhiteListCheckAsyncTask {
+    static class LoadListStickerPackAsyncTask {
         private final WeakReference<StickerPackListActivity> stickerPackListActivityWeakReference;
 
         private final ExecutorService executor = Executors.newSingleThreadExecutor();
         private final Handler handler = new Handler(Looper.getMainLooper());
 
-        WhiteListCheckAsyncTask(StickerPackListActivity stickerPackListActivity) {
-            this.stickerPackListActivityWeakReference = new WeakReference<>(stickerPackListActivity);
+        LoadListStickerPackAsyncTask(StickerPackListActivity stickerPackLibraryActivity) {
+            this.stickerPackListActivityWeakReference = new WeakReference<>(stickerPackLibraryActivity);
         }
 
         public void execute(StickerPack[] stickerPackArray) {

@@ -6,27 +6,23 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
+package com.vinicius.sticker.view.feature.stickerpack.usecase;
 
-import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
-import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
-import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.launchOwnGallery;
 import static com.vinicius.sticker.view.feature.permission.usecase.DefinePermissionsToRequest.getPermissionsToRequest;
-import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackListActivity.NEW_STICKER_PACK;
 
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,53 +33,40 @@ import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
 import com.vinicius.sticker.view.feature.permission.fragment.PermissionRequestFragment;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.fragment.PackMetadataBottomSheetDialogFragment;
+import com.vinicius.sticker.view.feature.stickerpack.presentation.fragment.StickerPackMetadataFragment;
+import com.vinicius.sticker.view.main.EntryActivity;
 
-import java.util.Arrays;
-
-public class StickerPackCreatorActivity extends BaseActivity {
-    public static final String EXTRA_STICKER_FORMAT = "sticker_format";
+public abstract class StickerPackCreationFlow extends BaseActivity {
     public static final String STATIC_STICKER = "animated";
     public static final String ANIMATED_STICKER = "static";
 
-    private StickerPreviewAdapter stickerPreviewAdapter;
-    private GridLayoutManager layoutManager;
-    private RecyclerView recyclerView;
-    private String namePack;
-    private int numColumns;
-    private View divider;
+    public StickerPreviewAdapter stickerPreviewAdapter;
+    public GridLayoutManager layoutManager;
+    public GalleryMediaPickerLauncher viewModel;
+    public RecyclerView recyclerView;
+    public String namePack;
+    public int numColumns;
+    public View divider;
 
-    private void saveNamePack(String namePack) {
+    public Context context;
+
+    public void saveNamePack(String namePack) {
         this.namePack = namePack;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        this.context = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_sticker_pack);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
-        }
-
-        GalleryMediaPickerLauncher viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
+        viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
         viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
-        viewModel.getStickerPackToPreview().observe(
-                this, result -> {
-                    notifyStickerPackCreated(result.identifier);
-                });
 
-        ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
-        buttonSelectMedia.setOnClickListener(view -> {
-            ObjectAnimator rotation = ObjectAnimator.ofFloat(buttonSelectMedia, "rotation", 0f, 360f);
-            rotation.setDuration(500);
-            rotation.start();
-
-            viewModel.openFragmentState();
-
-            createStickerPackFlow();
-        });
+        setupUI(savedInstanceState);
     }
+
+    public abstract void setupUI(Bundle savedInstanceState);
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -100,11 +83,10 @@ public class StickerPackCreatorActivity extends BaseActivity {
         }
     }
 
-    private void createStickerPackFlow() {
+    public void createStickerPackFlow() {
         PermissionRequestFragment permissionRequestFragment = new PermissionRequestFragment();
 
         String[] permissions = getPermissionsToRequest(this);
-        Log.i("Permissions Media", Arrays.toString(permissions));
         if (permissions.length > 0) {
             permissionRequestFragment.setPermissions(permissions);
             permissionRequestFragment.setCallback(new PermissionRequestFragment.PermissionCallback() {
@@ -119,7 +101,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
                 @Override
                 public void onPermissionsDenied() {
-                    Toast.makeText(StickerPackCreatorActivity.this, "Galeria não foi liberada.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Galeria não foi liberada.", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -133,9 +115,9 @@ public class StickerPackCreatorActivity extends BaseActivity {
         }
     }
 
-    private void openMetadataGetter() {
-        PackMetadataBottomSheetDialogFragment packMetadataBottomSheetDialogFragment = new PackMetadataBottomSheetDialogFragment();
-        packMetadataBottomSheetDialogFragment.setCallback(new PackMetadataBottomSheetDialogFragment.MetadataCallback() {
+    public void openMetadataGetter() {
+        StickerPackMetadataFragment stickerPackMetadataFragment = new StickerPackMetadataFragment();
+        stickerPackMetadataFragment.setCallback(new StickerPackMetadataFragment.MetadataCallback() {
             @Override
             public void onGetMetadata(String namePack) {
                 saveNamePack(namePack);
@@ -144,30 +126,16 @@ public class StickerPackCreatorActivity extends BaseActivity {
 
             @Override
             public void onError(String error) {
-                Toast.makeText(StickerPackCreatorActivity.this, error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
             }
         });
 
-        packMetadataBottomSheetDialogFragment.show(getSupportFragmentManager(), "PackMetadataBottomSheetDialogFragment");
+        stickerPackMetadataFragment.show(getSupportFragmentManager(), "PackMetadataBottomSheetDialogFragment");
     }
 
-    private void openGallery(String namePack) {
-        String selectedFormat = getIntent().getStringExtra(EXTRA_STICKER_FORMAT);
+    public abstract void openGallery(String namePack);
 
-        if (selectedFormat != null && selectedFormat.equals(STATIC_STICKER)) {
-            launchOwnGallery(this, IMAGE_MIME_TYPES, namePack);
-            return;
-        }
-
-        if (selectedFormat != null && selectedFormat.equals(ANIMATED_STICKER)) {
-            launchOwnGallery(this, ANIMATED_MIME_TYPES, namePack);
-            return;
-        }
-
-        Toast.makeText(this, "Erro ao abrir galeria!", Toast.LENGTH_SHORT).show();
-    }
-
-    private final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+    public final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
             setNumColumns(recyclerView.getWidth() /
@@ -175,11 +143,11 @@ public class StickerPackCreatorActivity extends BaseActivity {
         }
     };
 
-    // FIXME: Erro ao renderizar itens, além de renderizar quebrado ele quebra todo o grid se for recriar o pacote, fazer limpeza do pacote antes
-    //  de renderizar
-    private void setupStickerPackView(StickerPack stickerPack) {
-        ImageView expandedStickerView = findViewById(R.id.sticker_details_expanded_sticker);
+    public void setupStickerPackView(StickerPack stickerPack) {
         layoutManager = new GridLayoutManager(this, 1);
+
+        ImageView expandedStickerView = findViewById(R.id.sticker_details_expanded_sticker);
+        expandedStickerView.setVisibility(View.GONE);
 
         recyclerView = findViewById(R.id.sticker_list_to_package);
         recyclerView.setLayoutManager(layoutManager);
@@ -197,13 +165,15 @@ public class StickerPackCreatorActivity extends BaseActivity {
         }
     }
 
-    private void notifyStickerPackCreated(String identifier) {
-        if (identifier != null) {
-            setResult(RESULT_OK);
-        }
+    @Override
+    public boolean onSupportNavigateUp() {
+        Intent intent = new Intent(context, EntryActivity.class);
+        startActivity(intent);
+
+        return true;
     }
 
-    private final RecyclerView.OnScrollListener dividerScrollListener = new RecyclerView.OnScrollListener() {
+    public final RecyclerView.OnScrollListener dividerScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrollStateChanged(@NonNull final RecyclerView recyclerView, final int newState) {
             super.onScrollStateChanged(recyclerView, newState);
@@ -216,7 +186,7 @@ public class StickerPackCreatorActivity extends BaseActivity {
             updateDivider(recyclerView);
         }
 
-        private void updateDivider(RecyclerView recyclerView) {
+        public void updateDivider(RecyclerView recyclerView) {
             boolean showDivider = recyclerView.computeVerticalScrollOffset() > 0;
             if (divider != null) {
                 divider.setVisibility(showDivider ? View.VISIBLE : View.INVISIBLE);
@@ -225,9 +195,10 @@ public class StickerPackCreatorActivity extends BaseActivity {
     };
 
     @SuppressLint("NotifyDataSetChanged")
-    private void setNumColumns(int numColumns) {
+    public void setNumColumns(int numColumns) {
         if (this.numColumns != numColumns) {
             layoutManager.setSpanCount(numColumns);
+
             this.numColumns = numColumns;
             if (stickerPreviewAdapter != null) {
                 stickerPreviewAdapter.notifyDataSetChanged();

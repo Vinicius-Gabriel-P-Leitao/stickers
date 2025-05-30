@@ -75,8 +75,5 @@
     <string name="dialog_settings_button_permission_cancel">Cancel</string>
     <!-- Title to create new sticker package -->
     <string name="title_activity_sticker_packs_creator" tools:ignore="MissingQuantity">Create new package</string>
-    <plurals name="title_activity_sticker_packs_creator_list" tools:ignore="MissingQuantity">
-        <item quantity="one" tools:ignore="ImpliedQuantity">Create new package</item>
-        <item quantity="other">Create new package</item>
-    </plurals>
+    <string name="title_activity_sticker_packs_creator_first" tools:ignore="MissingQuantity">Create first package</string>
 </resources>
