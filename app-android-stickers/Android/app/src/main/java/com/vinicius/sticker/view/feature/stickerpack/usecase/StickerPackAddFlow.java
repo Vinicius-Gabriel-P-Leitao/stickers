@@ -31,20 +31,21 @@ import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
 
-public abstract class AddStickerPackActivity extends BaseActivity {
+public abstract class StickerPackAddFlow extends BaseActivity {
     private static final int ADD_PACK = 200;
     private static final String TAG = "AddStickerPackActivity";
 
     protected void addStickerPackToWhatsApp(String identifier, String stickerPackName) {
         try {
             //if neither WhatsApp Consumer or WhatsApp Business is installed, then tell user to install the apps.
-            if (WhatsappWhitelistValidator.isWhatsAppConsumerAppInstalled(getPackageManager()) && WhatsappWhitelistValidator.isWhatsAppSmbAppInstalled(
-                    getPackageManager())) {
+            if (WhatsappWhitelistValidator.isWhatsAppConsumerAppInstalled(getPackageManager()) &&
+                    WhatsappWhitelistValidator.isWhatsAppSmbAppInstalled(getPackageManager())) {
                 Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG).show();
                 return;
             }
 
-            final boolean stickerPackWhitelistedInWhatsAppConsumer = WhatsappWhitelistValidator.isStickerPackWhitelistedInWhatsAppConsumer(this, identifier);
+            final boolean stickerPackWhitelistedInWhatsAppConsumer = WhatsappWhitelistValidator.isStickerPackWhitelistedInWhatsAppConsumer(
+                    this, identifier);
             final boolean stickerPackWhitelistedInWhatsAppSmb = WhatsappWhitelistValidator.isStickerPackWhitelistedInWhatsAppSmb(this, identifier);
 
             if (!stickerPackWhitelistedInWhatsAppConsumer && !stickerPackWhitelistedInWhatsAppSmb) {
@@ -105,7 +106,8 @@ public abstract class AddStickerPackActivity extends BaseActivity {
                     if (validationError != null) {
                         if (BuildConfig.DEBUG) {
                             //validation error should be shown to developer only, not users.
-                            MessageDialogFragment.newInstance(R.string.title_validation_error, validationError).show(getSupportFragmentManager(), "validation error");
+                            MessageDialogFragment.newInstance(R.string.title_validation_error, validationError)
+                                    .show(getSupportFragmentManager(), "validation error");
                         }
                         Log.e(TAG, "Validation failed:" + validationError);
                     }
@@ -120,8 +122,9 @@ public abstract class AddStickerPackActivity extends BaseActivity {
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder dialogBuilder =
-                    new AlertDialog.Builder(getActivity()).setMessage(R.string.add_pack_fail_prompt_update_whatsapp).setCancelable(true).setPositiveButton(android.R.string.ok, (dialog, which) -> dismiss()).setNeutralButton(R.string.add_pack_fail_prompt_update_play_link, (dialog, which) -> launchWhatsAppPlayStorePage());
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity()).setMessage(R.string.add_pack_fail_prompt_update_whatsapp)
+                    .setCancelable(true).setPositiveButton(android.R.string.ok, (dialog, which) -> dismiss())
+                    .setNeutralButton(R.string.add_pack_fail_prompt_update_play_link, (dialog, which) -> launchWhatsAppPlayStorePage());
 
             return dialogBuilder.create();
         }
@@ -129,8 +132,10 @@ public abstract class AddStickerPackActivity extends BaseActivity {
         private void launchWhatsAppPlayStorePage() {
             if (getActivity() != null) {
                 final PackageManager packageManager = getActivity().getPackageManager();
-                final boolean whatsAppInstalled = WhatsappWhitelistValidator.isPackageInstalled(WhatsappWhitelistValidator.CONSUMER_WHATSAPP_PACKAGE_NAME, packageManager);
-                final boolean smbAppInstalled = WhatsappWhitelistValidator.isPackageInstalled(WhatsappWhitelistValidator.SMB_WHATSAPP_PACKAGE_NAME, packageManager);
+                final boolean whatsAppInstalled = WhatsappWhitelistValidator.isPackageInstalled(
+                        WhatsappWhitelistValidator.CONSUMER_WHATSAPP_PACKAGE_NAME, packageManager);
+                final boolean smbAppInstalled = WhatsappWhitelistValidator.isPackageInstalled(
+                        WhatsappWhitelistValidator.SMB_WHATSAPP_PACKAGE_NAME, packageManager);
                 final String playPackageLinkPrefix = "http://play.google.com/store/apps/details?id=";
                 if (whatsAppInstalled && smbAppInstalled) {
                     launchPlayStoreWithUri("https://play.google.com/store/apps/developer?id=WhatsApp+LLC");

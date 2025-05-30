@@ -11,13 +11,12 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
 
-import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.ANIMATED_STICKER;
-import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.STATIC_STICKER;
+import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreationActivity.ANIMATED_STICKER;
+import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreationActivity.STATIC_STICKER;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -40,16 +39,13 @@ import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerConsumer;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.usecase.AddStickerPackActivity;
+import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackAddFlow;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class StickerPackDetailsActivity extends AddStickerPackActivity {
+public class StickerPackDetailsActivity extends StickerPackAddFlow {
 
     /**
      * Do not change below values of below 3 lines as this is also used by WhatsApp
@@ -114,6 +110,10 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
         packTrayIcon.setImageURI(StickerConsumer.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile));
         packSizeTextView.setText(Formatter.formatShortFileSize(this, stickerPack.getTotalSize()));
 
+        /**
+        FIXME: Validar o por que de quando se cria um primeiro pacote e ao criar outro ele deleta todos os dados do priemiro pacote e coloca do
+            segundo.
+        */
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
         buttonCreateStickerPackage.setOnClickListener(view -> {
             FormatStickerPopupWindow.popUpButtonChooserStickerModel(
@@ -174,7 +174,7 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
 
     private void launchInfoActivity(
             String publisherWebsite, String publisherEmail, String privacyPolicyWebsite, String licenseAgreementWebsite, String trayIconUriString) {
-        Intent intent = new Intent(StickerPackDetailsActivity.this, StickerPackInfoActivity.class);
+        Intent intent = new Intent(StickerPackDetailsActivity.this, StickerPackMetadataActivity.class);
         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_ID, stickerPack.identifier);
         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_WEBSITE, publisherWebsite);
         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_EMAIL, publisherEmail);
@@ -185,8 +185,8 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
     }
 
     private void openCreateStickerPackActivity(String format) {
-        Intent intent = new Intent(StickerPackDetailsActivity.this, StickerPackCreatorActivity.class);
-        intent.putExtra(StickerPackCreatorActivity.EXTRA_STICKER_FORMAT, format);
+        Intent intent = new Intent(StickerPackDetailsActivity.this, StickerPackCreationActivity.class);
+        intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
         startActivity(intent);
     }
 

@@ -33,7 +33,7 @@
                 android:value=".view.feature.stickerpack.presentation.activity.StickerPackListActivity" />
         </activity>
         <activity
-            android:name=".view.feature.stickerpack.presentation.activity.StickerPackInfoActivity"
+            android:name=".view.feature.stickerpack.presentation.activity.StickerPackMetadataActivity"
             android:label="@string/title_activity_sticker_pack_info"
             android:parentActivityName=".view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity"
             tools:ignore="UnusedAttribute">
@@ -41,15 +41,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity" />
         </activity>
-        <activity android:name=".view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity">
+        <activity android:name=".view.feature.stickerpack.presentation.activity.StickerPackCreationActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity" />
+                android:value=".view.feature.stickerpack.presentation.activity.StickerPackCreationActivity" />
         </activity>
-        <activity android:name=".view.feature.stickerpack.presentation.activity.StickerPackCreatorFirstActivity">
+        <activity android:name=".view.feature.stickerpack.presentation.activity.InitialStickerPackCreationActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.feature.stickerpack.presentation.activity.StickerPackCreatorFirstActivity" />
+                android:value=".view.feature.stickerpack.presentation.activity.InitialStickerPackCreationActivity" />
         </activity>
 
         <provider

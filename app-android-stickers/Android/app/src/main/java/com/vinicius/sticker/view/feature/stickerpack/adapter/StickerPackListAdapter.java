@@ -29,11 +29,11 @@ import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerConsumer;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
-import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListItemViewHolder;
+import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListViewHolder;
 
 import java.util.List;
 
-public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackListItemViewHolder> {
+public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackListViewHolder> {
     @NonNull
     private final OnAddButtonClickedListener onAddButtonClickedListener;
     @NonNull
@@ -53,15 +53,15 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
 
     @NonNull
     @Override
-    public StickerPackListItemViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int i) {
+    public StickerPackListViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int i) {
         final Context context = viewGroup.getContext();
         final LayoutInflater layoutInflater = LayoutInflater.from(context);
         final View stickerPackRow = layoutInflater.inflate(R.layout.sticker_packs_list_item, viewGroup, false);
-        return new StickerPackListItemViewHolder(stickerPackRow);
+        return new StickerPackListViewHolder(stickerPackRow);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final StickerPackListItemViewHolder viewHolder, final int index) {
+    public void onBindViewHolder(@NonNull final StickerPackListViewHolder viewHolder, final int index) {
         StickerPack stickerPack = stickerPacks.get(index);
         final Context context = viewHolder.publisherView.getContext();
 

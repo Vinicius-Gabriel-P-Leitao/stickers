@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vinicius.sticker.R;
 
-public class StickerPackListItemViewHolder extends RecyclerView.ViewHolder {
+public class StickerPackListViewHolder extends RecyclerView.ViewHolder {
 
     public final View container;
     public final TextView titleView;
@@ -27,7 +27,7 @@ public class StickerPackListItemViewHolder extends RecyclerView.ViewHolder {
     public final ImageView animatedStickerPackIndicator;
     public final LinearLayout imageRowView;
 
-    public StickerPackListItemViewHolder(final View itemView) {
+    public StickerPackListViewHolder(final View itemView) {
         super(itemView);
         container = itemView;
         titleView = itemView.findViewById(R.id.sticker_pack_title);

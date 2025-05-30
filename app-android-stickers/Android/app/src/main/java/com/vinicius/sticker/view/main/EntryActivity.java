@@ -10,7 +10,6 @@ package com.vinicius.sticker.view.main;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,19 +24,17 @@ import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.validation.StickerValidator;
-import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerPackConsumer;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorFirstActivity;
+import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.InitialStickerPackCreationActivity;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackListActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -163,10 +160,10 @@ public class EntryActivity extends BaseActivity {
                     Context context = contextWeakReference.get();
 
                     if (context != null) {
-                        Intent intent = new Intent(context, StickerPackCreatorFirstActivity.class);
+                        Intent intent = new Intent(context, InitialStickerPackCreationActivity.class);
 
                         intent.putExtra("database_empty", true);
-                        intent.putExtra(StickerPackCreatorFirstActivity.EXTRA_SHOW_UP_BUTTON, false);
+                        intent.putExtra(InitialStickerPackCreationActivity.EXTRA_SHOW_UP_BUTTON, false);
 
                         createPackLauncher.launch(intent);
                         return;

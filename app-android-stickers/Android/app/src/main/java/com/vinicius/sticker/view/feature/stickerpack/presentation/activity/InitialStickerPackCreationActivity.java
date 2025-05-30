@@ -21,10 +21,10 @@ import android.widget.Toast;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
-import com.vinicius.sticker.view.feature.stickerpack.usecase.CreateStickerPackActivity;
+import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackCreationFlow;
 import com.vinicius.sticker.view.main.EntryActivity;
 
-public class StickerPackCreatorFirstActivity extends CreateStickerPackActivity {
+public class InitialStickerPackCreationActivity extends StickerPackCreationFlow {
     public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
     public static final String DATABASE_EMPTY = "database_empty";
     public String selectedFormat = null;

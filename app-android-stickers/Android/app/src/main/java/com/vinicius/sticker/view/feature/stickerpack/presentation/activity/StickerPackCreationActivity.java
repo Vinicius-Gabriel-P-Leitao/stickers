@@ -17,13 +17,10 @@ import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.lifecycle.ViewModelProvider;
-
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
-import com.vinicius.sticker.view.feature.stickerpack.usecase.CreateStickerPackActivity;
+import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackCreationFlow;
 
-public class StickerPackCreatorActivity extends CreateStickerPackActivity {
+public class StickerPackCreationActivity extends StickerPackCreationFlow {
     public static final String EXTRA_STICKER_FORMAT = "sticker_format";
 
     @Override

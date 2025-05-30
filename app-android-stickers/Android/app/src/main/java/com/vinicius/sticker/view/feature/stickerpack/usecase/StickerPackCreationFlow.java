@@ -33,9 +33,9 @@ import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
 import com.vinicius.sticker.view.feature.permission.fragment.PermissionRequestFragment;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.fragment.PackMetadataFragment;
+import com.vinicius.sticker.view.feature.stickerpack.presentation.fragment.StickerPackMetadataFragment;
 
-public abstract class CreateStickerPackActivity extends BaseActivity {
+public abstract class StickerPackCreationFlow extends BaseActivity {
     public static final String STATIC_STICKER = "animated";
     public static final String ANIMATED_STICKER = "static";
 
@@ -119,8 +119,8 @@ public abstract class CreateStickerPackActivity extends BaseActivity {
     }
 
     public void openMetadataGetter() {
-        PackMetadataFragment packMetadataFragment = new PackMetadataFragment();
-        packMetadataFragment.setCallback(new PackMetadataFragment.MetadataCallback() {
+        StickerPackMetadataFragment stickerPackMetadataFragment = new StickerPackMetadataFragment();
+        stickerPackMetadataFragment.setCallback(new StickerPackMetadataFragment.MetadataCallback() {
             @Override
             public void onGetMetadata(String namePack) {
                 saveNamePack(namePack);
@@ -133,7 +133,7 @@ public abstract class CreateStickerPackActivity extends BaseActivity {
             }
         });
 
-        packMetadataFragment.show(getSupportFragmentManager(), "PackMetadataBottomSheetDialogFragment");
+        stickerPackMetadataFragment.show(getSupportFragmentManager(), "PackMetadataBottomSheetDialogFragment");
     }
 
     public abstract void openGallery(String namePack);

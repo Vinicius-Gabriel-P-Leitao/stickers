@@ -11,8 +11,8 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
 
-import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.ANIMATED_STICKER;
-import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorActivity.STATIC_STICKER;
+import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreationActivity.ANIMATED_STICKER;
+import static com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreationActivity.STATIC_STICKER;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,8 +32,8 @@ import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.load.StickerPackConsumer;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPackListAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.usecase.AddStickerPackActivity;
-import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListItemViewHolder;
+import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackAddFlow;
+import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListViewHolder;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class StickerPackListActivity extends AddStickerPackActivity {
+public class StickerPackListActivity extends StickerPackAddFlow {
     public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
     public static final Boolean NEW_STICKER_PACK = false;
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
@@ -118,7 +118,7 @@ public class StickerPackListActivity extends AddStickerPackActivity {
         final int previewSize = getResources().getDimensionPixelSize(R.dimen.sticker_pack_list_item_preview_image_size);
         int firstVisibleItemPosition = packLayoutManager.findFirstVisibleItemPosition();
 
-        StickerPackListItemViewHolder viewHolder = (StickerPackListItemViewHolder) packRecyclerView.findViewHolderForAdapterPosition(
+        StickerPackListViewHolder viewHolder = (StickerPackListViewHolder) packRecyclerView.findViewHolderForAdapterPosition(
                 firstVisibleItemPosition);
 
         if (viewHolder != null) {
@@ -153,8 +153,8 @@ public class StickerPackListActivity extends AddStickerPackActivity {
             });
 
     private void openCreateStickerPackActivity(String format) {
-        Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreatorActivity.class);
-        intent.putExtra(StickerPackCreatorActivity.EXTRA_STICKER_FORMAT, format);
+        Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreationActivity.class);
+        intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
         createPackLauncher.launch(intent);
     }
 
@@ -164,8 +164,8 @@ public class StickerPackListActivity extends AddStickerPackActivity {
         private final ExecutorService executor = Executors.newSingleThreadExecutor();
         private final Handler handler = new Handler(Looper.getMainLooper());
 
-        LoadListStickerPackAsyncTask(StickerPackListActivity stickerPackListActivity) {
-            this.stickerPackListActivityWeakReference = new WeakReference<>(stickerPackListActivity);
+        LoadListStickerPackAsyncTask(StickerPackListActivity stickerPackLibraryActivity) {
+            this.stickerPackListActivityWeakReference = new WeakReference<>(stickerPackLibraryActivity);
         }
 
         public void execute(StickerPack[] stickerPackArray) {
