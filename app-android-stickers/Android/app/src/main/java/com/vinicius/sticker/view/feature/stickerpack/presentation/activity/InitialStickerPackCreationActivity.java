@@ -8,12 +8,9 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
 
-import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
-import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
 import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.launchOwnGallery;
 
 import android.animation.ObjectAnimator;
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -21,8 +18,8 @@ import android.widget.Toast;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
+import com.vinicius.sticker.view.feature.stickerpack.usecase.MimeTypesSupported;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackCreationFlow;
-import com.vinicius.sticker.view.main.EntryActivity;
 
 public class InitialStickerPackCreationActivity extends StickerPackCreationFlow {
     public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
@@ -75,12 +72,12 @@ public class InitialStickerPackCreationActivity extends StickerPackCreationFlow 
     @Override
     public void openGallery(String namePack) {
         if (selectedFormat != null && selectedFormat.equals(STATIC_STICKER)) {
-            launchOwnGallery(this, IMAGE_MIME_TYPES, namePack);
+            launchOwnGallery(this, MimeTypesSupported.IMAGE.getMimeTypes(), namePack);
             return;
         }
 
         if (selectedFormat != null && selectedFormat.equals(ANIMATED_STICKER)) {
-            launchOwnGallery(this, ANIMATED_MIME_TYPES, namePack);
+            launchOwnGallery(this, MimeTypesSupported.ANIMATED.getMimeTypes(), namePack);
             return;
         }
 

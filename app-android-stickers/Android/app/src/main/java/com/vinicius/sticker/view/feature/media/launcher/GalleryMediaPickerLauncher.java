@@ -9,10 +9,10 @@
 package com.vinicius.sticker.view.feature.media.launcher;
 
 import static android.app.Activity.RESULT_OK;
-import static com.vinicius.sticker.view.core.util.CursorSearchUriMedia.getMediaUris;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
@@ -20,8 +20,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.view.core.util.CursorSearchUriMedia;
 import com.vinicius.sticker.view.feature.media.adapter.PickMediaListAdapter;
 import com.vinicius.sticker.view.feature.media.fragment.MediaPickerBottomSheetDialogFragment;
+import com.vinicius.sticker.view.feature.stickerpack.usecase.MimeTypesSupported;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,11 +32,6 @@ import java.util.List;
 
 // @formatter:off
 public class GalleryMediaPickerLauncher extends ViewModel {
-
-    public static final String[] IMAGE_MIME_TYPES = {"image/jpeg", "image/png"};
-    public static final String[] ANIMATED_MIME_TYPES = {"video/mp4", "image/gif"};
-    public enum MediaType { IMAGE_MIME_TYPES, ANIMATED_MIME_TYPES }
-
     // NOTE: Pacote para o preview na activity
     private final MutableLiveData<StickerPack> stickerPackPreview = new MutableLiveData<>();
     public LiveData<StickerPack> getStickerPackToPreview() {
@@ -56,19 +53,10 @@ public class GalleryMediaPickerLauncher extends ViewModel {
         fragmentVisibility.setValue(true);
     }
 
-
     public static void launchOwnGallery(FragmentActivity activity, String[] mimeType, String namePack) {
-        List<Uri> uris = new ArrayList<>();
-        boolean isAnimatedPack = false;
+        boolean isAnimatedPack = Arrays.equals(mimeType,MimeTypesSupported.ANIMATED.getMimeTypes());
+        List<Uri> uris = CursorSearchUriMedia.fetchMediaUri(activity, mimeType);
 
-        if (Arrays.equals(mimeType, IMAGE_MIME_TYPES)) {
-            uris = getMediaUris(activity, IMAGE_MIME_TYPES);
-        }
-
-        if (Arrays.equals(mimeType, ANIMATED_MIME_TYPES)) {
-            uris = getMediaUris(activity, ANIMATED_MIME_TYPES);
-            isAnimatedPack = true;
-        }
 
         MediaPickerBottomSheetDialogFragment fragment = MediaPickerBottomSheetDialogFragment.newInstance(
                 new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
