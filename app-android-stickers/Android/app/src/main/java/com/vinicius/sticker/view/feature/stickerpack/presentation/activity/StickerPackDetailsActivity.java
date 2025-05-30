@@ -132,6 +132,7 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
 
         addButton = findViewById(R.id.add_to_whatsapp_button);
         addButton.setOnClickListener(v -> addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name));
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showUpButton);
             getSupportActionBar().setTitle(showUpButton ? getResources().getString(

@@ -27,7 +27,7 @@ public class StickerPackCreatorActivity extends CreateStickerPackActivity {
     public static final String EXTRA_STICKER_FORMAT = "sticker_format";
 
     @Override
-    protected void setupUI(Bundle savedInstanceState) {
+    public void setupUI(Bundle savedInstanceState) {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
         }

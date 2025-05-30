@@ -33,7 +33,6 @@ import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
 import com.vinicius.sticker.view.feature.permission.fragment.PermissionRequestFragment;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackCreatorFirstActivity;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.fragment.PackMetadataFragment;
 
 public abstract class CreateStickerPackActivity extends BaseActivity {
@@ -70,7 +69,7 @@ public abstract class CreateStickerPackActivity extends BaseActivity {
         setupUI(savedInstanceState);
     }
 
-    protected abstract void setupUI(Bundle savedInstanceState);
+    public abstract void setupUI(Bundle savedInstanceState);
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -200,6 +199,7 @@ public abstract class CreateStickerPackActivity extends BaseActivity {
     public void setNumColumns(int numColumns) {
         if (this.numColumns != numColumns) {
             layoutManager.setSpanCount(numColumns);
+
             this.numColumns = numColumns;
             if (stickerPreviewAdapter != null) {
                 stickerPreviewAdapter.notifyDataSetChanged();

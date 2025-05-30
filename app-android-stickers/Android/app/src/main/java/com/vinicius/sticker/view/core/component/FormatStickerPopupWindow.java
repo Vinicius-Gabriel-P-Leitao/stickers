@@ -22,60 +22,46 @@ import androidx.core.content.ContextCompat;
 import com.vinicius.sticker.R;
 
 public class FormatStickerPopupWindow {
-   public interface OnOptionClickListener {
-      void onStaticStickerSelected();
+    public interface OnOptionClickListener {
+        void onStaticStickerSelected();
 
-      void onAnimatedStickerSelected();
-   }
+        void onAnimatedStickerSelected();
+    }
 
-   public static void popUpButtonChooserStickerModel(
-       @NonNull Context context,
-       @NonNull View anchorView,
-       @NonNull OnOptionClickListener listener
-   ) {
-      View popupView = LayoutInflater.from(context).inflate(R.layout.dropdown_custom_menu, null);
-      popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+    public static void popUpButtonChooserStickerModel(@NonNull Context context, @NonNull View anchorView, @NonNull OnOptionClickListener listener) {
+        View popupView = LayoutInflater.from(context).inflate(R.layout.dropdown_custom_menu, null);
+        popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 
-      PopupWindow popupWindow =
-          new PopupWindow(
-              popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-              true
-          );
-      popupWindow.setElevation(12f);
-      popupWindow.setOutsideTouchable(true);
-      popupWindow.setBackgroundDrawable(
-          ContextCompat.getDrawable(context, R.drawable.menu_dropdown_background));
-      popupWindow.setAnimationStyle(R.style.PopupBounceAnimation);
+        PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setElevation(12f);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.menu_dropdown_background));
+        popupWindow.setAnimationStyle(R.style.PopupBounceAnimation);
 
-      int[] location = new int[2];
-      anchorView.getLocationOnScreen(location);
+        int[] location = new int[2];
+        anchorView.getLocationOnScreen(location);
 
-      int popupHeight = popupView.getMeasuredHeight();
-      int margin = (int) TypedValue.applyDimension(
-          TypedValue.COMPLEX_UNIT_DIP, 16,
-          context.getResources().getDisplayMetrics()
-      );
-      int yPosition = location[1] - popupHeight - margin;
+        int popupHeight = popupView.getMeasuredHeight();
+        int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, context.getResources().getDisplayMetrics());
+        int yPosition = location[1] - popupHeight - margin;
 
-      popupWindow.showAtLocation(anchorView, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, yPosition);
+        popupWindow.showAtLocation(anchorView, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, yPosition);
 
-      popupView.findViewById(R.id.item_option_static)
-          .setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View view) {
+        popupView.findViewById(R.id.item_option_static).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 listener.onStaticStickerSelected();
                 popupWindow.dismiss();
-             }
-          });
+            }
+        });
 
-      popupView.findViewById(R.id.item_option_animated)
-          .setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View view) {
+        popupView.findViewById(R.id.item_option_animated).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 listener.onAnimatedStickerSelected();
                 popupWindow.dismiss();
-             }
-          });
-   }
+            }
+        });
+    }
 
 }

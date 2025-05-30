@@ -164,7 +164,9 @@ public class EntryActivity extends BaseActivity {
 
                     if (context != null) {
                         Intent intent = new Intent(context, StickerPackCreatorFirstActivity.class);
+
                         intent.putExtra("database_empty", true);
+                        intent.putExtra(StickerPackCreatorFirstActivity.EXTRA_SHOW_UP_BUTTON, false);
 
                         createPackLauncher.launch(intent);
                         return;

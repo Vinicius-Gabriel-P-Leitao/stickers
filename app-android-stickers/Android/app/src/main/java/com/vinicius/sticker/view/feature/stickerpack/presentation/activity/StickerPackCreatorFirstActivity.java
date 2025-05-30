@@ -19,11 +19,13 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.vinicius.sticker.R;
+import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.CreateStickerPackActivity;
 import com.vinicius.sticker.view.main.EntryActivity;
 
 public class StickerPackCreatorFirstActivity extends CreateStickerPackActivity {
+    public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
     public static final String DATABASE_EMPTY = "database_empty";
     public String selectedFormat = null;
 
@@ -32,10 +34,15 @@ public class StickerPackCreatorFirstActivity extends CreateStickerPackActivity {
     }
 
     @Override
-    protected void setupUI(Bundle savedInstanceState) {
+    public void setupUI(Bundle savedInstanceState) {
+        boolean showUpButton = getIntent().getBooleanExtra(EXTRA_SHOW_UP_BUTTON, false);
+
         if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(showUpButton);
             getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator_first);
         }
+
+        viewModel.getStickerPackToPreview().observe(this, this::setStateSupportActionBar);
 
         ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
         buttonSelectMedia.setOnClickListener(view -> {
@@ -79,11 +86,19 @@ public class StickerPackCreatorFirstActivity extends CreateStickerPackActivity {
         Toast.makeText(this, "Erro ao abrir galeria!", Toast.LENGTH_SHORT).show();
     }
 
+    // NOTE: Padrão da abstração é notificar a activity passada quando o showup button voltar, porem necessário fazer isso para ela dar o reload
+    //  forçado
     @Override
     public boolean onSupportNavigateUp() {
         Intent intent = new Intent(context, EntryActivity.class);
         startActivity(intent);
 
         return true;
+    }
+
+    private void setStateSupportActionBar(StickerPack stickerPack) {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 }
