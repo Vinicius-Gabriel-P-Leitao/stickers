@@ -37,7 +37,8 @@ import com.google.android.material.button.MaterialButton;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.load.StickerConsumer;
+import com.vinicius.sticker.domain.service.fetch.FetchListStickerService;
+import com.vinicius.sticker.domain.service.fetch.FetchStickerFile;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackAddFlow;
@@ -108,7 +109,7 @@ public class StickerPackDetailsActivity extends StickerPackAddFlow {
         packNameTextView.setText(stickerPack.name);
         packPublisherTextView.setText(stickerPack.publisher);
 
-        packTrayIcon.setImageURI(StickerConsumer.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile));
+        packTrayIcon.setImageURI(FetchStickerFile.getStickerFileUri(stickerPack.identifier, stickerPack.trayImageFile));
         packSizeTextView.setText(Formatter.formatShortFileSize(this, stickerPack.getTotalSize()));
 
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
@@ -200,7 +201,7 @@ public class StickerPackDetailsActivity extends StickerPackAddFlow {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_info && stickerPack != null) {
-            Uri trayIconUri = StickerConsumer.getStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile);
+            Uri trayIconUri = FetchStickerFile.getStickerFileUri(stickerPack.identifier, stickerPack.trayImageFile);
             launchInfoActivity(
                     stickerPack.publisherWebsite, stickerPack.publisherEmail, stickerPack.privacyPolicyWebsite, stickerPack.licenseAgreementWebsite,
                     trayIconUri.toString());

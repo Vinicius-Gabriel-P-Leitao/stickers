@@ -8,8 +8,8 @@
 
 package com.vinicius.sticker.domain.service.delete;
 
-import static com.vinicius.sticker.domain.data.content.provider.StickerContentProvider.STICKERS_ASSET;
-import static com.vinicius.sticker.domain.data.database.repository.DeleteStickerPack.deleteSticker;
+import static com.vinicius.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
+import static com.vinicius.sticker.domain.data.database.repository.DeleteStickerPackRepo.deleteSticker;
 
 import android.content.Context;
 import android.util.Log;
@@ -25,7 +25,8 @@ import java.sql.SQLException;
 /**
  * Deleta o sticker tanto no banco de dados quanto o arquivo.
  */
-public class StickerDeleteService {
+public class DeleteStickerService {
+    private final static String TAG_LOG = DeleteStickerService.class.getSimpleName();
 
     /**
      * <b>Descrição:</b>Deleta o sticker tanto no banco de dados quanto o arquivo, os métadados são
@@ -44,10 +45,10 @@ public class StickerDeleteService {
 
             if (deletedStickerFile.isSuccess()) {
                 if (deletedSticker > 0 && deletedStickerFile.getData()) {
-                    Log.i("StickerDeleteService", "Sticker deletado com sucesso");
+                    Log.i(TAG_LOG, "Figurinha deletado com sucesso");
                     return CallbackResult.success(Boolean.TRUE);
                 } else {
-                    return CallbackResult.warning("Nenhum sticker deletado para fileName: " + fileName);
+                    return CallbackResult.warning("Nenhuma Figurinha deletado para fileName: " + fileName);
                 }
             }
 
@@ -56,7 +57,7 @@ public class StickerDeleteService {
 
         } catch (SQLException exception) {
             return CallbackResult.failure(
-                    new DeleteStickerException("Erro ao deletar métadados do sticker no  banco de dados!", exception.getCause()));
+                    new DeleteStickerException("Erro ao deletar métadados da figurinha no  banco de dados!", exception.getCause()));
         }
     }
 
@@ -77,7 +78,7 @@ public class StickerDeleteService {
             boolean deleted = stickerDirectory.delete();
 
             if (deleted) {
-                Log.i("StickerDelete", "Arquivo deletado: " + stickerDirectory.getAbsolutePath());
+                Log.i(TAG_LOG, "Arquivo deletado: " + stickerDirectory.getAbsolutePath());
                 return CallbackResult.success(Boolean.TRUE);
             } else {
                 return CallbackResult.failure(new DeleteStickerException("Falha ao deletar arquivo: " + stickerDirectory.getAbsolutePath()));

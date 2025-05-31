@@ -9,9 +9,9 @@
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
 
-package com.vinicius.sticker.domain.data.content.provider;
+package com.vinicius.sticker.domain.data.content;
 
-import static com.vinicius.sticker.domain.data.database.dao.StickerDatabase.isDatabaseEmpty;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.isDatabaseEmpty;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -22,22 +22,18 @@ import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
-import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.BuildConfig;
-import com.vinicius.sticker.domain.data.content.helpers.StickerPackProviderQueryHelper;
-import com.vinicius.sticker.domain.data.database.dao.StickerDatabase;
+import com.vinicius.sticker.core.exception.ContentProviderException;
+import com.vinicius.sticker.domain.data.content.helper.StickerProviderFileHelper;
+import com.vinicius.sticker.domain.data.content.helper.StickerPackProviderQueryHelper;
+import com.vinicius.sticker.domain.data.content.helper.StickerProviderQueryHelper;
+import com.vinicius.sticker.domain.data.database.StickerDatabase;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-
+// @formatter:off
 public class StickerContentProvider extends ContentProvider {
     private static final UriMatcher MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -52,18 +48,17 @@ public class StickerContentProvider extends ContentProvider {
     private static final int STICKER_PACK_TRAY_ICON_CODE = 5;
     private static final int CREATE_STICKER_PACKS = 6;
 
-    StickerDatabase dbHelper;
+    private static StickerDatabase dbHelper;
 
-    public static final Uri AUTHORITY_URI = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
-            .appendPath(StickerContentProvider.METADATA).build();
+    public static final Uri AUTHORITY_URI = new Uri.Builder()
+            .scheme(ContentResolver.SCHEME_CONTENT)
+            .authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
+            .appendPath(StickerContentProvider.METADATA)
+            .build();
 
     @Override
     public boolean onCreate() {
-        final String authority = BuildConfig.CONTENT_PROVIDER_AUTHORITY;
-        if (!authority.startsWith(Objects.requireNonNull(getContext()).getPackageName())) {
-            throw new IllegalStateException("your authority (" + authority + ") for the content provider should start with your package name: " +
-                    getContext().getPackageName());
-        }
+        final String authority = getAuthority();
 
         MATCHER.addURI(authority, METADATA, METADATA_CODE);
         MATCHER.addURI(authority, METADATA + "/*", METADATA_CODE_FOR_SINGLE_PACK);
@@ -85,39 +80,54 @@ public class StickerContentProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         final int code = MATCHER.match(uri);
-        StickerPackProviderQueryHelper stickerPackProviderQueryHelper = new StickerPackProviderQueryHelper(getContext());
+
+        Context context = getContext();
+        if (context == null) {
+            throw new ContentProviderException("Contexto do content provider não disponível!");
+        }
+
+        StickerPackProviderQueryHelper stickerPackProviderQueryHelper = new StickerPackProviderQueryHelper(context);
+        StickerProviderQueryHelper stickerProviderQueryHelper = new StickerProviderQueryHelper(context);
 
         if (code == METADATA_CODE) {
             return stickerPackProviderQueryHelper.getPackForAllStickerPacks(uri, dbHelper);
         } else if (code == METADATA_CODE_FOR_SINGLE_PACK) {
             return stickerPackProviderQueryHelper.getCursorForSingleStickerPack(uri, dbHelper);
         } else if (code == METADATA_CODE_ALL_STICKERS) {
-            return stickerPackProviderQueryHelper.getCursorForStickersForPack(uri, dbHelper);
+            return stickerProviderQueryHelper.getCursorForStickerListForPack(uri, dbHelper);
         } else {
-            throw new IllegalArgumentException("Unknown URI: " + uri);
+            throw new ContentProviderException("URI desconhecida: " + uri);
         }
     }
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, String[] selectionArgs) {
-        throw new UnsupportedOperationException("Not supported");
+        throw new UnsupportedOperationException("Operação não suportada!");
     }
 
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
-        throw new UnsupportedOperationException("Not supported");
+        throw new UnsupportedOperationException("Operação não suportada!");
     }
 
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        throw new UnsupportedOperationException("Not supported");
+        throw new UnsupportedOperationException("Operação não suportada!");
     }
 
     @Override
     public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode) {
-        final int matchCode = MATCHER.match(uri);
-        if (matchCode == STICKERS_FILES_CODE || matchCode == STICKER_PACK_TRAY_ICON_CODE) {
-            return getImageFiles(uri);
+        final int code = MATCHER.match(uri);
+
+        Context context = getContext();
+        if (context == null) {
+            throw new ContentProviderException("Contexto do content provider não disponível!");
+        }
+
+        StickerProviderFileHelper stickerProviderFileHelper = new StickerProviderFileHelper(context);
+
+        if (code == STICKERS_FILES_CODE || code == STICKER_PACK_TRAY_ICON_CODE) {
+            return stickerProviderFileHelper.getImageFiles(uri);
         }
 
         return null;
@@ -125,51 +135,38 @@ public class StickerContentProvider extends ContentProvider {
 
     @Override
     public String getType(@NonNull Uri uri) {
-        final int matchCode = MATCHER.match(uri);
-        return switch (matchCode) {
+        final int code = MATCHER.match(uri);
+
+        return switch (code) {
             case METADATA_CODE -> "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
             case METADATA_CODE_FOR_SINGLE_PACK -> "vnd.android.cursor.item/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
             case METADATA_CODE_ALL_STICKERS -> "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + STICKERS;
             case STICKERS_FILES_CODE -> "image/webp";
             case STICKER_PACK_TRAY_ICON_CODE -> "image/png";
-            default -> throw new IllegalArgumentException("Unknown URI: " + uri);
+
+            default -> throw new ContentProviderException("URI desconhecida: " + uri);
         };
     }
 
-    private AssetFileDescriptor getImageFiles(Uri uri) throws IllegalArgumentException {
-        Context context = Objects.requireNonNull(getContext());
+    @NonNull
+    private String getAuthority() {
+        final String authority = BuildConfig.CONTENT_PROVIDER_AUTHORITY;
 
-        File stickerPackDir = new File(context.getFilesDir(), STICKERS_ASSET);
-
-        final List<String> pathSegments = uri.getPathSegments();
-        if (pathSegments.size() != 3) {
-            throw new IllegalArgumentException("path segments should be 3, uri is: " + uri);
-        }
-        String fileName = pathSegments.get(pathSegments.size() - 1);
-        final String identifier = pathSegments.get(pathSegments.size() - 2);
-
-        if (TextUtils.isEmpty(identifier)) {
-            throw new IllegalArgumentException("identifier is empty, uri: " + uri);
-        }
-        if (TextUtils.isEmpty(fileName)) {
-            throw new IllegalArgumentException("file name is empty, uri: " + uri);
+        Context context = getContext();
+        if (context == null) {
+            throw new ContentProviderException("Contexto do content provider não disponível!");
         }
 
-        File stickerDirectory = new File(stickerPackDir, identifier);
-        if (!stickerDirectory.exists() || !stickerDirectory.isDirectory()) {
-            throw new IllegalArgumentException("Sticker directory not found: " + stickerDirectory.getPath());
+        String packageName  = getContext().getPackageName();
+        if (packageName == null) {
+            throw new ContentProviderException("Nome do pacote do content provider não disponível!");
         }
 
-        File stickerFile = new File(stickerDirectory, fileName);
-        if (stickerFile.exists() && stickerFile.isFile()) {
-            try {
-                ParcelFileDescriptor fileDescriptor = ParcelFileDescriptor.open(stickerFile, ParcelFileDescriptor.MODE_READ_ONLY);
-                return new AssetFileDescriptor(fileDescriptor, 0, AssetFileDescriptor.UNKNOWN_LENGTH);
-            } catch (IOException exception) {
-                Log.e(getContext().getPackageName(), "Erro ao abrir stickerFile: " + stickerFile.getAbsolutePath(), exception);
-            }
+        if (!authority.startsWith(packageName)) {
+            throw new ContentProviderException(
+                    "Sua autoridade (" + authority + ") para o provedor de conteúdo deve começar com o nome do seu pacote: " + getContext().getPackageName());
         }
 
-        return null;
+        return authority;
     }
 }

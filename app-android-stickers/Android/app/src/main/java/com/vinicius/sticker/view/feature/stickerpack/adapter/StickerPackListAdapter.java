@@ -27,7 +27,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.load.StickerConsumer;
+import com.vinicius.sticker.domain.service.fetch.FetchListStickerService;
+import com.vinicius.sticker.domain.service.fetch.FetchStickerFile;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
 import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPackListViewHolder;
 
@@ -85,7 +86,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             final ImageView rowImage = (ImageView) LayoutInflater.from(context)
                     .inflate(R.layout.sticker_packs_list_media_item, viewHolder.imageRowView, false);
 
-            rowImage.setImageURI(StickerConsumer.getStickerAssetUri(stickerPack.identifier, stickerPack.getStickers().get(i).imageFileName));
+            rowImage.setImageURI(FetchStickerFile.getStickerFileUri(stickerPack.identifier, stickerPack.getStickers().get(i).imageFileName));
 
             final LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) rowImage.getLayoutParams();
             final int marginBetweenImages = minMarginBetweenImages - layoutParams.leftMargin - layoutParams.rightMargin;
@@ -131,6 +132,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         return stickerPacks.size();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setImageRowSpec(int maxNumberOfStickersInARow, int minMarginBetweenImages) {
         this.minMarginBetweenImages = minMarginBetweenImages;
         if (this.maxNumberOfStickersInARow != maxNumberOfStickersInARow) {

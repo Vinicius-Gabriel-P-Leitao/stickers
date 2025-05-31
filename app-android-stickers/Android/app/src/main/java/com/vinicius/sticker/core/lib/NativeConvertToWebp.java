@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.core.libs;
+package com.vinicius.sticker.core.lib;
 
 import com.vinicius.sticker.core.exception.MediaConversionException;
 

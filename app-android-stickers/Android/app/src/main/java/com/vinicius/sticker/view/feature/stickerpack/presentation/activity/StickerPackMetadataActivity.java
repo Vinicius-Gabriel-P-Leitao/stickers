@@ -11,6 +11,7 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
@@ -29,15 +30,17 @@ import androidx.core.view.ViewCompat;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.view.core.base.BaseActivity;
+import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackCreationFlow;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class StickerPackMetadataActivity extends BaseActivity {
 
-    private static final String TAG = "StickerPackInfoActivity";
+    private static final String TAG_LOG = StickerPackCreationFlow.class.getSimpleName();
 
     @Override
+    @SuppressLint("ObsoleteSdkInt")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sticker_pack_info);
@@ -48,11 +51,14 @@ public class StickerPackMetadataActivity extends BaseActivity {
         final String privacyPolicy = getIntent().getStringExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_PRIVACY_POLICY);
         final String licenseAgreement = getIntent().getStringExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_LICENSE_AGREEMENT);
         final TextView trayIcon = findViewById(R.id.tray_icon);
+
         try {
             final InputStream inputStream = getContentResolver().openInputStream(Uri.parse(trayIconUriString));
-            final BitmapDrawable trayDrawable = new BitmapDrawable(getResources(), inputStream);
             final Drawable emailDrawable = getDrawableForAllAPIs(R.drawable.sticker_3rdparty_email);
+
+            final BitmapDrawable trayDrawable = new BitmapDrawable(getResources(), inputStream);
             trayDrawable.setBounds(new Rect(0, 0, emailDrawable.getIntrinsicWidth(), emailDrawable.getIntrinsicHeight()));
+
             if (Build.VERSION.SDK_INT > 17) {
                 trayIcon.setCompoundDrawablesRelative(trayDrawable, null, null, null);
             } else {
@@ -63,7 +69,7 @@ public class StickerPackMetadataActivity extends BaseActivity {
                 }
             }
         } catch (FileNotFoundException e) {
-            Log.e(TAG, "could not find the uri for the tray image:" + trayIconUriString);
+            Log.e(TAG_LOG, "could not find the uri for the tray image:" + trayIconUriString);
         }
 
         setupTextView(website, R.id.view_webpage);
@@ -72,11 +78,10 @@ public class StickerPackMetadataActivity extends BaseActivity {
         if (TextUtils.isEmpty(email)) {
             sendEmail.setVisibility(View.GONE);
         } else {
-            sendEmail.setOnClickListener(v -> launchEmailClient(email));
+            sendEmail.setOnClickListener(view -> launchEmailClient(email));
         }
 
         setupTextView(privacyPolicy, R.id.privacy_policy);
-
         setupTextView(licenseAgreement, R.id.license_agreement);
     }
 
@@ -85,7 +90,7 @@ public class StickerPackMetadataActivity extends BaseActivity {
         if (TextUtils.isEmpty(website)) {
             viewWebpage.setVisibility(View.GONE);
         } else {
-            viewWebpage.setOnClickListener(v -> launchWebpage(website));
+            viewWebpage.setOnClickListener(view -> launchWebpage(website));
         }
     }
 
@@ -101,6 +106,7 @@ public class StickerPackMetadataActivity extends BaseActivity {
         startActivity(intent);
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     private Drawable getDrawableForAllAPIs(@DrawableRes int id) {
         if (Build.VERSION.SDK_INT >= 21) {
             return getDrawable(id);

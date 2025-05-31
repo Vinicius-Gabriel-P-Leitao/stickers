@@ -8,21 +8,20 @@
 
 package com.vinicius.sticker.view.core.util;
 
-import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
-import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
-import static com.vinicius.sticker.view.core.util.CursorSearchUriMedia.getAbsolutePath;
-
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.vinicius.sticker.core.exception.MediaConversionException;
-import com.vinicius.sticker.core.libs.NativeConvertToWebp;
+import com.vinicius.sticker.core.lib.NativeConvertToWebp;
+import com.vinicius.sticker.view.feature.stickerpack.usecase.MimeTypesSupported;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,10 +47,10 @@ public class ConvertMediaToStickerFormat {
 
         mapDetailsFile.forEach((String fileName, String mimeType) -> {
             try {
-                if (validateUniqueMimeType(mimeType, IMAGE_MIME_TYPES)) {
+                if (validateUniqueMimeType(mimeType, MimeTypesSupported.IMAGE.getMimeTypes())) {
                     File imageOutputFile = convertImageToWebP(context, fileName, outputFile);
                     callback.onSuccess(imageOutputFile);
-                } else if (validateUniqueMimeType(mimeType, ANIMATED_MIME_TYPES)) {
+                } else if (validateUniqueMimeType(mimeType, MimeTypesSupported.ANIMATED.getMimeTypes())) {
                     // NOTE: Callback já é dada no método
                     convertVideoToWebP(context, inputUri, outputFile, callback);
                 } else {
@@ -98,17 +97,18 @@ public class ConvertMediaToStickerFormat {
         File outputFile = new File(context.getCacheDir(), outputFileName);
 
         NativeConvertToWebp nativeConvertToWebp = new NativeConvertToWebp();
-        nativeConvertToWebp.convertToWebpAsync(getAbsolutePath(context, inputPath), outputFile.getAbsolutePath(), new NativeConvertToWebp.ConversionCallback() {
-            @Override
-            public void onSuccess(File file) {
-                callback.onSuccess(file);
-            }
+        nativeConvertToWebp.convertToWebpAsync(
+                getAbsolutePath(context, inputPath), outputFile.getAbsolutePath(), new NativeConvertToWebp.ConversionCallback() {
+                    @Override
+                    public void onSuccess(File file) {
+                        callback.onSuccess(file);
+                    }
 
-            @Override
-            public void onError(Exception exception) {
-                callback.onError(new MediaConversionException(exception.getMessage(), exception.getCause()));
-            }
-        });
+                    @Override
+                    public void onError(Exception exception) {
+                        callback.onError(new MediaConversionException(exception.getMessage(), exception.getCause()));
+                    }
+                });
     }
 
     private static Bitmap cropAndResizeToSquare(Bitmap bitmap) {
@@ -127,6 +127,7 @@ public class ConvertMediaToStickerFormat {
     public static boolean validateUniqueMimeType(String mimeType, String[] mimeTypesList) {
         for (String type : mimeTypesList) {
             Log.d("MimeTypeCheck", "Comparando MIME: " + mimeType + " com " + type);
+
             if (Objects.equals(mimeType, type)) {
                 return true;
             }
@@ -148,4 +149,27 @@ public class ConvertMediaToStickerFormat {
         return fileDetails;
     }
 
+    /**
+     * <p><b>Descrição:</b>Captura o caminho absoluto da URI de um arquivo.</p>
+     *
+     * @param context Contexto da aplicação.
+     * @param uri     Uri do arquivo.
+     * @return Caminho do arquivo.
+     */
+    private static String getAbsolutePath(Context context, Uri uri) {
+        String[] projection = {MediaStore.Files.FileColumns.DATA};
+        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
+
+        if (cursor == null) {
+            return uri.getPath();
+        } else {
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+
+            String path = cursor.getString(column_index);
+
+            cursor.close();
+            return path;
+        }
+    }
 }

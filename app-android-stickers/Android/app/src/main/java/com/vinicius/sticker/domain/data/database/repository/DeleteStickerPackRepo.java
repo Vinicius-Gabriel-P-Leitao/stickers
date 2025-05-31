@@ -12,25 +12,28 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.vinicius.sticker.core.exception.DeleteStickerException;
-import com.vinicius.sticker.domain.data.database.dao.StickerDatabase;
+import com.vinicius.sticker.domain.data.database.StickerDatabase;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.core.pattern.CallbackResult;
-import com.vinicius.sticker.domain.service.load.StickerPackConsumer;
+import com.vinicius.sticker.domain.service.fetch.FetchListStickerPackService;
 
 import java.sql.SQLException;
 
-public class DeleteStickerPack {
+// @formatter:off
+public class DeleteStickerPackRepo {
     public static int deleteSticker(Context context, String stickerPackIdentifier, String fileName) throws SQLException {
         StickerDatabase dbHelper = StickerDatabase.getInstance(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        StickerPack fetchStickerPack = StickerPackConsumer.fetchStickerPack(context, stickerPackIdentifier);
+        StickerPack fetchStickerPack = FetchListStickerPackService.fetchStickerPack(context, stickerPackIdentifier);
         if (fetchStickerPack.identifier == null) {
             throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar.");
         }
+
         return db.delete(
                 StickerDatabase.TABLE_STICKER, StickerDatabase.FK_STICKER_PACK + " = ? AND " + StickerDatabase.STICKER_FILE_NAME_IN_QUERY + " = ?",
-                new String[]{String.valueOf(fetchStickerPack), fileName});
+                new String[]{String.valueOf(fetchStickerPack), fileName}
+        );
     }
 
     public static CallbackResult<Integer> deleteStickersOfPack(Context context, String stickerPackIdentifier) {

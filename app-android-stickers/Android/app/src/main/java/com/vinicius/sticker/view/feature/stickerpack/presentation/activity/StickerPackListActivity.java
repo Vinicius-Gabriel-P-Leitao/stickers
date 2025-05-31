@@ -19,8 +19,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,7 +27,6 @@ import com.google.android.material.button.MaterialButton;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.load.StickerPackConsumer;
 import com.vinicius.sticker.view.core.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPackListAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackAddFlow;

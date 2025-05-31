@@ -8,20 +8,15 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
 
-import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.ANIMATED_MIME_TYPES;
-import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.IMAGE_MIME_TYPES;
-import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.launchOwnGallery;
-
 import android.animation.ObjectAnimator;
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
+import com.vinicius.sticker.view.feature.media.viewholder.GalleryMediaPickerViewHolder;
+import com.vinicius.sticker.view.feature.stickerpack.usecase.MimeTypesSupported;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.StickerPackCreationFlow;
-import com.vinicius.sticker.view.main.EntryActivity;
 
 public class StickerPackCreationActivity extends StickerPackCreationFlow {
     public static final String EXTRA_STICKER_FORMAT = "sticker_format";
@@ -48,12 +43,12 @@ public class StickerPackCreationActivity extends StickerPackCreationFlow {
         String selectedFormat = getIntent().getStringExtra(EXTRA_STICKER_FORMAT);
 
         if (selectedFormat != null && selectedFormat.equals(STATIC_STICKER)) {
-            GalleryMediaPickerLauncher.launchOwnGallery(this, IMAGE_MIME_TYPES, namePack);
+            GalleryMediaPickerViewHolder.launchOwnGallery(this, MimeTypesSupported.IMAGE.getMimeTypes(), namePack);
             return;
         }
 
         if (selectedFormat != null && selectedFormat.equals(ANIMATED_STICKER)) {
-            GalleryMediaPickerLauncher.launchOwnGallery(this, ANIMATED_MIME_TYPES, namePack);
+            GalleryMediaPickerViewHolder.launchOwnGallery(this, MimeTypesSupported.ANIMATED.getMimeTypes(), namePack);
             return;
         }
 

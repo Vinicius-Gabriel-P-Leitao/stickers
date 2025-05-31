@@ -33,11 +33,11 @@ import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.exception.MediaConversionException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.core.exception.base.InternalAppException;
-import com.vinicius.sticker.domain.service.save.StickerPackCreatorManager;
+import com.vinicius.sticker.domain.orchestrator.StickerPackOrchestrator;
 import com.vinicius.sticker.view.core.component.BottomFadingRecyclerView;
 import com.vinicius.sticker.view.core.util.ConvertMediaToStickerFormat;
 import com.vinicius.sticker.view.feature.media.adapter.PickMediaListAdapter;
-import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
+import com.vinicius.sticker.view.feature.media.viewholder.GalleryMediaPickerViewHolder;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +56,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
     private static final String KEY_NAME_PACK = "key_name_pack";
 
     private final List<File> mediaConvertedFile = new ArrayList<>();
-    private GalleryMediaPickerLauncher viewModel;
+    private GalleryMediaPickerViewHolder viewModel;
     private boolean isAnimatedPack;
     private List<Uri> mediaUris;
     private String namePack;
@@ -117,7 +117,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewModel = new ViewModelProvider(requireActivity()).get(GalleryMediaPickerLauncher.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(GalleryMediaPickerViewHolder.class);
         viewModel.getFragment().observe(
                 getViewLifecycleOwner(), isVisible -> {
                     if (isVisible && isAdded() && getActivity() != null) {
@@ -211,7 +211,7 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
         if (completedConversions == totalConversions) {
             progressBar.setVisibility(View.GONE);
 
-            StickerPackCreatorManager.generateObjectToSave(
+            StickerPackOrchestrator.generateObjectToSave(
                     requireContext(), isAnimatedPack, mediaConvertedFile, namePack, callbackResult -> {
                         if (getContext() != null && isAdded()) {
                             switch (callbackResult.getStatus()) {

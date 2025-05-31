@@ -30,7 +30,8 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.request.RequestOptions;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.load.StickerConsumer;
+import com.vinicius.sticker.domain.service.fetch.FetchListStickerService;
+import com.vinicius.sticker.domain.service.fetch.FetchStickerFile;
 import com.vinicius.sticker.view.feature.media.transformation.CropSquareTransformation;
 import com.vinicius.sticker.view.feature.stickerpack.viewholder.StickerPreviewViewHolder;
 
@@ -98,7 +99,7 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
     public void onBindViewHolder(@NonNull final StickerPreviewViewHolder stickerPreviewViewHolder, final int position) {
         stickerPreviewViewHolder.stickerPreviewView.setImageResource(errorResource);
         stickerPreviewViewHolder.stickerPreviewView.setImageURI(
-                StickerConsumer.getStickerAssetUri(stickerPack.identifier, stickerPack.getStickers().get(position).imageFileName));
+                FetchStickerFile.getStickerFileUri(stickerPack.identifier, stickerPack.getStickers().get(position).imageFileName));
         stickerPreviewViewHolder.stickerPreviewView.setOnClickListener(v -> expandPreview(position, stickerPreviewViewHolder.stickerPreviewView));
     }
 
@@ -172,7 +173,7 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
 
             String imageFileName = stickerPack.getStickers().get(position).imageFileName;
 
-            final Uri stickerAssetUri = StickerConsumer.getStickerAssetUri(stickerPack.identifier, imageFileName);
+            final Uri stickerAssetUri = FetchStickerFile.getStickerFileUri(stickerPack.identifier, imageFileName);
             String extension = imageFileName.substring(imageFileName.lastIndexOf(".") + 1);
 
             boolean isAnimatedWebp = false;
