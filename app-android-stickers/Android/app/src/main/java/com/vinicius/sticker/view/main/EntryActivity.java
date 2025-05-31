@@ -30,9 +30,9 @@ import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.fetch.FetchListStickerPackService;
 import com.vinicius.sticker.view.core.base.BaseActivity;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.InitialStickerPackCreationActivity;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackListActivity;
+import com.vinicius.sticker.view.feature.presentation.activity.InitialStickerPackCreationActivity;
+import com.vinicius.sticker.view.feature.presentation.activity.StickerPackDetailsActivity;
+import com.vinicius.sticker.view.feature.presentation.activity.StickerPackListActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -153,6 +153,7 @@ public class EntryActivity extends BaseActivity {
                                 StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
                             }
                         }
+                        
                         Log.d(TAG_LOG, String.valueOf(stickerPackList.invalidStickerPacks()));
                         Log.d(TAG_LOG, String.valueOf(stickerPackList.invalidStickers()));
 

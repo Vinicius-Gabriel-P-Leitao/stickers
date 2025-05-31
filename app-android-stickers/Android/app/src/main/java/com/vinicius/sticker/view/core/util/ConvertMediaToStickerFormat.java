@@ -21,7 +21,7 @@ import androidx.annotation.NonNull;
 
 import com.vinicius.sticker.core.exception.MediaConversionException;
 import com.vinicius.sticker.core.lib.NativeConvertToWebp;
-import com.vinicius.sticker.view.feature.stickerpack.usecase.MimeTypesSupported;
+import com.vinicius.sticker.view.feature.usecase.MimeTypesSupported;
 
 import java.io.File;
 import java.io.FileOutputStream;
