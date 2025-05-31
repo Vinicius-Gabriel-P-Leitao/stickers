@@ -20,19 +20,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class FetchStickerFile {
-    /**
-     * <b>Descrição:</b>Busca o arquivo da figurinha baseado nos dados do pacote que está relacionado.
-     *
-     * @param identifier      Identificador do arquivo.
-     * @param name            Nome do arquivo.
-     * @param contentResolver Content resolver.
-     * @return Bytes do arquivo.
-     */
-    public static byte[] fetchStickerFile(
+public class FetchStickerAssetService {
+
+    public static byte[] fetchStickerAsset(
             @NonNull final String identifier, @NonNull final String name, ContentResolver contentResolver) throws IOException {
         try (final InputStream inputStream = contentResolver.openInputStream(
-                getStickerFileUri(identifier, name)); final ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+                buildStickerAssetUri(identifier, name)); final ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
 
             if (inputStream == null) {
                 throw new IOException("Não foi possível ler a figurinha :" + identifier + "/" + name);
@@ -48,14 +41,7 @@ public class FetchStickerFile {
         }
     }
 
-    /**
-     * <b>Descrição:</b>Busca a URI do arquivo pelo identifier do pacote e o nome do arquivo
-     *
-     * @param identifier  Identificador do arquivo.
-     * @param stickerName Nome do arquivo.
-     * @return Bytes do arquivo.
-     */
-    public static Uri getStickerFileUri(String identifier, String stickerName) {
+    private static Uri buildStickerAssetUri(String identifier, String stickerName) {
         return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
                 .appendPath(StickerContentProvider.STICKERS_ASSET).appendPath(identifier).appendPath(stickerName).build();
     }

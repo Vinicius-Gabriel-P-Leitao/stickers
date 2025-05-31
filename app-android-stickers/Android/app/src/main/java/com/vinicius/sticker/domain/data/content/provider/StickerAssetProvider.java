@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.domain.data.content.helper;
+package com.vinicius.sticker.domain.data.content.provider;
 
 import static com.vinicius.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
 
@@ -26,19 +26,18 @@ import java.io.IOException;
 import java.util.List;
 
 // @formatter:off
-public class StickerProviderFileHelper {
-    private final static String TAG_LOG = StickerProviderQueryHelper.class.getSimpleName();
+public class StickerAssetProvider {
+    private final static String TAG_LOG = StickerQueryProvider.class.getSimpleName();
 
     @NonNull
     private final Context context;
 
-    public StickerProviderFileHelper(@NonNull Context context) {
+    public StickerAssetProvider(@NonNull Context context) {
         this.context = context;
     }
 
-    public AssetFileDescriptor getImageFiles(Uri uri) throws IllegalArgumentException {
-
-        File stickerPackDir = new File(context.getFilesDir(), STICKERS_ASSET);
+    public AssetFileDescriptor fetchStickerAsset(@NonNull Uri uri) throws IllegalArgumentException {
+        final File stickerPackDir = new File(context.getFilesDir(), STICKERS_ASSET);
 
         final List<String> pathSegments = uri.getPathSegments();
         if (pathSegments.size() != 3) {
@@ -55,7 +54,7 @@ public class StickerProviderFileHelper {
             throw new ContentProviderException("Nome do arquivo está vazio, uri:" + uri);
         }
 
-        File stickerDirectory = new File(stickerPackDir, identifier);
+        final File stickerDirectory = new File(stickerPackDir, identifier);
         if (!stickerDirectory.exists() || !stickerDirectory.isDirectory()) {
             throw new ContentProviderException("Diretório de figurinhas não encontrado:" + stickerDirectory.getPath());
         }

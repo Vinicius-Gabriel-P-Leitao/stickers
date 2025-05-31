@@ -24,11 +24,8 @@ import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
-import com.vinicius.sticker.core.validation.StickerPackValidator;
-import com.vinicius.sticker.core.validation.StickerValidator;
-import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.fetch.FetchListStickerPackService;
+import com.vinicius.sticker.domain.service.fetch.FetchStickerPackService;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.feature.presentation.activity.InitialStickerPackCreationActivity;
 import com.vinicius.sticker.view.feature.presentation.activity.StickerPackDetailsActivity;
@@ -139,24 +136,15 @@ public class EntryActivity extends BaseActivity {
                     final Context context = contextWeakReference.get();
 
                     if (context != null) {
-                        StickerPackValidationResult.ListStickerPackResult stickerPackList = FetchListStickerPackService.fetchStickerPackList(context);
+                        StickerPackValidationResult.ListStickerPackResult stickerPackList = FetchStickerPackService.fetchStickerPackListFromContentProvider(context);
 
                         if (stickerPackList.validStickerPacks().isEmpty()) {
                             result = new Pair<>("Nenhum pacote de adesivos disponível", null);
                             return;
                         }
 
-                        for (StickerPack stickerPack : stickerPackList.validStickerPacks()) {
-                            StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
-
-                            for (Sticker sticker : stickerPack.getStickers()) {
-                                StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
-                            }
-                        }
-                        
                         Log.d(TAG_LOG, String.valueOf(stickerPackList.invalidStickerPacks()));
                         Log.d(TAG_LOG, String.valueOf(stickerPackList.invalidStickers()));
-
 
                         result = new Pair<>(null, stickerPackList.validStickerPacks());
                     } else {

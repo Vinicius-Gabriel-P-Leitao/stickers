@@ -31,7 +31,9 @@ import com.vinicius.sticker.domain.data.database.repository.DeleteStickerPackRep
 import com.vinicius.sticker.domain.data.database.repository.InsertStickerPackRepo;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.service.delete.DeleteStickerPackService;
 import com.vinicius.sticker.domain.service.delete.DeleteStickerService;
+import com.vinicius.sticker.domain.service.fetch.FetchStickerPackService;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -43,8 +45,8 @@ import java.util.List;
 import java.util.Objects;
 
 // @formatter:off
-public class StickerPackSaveService {
-    private final static String TAG_LOG = StickerPackSaveService.class.getSimpleName();
+public class SaveStickerPackService {
+    private final static String TAG_LOG = SaveStickerPackService.class.getSimpleName();
     @FunctionalInterface
     public interface SaveStickerPackCallback {
         void onStickerPackSaveResult(CallbackResult<StickerPack> callbackResult);
@@ -97,54 +99,33 @@ public class StickerPackSaveService {
         insertStickerPack(context, stickerPack, callback);
     }
 
-    private static boolean shouldDeletePreviousPack(Context context,String stickerPackIdentifier ) {
+    private static boolean shouldDeletePreviousPack(Context context, String stickerPackIdentifier) {
         File mainDir = new File(context.getFilesDir(), STICKERS_ASSET);
         File stickerPackDir = new File(mainDir, stickerPackIdentifier);
+        StickerPack stickerPack = FetchStickerPackService.fetchStickerPackFromContentProvider(context, stickerPackIdentifier).validStickerPacks();
 
-        return stickerPackDir.exists() && stickerPackDir.isDirectory();
+        return stickerPackDir.exists() && stickerPackDir.isDirectory() && Objects.equals(stickerPack.identifier, stickerPackIdentifier);
     }
 
     private static boolean deletePreviousPack(Context context, String stickerPackIdentifier, SaveStickerPackCallback callback) {
-        CallbackResult<Void> stickerFilesDeleted = DeleteStickerService.deleteAllFilesInPack(context, stickerPackIdentifier);
-        switch (stickerFilesDeleted.getStatus()) {
-            case SUCCESS:
-                callback.onStickerPackSaveResult(CallbackResult.debug("Figurinhas deletadas com sucesso."));
-                break;
-            case WARNING:
-                callback.onStickerPackSaveResult(CallbackResult.warning(stickerFilesDeleted.getWarningMessage()));
-                break;
-            case FAILURE:
-                callback.onStickerPackSaveResult(CallbackResult.failure(stickerFilesDeleted.getError()));
-                return false;
+        CallbackResult<Boolean> deletedSticker =  DeleteStickerService.deleteAllStickerByPack(context, stickerPackIdentifier);
+        CallbackResult<Boolean> deletedStickerPack = DeleteStickerPackService.deleteStickerPack(context, stickerPackIdentifier);
+
+        if (deletedSticker.getStatus() == CallbackResult.Status.SUCCESS) {
+            return deletedSticker.getData() && deletedStickerPack.getData();
         }
 
-        CallbackResult<Integer> stickersDeletedInDb = DeleteStickerPackRepo.deleteStickersOfPack(context, stickerPackIdentifier);
-        if (stickersDeletedInDb.isFailure()) {
-            callback.onStickerPackSaveResult(
-                    CallbackResult.failure(new StickerPackSaveException("Falha ao limpar figurinhas do banco de dados.", stickersDeletedInDb.getError())));
-            return false;
+        if (deletedSticker.getStatus() == CallbackResult.Status.WARNING){
+            callback.onStickerPackSaveResult(CallbackResult.warning(deletedSticker.getWarningMessage()));
+            callback.onStickerPackSaveResult(CallbackResult.warning(deletedStickerPack.getWarningMessage()));
         }
 
-        callback.onStickerPackSaveResult(CallbackResult.debug("Figurinhas deletadas do banco com sucesso."));
-        CallbackResult<Integer> stickerPackDeletedInDb = DeleteStickerPackRepo.deleteStickerPackFromDatabase(context, stickerPackIdentifier);
-        return switch (stickerPackDeletedInDb.getStatus()) {
-            case SUCCESS -> {
-                callback.onStickerPackSaveResult(CallbackResult.debug("Pacote de figurinhas deletado com sucesso. Status: " + stickerPackDeletedInDb.getData()));
-                yield true;
-            }
-            case WARNING -> {
-                callback.onStickerPackSaveResult(CallbackResult.warning(stickerPackDeletedInDb.getWarningMessage()));
-                yield true;
-            }
-            case DEBUG -> {
-                callback.onStickerPackSaveResult(CallbackResult.debug(stickerPackDeletedInDb.getDebugMessage()));
-                yield true;
-            }
-            case FAILURE -> {
-                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Falha ao limpar pacote de figurinhas do banco.", stickerPackDeletedInDb.getError())));
-                yield false;
-            }
-        };
+        if (deletedSticker.getStatus() == CallbackResult.Status.FAILURE){
+            callback.onStickerPackSaveResult(CallbackResult.failure(deletedSticker.getError()));
+            callback.onStickerPackSaveResult(CallbackResult.failure(deletedStickerPack.getError()));
+        }
+
+        return false;
     }
 
     private static boolean createMainDirectory(File mainDirectory, SaveStickerPackCallback callback) {

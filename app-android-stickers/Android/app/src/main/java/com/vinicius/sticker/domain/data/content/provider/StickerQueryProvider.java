@@ -8,63 +8,46 @@
 
 package com.vinicius.sticker.domain.data.content.provider;
 
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_IS_VALID;
-
 import android.content.Context;
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.net.Uri;
+import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.vinicius.sticker.domain.data.content.helper.StickerQueryHelper;
 import com.vinicius.sticker.domain.data.database.StickerDatabase;
-import com.vinicius.sticker.domain.data.database.repository.SelectStickerPackRepo;
 import com.vinicius.sticker.domain.data.model.Sticker;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class StickerQueryProvider {
+    private final static String TAG_LOG = StickerQueryProvider.class.getSimpleName();
+
     @NonNull
-    public static Cursor getStickerInfo(@NonNull Context context, @NonNull Uri uri, @NonNull List<Sticker> stickerList) {
-        MatrixCursor cursor = new MatrixCursor(
-                new String[]{STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_IS_VALID, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY});
+    private final Context context;
 
-        for (Sticker sticker : stickerList) {
-            MatrixCursor.RowBuilder builder = cursor.newRow();
-            builder.add(sticker.imageFileName);
-            builder.add(sticker.emojis);
-            builder.add(sticker.stickerIsValid);
-            builder.add(sticker.accessibilityText);
-        }
-
-        cursor.setNotificationUri(context.getContentResolver(), uri);
-        return cursor;
+    public StickerQueryProvider(@NonNull Context context) {
+        this.context = context;
     }
 
-    public static List<Sticker> getStickerListFromDatabase(StickerDatabase dbHelper, String stickerPackIdentifier) {
-        Cursor cursor = SelectStickerPackRepo.getStickerByStickerPackIdentifier(dbHelper, stickerPackIdentifier);
-        List<Sticker> stickerList = new ArrayList<>();
+    @NonNull
+    public Cursor fetchStickerListForPack(@NonNull Uri uri, @NonNull StickerDatabase dbHelper) {
+        final String stickerPackIdentifier = uri.getLastPathSegment();
 
-        try {
-            if (cursor.moveToFirst()) {
-                do {
-                    String imageFile = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_NAME_IN_QUERY));
-                    String emojis = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_EMOJI_IN_QUERY));
-                    String stickerIsValid = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_IS_VALID));
-                    String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
-
-                    Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid, accessibilityText);
-                    stickerList.add(sticker);
-                } while (cursor.moveToNext());
-            }
-        } finally {
-            cursor.close();
+        if (TextUtils.isEmpty(stickerPackIdentifier)) {
+            Log.e(TAG_LOG, "Identificador de pacote de adesivos inválido na Uri: " + uri);
+            return StickerQueryHelper.fetchStickerData(context, uri, new ArrayList<>());
         }
 
-        return stickerList;
+        try {
+            List<Sticker> stickerPack = StickerQueryHelper.fetchStickerListFromDatabase(dbHelper, stickerPackIdentifier);
+            return StickerQueryHelper.fetchStickerData(context, uri, stickerPack);
+        } catch (RuntimeException exception) {
+            Log.e(TAG_LOG, "Erro ao buscar pacote de figurinhas: " + stickerPackIdentifier, exception);
+            return StickerQueryHelper.fetchStickerData(context, uri, new ArrayList<>());
+        }
     }
 }

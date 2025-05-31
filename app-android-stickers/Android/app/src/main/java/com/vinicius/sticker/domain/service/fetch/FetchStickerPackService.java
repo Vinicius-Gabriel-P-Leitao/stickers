@@ -48,24 +48,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * Busca lista com pacotes de figurinhas.
- */
-public class FetchListStickerPackService {
+public class FetchStickerPackService {
 
-    /**
-     * <b>Descrição:</b>Busca os pacotes de figurinhas direto do content provider.
-     *
-     * <pre>{@code
-     * ArrayList<StickerPack> stickerPackList = StickerPackLoaderService.fetchStickerPacks(context);
-     * }</pre>
-     *
-     * @param context Contexto da aplicação.
-     * @return Lista de pacotes de figurinhas.
-     * @throws IllegalStateException Caso não haja pacotes de figurinhas no content provider.
-     */
     @NonNull
-    public static StickerPackValidationResult.ListStickerPackResult fetchStickerPackList(Context context) throws IllegalStateException {
+    public static StickerPackValidationResult.ListStickerPackResult fetchStickerPackListFromContentProvider(
+            Context context
+    ) throws IllegalStateException {
         final Cursor cursor = context.getContentResolver().query(AUTHORITY_URI, null, null, null, null);
         if (cursor == null) {
             throw new ContentProviderException("Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY);
@@ -78,7 +66,7 @@ public class FetchListStickerPackService {
         final ArrayList<Sticker> invalidStickerList = new ArrayList<>();
 
         if (cursor.moveToFirst()) {
-            stickerPackList = new ArrayList<>(fetchListFromContentProvider(cursor, context));
+            stickerPackList = new ArrayList<>(buildListStickerPack(cursor, context));
         } else {
             cursor.close();
             throw new ContentProviderException("Nenhum pacote de figurinhas encontrado nocontent provider");
@@ -120,8 +108,22 @@ public class FetchListStickerPackService {
         return new StickerPackValidationResult.ListStickerPackResult(stickerPackList, invalidStickerPackList, invalidStickerList);
     }
 
-    public static StickerPackValidationResult.StickerPackResult fetchStickerPack(
+    @NonNull
+    private static ArrayList<StickerPack> buildListStickerPack(Cursor cursor, Context context) {
+        ArrayList<StickerPack> stickerPackList = new ArrayList<>();
+        cursor.moveToFirst();
+
+        do {
+            StickerPack stickerPack = writeCursorToStickerPack(cursor, context);
+            stickerPackList.add(stickerPack);
+        } while (cursor.moveToNext());
+
+        return stickerPackList;
+    }
+
+    public static StickerPackValidationResult.StickerPackResult fetchStickerPackFromContentProvider(
             Context context, String stickerPackIdentifier) throws IllegalStateException {
+
         Cursor cursor = context.getContentResolver().query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null, null);
 
         if (cursor == null || cursor.getCount() == 0) {
@@ -133,7 +135,7 @@ public class FetchListStickerPackService {
         final Sticker[] invalidSticker = new Sticker[1];
 
         if (cursor.moveToFirst()) {
-            stickerPack = fetchFromContentProvider(cursor, context);
+            stickerPack = writeCursorToStickerPack(cursor, context);
         } else {
             cursor.close();
             throw new ContentProviderException("Nenhum pacote de figurinhas encontrado no content provider");
@@ -162,27 +164,8 @@ public class FetchListStickerPackService {
         }
     }
 
-    /**
-     * <b>Descrição:</b>De fato busca direto do content provider instanciando o .
-     *
-     * @param cursor Cursor com os pacotes de figurinhas.
-     * @return Lista de pacotes de figurinhas.
-     */
     @NonNull
-    private static ArrayList<StickerPack> fetchListFromContentProvider(Cursor cursor, Context context) {
-        ArrayList<StickerPack> stickerPackList = new ArrayList<>();
-        cursor.moveToFirst();
-
-        do {
-            StickerPack stickerPack = fetchFromContentProvider(cursor, context);
-            stickerPackList.add(stickerPack);
-        } while (cursor.moveToNext());
-
-        return stickerPackList;
-    }
-
-    @NonNull
-    public static StickerPack fetchFromContentProvider(Cursor cursor, Context context) {
+    private static StickerPack writeCursorToStickerPack(Cursor cursor, Context context) {
         final String identifier = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_IDENTIFIER_IN_QUERY));
         final String name = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_NAME_IN_QUERY));
         final String publisher = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_PACK_PUBLISHER_IN_QUERY));
@@ -201,7 +184,7 @@ public class FetchListStickerPackService {
                 identifier, name, publisher, trayImage, publisherEmail, publisherWebsite, privacyPolicyWebsite, licenseAgreementWebsite,
                 imageDataVersion, avoidCache, animatedStickerPack);
 
-        List<Sticker> stickers = FetchListStickerService.fetchListStickerForPack(context, identifier);
+        List<Sticker> stickers = FetchStickerService.fetchListStickerForPack(context, identifier);
         stickerPack.setStickers(stickers);
 
         stickerPack.setAndroidPlayStoreLink(androidPlayStoreLink);

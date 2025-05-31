@@ -15,7 +15,7 @@ import com.vinicius.sticker.core.exception.DeleteStickerException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
 import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
 import com.vinicius.sticker.domain.data.database.StickerDatabase;
-import com.vinicius.sticker.domain.service.fetch.FetchListStickerPackService;
+import com.vinicius.sticker.domain.service.fetch.FetchStickerPackService;
 
 import java.sql.SQLException;
 
@@ -25,7 +25,7 @@ public class DeleteStickerPackRepo {
         StickerDatabase dbHelper = StickerDatabase.getInstance(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        StickerPackValidationResult.StickerPackResult fetchStickerPack = FetchListStickerPackService.fetchStickerPack(context, stickerPackIdentifier);
+        StickerPackValidationResult.StickerPackResult fetchStickerPack = FetchStickerPackService.fetchStickerPackFromContentProvider(context, stickerPackIdentifier);
         if (fetchStickerPack.validStickerPacks().identifier == null) {
             throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar.");
         }
@@ -36,7 +36,7 @@ public class DeleteStickerPackRepo {
         );
     }
 
-    public static CallbackResult<Integer> deleteStickersOfPack(Context context, String stickerPackIdentifier) {
+    public static CallbackResult<Integer> deleteAllStickerOfPack(Context context, String stickerPackIdentifier) {
         try {
             StickerDatabase dbHelper = StickerDatabase.getInstance(context);
             SQLiteDatabase db = dbHelper.getWritableDatabase();

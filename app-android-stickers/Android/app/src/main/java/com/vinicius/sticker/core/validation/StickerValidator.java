@@ -21,8 +21,7 @@ import com.vinicius.sticker.core.exception.StickerValidatorException;
 import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.core.pattern.ErrorFileCode;
 import com.vinicius.sticker.domain.data.model.Sticker;
-import com.vinicius.sticker.domain.service.fetch.FetchListStickerService;
-import com.vinicius.sticker.domain.service.fetch.FetchStickerFile;
+import com.vinicius.sticker.domain.service.fetch.FetchStickerAssetService;
 
 import java.io.IOException;
 
@@ -74,7 +73,7 @@ public class StickerValidator {
             final boolean animatedStickerPack
     ) throws IllegalStateException {
         try {
-            final byte[] stickerInBytes = FetchStickerFile.fetchStickerFile(identifier, fileName, context.getContentResolver());
+            final byte[] stickerInBytes = FetchStickerAssetService.fetchStickerAsset(identifier, fileName, context.getContentResolver());
 
             if (!animatedStickerPack && stickerInBytes.length > STATIC_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
                 throw new StickerFileException(

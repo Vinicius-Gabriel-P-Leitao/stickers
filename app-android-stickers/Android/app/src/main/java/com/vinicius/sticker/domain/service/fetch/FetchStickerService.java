@@ -29,26 +29,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Busca lista com figurinhas tanto em banco de dados quanto em arquivo.
- */
-public class FetchListStickerService {
+public class FetchStickerService {
 
-    /**
-     * <b>Descrição:</b>Busca os dados das figurinhas tanto arquivo quando metadados.
-     *
-     * @param context               Contexto da aplicação.
-     * @param stickerPackIdentifier Sticker pack identifier.
-     * @return Lista de arquivos e metadados em formato de objeto da figurinhas.
-     */
     @NonNull
     public static List<Sticker> fetchListStickerForPack(Context context, String stickerPackIdentifier) {
-        final List<Sticker> stickers = fetchFromContentProviderForStickers(stickerPackIdentifier, context.getContentResolver());
+        final List<Sticker> stickers = fetchListStickerFromContentProvider(stickerPackIdentifier, context.getContentResolver());
 
         for (Sticker sticker : stickers) {
             final byte[] bytes;
             try {
-                bytes = FetchStickerFile.fetchStickerFile(stickerPackIdentifier, sticker.imageFileName, context.getContentResolver());
+                bytes = FetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, sticker.imageFileName, context.getContentResolver());
 
                 if (bytes.length == 0) {
                     throw new IllegalStateException(
@@ -66,16 +56,9 @@ public class FetchListStickerService {
         return stickers;
     }
 
-    /**
-     * <b>Descrição:</b>Busca do content provider os métadados do sticker.
-     *
-     * @param identifier      Identificador do sticker.
-     * @param contentResolver Content resolver.
-     * @return Lista de dados das figurinhas.
-     */
     @NonNull
-    private static List<Sticker> fetchFromContentProviderForStickers(String identifier, ContentResolver contentResolver) {
-        Uri uri = getStickerListUri(identifier);
+    public static List<Sticker> fetchListStickerFromContentProvider(String stickerPackIdentifier, ContentResolver contentResolver) {
+        Uri uri = buildStickerUri(stickerPackIdentifier);
 
         final String[] projection = {STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY};
 
@@ -105,14 +88,8 @@ public class FetchListStickerService {
         return stickers;
     }
 
-    /**
-     * <b>Descrição:</b>Busca a URI do pacote pelo identifier
-     *
-     * @param identifier Identificador da pasta.
-     * @return Bytes do arquivo.
-     */
-    private static Uri getStickerListUri(String identifier) {
+    private static Uri buildStickerUri(String stickerPackIdentifier) {
         return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
-                .appendPath(StickerContentProvider.STICKERS).appendPath(identifier).build();
+                .appendPath(StickerContentProvider.STICKERS).appendPath(stickerPackIdentifier).build();
     }
 }

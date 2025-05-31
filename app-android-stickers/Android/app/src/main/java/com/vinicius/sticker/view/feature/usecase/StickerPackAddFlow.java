@@ -125,8 +125,8 @@ public abstract class StickerPackAddFlow extends BaseActivity {
             FragmentActivity activity = getActivity();
             if (activity == null) {
                 Log.w(TAG_LOG, "Ocorreu um erro ao criar o diálogo.");
-                return new AlertDialog.Builder(requireContext()).setMessage("Ocorreu um erro ao criar o diálogo.")
-                        .setPositiveButton("OK", null).create();
+                return new AlertDialog.Builder(requireContext()).setMessage("Ocorreu um erro ao criar o diálogo.").setPositiveButton("OK", null)
+                        .create();
             }
 
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity).setMessage(R.string.add_pack_fail_prompt_update_whatsapp)
@@ -139,11 +139,15 @@ public abstract class StickerPackAddFlow extends BaseActivity {
         private void launchWhatsAppPlayStorePage() {
             if (getActivity() != null) {
                 final PackageManager packageManager = getActivity().getPackageManager();
+
                 final boolean whatsAppInstalled = WhatsappWhitelistValidator.isPackageInstalled(
                         WhatsappWhitelistValidator.CONSUMER_WHATSAPP_PACKAGE_NAME, packageManager);
+
                 final boolean smbAppInstalled = WhatsappWhitelistValidator.isPackageInstalled(
                         WhatsappWhitelistValidator.SMB_WHATSAPP_PACKAGE_NAME, packageManager);
+
                 final String playPackageLinkPrefix = "http://play.google.com/store/apps/details?id=";
+
                 if (whatsAppInstalled && smbAppInstalled) {
                     launchPlayStoreWithUri("https://play.google.com/store/apps/developer?id=WhatsApp+LLC");
                 } else if (whatsAppInstalled) {

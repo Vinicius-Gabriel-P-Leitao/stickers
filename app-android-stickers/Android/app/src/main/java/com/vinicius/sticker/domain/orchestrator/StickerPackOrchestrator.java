@@ -18,10 +18,9 @@ import com.vinicius.sticker.core.exception.StickerFileException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
-import com.vinicius.sticker.domain.data.content.provider.StickerPackQueryProvider;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.save.StickerPackSaveService;
+import com.vinicius.sticker.domain.service.save.SaveStickerPackService;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,7 +78,7 @@ public class StickerPackOrchestrator {
         stickerPack.setStickers(stickerList);
 
         try {
-            StickerPackSaveService.saveStickerPack(
+            SaveStickerPackService.saveStickerPack(
                     context, stickerPack, callbackResult -> {
                         switch (callbackResult.getStatus()) {
                             case SUCCESS:

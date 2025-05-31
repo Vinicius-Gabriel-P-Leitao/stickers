@@ -76,15 +76,4 @@ public class Sticker implements Parcelable {
         dest.writeString(accessibilityText);
         dest.writeLong(size);
     }
-
-    public static ContentValues toContentValues(Sticker sticker, long stickerPackId) {
-        ContentValues stickerValues = new ContentValues();
-        stickerValues.put(STICKER_FILE_NAME_IN_QUERY, sticker.imageFileName);
-        stickerValues.put(STICKER_FILE_EMOJI_IN_QUERY, String.valueOf(sticker.emojis));
-        stickerValues.put(STICKER_IS_VALID, sticker.stickerIsValid);
-        stickerValues.put(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY, sticker.accessibilityText);
-        stickerValues.put(FK_STICKER_PACK, stickerPackId);
-
-        return stickerValues;
-    }
 }
