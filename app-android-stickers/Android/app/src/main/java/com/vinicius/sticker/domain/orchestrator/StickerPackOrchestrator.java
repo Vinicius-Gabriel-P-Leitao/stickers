@@ -18,6 +18,7 @@ import com.vinicius.sticker.core.exception.StickerFileException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
+import com.vinicius.sticker.domain.data.content.provider.StickerPackQueryProvider;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.save.StickerPackSaveService;
@@ -31,6 +32,7 @@ import java.util.UUID;
 
 // @formatter:off
 public class StickerPackOrchestrator {
+    private final static String TAG_LOG = StickerPackOrchestrator.class.getSimpleName();
 
     private static final List<Sticker> stickerList = new ArrayList<>();
     private static String uuidPack = UUID.randomUUID().toString();
@@ -44,8 +46,6 @@ public class StickerPackOrchestrator {
             Context context, boolean isAnimatedPack, List<File> fileList, String namePack,
             SavedStickerPackCallback savedStickerPackCallback
     ) {
-        stickerList.clear();
-
         String nameStickerPack = namePack.trim() + " - [" + uuidPack.substring(0, 8) + "]";
         StickerPack stickerPack = new StickerPack(
                 uuidPack,
@@ -61,6 +61,7 @@ public class StickerPackOrchestrator {
                 isAnimatedPack
         );
 
+        stickerList.clear();
         for (File file : fileList) {
             boolean exists = false;
 
@@ -72,7 +73,7 @@ public class StickerPackOrchestrator {
             }
 
             if (!exists) {
-                stickerList.add(new Sticker(file.getName().trim(), "\uD83D\uDDFF", "Sticker pack"));
+                stickerList.add(new Sticker(file.getName().trim(), "\uD83D\uDDFF", "","Sticker pack"));
             }
         }
         stickerPack.setStickers(stickerList);
@@ -85,10 +86,10 @@ public class StickerPackOrchestrator {
                                 savedStickerPackCallback.onSavedStickerPack(CallbackResult.success(callbackResult.getData()));
                                 break;
                             case WARNING:
-                                Log.w("SaveStickerPack", callbackResult.getWarningMessage());
+                                Log.w(TAG_LOG, callbackResult.getWarningMessage());
                                 break;
                             case DEBUG:
-                                Log.d("SaveStickerPack", callbackResult.getDebugMessage());
+                                Log.d(TAG_LOG, callbackResult.getDebugMessage());
                                 break;
                             case FAILURE:
                                 if (callbackResult.getError() instanceof StickerPackSaveException stickerPackSaveException) {
@@ -97,25 +98,25 @@ public class StickerPackOrchestrator {
                                 }
 
                                 if (callbackResult.getError() instanceof StickerFileException stickerFileException) {
-                                    Log.d("StickerPackCreatorManager", Objects.requireNonNull(stickerFileException.getMessage()));
+                                    Log.d(TAG_LOG, Objects.requireNonNull(stickerFileException.getMessage()));
                                     savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(stickerFileException));
                                     break;
                                 }
 
                                 if (callbackResult.getError() instanceof PackValidatorException packValidatorException) {
-                                    Log.e("StickerPackCreatorManager", Objects.requireNonNull(packValidatorException.getMessage()));
+                                    Log.e(TAG_LOG, Objects.requireNonNull(packValidatorException.getMessage()));
                                     savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(packValidatorException));
                                     break;
                                 }
 
                                 if(callbackResult.getError() instanceof  InvalidWebsiteUrlException invalidWebsiteUrlException) {
-                                    Log.e("StickerPackCreatorManager", Objects.requireNonNull(invalidWebsiteUrlException.getMessage()));
+                                    Log.e(TAG_LOG, Objects.requireNonNull(invalidWebsiteUrlException.getMessage()));
                                     savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(invalidWebsiteUrlException));
                                     break;
                                 }
 
                                 if (callbackResult.getError() instanceof IOException ioException) {
-                                    Log.d("StickerPackCreatorManager", Objects.requireNonNull(ioException.getMessage()));
+                                    Log.d(TAG_LOG, Objects.requireNonNull(ioException.getMessage()));
                                     savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(new InternalAppException("Erro interno de IO nos arquivos!")));
                                     break;
                                 }

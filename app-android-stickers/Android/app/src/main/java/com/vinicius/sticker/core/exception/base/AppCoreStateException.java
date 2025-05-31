@@ -15,14 +15,6 @@ public class AppCoreStateException extends IllegalStateException {
     private final String errorCode;
     private final Object[] details;
 
-    public AppCoreStateException(@NonNull String message) {
-        this(message, null, null);
-    }
-
-    public AppCoreStateException(@NonNull String message, @Nullable Throwable cause) {
-        this(message, cause, null);
-    }
-
     public AppCoreStateException(@NonNull String message, @Nullable String errorCode) {
         this(message, null, errorCode);
     }

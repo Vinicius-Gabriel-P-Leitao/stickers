@@ -50,7 +50,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragment {
+public class MediaPickerBottomFragment extends BottomSheetDialogFragment {
     private static final String KEY_IS_ANIMATED = "key_is_animated";
     private static final String KEY_MEDIA_URIS = "key_media_uris";
     private static final String KEY_NAME_PACK = "key_name_pack";
@@ -71,12 +71,12 @@ public class MediaPickerBottomSheetDialogFragment extends BottomSheetDialogFragm
 
     private PickMediaListAdapter.OnItemClickListener listener;
 
-    public MediaPickerBottomSheetDialogFragment() {
+    public MediaPickerBottomFragment() {
     }
 
-    public static MediaPickerBottomSheetDialogFragment newInstance(
+    public static MediaPickerBottomFragment newInstance(
             ArrayList<Uri> mediaUris, String namePack, boolean isAnimatedPack, PickMediaListAdapter.OnItemClickListener listener) {
-        MediaPickerBottomSheetDialogFragment fragment = new MediaPickerBottomSheetDialogFragment();
+        MediaPickerBottomFragment fragment = new MediaPickerBottomFragment();
         Bundle args = new Bundle();
 
         args.putParcelableArrayList(KEY_MEDIA_URIS, mediaUris);

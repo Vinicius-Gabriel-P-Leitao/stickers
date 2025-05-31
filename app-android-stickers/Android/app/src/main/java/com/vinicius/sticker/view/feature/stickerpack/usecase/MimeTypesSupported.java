@@ -8,8 +8,10 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.usecase;
 
+// @formatter:off
 public enum MimeTypesSupported {
-    IMAGE(new String[]{"image/jpeg", "image/png"}), ANIMATED(new String[]{"video/mp4", "image/gif"});
+    IMAGE(new String[]{"image/jpeg", "image/png"}),
+    ANIMATED(new String[]{"video/mp4", "image/gif"});
 
     private final String[] mimeTypes;
 

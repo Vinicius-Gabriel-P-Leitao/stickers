@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 // @formatter:off
 public class StickerPackSaveService {
@@ -82,7 +83,15 @@ public class StickerPackSaveService {
                 StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
             }
         } catch (PackValidatorException | StickerValidatorException | InvalidWebsiteUrlException | StickerFileException exception) {
-            callback.onStickerPackSaveResult(CallbackResult.failure(exception)); // NOTE: Tratar erro na classe que usar eses método.
+            if (exception instanceof StickerFileException fileException) {
+                for (Sticker sticker : stickerPack.getStickers()) {
+                       if (Objects.equals(sticker.imageFileName,fileException.getFileName())) {
+                           sticker.setStickerIsValid(fileException.getErrorCode());
+                       }
+                }
+            }
+
+            callback.onStickerPackSaveResult(CallbackResult.failure(exception));
         }
 
         insertStickerPack(context, stickerPack, callback);

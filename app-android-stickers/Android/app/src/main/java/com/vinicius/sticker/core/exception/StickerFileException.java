@@ -11,25 +11,22 @@ package com.vinicius.sticker.core.exception;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class StickerFileException extends IllegalStateException {
+import com.vinicius.sticker.core.exception.base.AppCoreStateException;
+
+public class StickerFileException extends AppCoreStateException {
     private final String stickerPackIdentifier;
     @Nullable
     private final String fileName;
 
-    public StickerFileException(@NonNull String message) {
-        super(message);
+    public StickerFileException(@NonNull String message, @NonNull String errorCode) {
+        super(message, errorCode);
         this.stickerPackIdentifier = null;
         this.fileName = null;
     }
 
-    public StickerFileException(@NonNull String message, String stickerPackIdentifier) {
-        super(message);
-        this.stickerPackIdentifier = stickerPackIdentifier;
-        this.fileName = null;
-    }
-
-    public StickerFileException(@NonNull String message, String stickerPackIdentifier, @Nullable String fileName) {
-        super(message);
+    public StickerFileException(
+            @NonNull String message, @NonNull String errorCode, @Nullable String stickerPackIdentifier, @Nullable String fileName) {
+        super(message, errorCode);
         this.stickerPackIdentifier = stickerPackIdentifier;
         this.fileName = fileName;
     }
@@ -38,6 +35,7 @@ public class StickerFileException extends IllegalStateException {
         return stickerPackIdentifier;
     }
 
+    @Nullable
     public String getFileName() {
         return fileName;
     }

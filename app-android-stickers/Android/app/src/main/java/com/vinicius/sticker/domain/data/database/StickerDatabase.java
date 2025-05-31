@@ -49,6 +49,7 @@ public class StickerDatabase extends SQLiteOpenHelper {
     public static final String ID_STICKER = "id_sticker";
     public static final String STICKER_FILE_NAME_IN_QUERY = "sticker_file_name";
     public static final String STICKER_FILE_EMOJI_IN_QUERY = "sticker_emoji";
+    public static final String STICKER_IS_VALID = "sticker_is_valid";
     public static final String STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY = "sticker_accessibility_text";
     public static final String FK_STICKER_PACK = "fk_sticker_pack";
 
@@ -107,6 +108,7 @@ public class StickerDatabase extends SQLiteOpenHelper {
                             ID_STICKER + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                             STICKER_FILE_NAME_IN_QUERY + " VARCHAR(255) NOT NULL, " +
                             STICKER_FILE_EMOJI_IN_QUERY + " TEXT NOT NULL, " +
+                            STICKER_IS_VALID + " VARCHAR(255), " +
                             STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY + " TEXT NOT NULL, " +
                             FK_STICKER_PACK + " INTEGER, " + fkSticker +
                         ")"

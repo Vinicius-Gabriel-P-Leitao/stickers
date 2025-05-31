@@ -15,6 +15,7 @@ import static com.vinicius.sticker.domain.data.database.StickerDatabase.FK_STICK
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_IS_VALID;
 
 import android.content.ContentValues;
 import android.os.Parcel;
@@ -23,11 +24,16 @@ import android.os.Parcelable;
 public class Sticker implements Parcelable {
     public final String imageFileName;
     public final String emojis;
+    public String stickerIsValid;
     public final String accessibilityText;
     long size;
 
     public void setSize(long size) {
         this.size = size;
+    }
+
+    public void setStickerIsValid(String stickerIsValid) {
+        this.stickerIsValid = stickerIsValid;
     }
 
     public static final Creator<Sticker> CREATOR = new Creator<Sticker>() {
@@ -42,15 +48,17 @@ public class Sticker implements Parcelable {
         }
     };
 
-    public Sticker(String imageFileName, String emojis, String accessibilityText) {
+    public Sticker(String imageFileName, String emojis, String stickerIsValid, String accessibilityText) {
         this.imageFileName = imageFileName;
         this.emojis = emojis;
+        this.stickerIsValid = stickerIsValid;
         this.accessibilityText = accessibilityText;
     }
 
     public Sticker(Parcel parcel) {
         imageFileName = parcel.readString();
         emojis = parcel.readString();
+        stickerIsValid = parcel.readString();
         accessibilityText = parcel.readString();
         size = parcel.readLong();
     }
@@ -64,6 +72,7 @@ public class Sticker implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(imageFileName);
         dest.writeString(emojis);
+        dest.writeString(stickerIsValid);
         dest.writeString(accessibilityText);
         dest.writeLong(size);
     }
@@ -72,6 +81,7 @@ public class Sticker implements Parcelable {
         ContentValues stickerValues = new ContentValues();
         stickerValues.put(STICKER_FILE_NAME_IN_QUERY, sticker.imageFileName);
         stickerValues.put(STICKER_FILE_EMOJI_IN_QUERY, String.valueOf(sticker.emojis));
+        stickerValues.put(STICKER_IS_VALID, sticker.stickerIsValid);
         stickerValues.put(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY, sticker.accessibilityText);
         stickerValues.put(FK_STICKER_PACK, stickerPackId);
 

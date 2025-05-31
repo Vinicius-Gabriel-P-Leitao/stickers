@@ -21,11 +21,10 @@ import static com.vinicius.sticker.domain.data.database.StickerDatabase.LICENSE_
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.PRIVACY_POLICY_WEBSITE;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.PUBLISHER_EMAIL;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.PUBLISHER_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_TRAY_IMAGE_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_NAME_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_PUBLISHER_IN_QUERY;
-import static com.vinicius.sticker.domain.service.delete.DeleteStickerService.deleteStickerByIdentifier;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_TRAY_IMAGE_IN_QUERY;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -35,7 +34,11 @@ import androidx.annotation.NonNull;
 
 import com.vinicius.sticker.BuildConfig;
 import com.vinicius.sticker.core.exception.ContentProviderException;
+import com.vinicius.sticker.core.exception.InvalidWebsiteUrlException;
+import com.vinicius.sticker.core.exception.PackValidatorException;
 import com.vinicius.sticker.core.exception.StickerFileException;
+import com.vinicius.sticker.core.exception.StickerValidatorException;
+import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.core.validation.StickerValidator;
 import com.vinicius.sticker.domain.data.model.Sticker;
@@ -62,15 +65,17 @@ public class FetchListStickerPackService {
      * @throws IllegalStateException Caso não haja pacotes de figurinhas no content provider.
      */
     @NonNull
-    public static ArrayList<StickerPack> fetchStickerPackList(Context context) throws IllegalStateException {
+    public static StickerPackValidationResult.ListStickerPackResult fetchStickerPackList(Context context) throws IllegalStateException {
         final Cursor cursor = context.getContentResolver().query(AUTHORITY_URI, null, null, null, null);
-
         if (cursor == null) {
             throw new ContentProviderException("Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY);
         }
 
-        HashSet<String> identifierSet = new HashSet<>();
+        HashSet<String> stickerPackIdentifierSet = new HashSet<>();
         final ArrayList<StickerPack> stickerPackList;
+
+        final ArrayList<StickerPack> invalidStickerPackList = new ArrayList<>();
+        final ArrayList<Sticker> invalidStickerList = new ArrayList<>();
 
         if (cursor.moveToFirst()) {
             stickerPackList = new ArrayList<>(fetchListFromContentProvider(cursor, context));
@@ -80,12 +85,10 @@ public class FetchListStickerPackService {
         }
 
         for (StickerPack stickerPack : stickerPackList) {
-            if (identifierSet.contains(stickerPack.identifier)) {
+            if (!stickerPackIdentifierSet.add(stickerPack.identifier)) {
                 throw new ContentProviderException(
                         "Os identificadores dos pacotes de figurinhas devem ser únicos, há mais de um pacote com identificador: " +
                                 stickerPack.identifier);
-            } else {
-                identifierSet.add(stickerPack.identifier);
             }
         }
 
@@ -93,27 +96,32 @@ public class FetchListStickerPackService {
             throw new ContentProviderException("Deve haver pelo menos um pacote de adesivos no aplicativo");
         }
 
-        for (StickerPack stickerPack : stickerPackList) {
+        stickerPackList.removeIf(stickerPack -> {
             try {
                 StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
 
-                for (Sticker sticker : stickerPack.getStickers()) {
-                    StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
-                }
+                stickerPack.getStickers().removeIf(sticker -> {
+                    try {
+                        StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
+                        return false;
+                    } catch (StickerFileException | StickerValidatorException stickerFileException) {
+                        invalidStickerList.add(sticker);
+                        return true;
+                    }
+                });
 
-                stickerPack.setStickers(stickerPack.getStickers());
-            } catch (IllegalStateException exception) {
-                if (exception instanceof StickerFileException sizeFileLimitException) {
-                    // TODO: Trocar por método que vai marcar no banco de dados o pacote e figurinha.
-                    deleteStickerByIdentifier(context, sizeFileLimitException.getStickerPackIdentifier(), sizeFileLimitException.getFileName());
-                }
+                return stickerPack.getStickers().isEmpty();
+            } catch (PackValidatorException | InvalidWebsiteUrlException appCoreStateException) {
+                invalidStickerPackList.add(stickerPack);
+                return true;
             }
-        }
+        });
 
-        return stickerPackList;
+        return new StickerPackValidationResult.ListStickerPackResult(stickerPackList, invalidStickerPackList, invalidStickerList);
     }
 
-    public static StickerPack fetchStickerPack(Context context, String stickerPackIdentifier) throws IllegalStateException {
+    public static StickerPackValidationResult.StickerPackResult fetchStickerPack(
+            Context context, String stickerPackIdentifier) throws IllegalStateException {
         Cursor cursor = context.getContentResolver().query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null, null);
 
         if (cursor == null || cursor.getCount() == 0) {
@@ -121,6 +129,8 @@ public class FetchListStickerPackService {
         }
 
         final StickerPack stickerPack;
+
+        final Sticker[] invalidSticker = new Sticker[1];
 
         if (cursor.moveToFirst()) {
             stickerPack = fetchFromContentProvider(cursor, context);
@@ -132,19 +142,24 @@ public class FetchListStickerPackService {
         try {
             StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
 
-            for (Sticker sticker : stickerPack.getStickers()) {
-                StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
+            stickerPack.getStickers().removeIf(sticker -> {
+                try {
+                    StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
+                    return false;
+                } catch (StickerFileException | StickerValidatorException exception) {
+                    invalidSticker[0] = sticker;
+                    return true;
+                }
+            });
+
+            if (stickerPack.getStickers().isEmpty()) {
+                throw new ContentProviderException("Pacote de figurinhas inválido: não restaram stickers após a validação.");
             }
 
-            stickerPack.setStickers(stickerPack.getStickers());
-        } catch (IllegalStateException exception) {
-            if (exception instanceof StickerFileException sizeFileLimitException) {
-                // TODO: Trocar por método que vai marcar no banco de dados o pacote e figurinha.
-                deleteStickerByIdentifier(context, sizeFileLimitException.getStickerPackIdentifier(), sizeFileLimitException.getFileName());
-            }
+            return new StickerPackValidationResult.StickerPackResult(stickerPack, invalidSticker[0]);
+        } catch (PackValidatorException | InvalidWebsiteUrlException exception) {
+            throw new ContentProviderException("Pacote de figurinhas inválido: " + exception.getMessage());
         }
-
-        return stickerPack;
     }
 
     /**

@@ -11,6 +11,7 @@ package com.vinicius.sticker.domain.data.content.provider;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_IS_VALID;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -30,12 +31,13 @@ public class StickerQueryProvider {
     @NonNull
     public static Cursor getStickerInfo(@NonNull Context context, @NonNull Uri uri, @NonNull List<Sticker> stickerList) {
         MatrixCursor cursor = new MatrixCursor(
-                new String[]{STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY});
+                new String[]{STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_IS_VALID, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY});
 
         for (Sticker sticker : stickerList) {
             MatrixCursor.RowBuilder builder = cursor.newRow();
             builder.add(sticker.imageFileName);
             builder.add(sticker.emojis);
+            builder.add(sticker.stickerIsValid);
             builder.add(sticker.accessibilityText);
         }
 
@@ -52,9 +54,10 @@ public class StickerQueryProvider {
                 do {
                     String imageFile = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_NAME_IN_QUERY));
                     String emojis = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_EMOJI_IN_QUERY));
+                    String stickerIsValid = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_IS_VALID));
                     String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
 
-                    Sticker sticker = new Sticker(imageFile, emojis, accessibilityText);
+                    Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid, accessibilityText);
                     stickerList.add(sticker);
                 } while (cursor.moveToNext());
             }

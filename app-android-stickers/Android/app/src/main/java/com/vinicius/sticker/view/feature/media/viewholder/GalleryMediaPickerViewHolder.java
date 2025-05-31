@@ -21,7 +21,7 @@ import androidx.lifecycle.ViewModel;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.view.core.util.CursorSearchUriMedia;
 import com.vinicius.sticker.view.feature.media.adapter.PickMediaListAdapter;
-import com.vinicius.sticker.view.feature.media.fragment.MediaPickerBottomSheetDialogFragment;
+import com.vinicius.sticker.view.feature.media.fragment.MediaPickerBottomFragment;
 import com.vinicius.sticker.view.feature.stickerpack.usecase.MimeTypesSupported;
 
 import java.io.File;
@@ -57,7 +57,7 @@ public class GalleryMediaPickerViewHolder extends ViewModel {
         List<Uri> uris = CursorSearchUriMedia.fetchMediaUri(activity, mimeType);
 
 
-        MediaPickerBottomSheetDialogFragment fragment = MediaPickerBottomSheetDialogFragment.newInstance(
+        MediaPickerBottomFragment fragment = MediaPickerBottomFragment.newInstance(
                 new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(String imagePath) {

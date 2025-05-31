@@ -11,6 +11,7 @@ package com.vinicius.sticker.domain.service.fetch;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_IS_VALID;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -86,14 +87,15 @@ public class FetchListStickerService {
             do {
                 final String name = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_NAME_IN_QUERY));
                 final String emojisConcatenated = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_EMOJI_IN_QUERY));
+                final String stickerIsValid = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_IS_VALID));
                 final String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
-                String emojis = null;
 
+                String emojis = null;
                 if (!TextUtils.isEmpty(emojisConcatenated)) {
                     emojis = emojisConcatenated;
                 }
 
-                stickers.add(new Sticker(name, emojis, accessibilityText));
+                stickers.add(new Sticker(name, emojis, stickerIsValid, accessibilityText));
             } while (cursor.moveToNext());
         }
         if (cursor != null) {

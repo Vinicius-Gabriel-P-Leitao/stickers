@@ -20,6 +20,7 @@ import static com.vinicius.sticker.domain.data.database.StickerDatabase.PUBLISHE
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_IS_VALID;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_NAME_IN_QUERY;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_PUBLISHER_IN_QUERY;
@@ -127,9 +128,10 @@ public class StickerPackQueryProvider {
 
                     String imageFile = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_NAME_IN_QUERY));
                     String emojis = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_EMOJI_IN_QUERY));
+                    String stickerIsValid = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_IS_VALID));
                     String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
 
-                    Sticker sticker = new Sticker(imageFile, emojis, accessibilityText);
+                    Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid, accessibilityText);
                     currentStickerPack.getStickers().add(sticker);
 
                 } while (cursor.moveToNext());
@@ -163,9 +165,10 @@ public class StickerPackQueryProvider {
                 do {
                     String imageFile = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_NAME_IN_QUERY));
                     String emojis = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_EMOJI_IN_QUERY));
+                    String stickerIsValid = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_IS_VALID));
                     String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
 
-                    Sticker sticker = new Sticker(imageFile, emojis, accessibilityText);
+                    Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid, accessibilityText);
                     stickerList.add(sticker);
                 } while (cursor.moveToNext());
 
