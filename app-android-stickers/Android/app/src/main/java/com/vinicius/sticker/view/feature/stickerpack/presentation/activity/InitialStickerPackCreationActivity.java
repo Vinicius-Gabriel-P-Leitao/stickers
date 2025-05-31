@@ -8,7 +8,7 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.presentation.activity;
 
-import static com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher.launchOwnGallery;
+import static com.vinicius.sticker.view.feature.media.viewholder.GalleryMediaPickerViewHolder.launchOwnGallery;
 
 import android.animation.ObjectAnimator;
 import android.os.Bundle;

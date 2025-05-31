@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.validation.StickerValidator;
+import com.vinicius.sticker.domain.data.content.provider.StickerPackQueryProvider;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
@@ -39,6 +40,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class EntryActivity extends BaseActivity {
+    private final static String TAG_LOG = EntryActivity.class.getSimpleName();
+
     private LoadListAsyncTask loadListAsyncTask;
     private View progressBar;
 
@@ -85,7 +88,7 @@ public class EntryActivity extends BaseActivity {
 
     private void showErrorMessage(String errorMessage) {
         progressBar.setVisibility(View.GONE);
-        Log.e("EntryActivity", "error fetching sticker packs, " + errorMessage);
+        Log.e(TAG_LOG, "Erro ao buscar pacote de figurinhas, " + errorMessage);
         final TextView errorMessageTV = findViewById(R.id.error_message);
         errorMessageTV.setText(getString(R.string.error_message, errorMessage));
     }
@@ -139,7 +142,7 @@ public class EntryActivity extends BaseActivity {
                         ArrayList<StickerPack> stickerPackList = FetchListStickerPackService.fetchStickerPackList(context);
 
                         if (stickerPackList.isEmpty()) {
-                            result = new Pair<>("No sticker packs available", null);
+                            result = new Pair<>("Nenhum pacote de adesivos disponível", null);
                             return;
                         }
 
@@ -153,7 +156,7 @@ public class EntryActivity extends BaseActivity {
 
                         result = new Pair<>(null, stickerPackList);
                     } else {
-                        result = new Pair<>("could not fetch sticker packs", null);
+                        result = new Pair<>("Não foi possível obter os pacotes de figurinhas", null);
                     }
                 } catch (IllegalStateException exception) {
                     Context context = contextWeakReference.get();
@@ -168,10 +171,10 @@ public class EntryActivity extends BaseActivity {
                         return;
                     }
 
-                    Log.e("EntryActivity", "Error fetching sticker packs, database empty", exception);
-                    result = new Pair<>("Error encountered, redirecting...", null);
+                    Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio", exception);
+                    result = new Pair<>("Erro encontrado, redirecionando...", null);
                 } catch (Exception exception) {
-                    Log.e("EntryActivity", "Error fetching sticker packs", exception);
+                    Log.e(TAG_LOG, "Erro ao obter pacotes de figurinhas", exception);
                     result = new Pair<>(exception.getMessage(), null);
                 }
 

@@ -44,6 +44,7 @@ public class StickerPackMetadataFragment extends BottomSheetDialogFragment {
         buttonGrantPermission.setOnClickListener(viewAccept -> {
             TextInputEditText textInputEditText = view.findViewById(R.id.et_user_input);
             String inputText = textInputEditText.getText().toString().trim();
+
             if (inputText.isEmpty()) {
                 callback.onError("Preecha o nome do pacote!");
                 dismiss();

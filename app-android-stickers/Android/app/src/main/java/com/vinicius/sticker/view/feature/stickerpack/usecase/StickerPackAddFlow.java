@@ -24,6 +24,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import com.vinicius.sticker.BuildConfig;
 import com.vinicius.sticker.R;
@@ -33,7 +35,7 @@ import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.Stick
 
 public abstract class StickerPackAddFlow extends BaseActivity {
     private static final int ADD_PACK = 200;
-    private static final String TAG = "AddStickerPackActivity";
+    private static final String TAG_LOG = StickerPackCreationFlow.class.getSimpleName();
 
     protected void addStickerPackToWhatsApp(String identifier, String stickerPackName) {
         try {
@@ -59,7 +61,7 @@ public abstract class StickerPackAddFlow extends BaseActivity {
                 Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG).show();
             }
         } catch (Exception exception) {
-            Log.e(TAG, "error adding sticker pack to WhatsApp", exception);
+            Log.e(TAG_LOG, "error adding sticker pack to WhatsApp", exception);
             Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG).show();
         }
 
@@ -109,7 +111,7 @@ public abstract class StickerPackAddFlow extends BaseActivity {
                             MessageDialogFragment.newInstance(R.string.title_validation_error, validationError)
                                     .show(getSupportFragmentManager(), "validation error");
                         }
-                        Log.e(TAG, "Validation failed:" + validationError);
+                        Log.e(TAG_LOG, "Validation failed:" + validationError);
                     }
                 } else {
                     new StickerPackNotAddedMessageFragment().show(getSupportFragmentManager(), "sticker_pack_not_added");
@@ -121,8 +123,15 @@ public abstract class StickerPackAddFlow extends BaseActivity {
     public static final class StickerPackNotAddedMessageFragment extends DialogFragment {
         @NonNull
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity()).setMessage(R.string.add_pack_fail_prompt_update_whatsapp)
+        public AlertDialog onCreateDialog(Bundle savedInstanceState) {
+            FragmentActivity activity = getActivity();
+            if (activity == null) {
+                Log.w(TAG_LOG, "Ocorreu um erro ao criar o diálogo.");
+                return new AlertDialog.Builder(requireContext()).setMessage("Ocorreu um erro ao criar o diálogo.")
+                        .setPositiveButton("OK", null).create();
+            }
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity).setMessage(R.string.add_pack_fail_prompt_update_whatsapp)
                     .setCancelable(true).setPositiveButton(android.R.string.ok, (dialog, which) -> dismiss())
                     .setNeutralButton(R.string.add_pack_fail_prompt_update_play_link, (dialog, which) -> launchWhatsAppPlayStorePage());
 

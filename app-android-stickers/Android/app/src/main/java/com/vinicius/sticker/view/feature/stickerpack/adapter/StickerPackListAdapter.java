@@ -132,6 +132,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         return stickerPacks.size();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setImageRowSpec(int maxNumberOfStickersInARow, int minMarginBetweenImages) {
         this.minMarginBetweenImages = minMarginBetweenImages;
         if (this.maxNumberOfStickersInARow != maxNumberOfStickersInARow) {

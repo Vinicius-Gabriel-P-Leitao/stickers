@@ -27,22 +27,25 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vinicius.sticker.R;
+import com.vinicius.sticker.domain.data.content.provider.StickerPackQueryProvider;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.orchestrator.StickerPackOrchestrator;
 import com.vinicius.sticker.view.core.base.BaseActivity;
-import com.vinicius.sticker.view.feature.media.launcher.GalleryMediaPickerLauncher;
+import com.vinicius.sticker.view.feature.media.viewholder.GalleryMediaPickerViewHolder;
 import com.vinicius.sticker.view.feature.permission.fragment.PermissionRequestFragment;
 import com.vinicius.sticker.view.feature.stickerpack.adapter.StickerPreviewAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.presentation.fragment.StickerPackMetadataFragment;
 import com.vinicius.sticker.view.main.EntryActivity;
 
 public abstract class StickerPackCreationFlow extends BaseActivity {
+    private final static String TAG_LOG = StickerPackCreationFlow.class.getSimpleName();
+
     public static final String STATIC_STICKER = "animated";
     public static final String ANIMATED_STICKER = "static";
 
     public StickerPreviewAdapter stickerPreviewAdapter;
     public GridLayoutManager layoutManager;
-    public GalleryMediaPickerLauncher viewModel;
+    public GalleryMediaPickerViewHolder viewModel;
     public RecyclerView recyclerView;
     public String namePack;
     public int numColumns;
@@ -61,7 +64,7 @@ public abstract class StickerPackCreationFlow extends BaseActivity {
         setContentView(R.layout.activity_create_sticker_pack);
 
         getViewModelStore().clear();
-        viewModel = new ViewModelProvider(this).get(GalleryMediaPickerLauncher.class);
+        viewModel = new ViewModelProvider(this).get(GalleryMediaPickerViewHolder.class);
         viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
 
         StickerPackOrchestrator.resetData();
@@ -82,7 +85,7 @@ public abstract class StickerPackCreationFlow extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) {
             Uri selectedUri = data.getData();
-            Log.d("MediaPicker", "Selected URI: " + selectedUri);
+            Log.d(TAG_LOG, "URI selecionada: " + selectedUri);
         }
     }
 

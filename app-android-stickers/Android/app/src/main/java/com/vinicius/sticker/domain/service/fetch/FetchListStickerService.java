@@ -50,7 +50,8 @@ public class FetchListStickerService {
                 bytes = FetchStickerFile.fetchStickerFile(stickerPackIdentifier, sticker.imageFileName, context.getContentResolver());
 
                 if (bytes.length == 0) {
-                    throw new IllegalStateException("O arquivo está vazio, pacote: " + stickerPackIdentifier + ", figurinha: " + sticker.imageFileName);
+                    throw new IllegalStateException(
+                            "O arquivo está vazio, pacote: " + stickerPackIdentifier + ", figurinha: " + sticker.imageFileName);
                 }
 
                 sticker.setSize(bytes.length);

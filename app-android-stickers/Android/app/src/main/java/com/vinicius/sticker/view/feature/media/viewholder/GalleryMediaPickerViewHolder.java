@@ -6,13 +6,12 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.view.feature.media.launcher;
+package com.vinicius.sticker.view.feature.media.viewholder;
 
 import static android.app.Activity.RESULT_OK;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
@@ -31,7 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 
 // @formatter:off
-public class GalleryMediaPickerLauncher extends ViewModel {
+public class GalleryMediaPickerViewHolder extends ViewModel {
     // NOTE: Pacote para o preview na activity
     private final MutableLiveData<StickerPack> stickerPackPreview = new MutableLiveData<>();
     public LiveData<StickerPack> getStickerPackToPreview() {
