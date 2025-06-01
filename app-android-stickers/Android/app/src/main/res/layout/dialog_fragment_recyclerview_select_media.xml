@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.feature.media.fragment.MediaPickerBottomFragment">
+    tools:context=".view.feature.media.fragment.MediaPickerFragment">
 
 
-    <com.vinicius.sticker.view.core.component.BottomFadingRecyclerView
+    <com.vinicius.sticker.view.core.usecase.component.BottomFadingRecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="600dp"

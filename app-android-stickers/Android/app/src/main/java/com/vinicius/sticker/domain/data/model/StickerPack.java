@@ -8,27 +8,12 @@
 
 package com.vinicius.sticker.domain.data.model;
 
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.ANIMATED_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.AVOID_CACHE;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.FK_STICKER_PACKS;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.IMAGE_DATA_VERSION;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.LICENSE_AGREEMENT_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.PRIVACY_POLICY_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.PUBLISHER_EMAIL;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.PUBLISHER_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_TRAY_IMAGE_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_PUBLISHER_IN_QUERY;
-
-import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class StickerPack implements Parcelable {
     public String identifier;
@@ -116,25 +101,6 @@ public class StickerPack implements Parcelable {
         this.animatedStickerPack = animatedStickerPack;
     }
 
-    private StickerPack(Parcel parcel) {
-        identifier = parcel.readString();
-        name = parcel.readString();
-        publisher = parcel.readString();
-        trayImageFile = parcel.readString();
-        publisherEmail = parcel.readString();
-        publisherWebsite = parcel.readString();
-        privacyPolicyWebsite = parcel.readString();
-        licenseAgreementWebsite = parcel.readString();
-        iosAppStoreLink = parcel.readString();
-        stickers = parcel.createTypedArrayList(Sticker.CREATOR);
-        totalSize = parcel.readLong();
-        androidPlayStoreLink = parcel.readString();
-        isWhitelisted = parcel.readByte() != 0;
-        imageDataVersion = parcel.readString();
-        avoidCache = parcel.readByte() != 0;
-        animatedStickerPack = parcel.readByte() != 0;
-    }
-
     public StickerPack(StickerPack stickerPackClone) {
         this.isWhitelisted = stickerPackClone.isWhitelisted;
         this.totalSize = stickerPackClone.totalSize;
@@ -154,6 +120,25 @@ public class StickerPack implements Parcelable {
         this.identifier = stickerPackClone.identifier;
     }
 
+    private StickerPack(Parcel parcel) {
+        identifier = parcel.readString();
+        name = parcel.readString();
+        publisher = parcel.readString();
+        trayImageFile = parcel.readString();
+        publisherEmail = parcel.readString();
+        publisherWebsite = parcel.readString();
+        privacyPolicyWebsite = parcel.readString();
+        licenseAgreementWebsite = parcel.readString();
+        iosAppStoreLink = parcel.readString();
+        stickers = parcel.createTypedArrayList(Sticker.CREATOR);
+        totalSize = parcel.readLong();
+        androidPlayStoreLink = parcel.readString();
+        isWhitelisted = parcel.readByte() != 0;
+        imageDataVersion = parcel.readString();
+        avoidCache = parcel.readByte() != 0;
+        animatedStickerPack = parcel.readByte() != 0;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -161,7 +146,7 @@ public class StickerPack implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(identifier);
+        dest.writeString(String.valueOf(identifier));
         dest.writeString(name);
         dest.writeString(publisher);
         dest.writeString(trayImageFile);
@@ -177,24 +162,5 @@ public class StickerPack implements Parcelable {
         dest.writeString(imageDataVersion);
         dest.writeByte((byte) (avoidCache ? 1 : 0));
         dest.writeByte((byte) (animatedStickerPack ? 1 : 0));
-    }
-
-    @NonNull
-    public static ContentValues toContentValues(StickerPack stickerPack, long stickerPackId) {
-        ContentValues stickerPackValues = new ContentValues();
-        stickerPackValues.put(STICKER_PACK_IDENTIFIER_IN_QUERY, stickerPack.identifier);
-        stickerPackValues.put(STICKER_PACK_NAME_IN_QUERY, stickerPack.name);
-        stickerPackValues.put(STICKER_PACK_PUBLISHER_IN_QUERY, stickerPack.publisher);
-        stickerPackValues.put(STICKER_PACK_TRAY_IMAGE_IN_QUERY, stickerPack.trayImageFile);
-        stickerPackValues.put(PUBLISHER_EMAIL, stickerPack.publisherEmail);
-        stickerPackValues.put(PUBLISHER_WEBSITE, stickerPack.publisherWebsite);
-        stickerPackValues.put(PRIVACY_POLICY_WEBSITE, stickerPack.privacyPolicyWebsite);
-        stickerPackValues.put(LICENSE_AGREEMENT_WEBSITE, stickerPack.licenseAgreementWebsite);
-        stickerPackValues.put(ANIMATED_STICKER_PACK, stickerPack.animatedStickerPack ? 1 : 0);
-        stickerPackValues.put(FK_STICKER_PACKS, stickerPackId);
-        stickerPackValues.put(IMAGE_DATA_VERSION, stickerPack.imageDataVersion);
-        stickerPackValues.put(AVOID_CACHE, stickerPack.avoidCache ? 1 : 0);
-
-        return stickerPackValues;
     }
 }

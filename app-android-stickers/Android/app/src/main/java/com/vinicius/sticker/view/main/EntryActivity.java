@@ -23,16 +23,14 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.R;
+import com.vinicius.sticker.core.exception.content.ContentProviderException;
 import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
-import com.vinicius.sticker.core.validation.StickerPackValidator;
-import com.vinicius.sticker.core.validation.StickerValidator;
-import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.fetch.FetchListStickerPackService;
+import com.vinicius.sticker.domain.service.fetch.FetchStickerPackService;
 import com.vinicius.sticker.view.core.base.BaseActivity;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.InitialStickerPackCreationActivity;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackDetailsActivity;
-import com.vinicius.sticker.view.feature.stickerpack.presentation.activity.StickerPackListActivity;
+import com.vinicius.sticker.view.feature.stickerpack.creation.activity.InitialStickerPackCreationActivity;
+import com.vinicius.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
+import com.vinicius.sticker.view.feature.stickerpack.list.activity.StickerPackListActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -139,29 +137,21 @@ public class EntryActivity extends BaseActivity {
                     final Context context = contextWeakReference.get();
 
                     if (context != null) {
-                        StickerPackValidationResult.ListStickerPackResult stickerPackList = FetchListStickerPackService.fetchStickerPackList(context);
+                        StickerPackValidationResult.ListStickerPackResult stickerPackList = FetchStickerPackService.fetchStickerPackListFromContentProvider(context);
 
                         if (stickerPackList.validStickerPacks().isEmpty()) {
                             result = new Pair<>("Nenhum pacote de adesivos disponível", null);
                             return;
                         }
 
-                        for (StickerPack stickerPack : stickerPackList.validStickerPacks()) {
-                            StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
-
-                            for (Sticker sticker : stickerPack.getStickers()) {
-                                StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
-                            }
-                        }
                         Log.d(TAG_LOG, String.valueOf(stickerPackList.invalidStickerPacks()));
                         Log.d(TAG_LOG, String.valueOf(stickerPackList.invalidStickers()));
-
 
                         result = new Pair<>(null, stickerPackList.validStickerPacks());
                     } else {
                         result = new Pair<>("Não foi possível obter os pacotes de figurinhas", null);
                     }
-                } catch (IllegalStateException exception) {
+                } catch (ContentProviderException exception) {
                     Context context = contextWeakReference.get();
 
                     if (context != null) {
@@ -176,6 +166,7 @@ public class EntryActivity extends BaseActivity {
 
                     Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio", exception);
                     result = new Pair<>("Erro encontrado, redirecionando...", null);
+
                 } catch (Exception exception) {
                     Log.e(TAG_LOG, "Erro ao obter pacotes de figurinhas", exception);
                     result = new Pair<>(exception.getMessage(), null);

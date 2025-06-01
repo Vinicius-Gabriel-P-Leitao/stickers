@@ -23,12 +23,11 @@ import android.webkit.URLUtil;
 
 import androidx.annotation.NonNull;
 
-import com.vinicius.sticker.core.exception.InvalidWebsiteUrlException;
-import com.vinicius.sticker.core.exception.PackValidatorException;
+import com.vinicius.sticker.core.exception.content.InvalidWebsiteUrlException;
+import com.vinicius.sticker.core.exception.sticker.PackValidatorException;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.fetch.FetchListStickerService;
-import com.vinicius.sticker.domain.service.fetch.FetchStickerFile;
+import com.vinicius.sticker.domain.service.fetch.FetchStickerAssetService;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -52,6 +51,7 @@ public class StickerPackValidator {
         if (TextUtils.isEmpty(stickerPack.identifier)) {
             throw new PackValidatorException("O identificador do pacote de figurinhas está vazio");
         }
+
         if (stickerPack.identifier.length() > CHAR_COUNT_MAX) {
             throw new PackValidatorException("O identificador do pacote de figurinhas não pode exceder " + CHAR_COUNT_MAX + " caracteres");
         }
@@ -114,7 +114,7 @@ public class StickerPackValidator {
             throw new PackValidatorException("O e-mail do publisher não parece válido, o e-mail é:" + stickerPack.publisherEmail);
         }
         try {
-            final byte[] stickerAssetBytes = FetchStickerFile.fetchStickerFile(
+            final byte[] stickerAssetBytes = FetchStickerAssetService.fetchStickerAsset(
                     stickerPack.identifier, stickerPack.trayImageFile, context.getContentResolver());
             if (stickerAssetBytes.length > TRAY_IMAGE_FILE_SIZE_MAX_KB * KB_IN_BYTES) {
                 throw new PackValidatorException(

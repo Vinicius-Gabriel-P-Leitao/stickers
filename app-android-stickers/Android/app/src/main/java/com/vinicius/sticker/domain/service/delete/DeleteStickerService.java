@@ -8,40 +8,25 @@
 
 package com.vinicius.sticker.domain.service.delete;
 
-import static com.vinicius.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
-import static com.vinicius.sticker.domain.data.database.repository.DeleteStickerPackRepo.deleteSticker;
-
 import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.vinicius.sticker.core.exception.DeleteStickerException;
+import com.vinicius.sticker.core.exception.sticker.DeleteStickerException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
+import com.vinicius.sticker.domain.data.database.repository.DeleteStickerPackRepo;
 
-import java.io.File;
 import java.sql.SQLException;
 
-/**
- * Deleta o sticker tanto no banco de dados quanto o arquivo.
- */
 public class DeleteStickerService {
     private final static String TAG_LOG = DeleteStickerService.class.getSimpleName();
 
-    /**
-     * <b>Descrição:</b>Deleta o sticker tanto no banco de dados quanto o arquivo, os métadados são
-     * deletados via repositório.
-     *
-     * @param context               Contexto da aplicação.
-     * @param stickerPackIdentifier Identificador do pacote que está o sticker.
-     * @param fileName              nome do arquivo.
-     * @return Patter para resultado com booleano para retorno.
-     */
-    public static CallbackResult<Boolean> deleteStickerByIdentifier(
+    public static CallbackResult<Boolean> deleteStickerByPack(
             @NonNull Context context, @NonNull String stickerPackIdentifier, @NonNull String fileName) {
         try {
-            int deletedSticker = deleteSticker(context, stickerPackIdentifier, fileName);
-            CallbackResult<Boolean> deletedStickerFile = deleteFileSticker(context, stickerPackIdentifier, fileName);
+            int deletedSticker = DeleteStickerPackRepo.deleteSticker(context, stickerPackIdentifier, fileName);
+            CallbackResult<Boolean> deletedStickerFile = DeleteStickerAssetService.deleteStickerAsset(context, stickerPackIdentifier, fileName);
 
             if (deletedStickerFile.isSuccess()) {
                 if (deletedSticker > 0 && deletedStickerFile.getData()) {
@@ -61,57 +46,32 @@ public class DeleteStickerService {
         }
     }
 
-    /**
-     * <b>Descrição:</b>Deleta arquivo da figurinha apenas um arquivo.
-     *
-     * @param context               Contexto da aplicação.
-     * @param stickerPackIdentifier Identificador do pacote que está sticker.
-     * @param fileName              nome do arquivo.
-     * @return Patter para resultado com booleano para retorno.
-     */
-    private static CallbackResult<Boolean> deleteFileSticker(
-            @NonNull Context context, @NonNull String stickerPackIdentifier, @NonNull String fileName) {
-        File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
-        File stickerDirectory = new File(mainDirectory, stickerPackIdentifier + File.separator + fileName);
-
-        if (stickerDirectory.exists() && mainDirectory.exists()) {
-            boolean deleted = stickerDirectory.delete();
-
-            if (deleted) {
-                Log.i(TAG_LOG, "Arquivo deletado: " + stickerDirectory.getAbsolutePath());
-                return CallbackResult.success(Boolean.TRUE);
-            } else {
-                return CallbackResult.failure(new DeleteStickerException("Falha ao deletar arquivo: " + stickerDirectory.getAbsolutePath()));
-            }
-        } else {
-            return CallbackResult.failure(new DeleteStickerException("Arquivo não encontrado para deletar: " + stickerDirectory.getAbsolutePath()));
-        }
-    }
-
-    /**
-     * <b>Descrição:</b>Deleta todos os stickers de um pacote.
-     *
-     * @param context               Contexto da aplicação.
-     * @param stickerPackIdentifier Identificador do sticker.
-     * @return Patter para resultado com booleano para retorno.
-     */
-    public static CallbackResult<Void> deleteAllFilesInPack(@NonNull Context context, @NonNull String stickerPackIdentifier) {
-        File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
-        File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);
-
-        if (stickerPackDirectory.exists() && stickerPackDirectory.isDirectory()) {
-            File[] files = stickerPackDirectory.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (!file.delete()) {
-                        return CallbackResult.failure(new DeleteStickerException("Falha ao deletar o arquivo: " + file.getAbsolutePath()));
-                    }
-                }
+    public static CallbackResult<Boolean> deleteAllStickerByPack(@NonNull Context context, @NonNull String stickerPackIdentifier) {
+        try {
+            CallbackResult<Boolean> stickerAssetDeleted = DeleteStickerAssetService.deleteAllStickerAssetsInPack(context, stickerPackIdentifier);
+            if (stickerAssetDeleted.getStatus() == CallbackResult.Status.FAILURE) {
+                return CallbackResult.failure(stickerAssetDeleted.getError());
             }
 
-            return CallbackResult.success(null);
-        } else {
-            return CallbackResult.warning("Diretório não encontrado: " + stickerPackDirectory.getAbsolutePath());
+            CallbackResult<Integer> stickerDeletedInDb = DeleteStickerPackRepo.deleteAllStickerOfPack(context, stickerPackIdentifier);
+            if (stickerDeletedInDb.getStatus() == CallbackResult.Status.FAILURE) {
+                return CallbackResult.failure(stickerDeletedInDb.getError());
+            }
+
+            boolean assetsDeleted = stickerAssetDeleted.getStatus() == CallbackResult.Status.SUCCESS;
+            boolean dbDeleted = stickerDeletedInDb.getStatus() == CallbackResult.Status.SUCCESS;
+
+            if (!assetsDeleted && !dbDeleted) {
+                return CallbackResult.warning("Nenhuma figurinha foi deletada: diretório e registros não encontrados.");
+            } else if (!assetsDeleted) {
+                return CallbackResult.warning("Figurinhas não encontradas no armazenamento, mas registros foram deletados.");
+            } else if (!dbDeleted) {
+                return CallbackResult.warning("Registros não encontrados no banco de dados, mas arquivos foram deletados.");
+            }
+
+            return CallbackResult.success(true);
+        } catch (Exception exception) {
+            return CallbackResult.failure(new Exception("Erro ao deletar figurinhas: " + exception.getMessage(), exception));
         }
     }
 }

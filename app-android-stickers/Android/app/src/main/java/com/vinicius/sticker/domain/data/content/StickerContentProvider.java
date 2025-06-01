@@ -27,10 +27,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.BuildConfig;
-import com.vinicius.sticker.core.exception.ContentProviderException;
-import com.vinicius.sticker.domain.data.content.helper.StickerProviderFileHelper;
-import com.vinicius.sticker.domain.data.content.helper.StickerPackProviderQueryHelper;
-import com.vinicius.sticker.domain.data.content.helper.StickerProviderQueryHelper;
+import com.vinicius.sticker.core.exception.content.ContentProviderException;
+import com.vinicius.sticker.domain.data.content.provider.StickerAssetProvider;
+import com.vinicius.sticker.domain.data.content.provider.StickerPackQueryProvider;
+import com.vinicius.sticker.domain.data.content.provider.StickerQueryProvider;
 import com.vinicius.sticker.domain.data.database.StickerDatabase;
 
 // @formatter:off
@@ -86,15 +86,15 @@ public class StickerContentProvider extends ContentProvider {
             throw new ContentProviderException("Contexto do content provider não disponível!");
         }
 
-        StickerPackProviderQueryHelper stickerPackProviderQueryHelper = new StickerPackProviderQueryHelper(context);
-        StickerProviderQueryHelper stickerProviderQueryHelper = new StickerProviderQueryHelper(context);
+        StickerPackQueryProvider stickerPackQueryProvider = new StickerPackQueryProvider(context);
+        StickerQueryProvider stickerQueryProvider = new StickerQueryProvider(context);
 
         if (code == METADATA_CODE) {
-            return stickerPackProviderQueryHelper.getPackForAllStickerPacks(uri, dbHelper);
+            return stickerPackQueryProvider.fetchAllStickerPack(uri, dbHelper);
         } else if (code == METADATA_CODE_FOR_SINGLE_PACK) {
-            return stickerPackProviderQueryHelper.getCursorForSingleStickerPack(uri, dbHelper);
+            return stickerPackQueryProvider.fetchSingleStickerPack(uri, dbHelper);
         } else if (code == METADATA_CODE_ALL_STICKERS) {
-            return stickerProviderQueryHelper.getCursorForStickerListForPack(uri, dbHelper);
+            return stickerQueryProvider.fetchStickerListForPack(uri, dbHelper);
         } else {
             throw new ContentProviderException("URI desconhecida: " + uri);
         }
@@ -124,10 +124,10 @@ public class StickerContentProvider extends ContentProvider {
             throw new ContentProviderException("Contexto do content provider não disponível!");
         }
 
-        StickerProviderFileHelper stickerProviderFileHelper = new StickerProviderFileHelper(context);
+        StickerAssetProvider stickerAssetProvider = new StickerAssetProvider(context);
 
         if (code == STICKERS_FILES_CODE || code == STICKER_PACK_TRAY_ICON_CODE) {
-            return stickerProviderFileHelper.getImageFiles(uri);
+            return stickerAssetProvider.fetchStickerAsset(uri);
         }
 
         return null;

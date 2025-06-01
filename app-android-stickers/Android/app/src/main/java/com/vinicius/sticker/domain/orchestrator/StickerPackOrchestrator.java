@@ -11,17 +11,16 @@ package com.vinicius.sticker.domain.orchestrator;
 import android.content.Context;
 import android.util.Log;
 
-import com.vinicius.sticker.core.exception.DeleteStickerException;
-import com.vinicius.sticker.core.exception.InvalidWebsiteUrlException;
-import com.vinicius.sticker.core.exception.PackValidatorException;
-import com.vinicius.sticker.core.exception.StickerFileException;
-import com.vinicius.sticker.core.exception.StickerPackSaveException;
+import com.vinicius.sticker.core.exception.sticker.DeleteStickerException;
+import com.vinicius.sticker.core.exception.content.InvalidWebsiteUrlException;
+import com.vinicius.sticker.core.exception.sticker.PackValidatorException;
+import com.vinicius.sticker.core.exception.sticker.StickerFileException;
+import com.vinicius.sticker.core.exception.sticker.StickerPackSaveException;
 import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
-import com.vinicius.sticker.domain.data.content.provider.StickerPackQueryProvider;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.domain.service.save.StickerPackSaveService;
+import com.vinicius.sticker.domain.service.save.SaveStickerPackService;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,13 +72,13 @@ public class StickerPackOrchestrator {
             }
 
             if (!exists) {
-                stickerList.add(new Sticker(file.getName().trim(), "\uD83D\uDDFF", "","Sticker pack"));
+                stickerList.add(new Sticker(file.getName().trim(), "\uD83D\uDDFF", "","Sticker pack", uuidPack));
             }
         }
         stickerPack.setStickers(stickerList);
 
         try {
-            StickerPackSaveService.saveStickerPack(
+            SaveStickerPackService.saveStickerPack(
                     context, stickerPack, callbackResult -> {
                         switch (callbackResult.getStatus()) {
                             case SUCCESS:

@@ -8,7 +8,7 @@
 
 package com.vinicius.sticker.core.lib;
 
-import com.vinicius.sticker.core.exception.MediaConversionException;
+import com.vinicius.sticker.core.exception.media.MediaConversionException;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
