@@ -23,8 +23,8 @@ import android.webkit.URLUtil;
 
 import androidx.annotation.NonNull;
 
-import com.vinicius.sticker.core.exception.InvalidWebsiteUrlException;
-import com.vinicius.sticker.core.exception.PackValidatorException;
+import com.vinicius.sticker.core.exception.content.InvalidWebsiteUrlException;
+import com.vinicius.sticker.core.exception.sticker.PackValidatorException;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.fetch.FetchStickerAssetService;
@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import java.util.UUID;
 
 public class StickerPackValidator {
     public static final int STICKER_SIZE_MIN = 3;

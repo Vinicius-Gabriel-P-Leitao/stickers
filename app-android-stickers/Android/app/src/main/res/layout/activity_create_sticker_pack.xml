@@ -13,7 +13,7 @@
         android:layout_weight="1"
         tools:ignore="UselessParent">
 
-        <com.vinicius.sticker.view.core.component.BottomFadingRecyclerView
+        <com.vinicius.sticker.view.core.usecase.component.BottomFadingRecyclerView
             android:id="@+id/sticker_list_to_package"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -16,8 +16,8 @@ import androidx.annotation.Nullable;
 
 import com.facebook.animated.webp.WebPImage;
 import com.facebook.imagepipeline.common.ImageDecodeOptions;
-import com.vinicius.sticker.core.exception.StickerFileException;
-import com.vinicius.sticker.core.exception.StickerValidatorException;
+import com.vinicius.sticker.core.exception.sticker.StickerFileException;
+import com.vinicius.sticker.core.exception.sticker.StickerValidatorException;
 import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.core.pattern.ErrorFileCode;
 import com.vinicius.sticker.domain.data.model.Sticker;

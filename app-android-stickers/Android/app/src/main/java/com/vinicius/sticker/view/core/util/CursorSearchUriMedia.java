@@ -15,8 +15,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.vinicius.sticker.core.exception.MediaConversionException;
-import com.vinicius.sticker.view.feature.usecase.MimeTypesSupported;
+import com.vinicius.sticker.core.exception.media.MediaConversionException;
+import com.vinicius.sticker.view.core.usecase.definition.MimeTypesSupported;
 
 import java.util.ArrayList;
 import java.util.Arrays;

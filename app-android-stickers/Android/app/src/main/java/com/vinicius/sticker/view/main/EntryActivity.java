@@ -23,14 +23,14 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.core.exception.ContentProviderException;
+import com.vinicius.sticker.core.exception.content.ContentProviderException;
 import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.fetch.FetchStickerPackService;
 import com.vinicius.sticker.view.core.base.BaseActivity;
-import com.vinicius.sticker.view.feature.presentation.activity.InitialStickerPackCreationActivity;
-import com.vinicius.sticker.view.feature.presentation.activity.StickerPackDetailsActivity;
-import com.vinicius.sticker.view.feature.presentation.activity.StickerPackListActivity;
+import com.vinicius.sticker.view.feature.stickerpack.creation.activity.InitialStickerPackCreationActivity;
+import com.vinicius.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
+import com.vinicius.sticker.view.feature.stickerpack.list.activity.StickerPackListActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

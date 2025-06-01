@@ -86,7 +86,7 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <com.vinicius.sticker.view.core.component.BottomFadingRecyclerView
+        <com.vinicius.sticker.view.core.usecase.component.BottomFadingRecyclerView
             android:id="@+id/sticker_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -154,34 +154,23 @@
                 android:padding="16dp"
                 android:text="@string/button_create_sticker_package" />
 
-
-            <FrameLayout
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/add_to_whatsapp_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:background="@drawable/btn_green"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackgroundBorderless"
-                android:orientation="vertical">
-
-                <TextView
-                    style="@style/StickerPreviewButtonText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="@android:color/transparent"
-                    android:clickable="false"
-                    android:drawableStart="@drawable/sticker_3rdparty_wa"
-                    android:drawablePadding="8dp"
-                    android:focusable="false"
-                    android:foreground="@android:color/transparent"
-                    android:text="@string/add_to_whatsapp"
-                    tools:ignore="UseCompatTextViewDrawableXml" />
-
-
-            </FrameLayout>
+                android:layout_gravity="bottom|center"
+                android:padding="16dp"
+                android:text="@string/add_to_whatsapp"
+                android:textAppearance="@style/StickerPreviewButtonText"
+                android:textColor="@color/catppuccin_crust"
+                app:backgroundTint="@color/catppuccin_blue"
+                app:cornerRadius="10dp"
+                app:icon="@drawable/sticker_3rdparty_wa"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconTint="@color/action_bar_arrow_color"
+                app:strokeColor="@color/catppuccin_mantle"
+                app:strokeWidth="2dp" />
 
             <TextView
                 android:id="@+id/sticker_pack_details_tap_to_preview"

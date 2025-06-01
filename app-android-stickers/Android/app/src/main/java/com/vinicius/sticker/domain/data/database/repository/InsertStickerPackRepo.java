@@ -39,8 +39,8 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
-import com.vinicius.sticker.core.exception.ContentProviderException;
-import com.vinicius.sticker.core.exception.StickerPackSaveException;
+import com.vinicius.sticker.core.exception.content.ContentProviderException;
+import com.vinicius.sticker.core.exception.sticker.StickerPackSaveException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
 import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
 import com.vinicius.sticker.domain.data.model.Sticker;

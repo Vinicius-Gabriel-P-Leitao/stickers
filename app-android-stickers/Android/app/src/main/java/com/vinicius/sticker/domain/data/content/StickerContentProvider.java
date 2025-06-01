@@ -27,7 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.BuildConfig;
-import com.vinicius.sticker.core.exception.ContentProviderException;
+import com.vinicius.sticker.core.exception.content.ContentProviderException;
 import com.vinicius.sticker.domain.data.content.provider.StickerAssetProvider;
 import com.vinicius.sticker.domain.data.content.provider.StickerPackQueryProvider;
 import com.vinicius.sticker.domain.data.content.provider.StickerQueryProvider;

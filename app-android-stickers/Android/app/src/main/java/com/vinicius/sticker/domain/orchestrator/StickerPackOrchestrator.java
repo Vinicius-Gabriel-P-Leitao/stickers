@@ -11,11 +11,11 @@ package com.vinicius.sticker.domain.orchestrator;
 import android.content.Context;
 import android.util.Log;
 
-import com.vinicius.sticker.core.exception.DeleteStickerException;
-import com.vinicius.sticker.core.exception.InvalidWebsiteUrlException;
-import com.vinicius.sticker.core.exception.PackValidatorException;
-import com.vinicius.sticker.core.exception.StickerFileException;
-import com.vinicius.sticker.core.exception.StickerPackSaveException;
+import com.vinicius.sticker.core.exception.sticker.DeleteStickerException;
+import com.vinicius.sticker.core.exception.content.InvalidWebsiteUrlException;
+import com.vinicius.sticker.core.exception.sticker.PackValidatorException;
+import com.vinicius.sticker.core.exception.sticker.StickerFileException;
+import com.vinicius.sticker.core.exception.sticker.StickerPackSaveException;
 import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
 import com.vinicius.sticker.domain.data.model.Sticker;

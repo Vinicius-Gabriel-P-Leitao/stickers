@@ -15,11 +15,10 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.vinicius.sticker.core.exception.DeleteStickerException;
+import com.vinicius.sticker.core.exception.sticker.DeleteStickerException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
 
 import java.io.File;
-import java.util.Arrays;
 
 public class DeleteStickerAssetService {
     private final static String TAG_LOG = DeleteStickerAssetService.class.getSimpleName();

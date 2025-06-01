@@ -33,11 +33,11 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 
 import com.vinicius.sticker.BuildConfig;
-import com.vinicius.sticker.core.exception.ContentProviderException;
-import com.vinicius.sticker.core.exception.InvalidWebsiteUrlException;
-import com.vinicius.sticker.core.exception.PackValidatorException;
-import com.vinicius.sticker.core.exception.StickerFileException;
-import com.vinicius.sticker.core.exception.StickerValidatorException;
+import com.vinicius.sticker.core.exception.content.ContentProviderException;
+import com.vinicius.sticker.core.exception.content.InvalidWebsiteUrlException;
+import com.vinicius.sticker.core.exception.sticker.PackValidatorException;
+import com.vinicius.sticker.core.exception.sticker.StickerFileException;
+import com.vinicius.sticker.core.exception.sticker.StickerValidatorException;
 import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.core.validation.StickerValidator;

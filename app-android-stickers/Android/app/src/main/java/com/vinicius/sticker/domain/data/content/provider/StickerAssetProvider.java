@@ -19,7 +19,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.vinicius.sticker.core.exception.ContentProviderException;
+import com.vinicius.sticker.core.exception.content.ContentProviderException;
 
 import java.io.File;
 import java.io.IOException;

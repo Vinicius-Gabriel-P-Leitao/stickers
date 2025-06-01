@@ -12,7 +12,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.vinicius.sticker.core.exception.DeleteStickerException;
+import com.vinicius.sticker.core.exception.sticker.DeleteStickerException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
 import com.vinicius.sticker.domain.data.database.repository.DeleteStickerPackRepo;
 

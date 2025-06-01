@@ -11,7 +11,7 @@ package com.vinicius.sticker.domain.data.database.repository;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.vinicius.sticker.core.exception.DeleteStickerException;
+import com.vinicius.sticker.core.exception.sticker.DeleteStickerException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
 import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
 import com.vinicius.sticker.domain.data.database.StickerDatabase;
