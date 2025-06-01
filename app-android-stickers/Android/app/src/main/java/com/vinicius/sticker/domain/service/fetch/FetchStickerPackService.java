@@ -53,7 +53,7 @@ public class FetchStickerPackService {
     @NonNull
     public static StickerPackValidationResult.ListStickerPackResult fetchStickerPackListFromContentProvider(
             Context context
-    ) throws IllegalStateException {
+    ) throws ContentProviderException {
         final Cursor cursor = context.getContentResolver().query(AUTHORITY_URI, null, null, null, null);
         if (cursor == null) {
             throw new ContentProviderException("Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY);
@@ -122,10 +122,9 @@ public class FetchStickerPackService {
     }
 
     public static StickerPackValidationResult.StickerPackResult fetchStickerPackFromContentProvider(
-            Context context, String stickerPackIdentifier) throws IllegalStateException {
+            Context context, String stickerPackIdentifier) throws ContentProviderException {
 
         Cursor cursor = context.getContentResolver().query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null, null);
-
         if (cursor == null || cursor.getCount() == 0) {
             throw new ContentProviderException("Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY);
         }

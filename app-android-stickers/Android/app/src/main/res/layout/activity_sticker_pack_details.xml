@@ -154,6 +154,7 @@
                 android:padding="16dp"
                 android:text="@string/button_create_sticker_package" />
 
+
             <FrameLayout
                 android:id="@+id/add_to_whatsapp_button"
                 android:layout_width="match_parent"
@@ -173,11 +174,11 @@
                     android:background="@android:color/transparent"
                     android:clickable="false"
                     android:drawableStart="@drawable/sticker_3rdparty_wa"
-                    android:drawableLeft="@drawable/sticker_3rdparty_wa"
                     android:drawablePadding="8dp"
                     android:focusable="false"
                     android:foreground="@android:color/transparent"
-                    android:text="@string/add_to_whatsapp" />
+                    android:text="@string/add_to_whatsapp"
+                    tools:ignore="UseCompatTextViewDrawableXml" />
 
 
             </FrameLayout>

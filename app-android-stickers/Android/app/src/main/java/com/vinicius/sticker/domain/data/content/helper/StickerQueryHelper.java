@@ -57,7 +57,7 @@ public class StickerQueryHelper {
                     String stickerIsValid = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_IS_VALID));
                     String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
 
-                    Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid, accessibilityText);
+                    Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid, accessibilityText, stickerPackIdentifier);
                     stickerList.add(sticker);
                 } while (cursor.moveToNext());
             }

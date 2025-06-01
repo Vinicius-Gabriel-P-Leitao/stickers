@@ -32,16 +32,22 @@ import static com.vinicius.sticker.domain.data.database.StickerDatabase.TABLE_ST
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.TABLE_STICKER_PACKS;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
+import com.vinicius.sticker.core.exception.ContentProviderException;
 import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
+import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.service.fetch.FetchStickerPackService;
+
+import java.util.List;
 
 // @formatter:off
 public class InsertStickerPackRepo {
@@ -50,7 +56,7 @@ public class InsertStickerPackRepo {
         void onInsertResult(CallbackResult<StickerPack> result);
     }
 
-    public void insertStickerPack(SQLiteDatabase dbHelper, StickerPack pack, InsertStickerPackCallback callback) {
+    public void insertStickerPack( SQLiteDatabase dbHelper, StickerPack pack, InsertStickerPackCallback callback) {
         new Handler(Looper.getMainLooper()).postDelayed(
                 () -> {
                     ContentValues stickerPacksValues = new ContentValues();
@@ -60,12 +66,12 @@ public class InsertStickerPackRepo {
                     long stickerPackId = dbHelper.insert(TABLE_STICKER_PACKS, null, stickerPacksValues);
 
                     if (stickerPackId != -1) {
-                        ContentValues stickerPackValues = writeToContentValues(pack, stickerPackId);
+                        ContentValues stickerPackValues = writeStickerPackToContentValues(pack, stickerPackId);
                         long result = dbHelper.insert(TABLE_STICKER_PACK, null, stickerPackValues);
 
                         if (result != -1) {
                             for (Sticker sticker : pack.getStickers()) {
-                                ContentValues stickerValues = writeToContentValues(sticker, stickerPackId);
+                                ContentValues stickerValues = writeStickerToContentValues(sticker);
                                 dbHelper.insert(TABLE_STICKER, null, stickerValues);
                             }
 
@@ -85,8 +91,37 @@ public class InsertStickerPackRepo {
                 }, 1000);
     }
 
+    public void insertSticker(SQLiteDatabase dbHelper, Context context,List<Sticker> stickers, String stickerPackIdentifier,
+                              InsertStickerPackCallback callback) {
+        new Handler(Looper.getMainLooper()).postDelayed(
+                () -> {
+                    try{
+                        StickerPackValidationResult.StickerPackResult stickerPack =
+                            FetchStickerPackService.fetchStickerPackFromContentProvider(context, stickerPackIdentifier);
+
+                        if (!stickerPack.validStickerPacks().identifier.isEmpty()) {
+                            for (Sticker sticker : stickers) {
+                                ContentValues stickerValues = writeStickerToContentValues(sticker);
+                                dbHelper.insert(TABLE_STICKER, null, stickerValues);
+                            }
+
+                            if (callback != null) {
+                                callback.onInsertResult(CallbackResult.success(stickerPack.validStickerPacks()));
+                            }
+                        } else {
+                            if (callback != null) {
+                                callback.onInsertResult(CallbackResult.failure(
+                                        new StickerPackSaveException("Erro ao inserir pacote, o identificador é vázio")));
+                            }
+                        }
+                    } catch (ContentProviderException exception) {
+                       callback.onInsertResult(CallbackResult.failure(exception));
+                    }
+                }, 1000);
+    }
+
     @NonNull
-    public static ContentValues writeToContentValues(StickerPack stickerPack, long stickerPackId) {
+    public static ContentValues writeStickerPackToContentValues(StickerPack stickerPack, long stickerPackId) {
         ContentValues stickerPackValues = new ContentValues();
         stickerPackValues.put(STICKER_PACK_IDENTIFIER_IN_QUERY, stickerPack.identifier);
         stickerPackValues.put(STICKER_PACK_NAME_IN_QUERY, stickerPack.name);
@@ -104,13 +139,13 @@ public class InsertStickerPackRepo {
         return stickerPackValues;
     }
 
-    public static ContentValues writeToContentValues(Sticker sticker, long stickerPackId) {
+    public static ContentValues writeStickerToContentValues(Sticker sticker) {
         ContentValues stickerValues = new ContentValues();
         stickerValues.put(STICKER_FILE_NAME_IN_QUERY, sticker.imageFileName);
         stickerValues.put(STICKER_FILE_EMOJI_IN_QUERY, String.valueOf(sticker.emojis));
         stickerValues.put(STICKER_IS_VALID, sticker.stickerIsValid);
         stickerValues.put(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY, sticker.accessibilityText);
-        stickerValues.put(FK_STICKER_PACK, stickerPackId);
+        stickerValues.put(FK_STICKER_PACK, sticker.uuidPack);
 
         return stickerValues;
     }

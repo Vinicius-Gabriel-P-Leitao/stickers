@@ -8,9 +8,6 @@
 
 package com.vinicius.sticker.domain.service.delete;
 
-import static com.vinicius.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
-import static com.vinicius.sticker.domain.data.database.repository.DeleteStickerPackRepo.deleteSticker;
-
 import android.content.Context;
 import android.util.Log;
 
@@ -21,7 +18,6 @@ import com.vinicius.sticker.core.exception.StickerPackSaveException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
 import com.vinicius.sticker.domain.data.database.repository.DeleteStickerPackRepo;
 
-import java.io.File;
 import java.sql.SQLException;
 
 public class DeleteStickerService {
@@ -52,20 +48,31 @@ public class DeleteStickerService {
     }
 
     public static CallbackResult<Boolean> deleteAllStickerByPack(@NonNull Context context, @NonNull String stickerPackIdentifier) {
-        CallbackResult<Integer> stickersDeletedInDb = DeleteStickerPackRepo.deleteAllStickerOfPack(context, stickerPackIdentifier);
-        CallbackResult<Void> stickerFilesDeleted = DeleteStickerAssetService.deleteAllStickerAssetsInPack(context, stickerPackIdentifier);
+        try {
+            CallbackResult<Boolean> stickerAssetDeleted = DeleteStickerAssetService.deleteAllStickerAssetsInPack(context, stickerPackIdentifier);
+            if (stickerAssetDeleted.getStatus() == CallbackResult.Status.FAILURE) {
+                return CallbackResult.failure(stickerAssetDeleted.getError());
+            }
 
-        if (stickersDeletedInDb.isFailure()) {
-            return CallbackResult.failure(
-                    new DeleteStickerException("Falha ao limpar figurinhas do banco de dados.", stickersDeletedInDb.getError()));
+            CallbackResult<Integer> stickerDeletedInDb = DeleteStickerPackRepo.deleteAllStickerOfPack(context, stickerPackIdentifier);
+            if (stickerDeletedInDb.getStatus() == CallbackResult.Status.FAILURE) {
+                return CallbackResult.failure(stickerDeletedInDb.getError());
+            }
 
+            boolean assetsDeleted = stickerAssetDeleted.getStatus() == CallbackResult.Status.SUCCESS;
+            boolean dbDeleted = stickerDeletedInDb.getStatus() == CallbackResult.Status.SUCCESS;
+
+            if (!assetsDeleted && !dbDeleted) {
+                return CallbackResult.warning("Nenhuma figurinha foi deletada: diretório e registros não encontrados.");
+            } else if (!assetsDeleted) {
+                return CallbackResult.warning("Figurinhas não encontradas no armazenamento, mas registros foram deletados.");
+            } else if (!dbDeleted) {
+                return CallbackResult.warning("Registros não encontrados no banco de dados, mas arquivos foram deletados.");
+            }
+
+            return CallbackResult.success(true);
+        } catch (Exception exception) {
+            return CallbackResult.failure(new Exception("Erro ao deletar figurinhas: " + exception.getMessage(), exception));
         }
-
-        return switch (stickerFilesDeleted.getStatus()) {
-            case SUCCESS -> CallbackResult.debug("Figurinhas deletadas com sucesso.");
-            case WARNING -> CallbackResult.warning(stickerFilesDeleted.getWarningMessage());
-            case FAILURE -> CallbackResult.failure(stickerFilesDeleted.getError());
-            default -> CallbackResult.debug("Figurinhas deletadas do banco com sucesso.");
-        };
     }
 }

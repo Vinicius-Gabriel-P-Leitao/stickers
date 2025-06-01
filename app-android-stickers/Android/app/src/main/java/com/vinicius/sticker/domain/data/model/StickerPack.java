@@ -8,27 +8,12 @@
 
 package com.vinicius.sticker.domain.data.model;
 
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.ANIMATED_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.AVOID_CACHE;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.FK_STICKER_PACKS;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.IMAGE_DATA_VERSION;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.LICENSE_AGREEMENT_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.PRIVACY_POLICY_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.PUBLISHER_EMAIL;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.PUBLISHER_WEBSITE;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_TRAY_IMAGE_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_PACK_PUBLISHER_IN_QUERY;
-
-import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class StickerPack implements Parcelable {
     public String identifier;
@@ -161,7 +146,7 @@ public class StickerPack implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(identifier);
+        dest.writeString(String.valueOf(identifier));
         dest.writeString(name);
         dest.writeString(publisher);
         dest.writeString(trayImageFile);

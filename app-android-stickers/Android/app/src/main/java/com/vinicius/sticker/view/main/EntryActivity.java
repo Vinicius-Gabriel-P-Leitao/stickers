@@ -23,6 +23,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.R;
+import com.vinicius.sticker.core.exception.ContentProviderException;
 import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.fetch.FetchStickerPackService;
@@ -150,7 +151,7 @@ public class EntryActivity extends BaseActivity {
                     } else {
                         result = new Pair<>("Não foi possível obter os pacotes de figurinhas", null);
                     }
-                } catch (IllegalStateException exception) {
+                } catch (ContentProviderException exception) {
                     Context context = contextWeakReference.get();
 
                     if (context != null) {
@@ -165,6 +166,7 @@ public class EntryActivity extends BaseActivity {
 
                     Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio", exception);
                     result = new Pair<>("Erro encontrado, redirecionando...", null);
+
                 } catch (Exception exception) {
                     Log.e(TAG_LOG, "Erro ao obter pacotes de figurinhas", exception);
                     result = new Pair<>(exception.getMessage(), null);

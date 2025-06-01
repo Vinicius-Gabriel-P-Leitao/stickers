@@ -78,7 +78,7 @@ public class FetchStickerService {
                     emojis = emojisConcatenated;
                 }
 
-                stickers.add(new Sticker(name, emojis, stickerIsValid, accessibilityText));
+                stickers.add(new Sticker(name, emojis, stickerIsValid, accessibilityText, stickerPackIdentifier));
             } while (cursor.moveToNext());
         }
         if (cursor != null) {

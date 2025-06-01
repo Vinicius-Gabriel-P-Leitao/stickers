@@ -72,7 +72,7 @@ public class StickerPackOrchestrator {
             }
 
             if (!exists) {
-                stickerList.add(new Sticker(file.getName().trim(), "\uD83D\uDDFF", "","Sticker pack"));
+                stickerList.add(new Sticker(file.getName().trim(), "\uD83D\uDDFF", "","Sticker pack", uuidPack));
             }
         }
         stickerPack.setStickers(stickerList);

@@ -10,6 +10,7 @@ package com.vinicius.sticker.domain.data.database.repository;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.widget.ImageView;
 
 import com.vinicius.sticker.domain.data.database.StickerDatabase;
 
@@ -30,7 +31,7 @@ public class SelectStickerPackRepo {
                 "INNER JOIN " +
                         StickerDatabase.TABLE_STICKER +
                 " ON " +
-                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.ID_STICKER_PACK + " = " + StickerDatabase.TABLE_STICKER + "." + StickerDatabase.FK_STICKER_PACK;
+                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + StickerDatabase.TABLE_STICKER + "." + StickerDatabase.FK_STICKER_PACK;
 
         return db.rawQuery(query, null);
     }
@@ -46,7 +47,7 @@ public class SelectStickerPackRepo {
                 "INNER JOIN " +
                         StickerDatabase.TABLE_STICKER +
                 " ON " +
-                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.ID_STICKER_PACK + " = " + StickerDatabase.TABLE_STICKER + "." + StickerDatabase.FK_STICKER_PACK + " " +
+                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + StickerDatabase.TABLE_STICKER + "." + StickerDatabase.FK_STICKER_PACK + " " +
                 "WHERE " +
                         StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?";
 
@@ -63,7 +64,7 @@ public class SelectStickerPackRepo {
                         StickerDatabase.FK_STICKER_PACK + " = " +
                         "(" +
                             "SELECT " +
-                                StickerDatabase.ID_STICKER_PACK +
+                                StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY +
                             " FROM " +
                                 StickerDatabase.TABLE_STICKER_PACK +
                             " WHERE " +

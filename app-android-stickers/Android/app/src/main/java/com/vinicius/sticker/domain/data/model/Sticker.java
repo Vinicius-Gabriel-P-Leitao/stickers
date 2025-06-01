@@ -11,13 +11,6 @@
 
 package com.vinicius.sticker.domain.data.model;
 
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.FK_STICKER_PACK;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
-import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_IS_VALID;
-
-import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -26,6 +19,8 @@ public class Sticker implements Parcelable {
     public final String emojis;
     public String stickerIsValid;
     public final String accessibilityText;
+    public final String uuidPack;
+
     long size;
 
     public void setSize(long size) {
@@ -48,11 +43,12 @@ public class Sticker implements Parcelable {
         }
     };
 
-    public Sticker(String imageFileName, String emojis, String stickerIsValid, String accessibilityText) {
+    public Sticker(String imageFileName, String emojis, String stickerIsValid, String accessibilityText, String uuidPack) {
         this.imageFileName = imageFileName;
         this.emojis = emojis;
         this.stickerIsValid = stickerIsValid;
         this.accessibilityText = accessibilityText;
+        this.uuidPack = uuidPack;
     }
 
     public Sticker(Parcel parcel) {
@@ -60,6 +56,7 @@ public class Sticker implements Parcelable {
         emojis = parcel.readString();
         stickerIsValid = parcel.readString();
         accessibilityText = parcel.readString();
+        uuidPack = parcel.readString();
         size = parcel.readLong();
     }
 
@@ -74,6 +71,7 @@ public class Sticker implements Parcelable {
         dest.writeString(emojis);
         dest.writeString(stickerIsValid);
         dest.writeString(accessibilityText);
+        dest.writeString(uuidPack);
         dest.writeLong(size);
     }
 }

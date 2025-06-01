@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.UUID;
 
 public class StickerPackValidator {
     public static final int STICKER_SIZE_MIN = 3;
@@ -51,6 +52,7 @@ public class StickerPackValidator {
         if (TextUtils.isEmpty(stickerPack.identifier)) {
             throw new PackValidatorException("O identificador do pacote de figurinhas está vazio");
         }
+
         if (stickerPack.identifier.length() > CHAR_COUNT_MAX) {
             throw new PackValidatorException("O identificador do pacote de figurinhas não pode exceder " + CHAR_COUNT_MAX + " caracteres");
         }

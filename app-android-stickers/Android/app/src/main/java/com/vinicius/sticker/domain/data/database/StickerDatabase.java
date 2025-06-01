@@ -31,7 +31,6 @@ public class StickerDatabase extends SQLiteOpenHelper {
     public static final String IOS_APP_DOWNLOAD_LINK_IN_QUERY = "ios_app_download_link";
 
     // Colunas sticker_pack
-    public static final String ID_STICKER_PACK = "id_sticker_pack";
     public static final String STICKER_PACK_IDENTIFIER_IN_QUERY = "sticker_pack_identifier";
     public static final String STICKER_PACK_NAME_IN_QUERY = "sticker_pack_name";
     public static final String STICKER_PACK_PUBLISHER_IN_QUERY = "sticker_pack_publisher";
@@ -78,8 +77,7 @@ public class StickerDatabase extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(
                 "CREATE TABLE IF NOT EXISTS " + TABLE_STICKER_PACK +
                         " (" +
-                            ID_STICKER_PACK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                            STICKER_PACK_IDENTIFIER_IN_QUERY + " UUID TEXT NOT NULL UNIQUE, " +
+                            STICKER_PACK_IDENTIFIER_IN_QUERY + " TEXT PRIMARY KEY, " +
                             STICKER_PACK_NAME_IN_QUERY + " VARCHAR(20) NOT NULL, " +
                             STICKER_PACK_PUBLISHER_IN_QUERY + " VARCHAR(20) NOT NULL, " +
                             STICKER_PACK_TRAY_IMAGE_IN_QUERY + " CHAR(3) NOT NULL, " +
@@ -99,7 +97,7 @@ public class StickerDatabase extends SQLiteOpenHelper {
                 "FOREIGN KEY(%s) REFERENCES %s(%s) ON DELETE CASCADE",
                 FK_STICKER_PACK,
                 TABLE_STICKER_PACK,
-                ID_STICKER_PACK
+                STICKER_PACK_IDENTIFIER_IN_QUERY
         );
 
         sqLiteDatabase.execSQL(
@@ -110,7 +108,7 @@ public class StickerDatabase extends SQLiteOpenHelper {
                             STICKER_FILE_EMOJI_IN_QUERY + " TEXT NOT NULL, " +
                             STICKER_IS_VALID + " VARCHAR(255), " +
                             STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY + " TEXT NOT NULL, " +
-                            FK_STICKER_PACK + " INTEGER, " + fkSticker +
+                            FK_STICKER_PACK + " TEXT, " + fkSticker +
                         ")"
         );
     }

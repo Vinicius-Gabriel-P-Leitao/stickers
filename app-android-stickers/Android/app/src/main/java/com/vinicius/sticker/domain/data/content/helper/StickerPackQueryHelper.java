@@ -41,6 +41,7 @@ import com.vinicius.sticker.domain.data.model.StickerPack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class StickerPackQueryHelper {
     @NonNull
@@ -131,7 +132,7 @@ public class StickerPackQueryHelper {
                     String stickerIsValid = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_IS_VALID));
                     String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
 
-                    Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid, accessibilityText);
+                    Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid, accessibilityText, identifier);
                     currentStickerPack.getStickers().add(sticker);
 
                 } while (cursor.moveToNext());
@@ -168,7 +169,7 @@ public class StickerPackQueryHelper {
                     String stickerIsValid = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_IS_VALID));
                     String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
 
-                    Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid, accessibilityText);
+                    Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid, accessibilityText, identifier);
                     stickerList.add(sticker);
                 } while (cursor.moveToNext());
 

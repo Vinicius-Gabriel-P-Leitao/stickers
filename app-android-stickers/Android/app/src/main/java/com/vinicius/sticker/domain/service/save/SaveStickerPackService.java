@@ -17,6 +17,8 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.Log;
 
+import com.vinicius.sticker.core.exception.ContentProviderException;
+import com.vinicius.sticker.core.exception.DeleteStickerException;
 import com.vinicius.sticker.core.exception.InvalidWebsiteUrlException;
 import com.vinicius.sticker.core.exception.PackValidatorException;
 import com.vinicius.sticker.core.exception.StickerFileException;
@@ -34,6 +36,7 @@ import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.delete.DeleteStickerPackService;
 import com.vinicius.sticker.domain.service.delete.DeleteStickerService;
 import com.vinicius.sticker.domain.service.fetch.FetchStickerPackService;
+import com.vinicius.sticker.domain.service.fetch.FetchStickerService;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -58,15 +61,8 @@ public class SaveStickerPackService {
     ) {
         File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
         if (!createMainDirectory(mainDirectory, callback)) {
+            callback.onStickerPackSaveResult(CallbackResult.failure(new Exception("Erro ao criar pacote principal de sticker")));
             return;
-        }
-
-        if (shouldDeletePreviousPack(context, stickerPack.identifier)) {
-            if (!deletePreviousPack(context, stickerPack.identifier, callback)) {
-                return;
-            }
-        } else {
-            callback.onStickerPackSaveResult(CallbackResult.warning("Identificador diferente, não houve deleção."));
         }
 
         File stickerPackDirectory = createStickerPackDirectory(mainDirectory, stickerPack.identifier, callback);
@@ -75,6 +71,7 @@ public class SaveStickerPackService {
         }
 
         if (!copyStickers(context, stickerPack, stickerPackDirectory, callback)) {
+            callback.onStickerPackSaveResult(CallbackResult.failure(new Exception("Erro ao copiar os stickers")));
             return;
         }
 
@@ -84,48 +81,20 @@ public class SaveStickerPackService {
             for (Sticker sticker : stickerPack.getStickers()) {
                 StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
             }
-        } catch (PackValidatorException | StickerValidatorException | InvalidWebsiteUrlException | StickerFileException exception) {
-            if (exception instanceof StickerFileException fileException) {
-                for (Sticker sticker : stickerPack.getStickers()) {
-                       if (Objects.equals(sticker.imageFileName,fileException.getFileName())) {
-                           sticker.setStickerIsValid(fileException.getErrorCode());
-                       }
+
+        } catch (StickerFileException stickerFileException) {
+            for (Sticker sticker : stickerPack.getStickers()) {
+                if (Objects.equals(sticker.imageFileName,stickerFileException.getFileName())) {
+                    sticker.setStickerIsValid(stickerFileException.getErrorCode());
                 }
             }
 
+            callback.onStickerPackSaveResult(CallbackResult.warning("Alguns stickers foram marcados como inválidos: " + stickerFileException.getFileName()));
+        } catch (PackValidatorException | StickerValidatorException | InvalidWebsiteUrlException exception) {
             callback.onStickerPackSaveResult(CallbackResult.failure(exception));
         }
 
         insertStickerPack(context, stickerPack, callback);
-    }
-
-    private static boolean shouldDeletePreviousPack(Context context, String stickerPackIdentifier) {
-        File mainDir = new File(context.getFilesDir(), STICKERS_ASSET);
-        File stickerPackDir = new File(mainDir, stickerPackIdentifier);
-        StickerPack stickerPack = FetchStickerPackService.fetchStickerPackFromContentProvider(context, stickerPackIdentifier).validStickerPacks();
-
-        return stickerPackDir.exists() && stickerPackDir.isDirectory() && Objects.equals(stickerPack.identifier, stickerPackIdentifier);
-    }
-
-    private static boolean deletePreviousPack(Context context, String stickerPackIdentifier, SaveStickerPackCallback callback) {
-        CallbackResult<Boolean> deletedSticker =  DeleteStickerService.deleteAllStickerByPack(context, stickerPackIdentifier);
-        CallbackResult<Boolean> deletedStickerPack = DeleteStickerPackService.deleteStickerPack(context, stickerPackIdentifier);
-
-        if (deletedSticker.getStatus() == CallbackResult.Status.SUCCESS) {
-            return deletedSticker.getData() && deletedStickerPack.getData();
-        }
-
-        if (deletedSticker.getStatus() == CallbackResult.Status.WARNING){
-            callback.onStickerPackSaveResult(CallbackResult.warning(deletedSticker.getWarningMessage()));
-            callback.onStickerPackSaveResult(CallbackResult.warning(deletedStickerPack.getWarningMessage()));
-        }
-
-        if (deletedSticker.getStatus() == CallbackResult.Status.FAILURE){
-            callback.onStickerPackSaveResult(CallbackResult.failure(deletedSticker.getError()));
-            callback.onStickerPackSaveResult(CallbackResult.failure(deletedStickerPack.getError()));
-        }
-
-        return false;
     }
 
     private static boolean createMainDirectory(File mainDirectory, SaveStickerPackCallback callback) {
@@ -133,14 +102,14 @@ public class SaveStickerPackService {
             boolean created = mainDirectory.mkdirs();
 
             if (!created) {
-                callback.onStickerPackSaveResult(
-                        CallbackResult.failure(new StickerPackSaveException("Falha ao criar o mainDirectory: " + mainDirectory.getPath())));
+                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Falha ao criar o mainDirectory: " + mainDirectory.getPath())));
                 return false;
             }
             callback.onStickerPackSaveResult(CallbackResult.debug("mainDirectory criado com sucesso: " + mainDirectory.getPath()));
         } else {
             callback.onStickerPackSaveResult(CallbackResult.debug("mainDirectory já existe: " + mainDirectory.getPath()));
         }
+
         return true;
     }
 

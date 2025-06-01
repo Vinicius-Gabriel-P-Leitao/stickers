@@ -47,7 +47,6 @@ public class StickerPackQueryProvider {
 
         try {
             StickerPack stickerPack = StickerPackQueryHelper.fetchStickerPackFromDatabase(dbHelper, stickerPackIdentifier);
-
             if (stickerPack == null) {
                 Log.w(TAG_LOG, "Nenhum pacote de figurinhas encontrado para o identificador: " + stickerPackIdentifier);
                 return StickerPackQueryHelper.fetchListStickerPackData(context, uri, new ArrayList<>());

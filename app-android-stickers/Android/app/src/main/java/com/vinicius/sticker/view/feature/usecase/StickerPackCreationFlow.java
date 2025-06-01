@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.orchestrator.StickerPackOrchestrator;
@@ -168,6 +169,9 @@ public abstract class StickerPackCreationFlow extends BaseActivity {
 
             recyclerView.setAdapter(stickerPreviewAdapter);
         }
+
+        FloatingActionButton floatingActionButton = findViewById(R.id.button_select_media);
+        floatingActionButton.setVisibility(View.GONE);
     }
 
     @Override
