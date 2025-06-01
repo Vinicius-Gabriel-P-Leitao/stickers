@@ -41,7 +41,7 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
                                       int width,
                                       int height,
                                       int durationMs) {
-    jclass nativeMediaException = env->FindClass("com/vinicius/sticker/core/exception/NativeConversionException");
+    jclass nativeMediaException = env->FindClass("com/vinicius/sticker/core/exception/media/NativeConversionException");
 
     WebPAnimEncoderOptions encOptions;
     if (!WebPAnimEncoderOptionsInit(&encOptions)) {

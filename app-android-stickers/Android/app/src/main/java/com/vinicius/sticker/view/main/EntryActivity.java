@@ -67,6 +67,7 @@ public class EntryActivity extends BaseActivity {
         if (stickerPackList.size() > 1) {
             final Intent intent = new Intent(this, StickerPackListActivity.class);
 
+            // TODO: Passar pacotes com sticker invalidos e pacotes invalidos
             intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA, stickerPackList);
 
             startActivity(intent);
@@ -75,6 +76,7 @@ public class EntryActivity extends BaseActivity {
         } else {
             final Intent intent = new Intent(this, StickerPackDetailsActivity.class);
 
+            // TODO: Passar pacote com sticker invalido e pacote invalido
             intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, false);
             intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, stickerPackList.get(0));
 

@@ -31,14 +31,14 @@ import androidx.core.view.ViewCompat;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
-import com.vinicius.sticker.view.core.usecase.activity.StickerPackCreationActivity;
+import com.vinicius.sticker.view.core.usecase.activity.StickerPackCreationBaseActivity;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class StickerPackMetadataActivity extends BaseActivity {
 
-    private static final String TAG_LOG = StickerPackCreationActivity.class.getSimpleName();
+    private static final String TAG_LOG = StickerPackCreationBaseActivity.class.getSimpleName();
 
     @Override
     @SuppressLint("ObsoleteSdkInt")

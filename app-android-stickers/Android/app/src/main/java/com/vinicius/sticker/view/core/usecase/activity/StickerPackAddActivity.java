@@ -33,7 +33,7 @@ import com.vinicius.sticker.view.feature.stickerpack.details.activity.StickerPac
 
 public abstract class StickerPackAddActivity extends BaseActivity {
     private static final int ADD_PACK = 200;
-    private static final String TAG_LOG = StickerPackCreationActivity.class.getSimpleName();
+    private static final String TAG_LOG = StickerPackCreationBaseActivity.class.getSimpleName();
 
     protected void addStickerPackToWhatsApp(String identifier, String stickerPackName) {
         try {

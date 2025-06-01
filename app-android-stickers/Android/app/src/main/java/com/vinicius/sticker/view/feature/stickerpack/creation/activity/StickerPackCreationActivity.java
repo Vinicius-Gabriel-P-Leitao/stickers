@@ -14,10 +14,11 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryMediaPickerViewModel;
+import com.vinicius.sticker.view.core.usecase.activity.StickerPackCreationBaseActivity;
 import com.vinicius.sticker.view.core.usecase.definition.MimeTypesSupported;
+import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryMediaPickerViewModel;
 
-public class StickerPackCreationActivity extends com.vinicius.sticker.view.core.usecase.activity.StickerPackCreationActivity {
+public class StickerPackCreationActivity extends StickerPackCreationBaseActivity {
     public static final String EXTRA_STICKER_FORMAT = "sticker_format";
 
     @Override

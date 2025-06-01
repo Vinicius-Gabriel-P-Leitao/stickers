@@ -31,14 +31,14 @@ import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.orchestrator.StickerPackOrchestrator;
 import com.vinicius.sticker.view.core.base.BaseActivity;
-import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryMediaPickerViewModel;
 import com.vinicius.sticker.view.feature.media.fragment.PermissionRequestFragment;
 import com.vinicius.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.creation.fragment.NameStickerPackFragment;
+import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryMediaPickerViewModel;
 import com.vinicius.sticker.view.main.EntryActivity;
 
-public abstract class StickerPackCreationActivity extends BaseActivity {
-    private final static String TAG_LOG = StickerPackCreationActivity.class.getSimpleName();
+public abstract class StickerPackCreationBaseActivity extends BaseActivity {
+    private final static String TAG_LOG = StickerPackCreationBaseActivity.class.getSimpleName();
 
     public static final String STATIC_STICKER = "animated";
     public static final String ANIMATED_STICKER = "static";
