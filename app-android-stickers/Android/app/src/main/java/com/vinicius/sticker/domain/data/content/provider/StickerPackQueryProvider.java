@@ -48,8 +48,8 @@ public class StickerPackQueryProvider {
             Log.e(TAG_LOG, "Erro no banco de dados ao buscar pacotes de figurinhas!", sqlException);
             throw sqlException;
         } catch (RuntimeException exception) {
-            Log.e(TAG_LOG, "Error retrieving sticker pack!", exception);
-            throw new RuntimeException("Erro inesperado ao buscar sticker pack", exception);
+            Log.e(TAG_LOG, "Error buscar pacote de figurinhas!", exception);
+            throw new RuntimeException("Erro inesperado ao buscar pacotes de figuinhas", exception);
         }
     }
 
@@ -72,8 +72,8 @@ public class StickerPackQueryProvider {
             Log.e(TAG_LOG, "Erro no banco de dados ao buscar pacote de figurinhas: " + stickerPackIdentifier, sqlException);
             throw sqlException;
         } catch (RuntimeException exception) {
-            Log.e(TAG_LOG, "Error retrieving sticker pack: " + stickerPackIdentifier, exception);
-            throw new RuntimeException("Erro inesperado ao buscar sticker pack", exception);
+            Log.e(TAG_LOG, "Error buscar pacote de figurinha: " + stickerPackIdentifier, exception);
+            throw new RuntimeException("Erro inesperado ao buscar pacote de figuinha", exception);
         }
     }
 }

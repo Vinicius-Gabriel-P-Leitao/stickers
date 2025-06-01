@@ -8,6 +8,7 @@
 
 package com.vinicius.sticker.domain.data.database.repository;
 
+import static com.vinicius.sticker.domain.data.database.StickerDatabase.ANIMATED_STICKER_PACK;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.STICKER_IS_VALID;
 import static com.vinicius.sticker.domain.data.database.StickerDatabase.TABLE_STICKER;
 
@@ -61,19 +62,34 @@ public class SelectStickerPackRepo {
 
         String query =
                 "SELECT DISTINCT " +
-                        StickerDatabase.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".* " +
-                    "FROM " +
-                        StickerDatabase.TABLE_STICKER_PACK + " " +
-                    "INNER JOIN " +
+                        StickerDatabase.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".*" +
+                    " FROM " +
+                        StickerDatabase.TABLE_STICKER_PACK +
+                    " INNER JOIN " +
                         TABLE_STICKER +
                     " ON " +
-                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + TABLE_STICKER + "." + StickerDatabase.FK_STICKER_PACK + " " +
-                    "WHERE " +
-                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ? " +
-                    "AND (" +
+                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + TABLE_STICKER + "." + StickerDatabase.FK_STICKER_PACK  +
+                    " WHERE " +
+                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?" +
+                    " AND (" +
                             TABLE_STICKER + "." + STICKER_IS_VALID + " IS NULL OR " +
                             TABLE_STICKER + "." + STICKER_IS_VALID + " = ''" +
                         ");";
+
+
+        return db.rawQuery(query, new String[]{stickerPackIdentifier});
+    }
+
+    public static Cursor getStickerPackIsAnimated(StickerDatabase dbHelper, String stickerPackIdentifier) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String query =
+                "SELECT DISTINCT " +
+                        StickerDatabase.TABLE_STICKER_PACK + "." + ANIMATED_STICKER_PACK +
+                    " FROM " +
+                        StickerDatabase.TABLE_STICKER_PACK +
+                    " WHERE " +
+                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ? " + ";";
 
 
         return db.rawQuery(query, new String[]{stickerPackIdentifier});

@@ -22,7 +22,6 @@ import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +32,8 @@ import com.vinicius.sticker.domain.data.content.provider.StickerAssetProvider;
 import com.vinicius.sticker.domain.data.content.provider.StickerPackQueryProvider;
 import com.vinicius.sticker.domain.data.content.provider.StickerQueryProvider;
 import com.vinicius.sticker.domain.data.database.StickerDatabase;
+
+import java.util.List;
 
 // @formatter:off
 public class StickerContentProvider extends ContentProvider {
@@ -47,7 +48,6 @@ public class StickerContentProvider extends ContentProvider {
     private static final int METADATA_CODE_ALL_STICKERS = 3;
     private static final int STICKERS_FILES_CODE = 4;
     private static final int STICKER_PACK_TRAY_ICON_CODE = 5;
-    private static final int CREATE_STICKER_PACKS = 6;
 
     private static StickerDatabase dbHelper;
 
@@ -65,7 +65,6 @@ public class StickerContentProvider extends ContentProvider {
         MATCHER.addURI(authority, METADATA + "/*", METADATA_CODE_FOR_SINGLE_PACK);
         MATCHER.addURI(authority, STICKERS + "/*", METADATA_CODE_ALL_STICKERS);
         MATCHER.addURI(authority, STICKERS_ASSET + "/*/*", STICKERS_FILES_CODE);
-        MATCHER.addURI(authority, "create", CREATE_STICKER_PACKS);
 
         dbHelper = new StickerDatabase(getContext());
         SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
@@ -135,10 +134,10 @@ public class StickerContentProvider extends ContentProvider {
         String callingPackage = getCallingPackage();
         boolean isWhatsApp = "com.whatsapp".equals(callingPackage);
 
-        StickerAssetProvider stickerAssetProvider = new StickerAssetProvider(context, isWhatsApp);
+        StickerAssetProvider stickerAssetProvider = new StickerAssetProvider(context);
 
         if (code == STICKERS_FILES_CODE || code == STICKER_PACK_TRAY_ICON_CODE) {
-            return stickerAssetProvider.fetchStickerAsset(uri);
+            return stickerAssetProvider.fetchStickerAsset(uri, dbHelper, isWhatsApp);
         }
 
         return null;

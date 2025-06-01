@@ -38,11 +38,11 @@ import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.fetch.FetchStickerAssetService;
+import com.vinicius.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import com.vinicius.sticker.view.core.usecase.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.metadata.activity.StickerPackMetadataActivity;
 import com.vinicius.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
-import com.vinicius.sticker.view.core.usecase.activity.StickerPackAddActivity;
+import com.vinicius.sticker.view.feature.stickerpack.metadata.activity.StickerPackMetadataActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ExecutorService;
@@ -60,6 +60,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
     public static final String EXTRA_STICKER_PACK_WEBSITE = "sticker_pack_website";
     public static final String EXTRA_STICKER_PACK_EMAIL = "sticker_pack_email";
     public static final String EXTRA_STICKER_PACK_NAME = "sticker_pack_name";
+    public static final String EXTRA_STICKER_ANIMATED = "sticker_pack_animated";
     public static final String EXTRA_STICKER_PACK_DATA = "sticker_pack";
     public static final String EXTRA_STICKER_PACK_ID = "sticker_pack_id";
     public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
