@@ -22,6 +22,7 @@ import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -86,13 +87,20 @@ public class StickerContentProvider extends ContentProvider {
             throw new ContentProviderException("Contexto do content provider não disponível!");
         }
 
+        String callingPackage = getCallingPackage();
+        boolean isWhatsApp = "com.whatsapp".equals(callingPackage);
+
         StickerPackQueryProvider stickerPackQueryProvider = new StickerPackQueryProvider(context);
         StickerQueryProvider stickerQueryProvider = new StickerQueryProvider(context);
 
         if (code == METADATA_CODE) {
             return stickerPackQueryProvider.fetchAllStickerPack(uri, dbHelper);
         } else if (code == METADATA_CODE_FOR_SINGLE_PACK) {
-            return stickerPackQueryProvider.fetchSingleStickerPack(uri, dbHelper);
+            if (isWhatsApp) {
+                return stickerPackQueryProvider.fetchSingleStickerPack(uri, dbHelper, true);
+            }
+
+            return stickerPackQueryProvider.fetchSingleStickerPack(uri, dbHelper, false);
         } else if (code == METADATA_CODE_ALL_STICKERS) {
             return stickerQueryProvider.fetchStickerListForPack(uri, dbHelper);
         } else {
@@ -124,7 +132,10 @@ public class StickerContentProvider extends ContentProvider {
             throw new ContentProviderException("Contexto do content provider não disponível!");
         }
 
-        StickerAssetProvider stickerAssetProvider = new StickerAssetProvider(context);
+        String callingPackage = getCallingPackage();
+        boolean isWhatsApp = "com.whatsapp".equals(callingPackage);
+
+        StickerAssetProvider stickerAssetProvider = new StickerAssetProvider(context, isWhatsApp);
 
         if (code == STICKERS_FILES_CODE || code == STICKER_PACK_TRAY_ICON_CODE) {
             return stickerAssetProvider.fetchStickerAsset(uri);

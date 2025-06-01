@@ -32,7 +32,7 @@ public class StickerAssetProvider {
     @NonNull
     private final Context context;
 
-    public StickerAssetProvider(@NonNull Context context) {
+    public StickerAssetProvider(@NonNull Context context, boolean isWhatsApp) {
         this.context = context;
     }
 

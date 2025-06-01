@@ -77,7 +77,7 @@ public class SaveStickerPackService {
 
         } catch (StickerFileException stickerFileException) {
             for (Sticker sticker : stickerPack.getStickers()) {
-                if (Objects.equals(sticker.imageFileName,stickerFileException.getFileName())) {
+                if (Objects.equals(sticker.imageFileName, stickerFileException.getFileName())) {
                     sticker.setStickerIsValid(stickerFileException.getErrorCode());
                 }
             }
