@@ -110,9 +110,11 @@ public class StickerPackValidator {
                     "Certifique-se de incluir http ou https nos links de URL, o link do site do editor não é uma URL válida:" +
                             stickerPack.publisherWebsite);
         }
+
         if (!TextUtils.isEmpty(stickerPack.publisherEmail) && !Patterns.EMAIL_ADDRESS.matcher(stickerPack.publisherEmail).matches()) {
             throw new PackValidatorException("O e-mail do publisher não parece válido, o e-mail é:" + stickerPack.publisherEmail);
         }
+
         try {
             final byte[] stickerAssetBytes = FetchStickerAssetService.fetchStickerAsset(
                     stickerPack.identifier, stickerPack.trayImageFile, context.getContentResolver());

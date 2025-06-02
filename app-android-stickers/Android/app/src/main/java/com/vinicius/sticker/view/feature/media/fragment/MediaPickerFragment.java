@@ -30,9 +30,9 @@ import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
+import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.core.exception.media.MediaConversionException;
 import com.vinicius.sticker.core.exception.sticker.StickerPackSaveException;
-import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.domain.orchestrator.StickerPackOrchestrator;
 import com.vinicius.sticker.view.core.usecase.component.BottomFadingRecyclerView;
 import com.vinicius.sticker.view.core.util.ConvertMediaToStickerFormat;
@@ -43,30 +43,35 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MediaPickerFragment extends BottomSheetDialogFragment {
+    private final static String TAG_LOG = MediaPickerFragment.class.getSimpleName();
+
     private static final String KEY_IS_ANIMATED = "key_is_animated";
     private static final String KEY_MEDIA_URIS = "key_media_uris";
     private static final String KEY_NAME_PACK = "key_name_pack";
 
-    private final List<File> mediaConvertedFile = new ArrayList<>();
+    private final List<File> mediaConvertedFile = Collections.synchronizedList(new ArrayList<>());
     private GalleryMediaPickerViewModel viewModel;
     private boolean isAnimatedPack;
     private List<Uri> mediaUris;
     private String namePack;
 
-    private int completedConversions = 0;
+    private final AtomicInteger completedConversions = new AtomicInteger(0);
     private int totalConversions = 0;
     private ProgressBar progressBar;
 
-    ExecutorService executor = new ThreadPoolExecutor(5, 20, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
-
+    int cores = Runtime.getRuntime().availableProcessors();
+    int maxThreads = Math.min(30, cores * 2);
+    ExecutorService executor = new ThreadPoolExecutor(cores, maxThreads, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private PickMediaListAdapter.OnItemClickListener listener;
@@ -146,7 +151,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
 
         progressBar = view.findViewById(R.id.progress_bar_media);
         if (progressBar == null) {
-            Log.e("MediaPickerFragment", "ProgressBar não encontrado!");
+            Log.e(TAG_LOG, "ProgressBar não encontrado!");
         } else {
             progressBar.setVisibility(View.GONE);
         }
@@ -157,7 +162,6 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
 
             if (selectedMediaPaths.size() >= STICKER_SIZE_MIN) {
                 totalConversions = selectedMediaPaths.size();
-                completedConversions = 0;
                 progressBar.setVisibility(View.VISIBLE);
 
                 for (Uri uri : selectedMediaPaths) {
@@ -176,7 +180,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
 
         Context context = getContext();
         if (context == null) {
-            Log.e("MediaPickerFragment", "Contexto nulo, não será possível converter mídia.");
+            Log.e(TAG_LOG, "Contexto nulo, não será possível converter mídia.");
             return;
         }
 
@@ -206,9 +210,9 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
     }
 
     private void checkAllConversionsCompleted() {
-        completedConversions++;
+        int current = completedConversions.incrementAndGet();
 
-        if (completedConversions == totalConversions) {
+        if (current == totalConversions) {
             progressBar.setVisibility(View.GONE);
 
             StickerPackOrchestrator.generateObjectToSave(
@@ -232,7 +236,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
                                     break;
                             }
                         } else {
-                            Log.e("MediaPickerFragment", "Fragment ou Contexto não estão mais válidos.");
+                            Log.e(TAG_LOG, "Fragment ou Contexto não estão mais válidos.");
                             throw new StickerPackSaveException("Fragment ou Contexto não estão mais válidos.");
                         }
                     });
