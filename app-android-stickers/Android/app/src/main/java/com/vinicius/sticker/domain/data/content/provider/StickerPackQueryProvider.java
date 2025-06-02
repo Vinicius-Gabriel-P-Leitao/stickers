@@ -10,6 +10,8 @@ package com.vinicius.sticker.domain.data.content.provider;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.database.SQLException;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
@@ -20,7 +22,7 @@ import com.vinicius.sticker.domain.data.content.helper.StickerPackQueryHelper;
 import com.vinicius.sticker.domain.data.database.StickerDatabase;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 
-import java.util.ArrayList;
+import java.util.List;
 
 // @formatter:off
 public class StickerPackQueryProvider {
@@ -33,29 +35,45 @@ public class StickerPackQueryProvider {
         this.context = context;
     }
 
-    public Cursor fetchAllStickerPack(@NonNull Uri uri, StickerDatabase dbHelper) {
-        return StickerPackQueryHelper.fetchListStickerPackData(context, uri, StickerPackQueryHelper.fetchListStickerPackFromDatabase(dbHelper));
+    public Cursor fetchAllStickerPack(@NonNull Uri uri, @NonNull StickerDatabase dbHelper) {
+        try{
+            List<StickerPack> stickerPackList = StickerPackQueryHelper.fetchListStickerPackFromDatabase(dbHelper);
+            if (stickerPackList.isEmpty())  {
+                Log.w(TAG_LOG, "Nenhum pacote de figurinhas encontrado!");
+                return new MatrixCursor(new String[]{"Nenhum pacote de figurinhas encontrado!"});
+            }
+
+            return StickerPackQueryHelper.fetchListStickerPackData(context, uri, stickerPackList);
+        } catch (SQLException sqlException) {
+            Log.e(TAG_LOG, "Erro no banco de dados ao buscar pacotes de figurinhas!", sqlException);
+            throw sqlException;
+        } catch (RuntimeException exception) {
+            Log.e(TAG_LOG, "Error buscar pacote de figurinhas!", exception);
+            throw new RuntimeException("Erro inesperado ao buscar pacotes de figuinhas", exception);
+        }
     }
 
-    public Cursor fetchSingleStickerPack(@NonNull Uri uri, StickerDatabase dbHelper) {
+    public Cursor fetchSingleStickerPack(@NonNull Uri uri, @NonNull StickerDatabase dbHelper, boolean isFiltered) {
         final String stickerPackIdentifier = uri.getLastPathSegment();
-
         if (TextUtils.isEmpty(stickerPackIdentifier)) {
-            Log.e(TAG_LOG, "Identificador de pacote de adesivos inválido na Uri: " + uri);
-            return StickerPackQueryHelper.fetchListStickerPackData(context, uri, new ArrayList<>());
+            Log.e(TAG_LOG, "Identificador de pacote de figurinhas inválido na Uri: " + uri);
+            return new MatrixCursor(new String[]{"O identifer do pacote está nulo!"});
         }
 
         try {
-            StickerPack stickerPack = StickerPackQueryHelper.fetchStickerPackFromDatabase(dbHelper, stickerPackIdentifier);
+            StickerPack stickerPack = StickerPackQueryHelper.fetchStickerPackFromDatabase(dbHelper, stickerPackIdentifier, isFiltered);
             if (stickerPack == null) {
                 Log.w(TAG_LOG, "Nenhum pacote de figurinhas encontrado para o identificador: " + stickerPackIdentifier);
-                return StickerPackQueryHelper.fetchListStickerPackData(context, uri, new ArrayList<>());
+                return new MatrixCursor(new String[]{"Erro ao buscar pacote, ele é nulo!"});
             }
 
             return StickerPackQueryHelper.fetchStickerPackData(context, uri, stickerPack);
+        } catch (SQLException sqlException) {
+            Log.e(TAG_LOG, "Erro no banco de dados ao buscar pacote de figurinhas: " + stickerPackIdentifier, sqlException);
+            throw sqlException;
         } catch (RuntimeException exception) {
-            Log.e(TAG_LOG, "Error retrieving sticker pack: " + stickerPackIdentifier, exception);
-            return StickerPackQueryHelper.fetchListStickerPackData(context, uri, new ArrayList<>());
+            Log.e(TAG_LOG, "Error buscar pacote de figurinha: " + stickerPackIdentifier, exception);
+            throw new RuntimeException("Erro inesperado ao buscar pacote de figuinha", exception);
         }
     }
 }

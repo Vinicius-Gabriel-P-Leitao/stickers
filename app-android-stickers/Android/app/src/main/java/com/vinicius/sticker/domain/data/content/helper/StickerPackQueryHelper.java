@@ -32,7 +32,6 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.domain.data.database.StickerDatabase;
 import com.vinicius.sticker.domain.data.database.repository.SelectStickerPackRepo;
@@ -41,13 +40,27 @@ import com.vinicius.sticker.domain.data.model.StickerPack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
+// @formatter:off
 public class StickerPackQueryHelper {
     @NonNull
     public static Cursor fetchListStickerPackData(@NonNull Context context, @NonNull Uri uri, @NonNull List<StickerPack> stickerPackList) {
         MatrixCursor cursor = new MatrixCursor(
-                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_TRAY_IMAGE_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
+                new String[]{
+                        STICKER_PACK_IDENTIFIER_IN_QUERY,
+                        STICKER_PACK_NAME_IN_QUERY,
+                        STICKER_PACK_PUBLISHER_IN_QUERY,
+                        STICKER_PACK_TRAY_IMAGE_IN_QUERY,
+                        ANDROID_APP_DOWNLOAD_LINK_IN_QUERY,
+                        IOS_APP_DOWNLOAD_LINK_IN_QUERY,
+                        PUBLISHER_EMAIL,
+                        PUBLISHER_WEBSITE,
+                        PRIVACY_POLICY_WEBSITE,
+                        LICENSE_AGREEMENT_WEBSITE,
+                        IMAGE_DATA_VERSION,
+                        AVOID_CACHE,
+                        ANIMATED_STICKER_PACK,
+                });
 
         for (StickerPack stickerPack : stickerPackList) {
             MatrixCursor.RowBuilder builder = cursor.newRow();
@@ -66,31 +79,8 @@ public class StickerPackQueryHelper {
             builder.add(stickerPack.animatedStickerPack ? 1 : 0);
         }
 
-        cursor.setNotificationUri(context.getContentResolver(), uri);
-        return cursor;
-    }
-
-    @NonNull
-    public static Cursor fetchStickerPackData(@NonNull Context context, @NonNull Uri uri, @NonNull StickerPack stickerPack) {
-        MatrixCursor cursor = new MatrixCursor(
-                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_TRAY_IMAGE_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
-
-        MatrixCursor.RowBuilder builder = cursor.newRow();
-        builder.add(stickerPack.identifier);
-        builder.add(stickerPack.name);
-        builder.add(stickerPack.publisher);
-        builder.add(stickerPack.trayImageFile);
-        builder.add(stickerPack.androidPlayStoreLink);
-        builder.add(stickerPack.iosAppStoreLink);
-        builder.add(stickerPack.publisherEmail);
-        builder.add(stickerPack.publisherWebsite);
-        builder.add(stickerPack.privacyPolicyWebsite);
-        builder.add(stickerPack.licenseAgreementWebsite);
-        builder.add(stickerPack.imageDataVersion);
-        builder.add(stickerPack.avoidCache ? 1 : 0);
-        builder.add(stickerPack.animatedStickerPack ? 1 : 0);
-
-        cursor.setNotificationUri(context.getContentResolver(), uri);
+        cursor.setNotificationUri(context.getContentResolver(),
+                uri);
         return cursor;
     }
 
@@ -144,8 +134,53 @@ public class StickerPackQueryHelper {
         return stickerPackList;
     }
 
-    public static StickerPack fetchStickerPackFromDatabase(@NonNull StickerDatabase dbHelper, @Nullable String stickerPackIdentifier) {
-        Cursor cursor = SelectStickerPackRepo.getStickerPackByIdentifier(dbHelper, stickerPackIdentifier);
+    @NonNull
+    public static Cursor fetchStickerPackData(@NonNull Context context, @NonNull Uri uri, @NonNull StickerPack stickerPack) {
+        MatrixCursor cursor = new MatrixCursor(
+                new String[]{
+                        STICKER_PACK_IDENTIFIER_IN_QUERY,
+                        STICKER_PACK_NAME_IN_QUERY,
+                        STICKER_PACK_PUBLISHER_IN_QUERY,
+                        STICKER_PACK_TRAY_IMAGE_IN_QUERY,
+                        ANDROID_APP_DOWNLOAD_LINK_IN_QUERY,
+                        IOS_APP_DOWNLOAD_LINK_IN_QUERY,
+                        PUBLISHER_EMAIL,
+                        PUBLISHER_WEBSITE,
+                        PRIVACY_POLICY_WEBSITE,
+                        LICENSE_AGREEMENT_WEBSITE,
+                        IMAGE_DATA_VERSION,
+                        AVOID_CACHE,
+                        ANIMATED_STICKER_PACK,
+                });
+
+        MatrixCursor.RowBuilder builder = cursor.newRow();
+        builder.add(stickerPack.identifier);
+        builder.add(stickerPack.name);
+        builder.add(stickerPack.publisher);
+        builder.add(stickerPack.trayImageFile);
+        builder.add(stickerPack.androidPlayStoreLink);
+        builder.add(stickerPack.iosAppStoreLink);
+        builder.add(stickerPack.publisherEmail);
+        builder.add(stickerPack.publisherWebsite);
+        builder.add(stickerPack.privacyPolicyWebsite);
+        builder.add(stickerPack.licenseAgreementWebsite);
+        builder.add(stickerPack.imageDataVersion);
+        builder.add(stickerPack.avoidCache ? 1 : 0);
+        builder.add(stickerPack.animatedStickerPack ? 1 : 0);
+
+        cursor.setNotificationUri(context.getContentResolver(),
+                uri);
+        return cursor;
+    }
+
+    public static StickerPack fetchStickerPackFromDatabase(
+            @NonNull StickerDatabase dbHelper, @NonNull String stickerPackIdentifier,
+            boolean isFiltered
+    ) {
+        Cursor cursor = isFiltered
+                ? SelectStickerPackRepo.getFilteredStickerPackByIdentifier(dbHelper, stickerPackIdentifier)
+                : SelectStickerPackRepo.getStickerPackByIdentifier(dbHelper, stickerPackIdentifier);
+
         StickerPack stickerPack = null;
 
         try {
