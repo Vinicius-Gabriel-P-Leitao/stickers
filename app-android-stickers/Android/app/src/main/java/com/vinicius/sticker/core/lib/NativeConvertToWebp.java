@@ -27,7 +27,7 @@ public class NativeConvertToWebp {
         void onError(Exception exception);
     }
 
-    private static final ExecutorService nativeExecutor = Executors.newFixedThreadPool(2);
+    private static final ExecutorService nativeExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public void convertToWebpAsync(String inputPath, String outputPath, ConversionCallback callback) throws MediaConversionException {
         nativeExecutor.submit(() -> {
