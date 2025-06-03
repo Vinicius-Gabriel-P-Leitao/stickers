@@ -60,7 +60,6 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
     public static final String EXTRA_STICKER_PACK_WEBSITE = "sticker_pack_website";
     public static final String EXTRA_STICKER_PACK_EMAIL = "sticker_pack_email";
     public static final String EXTRA_STICKER_PACK_NAME = "sticker_pack_name";
-    public static final String EXTRA_STICKER_ANIMATED = "sticker_pack_animated";
     public static final String EXTRA_STICKER_PACK_DATA = "sticker_pack";
     public static final String EXTRA_STICKER_PACK_ID = "sticker_pack_id";
     public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
@@ -131,7 +130,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
         });
 
         addButton = findViewById(R.id.add_to_whatsapp_button);
-        addButton.setOnClickListener(v -> addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name));
+        addButton.setOnClickListener(view -> addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name));
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showUpButton);
@@ -181,6 +180,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_PRIVACY_POLICY, privacyPolicyWebsite);
         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_LICENSE_AGREEMENT, licenseAgreementWebsite);
         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_TRAY_ICON, trayIconUriString);
+
         startActivity(intent);
     }
 
@@ -188,10 +188,10 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
         Intent intent = new Intent(StickerPackDetailsActivity.this, StickerPackCreationActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
-        startActivity(intent);
+        intent.putExtra(StickerPackCreationActivity.EXTRA_SHOW_UP_BUTTON, true);
 
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        finish();
+        startActivity(intent);
     }
 
     @Override

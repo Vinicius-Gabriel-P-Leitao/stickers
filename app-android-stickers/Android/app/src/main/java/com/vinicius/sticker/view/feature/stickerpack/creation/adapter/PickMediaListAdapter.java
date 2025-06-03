@@ -55,11 +55,13 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
 
    public Set<Uri> getSelectedMediaPaths() {
       Set<Uri> selectedPaths = new HashSet<>();
+
       for (Integer index : selectedItems) {
          if ( index >= 0 && index < getCurrentList().size() ) {
             selectedPaths.add(getCurrentList().get(index));
          }
       }
+
       return selectedPaths;
    }
 
@@ -97,13 +99,12 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
          int index = selectedItems.indexOf(position);
          if ( index >= 0 ) {
             int sequenceNumber = index + 1;
-            // NOTE: espaço é para dar um "padding" no final do botão
             holder.radioCheckBox.setText(String.format("%s  ", sequenceNumber));
          } else {
-            holder.radioCheckBox.setText("0  ");
+            holder.radioCheckBox.setText("");
          }
       } else {
-         holder.radioCheckBox.setText("0  ");
+         holder.radioCheckBox.setText("");
       }
 
       holder.radioCheckBox.setOnClickListener(view -> {

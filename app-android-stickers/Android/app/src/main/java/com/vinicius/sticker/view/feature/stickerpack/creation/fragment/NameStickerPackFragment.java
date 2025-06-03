@@ -8,14 +8,23 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.creation.fragment;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.textfield.TextInputEditText;
 import com.vinicius.sticker.R;
@@ -35,18 +44,45 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
 
     private MetadataCallback callback;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.BottomSheetStyle);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_metadata_pack, container, false);
 
-        ImageButton buttonGrantPermission = view.findViewById(R.id.grant_permission_button);
+        ImageButton buttonGrantPermission = view.findViewById(R.id.open_gallery);
         buttonGrantPermission.setOnClickListener(viewAccept -> {
             TextInputEditText textInputEditText = view.findViewById(R.id.et_user_input);
-            String inputText = textInputEditText.getText().toString().trim();
 
+            textInputEditText.setFocusable(true);
+            textInputEditText.setFocusableInTouchMode(true);
+
+            textInputEditText.post(new Runnable() {
+                @Override
+                public void run() {
+                    textInputEditText.requestFocus();
+
+                    InputMethodManager inputMethodManager = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (inputMethodManager != null) {
+                        inputMethodManager.showSoftInput(textInputEditText, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                }
+            });
+
+            String msgErrorPackEmpty = getResources().getString(R.string.metadata_name_pack_empty);
+
+            if (textInputEditText.getText() == null) {
+                callback.onError(msgErrorPackEmpty);
+            }
+
+            String inputText = textInputEditText.getText().toString().trim();
             if (inputText.isEmpty()) {
-                callback.onError("Preecha o nome do pacote!");
+                callback.onError(msgErrorPackEmpty);
                 dismiss();
                 return;
             }
@@ -57,8 +93,18 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
         return view;
     }
 
+    @NonNull
     @Override
-    public int getTheme() {
-        return R.style.TransparentBottomSheet;
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
+        dialog.setOnShowListener(dialogInterface -> {
+            BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) dialogInterface;
+            FrameLayout bottomSheet = bottomSheetDialog.findViewById(R.id.design_bottom_sheet);
+
+            if (bottomSheet != null) {
+                bottomSheet.setBackground(new ColorDrawable(Color.TRANSPARENT));
+            }
+        });
+        return dialog;
     }
 }

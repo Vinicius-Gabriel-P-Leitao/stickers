@@ -31,12 +31,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:textColor="@color/catppuccin_text"
             android:textColorHint="@color/catppuccin_subtext0" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <ImageButton
-        android:id="@+id/grant_permission_button"
+        android:id="@+id/open_gallery"
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:layout_marginTop="24dp"

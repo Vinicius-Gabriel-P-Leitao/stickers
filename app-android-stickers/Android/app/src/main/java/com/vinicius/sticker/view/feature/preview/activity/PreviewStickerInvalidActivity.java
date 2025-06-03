@@ -11,5 +11,7 @@ package com.vinicius.sticker.view.feature.preview.activity;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 
 public class PreviewStickerInvalidActivity extends BaseActivity {
+    private final static String TAG_LOG = PreviewStickerInvalidActivity.class.getSimpleName();
+
     // TODO: Fazer activity que vai renderizar os stickers invalidos e dar a opção para refatorar
 }

@@ -76,4 +76,6 @@
     <!-- Title to create new sticker package -->
     <string name="title_activity_sticker_packs_creator" tools:ignore="MissingQuantity">Create new package</string>
     <string name="title_activity_sticker_packs_creator_first" tools:ignore="MissingQuantity">Create first package</string>
+    <!--Erro ao não preencher nome do pacote de figurinhas-->
+    <string name="metadata_name_pack_empty">Fill in the package name!</string>
 </resources>

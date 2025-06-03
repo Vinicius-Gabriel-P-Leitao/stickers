@@ -11,7 +11,10 @@ package com.vinicius.sticker.view.feature.media.fragment;
 import static com.vinicius.sticker.core.validation.StickerPackValidator.STICKER_SIZE_MIN;
 import static com.vinicius.sticker.view.core.util.ConvertMediaToStickerFormat.convertMediaToWebP;
 
-import android.content.Context;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,13 +24,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.exception.base.InternalAppException;
@@ -47,6 +53,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -69,9 +76,9 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
     private int totalConversions = 0;
     private ProgressBar progressBar;
 
-    int cores = Runtime.getRuntime().availableProcessors();
-    int maxThreads = Math.min(30, cores * 2);
-    ExecutorService executor = new ThreadPoolExecutor(cores, maxThreads, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+    private final List<Future<?>> futures = Collections.synchronizedList(new ArrayList<>());
+    private volatile boolean isCanceled = false;
+
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private PickMediaListAdapter.OnItemClickListener listener;
@@ -100,16 +107,13 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.BottomSheetStyle);
+
         if (getArguments() != null) {
             mediaUris = getArguments().getParcelableArrayList(KEY_MEDIA_URIS);
             namePack = getArguments().getString(KEY_NAME_PACK);
             isAnimatedPack = getArguments().getBoolean(KEY_IS_ANIMATED);
         }
-    }
-
-    @Override
-    public int getTheme() {
-        return R.style.TransparentBottomSheet;
     }
 
     @Nullable
@@ -131,7 +135,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
                                     if (isAdded() && getActivity() != null) {
                                         dismiss();
                                     }
-                                }, 1500);
+                                }, 1000);
                     }
                 });
 
@@ -161,52 +165,90 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
             Set<Uri> selectedMediaPaths = mediaListAdapter.getSelectedMediaPaths();
 
             if (selectedMediaPaths.size() >= STICKER_SIZE_MIN) {
-                totalConversions = selectedMediaPaths.size();
-                progressBar.setVisibility(View.VISIBLE);
-
-                for (Uri uri : selectedMediaPaths) {
-                    convertMediaAndSaveAsync(uri);
-                }
+                startConversions(selectedMediaPaths);
             } else {
                 Toast.makeText(view.getContext(), "Numero minimo de itens selecionados, adicione no minimo 3!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void convertMediaAndSaveAsync(Uri uri) {
-        if (uri == null || uri.getPath() == null) {
-            throw new MediaConversionException("Caminho do arquivo  inválido ou caminho nulo!");
-        }
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
+        dialog.setOnShowListener(dialogInterface -> {
+            BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) dialogInterface;
+            FrameLayout bottomSheet = bottomSheetDialog.findViewById(R.id.design_bottom_sheet);
 
-        Context context = getContext();
-        if (context == null) {
-            Log.e(TAG_LOG, "Contexto nulo, não será possível converter mídia.");
-            return;
-        }
-
-        executor.submit(() -> {
-            convertMediaToWebP(
-                    getContext(), uri, new File(uri.getPath()).getName(), new ConvertMediaToStickerFormat.MediaConversionCallback() {
-                        @Override
-                        public void onSuccess(File outputFile) {
-                            new Handler(Looper.getMainLooper()).post(() -> {
-                                mediaConvertedFile.add(outputFile);
-                                checkAllConversionsCompleted();
-                            });
-                        }
-
-                        @Override
-                        public void onError(Exception exception) {
-                            new Handler(Looper.getMainLooper()).post(() -> {
-                                if (exception instanceof MediaConversionException) {
-                                    Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(getContext(), "Erro critico ao converter imagens!", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }
-                    });
+            if (bottomSheet != null) {
+                bottomSheet.setBackground(new ColorDrawable(Color.TRANSPARENT));
+            }
         });
+        return dialog;
+    }
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+
+        isCanceled = true;
+
+        for (Future<?> future : futures) {
+            future.cancel(true);
+        }
+
+        futures.clear();
+        handler.post(() -> progressBar.setVisibility(View.GONE));
+    }
+
+    private void startConversions(Set<Uri> selectedMediaPaths) {
+        int cores = Runtime.getRuntime().availableProcessors();
+        int maxThreads = Math.min(30, cores * 2);
+        ExecutorService executor = new ThreadPoolExecutor(cores, maxThreads, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+
+        isCanceled = false;
+        completedConversions.set(0);
+        totalConversions = selectedMediaPaths.size();
+        mediaConvertedFile.clear();
+        futures.clear();
+        progressBar.setVisibility(View.VISIBLE);
+
+        for (Uri uri : selectedMediaPaths) {
+            Future<?> future = executor.submit(() -> {
+                if (isCanceled) return;
+
+                if (uri.getPath() == null) {
+                    Toast.makeText(getContext(), "O caminho para um arquivo é nulo!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                convertMediaToWebP(
+                        getContext(), uri, new File(uri.getPath()).getName(), new ConvertMediaToStickerFormat.MediaConversionCallback() {
+                            @Override
+                            public void onSuccess(File outputFile) {
+                                if (isCanceled) return;
+                                new Handler(Looper.getMainLooper()).post(() -> {
+                                    mediaConvertedFile.add(outputFile);
+                                    checkAllConversionsCompleted();
+                                });
+                            }
+
+                            @Override
+                            public void onError(Exception exception) {
+                                if (isCanceled) return;
+                                new Handler(Looper.getMainLooper()).post(() -> {
+                                    if (exception instanceof MediaConversionException) {
+                                        Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(getContext(), "Erro critico ao converter imagens!", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        });
+            });
+
+            futures.add(future);
+        }
     }
 
     private void checkAllConversionsCompleted() {

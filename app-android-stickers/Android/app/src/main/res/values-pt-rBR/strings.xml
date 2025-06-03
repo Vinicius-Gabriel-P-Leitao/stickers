@@ -19,7 +19,7 @@
     <!-- Text of button that allows user to click to go to the privacy policy website -->
     <string name="privacy_policy">Política de privacidade</string>
     <!-- Text next to the tray icon that indicates the tray icon -->
-    <string name="info_screen_tray_icon">Ícone da bandeja</string>
+    <string name="info_screen_tray_icon">Thumbnail</string>
     <!-- Text shown to the user instead of Add to WhatsApp button if the pack is already added to WhatsApp -->
     <string name="details_pack_already_added">Pacote de figurinhas adicionado ao WhatsApp</string>
     <!-- Title in the intent chooser that shows when user has multiple email client installed -->
@@ -72,7 +72,9 @@
     <string name="dialog_settings_button_permission_accept">Abrir configurações</string>
     <!-- Botão do dialog para cancelar as permissões via configuração -->
     <string name="dialog_settings_button_permission_cancel">Recusar</string>
-    <!-- Title para tela de criar pacotes -->
+    <!-- Titulo para tela de criar pacotes -->
     <string name="title_activity_sticker_packs_creator" tools:ignore="MissingQuantity">Criar pacote</string>
     <string name="title_activity_sticker_packs_creator_first" tools:ignore="MissingQuantity">Criar primeiro pacote</string>
+    <!--Erro ao não preencher nome do pacote de figurinhas-->
+    <string name="metadata_name_pack_empty">Preecha o nome do pacote!</string>
 </resources>

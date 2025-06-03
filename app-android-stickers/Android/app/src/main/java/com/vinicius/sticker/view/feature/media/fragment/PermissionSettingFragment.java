@@ -8,7 +8,10 @@
 
 package com.vinicius.sticker.view.feature.media.fragment;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -16,7 +19,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
 
@@ -33,6 +40,12 @@ public class PermissionSettingFragment extends BottomSheetDialogFragment {
       this.callback = callback;
    }
 
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setStyle(STYLE_NORMAL, R.style.BottomSheetStyle);
+   }
+
    @androidx.annotation.Nullable
    @Override
    public View onCreateView(
@@ -42,7 +55,7 @@ public class PermissionSettingFragment extends BottomSheetDialogFragment {
    ) {
       View view = inflater.inflate( R.layout.dialog_permission_settings, container, false );
 
-      Button buttonOpenSettings = view.findViewById( R.id.grant_permission_button );
+      Button buttonOpenSettings = view.findViewById(R.id.open_settings);
       buttonOpenSettings.setOnClickListener( viewAccept -> {
          Intent intent = new Intent( Settings.ACTION_APPLICATION_DETAILS_SETTINGS );
          Uri uri = Uri.fromParts( "package", requireContext().getPackageName(), null );
@@ -66,9 +79,18 @@ public class PermissionSettingFragment extends BottomSheetDialogFragment {
       return view;
    }
 
+   @NonNull
    @Override
-   public void onCreate(Bundle savedInstanceState) {
-      super.onCreate( savedInstanceState );
-      setStyle( STYLE_NORMAL, R.style.TransparentBottomSheet );
+   public Dialog onCreateDialog(Bundle savedInstanceState) {
+      BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
+      dialog.setOnShowListener(dialogInterface -> {
+         BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) dialogInterface;
+         FrameLayout bottomSheet = bottomSheetDialog.findViewById(R.id.design_bottom_sheet);
+
+         if (bottomSheet != null) {
+            bottomSheet.setBackground(new ColorDrawable(Color.TRANSPARENT));
+         }
+      });
+      return dialog;
    }
 }

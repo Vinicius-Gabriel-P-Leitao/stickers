@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.checkbox.MaterialCheckBox;
+import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.vinicius.sticker.R;
 
 public class MediaViewHolder extends RecyclerView.ViewHolder {

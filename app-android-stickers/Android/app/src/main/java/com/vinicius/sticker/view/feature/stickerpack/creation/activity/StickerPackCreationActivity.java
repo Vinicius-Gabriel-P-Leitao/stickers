@@ -20,10 +20,14 @@ import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryM
 
 public class StickerPackCreationActivity extends StickerPackCreationBaseActivity {
     public static final String EXTRA_STICKER_FORMAT = "sticker_format";
+    public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
 
     @Override
     public void setupUI(Bundle savedInstanceState) {
+        boolean showUpButton = getIntent().getBooleanExtra(EXTRA_SHOW_UP_BUTTON, false);
+
         if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(showUpButton);
             getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
         }
 

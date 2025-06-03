@@ -26,6 +26,7 @@
             style="@style/InfoButtonStyle"
             android:drawableStart="@drawable/sticker_3rdparty_web"
             android:drawableLeft="@drawable/sticker_3rdparty_web"
+            tools:ignore="RtlHardcoded,UseCompatTextViewDrawableXml"
             android:text="@string/view_webpage" />
 
         <TextView
@@ -33,13 +34,15 @@
             style="@style/InfoButtonStyle"
             android:drawableStart="@drawable/sticker_3rdparty_email"
             android:drawableLeft="@drawable/sticker_3rdparty_email"
-            android:text="@string/send_email" />
+            android:text="@string/send_email"
+            tools:ignore="RtlHardcoded,UseCompatTextViewDrawableXml" />
 
         <TextView
             android:id="@+id/privacy_policy"
             style="@style/InfoButtonStyle"
             android:drawableStart="@drawable/sticker_3rdparty_privacy"
             android:drawableLeft="@drawable/sticker_3rdparty_privacy"
+            tools:ignore="RtlHardcoded,UseCompatTextViewDrawableXml"
             android:text="@string/privacy_policy" />
 
         <TextView
@@ -47,6 +50,7 @@
             style="@style/InfoButtonStyle"
             android:drawableStart="@drawable/sticker_3rdparty_license"
             android:drawableLeft="@drawable/sticker_3rdparty_license"
+            tools:ignore="RtlHardcoded,UseCompatTextViewDrawableXml"
             android:text="@string/license_agreement" />
 
     </LinearLayout>
