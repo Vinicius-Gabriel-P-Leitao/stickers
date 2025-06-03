@@ -19,7 +19,7 @@ public class PackValidatorException extends AppCoreStateException {
         super(message, "PACK_VALIDATOR_ERROR");
     }
 
-    public PackValidatorException(@NonNull String message, @Nullable Throwable cause) {
+    public PackValidatorException(String message, @Nullable Throwable cause) {
         super(message, cause, "PACK_VALIDATOR_ERROR");
     }
 }

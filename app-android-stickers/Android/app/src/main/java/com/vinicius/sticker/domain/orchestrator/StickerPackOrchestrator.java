@@ -11,12 +11,12 @@ package com.vinicius.sticker.domain.orchestrator;
 import android.content.Context;
 import android.util.Log;
 
-import com.vinicius.sticker.core.exception.sticker.DeleteStickerException;
+import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.core.exception.content.InvalidWebsiteUrlException;
+import com.vinicius.sticker.core.exception.sticker.DeleteStickerException;
 import com.vinicius.sticker.core.exception.sticker.PackValidatorException;
 import com.vinicius.sticker.core.exception.sticker.StickerFileException;
 import com.vinicius.sticker.core.exception.sticker.StickerPackSaveException;
-import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
@@ -92,24 +92,25 @@ public class StickerPackOrchestrator {
                                 break;
                             case FAILURE:
                                 if (callbackResult.getError() instanceof StickerPackSaveException stickerPackSaveException) {
+                                    Log.e(stickerPackSaveException.getErrorCode(), Objects.requireNonNull(stickerPackSaveException.getMessage()));
                                     savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(stickerPackSaveException));
                                     break;
                                 }
 
                                 if (callbackResult.getError() instanceof StickerFileException stickerFileException) {
-                                    Log.d(TAG_LOG, Objects.requireNonNull(stickerFileException.getMessage()));
+                                    Log.d(stickerFileException.getErrorCode(), Objects.requireNonNull(stickerFileException.getMessage()));
                                     savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(stickerFileException));
                                     break;
                                 }
 
                                 if (callbackResult.getError() instanceof PackValidatorException packValidatorException) {
-                                    Log.e(TAG_LOG, Objects.requireNonNull(packValidatorException.getMessage()));
+                                    Log.e(packValidatorException.getErrorCode(), Objects.requireNonNull(packValidatorException.getMessage()));
                                     savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(packValidatorException));
                                     break;
                                 }
 
                                 if(callbackResult.getError() instanceof  InvalidWebsiteUrlException invalidWebsiteUrlException) {
-                                    Log.e(TAG_LOG, Objects.requireNonNull(invalidWebsiteUrlException.getMessage()));
+                                    Log.e(invalidWebsiteUrlException.getErrorCode(), Objects.requireNonNull(invalidWebsiteUrlException.getMessage()));
                                     savedStickerPackCallback.onSavedStickerPack(CallbackResult.failure(invalidWebsiteUrlException));
                                     break;
                                 }

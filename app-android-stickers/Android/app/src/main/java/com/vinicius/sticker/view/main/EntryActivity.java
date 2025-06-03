@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.exception.content.ContentProviderException;
 import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
+import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.fetch.FetchStickerPackService;
 import com.vinicius.sticker.view.core.base.BaseActivity;
@@ -34,6 +35,7 @@ import com.vinicius.sticker.view.feature.stickerpack.list.activity.StickerPackLi
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -60,7 +62,7 @@ public class EntryActivity extends BaseActivity {
         progressBar.setVisibility(View.GONE);
 
         if (stickerPackList == null || stickerPackList.isEmpty()) {
-            showErrorMessage("Nenhum sticker pack encontrado.");
+            showErrorMessage("Nenhum pacote de figurinhas encontrado.");
             return;
         }
 
@@ -131,47 +133,43 @@ public class EntryActivity extends BaseActivity {
             this.contextWeakReference = new WeakReference<>(activity);
         }
 
+        // @formatter:off
         public void execute(ActivityResultLauncher<Intent> createPackLauncher) {
             executor.execute(() -> {
                 Pair<String, ArrayList<StickerPack>> result = new Pair<>(null, null);
+                final Context context = contextWeakReference.get();
 
-                try {
-                    final Context context = contextWeakReference.get();
+                if (context != null) {
+                    try {
+                        StickerPackValidationResult.ListStickerPackResult stickerPackList =
+                                FetchStickerPackService.fetchStickerPackListFromContentProvider(context);
 
-                    if (context != null) {
-                        StickerPackValidationResult.ListStickerPackResult stickerPackList = FetchStickerPackService.fetchStickerPackListFromContentProvider(context);
+                        ArrayList<StickerPack> validPacks = stickerPackList.validStickerPacks();
 
-                        if (stickerPackList.validStickerPacks().isEmpty()) {
-                            result = new Pair<>("Nenhum pacote de adesivos disponível", null);
-                            return;
-                        }
+                        // TODO: Enviar o tipo StickerPackValidationResult.ListStickerPackResult para ser renderizado e mostrar os erros ou corretos.
+                        ArrayList<StickerPack> invalidPacks = stickerPackList.invalidStickerPacks();
+                        ArrayList<Sticker> invalidStickers = stickerPackList.invalidStickers();
 
-                        Log.d(TAG_LOG, String.valueOf(stickerPackList.invalidStickerPacks()));
-                        Log.d(TAG_LOG, String.valueOf(stickerPackList.invalidStickers()));
+                        Log.d(TAG_LOG, validPacks.toString());
+                        Log.d(TAG_LOG, invalidPacks.toString());
+                        Log.d(TAG_LOG, invalidStickers.toString());
 
-                        result = new Pair<>(null, stickerPackList.validStickerPacks());
-                    } else {
-                        result = new Pair<>("Não foi possível obter os pacotes de figurinhas", null);
-                    }
-                } catch (ContentProviderException exception) {
-                    Context context = contextWeakReference.get();
+                        result = new Pair<>(null, validPacks);
+                    } catch (ContentProviderException exception) {
+                        Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio", exception);
 
-                    if (context != null) {
                         Intent intent = new Intent(context, InitialStickerPackCreationActivity.class);
-
                         intent.putExtra("database_empty", true);
                         intent.putExtra(InitialStickerPackCreationActivity.EXTRA_SHOW_UP_BUTTON, false);
 
                         createPackLauncher.launch(intent);
                         return;
+                    } catch (Exception exception) {
+                        Log.e(TAG_LOG, "Erro ao obter pacotes de figurinhas", exception);
+                        result = new Pair<>(exception.getMessage(), null);
                     }
-
-                    Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio", exception);
-                    result = new Pair<>("Erro encontrado, redirecionando...", null);
-
-                } catch (Exception exception) {
-                    Log.e(TAG_LOG, "Erro ao obter pacotes de figurinhas", exception);
-                    result = new Pair<>(exception.getMessage(), null);
+                } else {
+                    result = new Pair<>("Erro ao obter contexto da aplicação!", null);
                 }
 
                 Pair<String, ArrayList<StickerPack>> finalResult = result;

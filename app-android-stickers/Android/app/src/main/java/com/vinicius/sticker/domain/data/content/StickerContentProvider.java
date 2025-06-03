@@ -1,12 +1,9 @@
 /*
- * Copyright (c) WhatsApp Inc. and its affiliates.
+ * Copyright (c) 2025 Vinícius Gabriel Pereira Leitão
  * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * Modifications by Vinícius, 2025
- * Licensed under the Vinícius Non-Commercial Public License (VNCL)
+ * This source code is licensed under the Vinícius Non-Commercial Public License (VNCL),
+ * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
 package com.vinicius.sticker.domain.data.content;
@@ -152,7 +149,7 @@ public class StickerContentProvider extends ContentProvider {
             case METADATA_CODE_FOR_SINGLE_PACK -> "vnd.android.cursor.item/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
             case METADATA_CODE_ALL_STICKERS -> "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + STICKERS;
             case STICKERS_FILES_CODE -> "image/webp";
-            case STICKER_PACK_TRAY_ICON_CODE -> "image/png";
+            case STICKER_PACK_TRAY_ICON_CODE -> "image/jpg";
 
             default -> throw new ContentProviderException("URI desconhecida: " + uri);
         };

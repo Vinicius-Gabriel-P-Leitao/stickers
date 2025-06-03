@@ -16,9 +16,9 @@ import androidx.annotation.Nullable;
 
 import com.facebook.animated.webp.WebPImage;
 import com.facebook.imagepipeline.common.ImageDecodeOptions;
+import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.core.exception.sticker.StickerFileException;
 import com.vinicius.sticker.core.exception.sticker.StickerValidatorException;
-import com.vinicius.sticker.core.exception.base.InternalAppException;
 import com.vinicius.sticker.core.pattern.ErrorFileCode;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.service.fetch.FetchStickerAssetService;
@@ -53,7 +53,7 @@ public class StickerValidator {
         if (isInvalidAccessibilityText(accessibilityText, animatedStickerPack)) {
             throw new StickerValidatorException(
                     "Comprimento do texto de acessibilidade excedeu o limite, identificador do pacote de figurinhas:" + identifier + ", arquivo:" +
-                            " " + sticker.imageFileName);
+                            sticker.imageFileName);
         }
 
         validateStickerFile(context, identifier, sticker.imageFileName, animatedStickerPack);
@@ -69,26 +69,26 @@ public class StickerValidator {
     }
 
     private static void validateStickerFile(
-            @NonNull Context context, @NonNull String identifier, @NonNull final String fileName,
+            @NonNull Context context, @NonNull String stickerPackIdentifier, @NonNull final String fileName,
             final boolean animatedStickerPack
     ) throws IllegalStateException {
         try {
-            final byte[] stickerInBytes = FetchStickerAssetService.fetchStickerAsset(identifier, fileName, context.getContentResolver());
+            final byte[] stickerInBytes = FetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, fileName, context);
 
             if (!animatedStickerPack && stickerInBytes.length > STATIC_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
                 throw new StickerFileException(
                         String.format(
                                 "A figurinha estática deve ser menor que %s KB, o arquivo atual tem %s KB, identificador do pacote: %s, arquivo: %s",
-                                STATIC_STICKER_FILE_LIMIT_KB, stickerInBytes.length / KB_IN_BYTES, identifier, fileName),
-                        ErrorFileCode.ERROR_FILE_SIZE.getMessage(), identifier, fileName);
+                                STATIC_STICKER_FILE_LIMIT_KB, stickerInBytes.length / KB_IN_BYTES, stickerPackIdentifier, fileName),
+                        ErrorFileCode.ERROR_FILE_SIZE.getMessage(), stickerPackIdentifier, fileName);
             }
 
             if (animatedStickerPack && stickerInBytes.length > ANIMATED_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
                 throw new StickerFileException(
                         String.format(
                                 "A figurinha animada deve ser menor que %s KB, o arquivo atual tem %s KB, identificador do pacote: %s, arquivo: %s",
-                                ANIMATED_STICKER_FILE_LIMIT_KB, stickerInBytes.length / KB_IN_BYTES, identifier, fileName),
-                        ErrorFileCode.ERROR_FILE_SIZE.getMessage(), identifier, fileName);
+                                ANIMATED_STICKER_FILE_LIMIT_KB, stickerInBytes.length / KB_IN_BYTES, stickerPackIdentifier, fileName),
+                        ErrorFileCode.ERROR_FILE_SIZE.getMessage(), stickerPackIdentifier, fileName);
             }
             try {
                 final WebPImage webPImage = WebPImage.createFromByteArray(stickerInBytes, ImageDecodeOptions.defaults());
@@ -96,46 +96,46 @@ public class StickerValidator {
                     throw new StickerFileException(
                             String.format(
                                     "A altura da figurinha deve ser %s, a altura atual é %s, identificador do pacote: %s, arquivo: %s", IMAGE_HEIGHT,
-                                    webPImage.getHeight(), identifier, fileName), ErrorFileCode.ERROR_SIZE_STICKER.getMessage(), identifier,
+                                    webPImage.getHeight(), stickerPackIdentifier, fileName), ErrorFileCode.ERROR_SIZE_STICKER.getMessage(), stickerPackIdentifier,
                             fileName);
                 }
                 if (webPImage.getWidth() != IMAGE_WIDTH) {
                     throw new StickerFileException(
                             String.format(
                                     "A largura da figurinha deve ser %s, a largura atual é %s, identificador do pacote: %s, arquivo: %s", IMAGE_WIDTH,
-                                    webPImage.getWidth(), identifier, fileName), ErrorFileCode.ERROR_SIZE_STICKER.getMessage(), identifier, fileName);
+                                    webPImage.getWidth(), stickerPackIdentifier, fileName), ErrorFileCode.ERROR_SIZE_STICKER.getMessage(), stickerPackIdentifier, fileName);
                 }
                 if (animatedStickerPack) {
                     if (webPImage.getFrameCount() <= 1) {
                         throw new StickerFileException(
                                 String.format(
                                         "Este pacote está marcado como animado, todas as figurinhas devem ser animadas. Identificador do pacote: %s, arquivo: %s",
-                                        identifier, fileName), ErrorFileCode.ERROR_STICKER_TYPE.getMessage(), identifier, fileName);
+                                        stickerPackIdentifier, fileName), ErrorFileCode.ERROR_STICKER_TYPE.getMessage(), stickerPackIdentifier, fileName);
                     }
 
-                    checkFrameDurationsForAnimatedSticker(webPImage.getFrameDurations(), identifier, fileName);
+                    checkFrameDurationsForAnimatedSticker(webPImage.getFrameDurations(), stickerPackIdentifier, fileName);
 
                     if (webPImage.getDuration() > ANIMATED_STICKER_TOTAL_DURATION_MAX) {
                         throw new StickerFileException(
                                 String.format(
                                         "A duração máxima da animação é: %s ms, a duração atual é: %s ms, identificador do pacote: %s, arquivo: %s",
-                                        ANIMATED_STICKER_TOTAL_DURATION_MAX, webPImage.getDuration(), identifier, fileName),
-                                ErrorFileCode.ERROR_STICKER_DURATION.getMessage(), identifier, fileName);
+                                        ANIMATED_STICKER_TOTAL_DURATION_MAX, webPImage.getDuration(), stickerPackIdentifier, fileName),
+                                ErrorFileCode.ERROR_STICKER_DURATION.getMessage(), stickerPackIdentifier, fileName);
                     }
                 } else if (webPImage.getFrameCount() > 1) {
                     throw new StickerFileException(
                             String.format(
                                     "Este pacote não está marcado como animado, todas as figurinhas devem ser estáticas. Identificador do pacote: %s, arquivo: %s",
-                                    identifier, fileName), ErrorFileCode.ERROR_STICKER_TYPE.getMessage(), identifier, fileName);
+                                    stickerPackIdentifier, fileName), ErrorFileCode.ERROR_STICKER_TYPE.getMessage(), stickerPackIdentifier, fileName);
                 }
             } catch (IllegalArgumentException exception) {
                 throw new StickerFileException(
-                        String.format("Erro ao processar a imagem WebP. Identificador do pacote: %s, arquivo: %s", identifier, fileName),
-                        ErrorFileCode.ERROR_FILE_TYPE.getMessage(), identifier, fileName);
+                        String.format("Erro ao processar a imagem WebP. Identificador do pacote: %s, arquivo: %s", stickerPackIdentifier, fileName),
+                        ErrorFileCode.ERROR_FILE_TYPE.getMessage(), stickerPackIdentifier, fileName);
             }
         } catch (IOException exception) {
             throw new InternalAppException(
-                    String.format("Não foi possível abrir o arquivo da figurinha. Identificador do pacote: %s, arquivo: %s", identifier, fileName),
+                    String.format("Não foi possível abrir o arquivo da figurinha. Identificador do pacote: %s, arquivo: %s", stickerPackIdentifier, fileName),
                     exception);
         }
     }

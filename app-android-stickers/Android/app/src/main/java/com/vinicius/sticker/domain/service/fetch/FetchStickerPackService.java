@@ -69,7 +69,7 @@ public class FetchStickerPackService {
             stickerPackList = new ArrayList<>(buildListStickerPack(cursor, context));
         } else {
             cursor.close();
-            throw new ContentProviderException("Nenhum pacote de figurinhas encontrado nocontent provider");
+            throw new ContentProviderException("Nenhum pacote de figurinhas encontrado no content provider");
         }
 
         for (StickerPack stickerPack : stickerPackList) {

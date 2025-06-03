@@ -38,7 +38,7 @@ public class FetchStickerService {
         for (Sticker sticker : stickers) {
             final byte[] bytes;
             try {
-                bytes = FetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, sticker.imageFileName, context.getContentResolver());
+                bytes = FetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, sticker.imageFileName, context);
 
                 if (bytes.length == 0) {
                     throw new IllegalStateException(

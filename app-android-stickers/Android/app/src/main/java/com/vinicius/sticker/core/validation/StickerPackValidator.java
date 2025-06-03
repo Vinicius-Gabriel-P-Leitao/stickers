@@ -116,19 +116,21 @@ public class StickerPackValidator {
         }
 
         try {
-            final byte[] stickerAssetBytes = FetchStickerAssetService.fetchStickerAsset(
-                    stickerPack.identifier, stickerPack.trayImageFile, context.getContentResolver());
+            final byte[] stickerAssetBytes = FetchStickerAssetService.fetchStickerAsset(stickerPack.identifier, stickerPack.trayImageFile, context);
+
             if (stickerAssetBytes.length > TRAY_IMAGE_FILE_SIZE_MAX_KB * KB_IN_BYTES) {
                 throw new PackValidatorException(
                         "A imagem da thumbnail deve ter menos de " + TRAY_IMAGE_FILE_SIZE_MAX_KB + " KB, arquivo de thumbnail:" +
                                 stickerPack.trayImageFile);
             }
+
             Bitmap bitmap = BitmapFactory.decodeByteArray(stickerAssetBytes, 0, stickerAssetBytes.length);
             if (bitmap.getHeight() > TRAY_IMAGE_DIMENSION_MAX || bitmap.getHeight() < TRAY_IMAGE_DIMENSION_MIN) {
                 throw new PackValidatorException(
                         "A altura da thumbnail deve estar entre" + TRAY_IMAGE_DIMENSION_MIN + " e " + TRAY_IMAGE_DIMENSION_MAX +
                                 " pixels, a altura atual da imagem da bandeja é" + bitmap.getHeight() + ", arquivo: " + stickerPack.trayImageFile);
             }
+
             if (bitmap.getWidth() > TRAY_IMAGE_DIMENSION_MAX || bitmap.getWidth() < TRAY_IMAGE_DIMENSION_MIN) {
                 throw new PackValidatorException(
                         "A largura da thumbnail deve estar entre " + TRAY_IMAGE_DIMENSION_MIN + " e " + TRAY_IMAGE_DIMENSION_MAX +

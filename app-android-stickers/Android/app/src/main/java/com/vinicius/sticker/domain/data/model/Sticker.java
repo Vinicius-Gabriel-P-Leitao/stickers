@@ -27,7 +27,7 @@ public class Sticker implements Parcelable {
         this.size = size;
     }
 
-    public void setStickerIsValid(String stickerIsValid) {
+    public void setStickerIsInvalid(String stickerIsValid) {
         this.stickerIsValid = stickerIsValid;
     }
 

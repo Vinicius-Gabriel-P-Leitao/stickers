@@ -35,7 +35,7 @@ import java.util.List;
 
 // @formatter:off
 public class StickerAssetProvider {
-    private final static String TAG_LOG = StickerQueryProvider.class.getSimpleName();
+    private final static String TAG_LOG = StickerAssetProvider.class.getSimpleName();
 
     @NonNull
     private final Context context;
@@ -98,12 +98,12 @@ public class StickerAssetProvider {
                     ParcelFileDescriptor fileDescriptor = ParcelFileDescriptor.open(stickerFile, ParcelFileDescriptor.MODE_READ_ONLY);
                     return new AssetFileDescriptor(fileDescriptor, 0, AssetFileDescriptor.UNKNOWN_LENGTH);
                 } catch (IOException exception) {
-                    Log.e(TAG_LOG, "Erro ao abrir stickerFile: " + stickerFile.getAbsolutePath(), exception);
+                    Log.e(TAG_LOG, "Erro ao abrir arquivo da figurinhas: " + stickerFile.getAbsolutePath(), exception);
                 } finally {
                     cursor.close();
                 }
             } else {
-                Log.e(TAG_LOG, "Sticker pack não encontrado: " + stickerPackIdentifier);
+                Log.e(TAG_LOG, "Pacote de figurinha não encontrado: " + stickerPackIdentifier);
                 return null;
             }
         }

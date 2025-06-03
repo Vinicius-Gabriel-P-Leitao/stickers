@@ -14,6 +14,10 @@ import com.vinicius.sticker.core.exception.base.AppCoreStateException;
 
 public class StickerValidatorException extends AppCoreStateException {
     public StickerValidatorException(@NonNull String message) {
-        super(message, "sticker_VALIDATOR_ERROR");
+        super(message, "STICKER_VALIDATOR_ERROR");
+    }
+
+    public StickerValidatorException(String message, @NonNull Throwable cause) {
+        super(message, cause, "STICKER_VALIDATOR_ERROR");
     }
 }
