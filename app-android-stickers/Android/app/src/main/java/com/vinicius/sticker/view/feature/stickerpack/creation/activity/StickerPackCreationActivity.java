@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.view.core.usecase.activity.StickerPackCreationBaseActivity;
 import com.vinicius.sticker.view.core.usecase.definition.MimeTypesSupported;
@@ -20,16 +22,20 @@ import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryM
 
 public class StickerPackCreationActivity extends StickerPackCreationBaseActivity {
     public static final String EXTRA_STICKER_FORMAT = "sticker_format";
-    public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";
 
     @Override
     public void setupUI(Bundle savedInstanceState) {
-        boolean showUpButton = getIntent().getBooleanExtra(EXTRA_SHOW_UP_BUTTON, false);
-
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(showUpButton);
             getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
         }
+
+        getOnBackPressedDispatcher().addCallback(
+                this, new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        goToEntryActivity();
+                    }
+                });
 
         ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
         buttonSelectMedia.setOnClickListener(view -> {
