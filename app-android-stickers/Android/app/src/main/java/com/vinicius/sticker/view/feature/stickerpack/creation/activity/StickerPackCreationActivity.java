@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.view.core.usecase.activity.StickerPackCreationBaseActivity;
 import com.vinicius.sticker.view.core.usecase.definition.MimeTypesSupported;
@@ -26,6 +28,14 @@ public class StickerPackCreationActivity extends StickerPackCreationBaseActivity
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
         }
+
+        getOnBackPressedDispatcher().addCallback(
+                this, new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        goToEntryActivity();
+                    }
+                });
 
         ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
         buttonSelectMedia.setOnClickListener(view -> {

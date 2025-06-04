@@ -33,7 +33,7 @@ import com.vinicius.sticker.view.feature.stickerpack.details.activity.StickerPac
 
 public abstract class StickerPackAddActivity extends BaseActivity {
     private static final int ADD_PACK = 200;
-    private static final String TAG_LOG = StickerPackCreationBaseActivity.class.getSimpleName();
+    private static final String TAG_LOG = StickerPackAddActivity.class.getSimpleName();
 
     protected void addStickerPackToWhatsApp(String identifier, String stickerPackName) {
         try {
@@ -59,7 +59,7 @@ public abstract class StickerPackAddActivity extends BaseActivity {
                 Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG).show();
             }
         } catch (Exception exception) {
-            Log.e(TAG_LOG, "error adding sticker pack to WhatsApp", exception);
+            Log.e(TAG_LOG, "Erro ao adicionar pacote de figurinhas ao WhatsApp", exception);
             Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG).show();
         }
 

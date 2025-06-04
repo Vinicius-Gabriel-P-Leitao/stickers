@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,10 +28,10 @@ import com.google.android.material.button.MaterialButton;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
-import com.vinicius.sticker.view.core.usecase.component.FormatStickerPopupWindow;
-import com.vinicius.sticker.view.feature.stickerpack.list.adapter.StickerPackListAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
 import com.vinicius.sticker.view.core.usecase.activity.StickerPackAddActivity;
+import com.vinicius.sticker.view.core.usecase.component.FormatStickerPopupWindow;
+import com.vinicius.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
+import com.vinicius.sticker.view.feature.stickerpack.list.adapter.StickerPackListAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;
 
 import java.lang.ref.WeakReference;
@@ -42,7 +43,6 @@ import java.util.concurrent.Executors;
 
 public class StickerPackListActivity extends StickerPackAddActivity {
     public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
-    public static final Boolean NEW_STICKER_PACK = false;
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
     private StickerPackListAdapter allStickerPacksListAdapter;
     private LoadListStickerPackAsyncTask loadListStickerPackAsyncTask;
@@ -132,10 +132,12 @@ public class StickerPackListActivity extends StickerPackAddActivity {
 
         private void openCreateStickerPackActivity(String format) {
             Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreationActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
+
+            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             startActivity(intent);
             finish();
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         }
 
     static class LoadListStickerPackAsyncTask {

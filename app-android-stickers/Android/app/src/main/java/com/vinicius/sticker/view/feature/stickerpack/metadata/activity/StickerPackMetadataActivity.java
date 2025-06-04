@@ -69,8 +69,8 @@ public class StickerPackMetadataActivity extends BaseActivity {
                     trayIcon.setCompoundDrawables(trayDrawable, null, null, null);
                 }
             }
-        } catch (FileNotFoundException e) {
-            Log.e(TAG_LOG, "could not find the uri for the tray image:" + trayIconUriString);
+        } catch (FileNotFoundException exception) {
+            Log.e(TAG_LOG, "Não foi possível encontrar o uri para a thumbnail:" + trayIconUriString);
         }
 
         setupTextView(website, R.id.view_webpage);

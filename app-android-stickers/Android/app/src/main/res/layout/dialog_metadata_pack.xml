@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="Importar Mídia"
+        android:text="@string/dialog_metadata_pack"
         android:background="@android:color/transparent"
         android:textColor="@color/catppuccin_text"
         android:textSize="20sp"
@@ -23,7 +23,7 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nome do pacote"
+        android:hint="@string/input_name_pack"
         android:textColorHint="@color/catppuccin_subtext0">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -31,18 +31,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:textColor="@color/catppuccin_text"
             android:textColorHint="@color/catppuccin_subtext0" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <ImageButton
-        android:id="@+id/grant_permission_button"
+        android:id="@+id/open_gallery"
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:layout_marginTop="24dp"
         android:background="@drawable/rounded_button_open_gallery_background"
         android:backgroundTint="@color/catppuccin_surface1"
-        android:contentDescription="Buscar imagens ou vídeos na galeria"
+        android:contentDescription="@string/button_open_gallery_description"
         android:padding="16dp"
         android:scaleType="centerInside"
         android:src="@drawable/ic_image_gallery" />

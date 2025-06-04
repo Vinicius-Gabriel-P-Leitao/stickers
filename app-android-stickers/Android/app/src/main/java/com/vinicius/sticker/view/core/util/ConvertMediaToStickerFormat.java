@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import com.vinicius.sticker.core.exception.media.MediaConversionException;
 import com.vinicius.sticker.core.lib.NativeConvertToWebp;
 import com.vinicius.sticker.view.core.usecase.definition.MimeTypesSupported;
+import com.vinicius.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,6 +32,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ConvertMediaToStickerFormat {
+    private final static String TAG_LOG = ConvertMediaToStickerFormat.class.getSimpleName();
+
     private static MediaConversionCallback callback;
 
     public interface MediaConversionCallback {
@@ -126,7 +129,7 @@ public class ConvertMediaToStickerFormat {
 
     public static boolean validateUniqueMimeType(String mimeType, String[] mimeTypesList) {
         for (String type : mimeTypesList) {
-            Log.d("MimeTypeCheck", "Comparando MIME: " + mimeType + " com " + type);
+            Log.d(TAG_LOG, "Comparando MIME: " + mimeType + " com " + type);
 
             if (Objects.equals(mimeType, type)) {
                 return true;

@@ -8,8 +8,11 @@
 
 package com.vinicius.sticker.view.feature.media.fragment;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -25,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
 
@@ -33,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 
 public class PermissionRequestFragment extends BottomSheetDialogFragment {
+   private final static String TAG_LOG = PermissionRequestFragment.class.getSimpleName();
+
    private ActivityResultLauncher<String[]> permissionLauncher;
    private String[] permissionsToRequest;
    private PermissionCallback callback;
@@ -51,6 +58,12 @@ public class PermissionRequestFragment extends BottomSheetDialogFragment {
       this.permissionsToRequest = permissions;
    }
 
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setStyle(STYLE_NORMAL, R.style.BottomSheetStyle);
+   }
+
    @Nullable
    @Override
    public View onCreateView(
@@ -60,7 +73,7 @@ public class PermissionRequestFragment extends BottomSheetDialogFragment {
    ) {
       View view = inflater.inflate( R.layout.dialog_permission_request, container, false );
 
-      Button buttonGrantPermission = view.findViewById( R.id.grant_permission_button );
+      Button buttonGrantPermission = view.findViewById(R.id.open_permission_request);
       buttonGrantPermission.setOnClickListener( viewAccept -> requestPermissionsLogic() );
 
       Button buttonCancelPermission = view.findViewById( R.id.cancel_permission_button );
@@ -72,10 +85,19 @@ public class PermissionRequestFragment extends BottomSheetDialogFragment {
       return view;
    }
 
+   @NonNull
    @Override
-   public void onCreate(Bundle savedInstanceState) {
-      super.onCreate( savedInstanceState );
-      setStyle( STYLE_NORMAL, R.style.TransparentBottomSheet );
+   public Dialog onCreateDialog(Bundle savedInstanceState) {
+      BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
+      dialog.setOnShowListener(dialogInterface -> {
+         BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) dialogInterface;
+         FrameLayout bottomSheet = bottomSheetDialog.findViewById(R.id.design_bottom_sheet);
+
+         if (bottomSheet != null) {
+            bottomSheet.setBackground(new ColorDrawable(Color.TRANSPARENT));
+         }
+      });
+      return dialog;
    }
 
    private void requestPermissionsLogic() {
@@ -117,7 +139,8 @@ public class PermissionRequestFragment extends BottomSheetDialogFragment {
              for (Map.Entry<String, Boolean> entry : result.entrySet()) {
                 String permission = entry.getKey();
                 boolean isGranted = entry.getValue();
-                Log.i( "ResultLog", permission + ": " + isGranted );
+                Log.i(TAG_LOG, permission + ": " + isGranted);
+
                 if ( !isGranted ) {
                    allGranted = false;
                    deniedPermissions.add( permission );

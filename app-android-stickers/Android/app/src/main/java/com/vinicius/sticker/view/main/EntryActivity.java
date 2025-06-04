@@ -35,7 +35,6 @@ import com.vinicius.sticker.view.feature.stickerpack.list.activity.StickerPackLi
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -74,7 +73,7 @@ public class EntryActivity extends BaseActivity {
 
             startActivity(intent);
             finish();
-            overridePendingTransition(0, 0);
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         } else {
             final Intent intent = new Intent(this, StickerPackDetailsActivity.class);
 
@@ -84,7 +83,7 @@ public class EntryActivity extends BaseActivity {
 
             startActivity(intent);
             finish();
-            overridePendingTransition(0, 0);
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         }
     }
 

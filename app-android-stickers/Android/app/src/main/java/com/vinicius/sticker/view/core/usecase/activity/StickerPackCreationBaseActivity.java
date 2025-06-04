@@ -174,12 +174,18 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
         floatingActionButton.setVisibility(View.GONE);
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
+    public void goToEntryActivity() {
         Intent intent = new Intent(context, EntryActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
         startActivity(intent);
         finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        goToEntryActivity();
         return true;
     }
 

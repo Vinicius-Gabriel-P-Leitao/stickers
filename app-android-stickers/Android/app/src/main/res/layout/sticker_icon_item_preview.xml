@@ -3,6 +3,6 @@
     android:id="@+id/sticker_preview"
     android:layout_width="@dimen/sticker_pack_details_image_size"
     android:layout_height="@dimen/sticker_pack_details_image_size"
-    android:contentDescription="TODO"
+    android:contentDescription="@string/preview_sticker_description"
     android:padding="@dimen/sticker_pack_details_image_padding"
     android:scaleType="centerCrop" />
