@@ -29,7 +29,7 @@
             android:id="@+id/sticker_details_expanded_sticker"
             android:layout_width="128dp"
             android:layout_height="128dp"
-            android:contentDescription="Thumbnail do pacote de figurinhas"
+            android:contentDescription="@string/preview_sticker_description"
             android:scaleType="centerCrop"
             android:visibility="invisible" />
 
@@ -49,7 +49,7 @@
             android:layout_gravity="bottom|center"
             android:layout_margin="24dp"
             android:backgroundTint="@color/catppuccin_mauve"
-            android:contentDescription="Abrir aba de nome do pacote e galeria"
+            android:contentDescription="@string/button_open_media_getter"
             android:src="@drawable/ic_add_circle_24px"
             android:tint="@color/catppuccin_base" />
     </FrameLayout>

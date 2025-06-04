@@ -73,7 +73,7 @@ public class EntryActivity extends BaseActivity {
 
             startActivity(intent);
             finish();
-            overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom);
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         } else {
             final Intent intent = new Intent(this, StickerPackDetailsActivity.class);
 
@@ -83,7 +83,7 @@ public class EntryActivity extends BaseActivity {
 
             startActivity(intent);
             finish();
-            overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom);
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         }
     }
 

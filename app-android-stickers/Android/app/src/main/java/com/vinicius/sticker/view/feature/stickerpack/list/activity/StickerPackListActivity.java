@@ -136,8 +136,8 @@ public class StickerPackListActivity extends StickerPackAddActivity {
 
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             startActivity(intent);
-            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
             finish();
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         }
 
     static class LoadListStickerPackAsyncTask {

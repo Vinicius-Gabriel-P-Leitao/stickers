@@ -59,7 +59,7 @@ public abstract class StickerPackAddActivity extends BaseActivity {
                 Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG).show();
             }
         } catch (Exception exception) {
-            Log.e(TAG_LOG, "error adding sticker pack to WhatsApp", exception);
+            Log.e(TAG_LOG, "Erro ao adicionar pacote de figurinhas ao WhatsApp", exception);
             Toast.makeText(this, R.string.add_pack_fail_prompt_update_whatsapp, Toast.LENGTH_LONG).show();
         }
 
