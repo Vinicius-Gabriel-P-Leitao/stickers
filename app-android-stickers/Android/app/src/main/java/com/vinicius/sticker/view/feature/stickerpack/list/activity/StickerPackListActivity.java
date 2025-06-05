@@ -120,7 +120,6 @@ public class StickerPackListActivity extends StickerPackAddActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
         loadListStickerPackAsyncTask = new LoadListStickerPackAsyncTask(this);
         loadListStickerPackAsyncTask.execute(unifiedList.toArray(new StickerPackListItem[0]));
     }
@@ -160,21 +159,24 @@ public class StickerPackListActivity extends StickerPackAddActivity {
             final int max = Math.max(widthOfImageRow / previewSize, 1);
 
             int maxNumberOfImagesInARow = Math.min(STICKER_PREVIEW_DISPLAY_LIMIT, max);
-            int minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) / (maxNumberOfImagesInARow - 1);
 
+            int minMarginBetweenImages = 0;
+            if (maxNumberOfImagesInARow > 1) {
+                minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) / (maxNumberOfImagesInARow - 1);
+            }
             allStickerPacksListAdapter.setImageRowSpec(maxNumberOfImagesInARow, minMarginBetweenImages);
         }
     }
 
-        private void openCreateStickerPackActivity(String format) {
-            Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreationActivity.class);
-            intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
+    private void openCreateStickerPackActivity(String format) {
+        Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreationActivity.class);
+        intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
 
-            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            startActivity(intent);
-            finish();
-            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-        }
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        startActivity(intent);
+        finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
 
     static class LoadListStickerPackAsyncTask {
         private final WeakReference<StickerPackListActivity> stickerPackListActivityWeakReference;
