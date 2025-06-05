@@ -72,7 +72,7 @@ public class EntryActivity extends BaseActivity {
             return;
         }
 
-        if (validPacks.size() > 1) {
+        if (validPacks.size() > 1 || !validPacksWithInvalidStickers.isEmpty() || invalidPacks.size() > 1) {
             final Intent intent = new Intent(this, StickerPackListActivity.class);
 
             ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers = new ArrayList<>();
