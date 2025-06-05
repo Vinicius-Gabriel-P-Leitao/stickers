@@ -6,18 +6,12 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.core.pattern;
+package com.vinicius.sticker.domain.dto;
 
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 
-import java.util.ArrayList;
+import java.util.List;
 
-// @formatter:off
-public class StickerPackValidationResult {
-    public record ListStickerPackResult(ArrayList<StickerPack> validStickerPacks, ArrayList<StickerPack> invalidStickerPacks, ArrayList<Sticker> invalidStickers) {
-    }
-
-    public record StickerPackResult(StickerPack validStickerPacks, Sticker invalidStickers) {
-    }
+public record StickerPackValidationResult(StickerPack stickerPack, List<Sticker> invalidSticker) {
 }

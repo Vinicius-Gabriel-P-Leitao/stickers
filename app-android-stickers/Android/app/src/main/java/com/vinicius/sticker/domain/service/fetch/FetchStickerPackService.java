@@ -38,20 +38,22 @@ import com.vinicius.sticker.core.exception.content.InvalidWebsiteUrlException;
 import com.vinicius.sticker.core.exception.sticker.PackValidatorException;
 import com.vinicius.sticker.core.exception.sticker.StickerFileException;
 import com.vinicius.sticker.core.exception.sticker.StickerValidatorException;
-import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
 import com.vinicius.sticker.core.validation.StickerPackValidator;
 import com.vinicius.sticker.core.validation.StickerValidator;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.dto.ListStickerPackValidationResult;
+import com.vinicius.sticker.domain.dto.StickerPackValidationResult;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 public class FetchStickerPackService {
 
     @NonNull
-    public static StickerPackValidationResult.ListStickerPackResult fetchStickerPackListFromContentProvider(
+    public static ListStickerPackValidationResult fetchStickerPackListFromContentProvider(
             Context context
     ) throws ContentProviderException {
         final Cursor cursor = context.getContentResolver().query(AUTHORITY_URI, null, null, null, null);
@@ -60,10 +62,11 @@ public class FetchStickerPackService {
         }
 
         HashSet<String> stickerPackIdentifierSet = new HashSet<>();
+
         final ArrayList<StickerPack> stickerPackList;
 
-        final ArrayList<StickerPack> invalidStickerPackList = new ArrayList<>();
-        final ArrayList<Sticker> invalidStickerList = new ArrayList<>();
+        final ArrayList<StickerPack> invalidPacks = new ArrayList<>();
+        final HashMap<StickerPack, List<Sticker>> validPacksWithInvalidStickers = new HashMap<StickerPack, List<Sticker>>();
 
         if (cursor.moveToFirst()) {
             stickerPackList = new ArrayList<>(buildListStickerPack(cursor, context));
@@ -88,24 +91,31 @@ public class FetchStickerPackService {
             try {
                 StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
 
+                List<Sticker> invalidStickers = new ArrayList<>();
+
                 stickerPack.getStickers().removeIf(sticker -> {
                     try {
                         StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
                         return false;
                     } catch (StickerFileException | StickerValidatorException stickerFileException) {
-                        invalidStickerList.add(sticker);
+                        invalidStickers.add(sticker);
                         return true;
                     }
                 });
 
+                if (!invalidStickers.isEmpty()) {
+                    validPacksWithInvalidStickers.put(stickerPack, invalidStickers);
+                    return true;
+                }
+
                 return stickerPack.getStickers().isEmpty();
             } catch (PackValidatorException | InvalidWebsiteUrlException appCoreStateException) {
-                invalidStickerPackList.add(stickerPack);
+                invalidPacks.add(stickerPack);
                 return true;
             }
         });
 
-        return new StickerPackValidationResult.ListStickerPackResult(stickerPackList, invalidStickerPackList, invalidStickerList);
+        return new ListStickerPackValidationResult(stickerPackList, invalidPacks, validPacksWithInvalidStickers);
     }
 
     @NonNull
@@ -121,7 +131,7 @@ public class FetchStickerPackService {
         return stickerPackList;
     }
 
-    public static StickerPackValidationResult.StickerPackResult fetchStickerPackFromContentProvider(
+    public static StickerPackValidationResult fetchStickerPackFromContentProvider(
             Context context, String stickerPackIdentifier) throws ContentProviderException {
 
         Cursor cursor = context.getContentResolver().query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null, null);
@@ -131,7 +141,7 @@ public class FetchStickerPackService {
 
         final StickerPack stickerPack;
 
-        final Sticker[] invalidSticker = new Sticker[1];
+        final List<Sticker> invalidSticker = new ArrayList<>();
 
         if (cursor.moveToFirst()) {
             stickerPack = writeCursorToStickerPack(cursor, context);
@@ -148,7 +158,7 @@ public class FetchStickerPackService {
                     StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
                     return false;
                 } catch (StickerFileException | StickerValidatorException exception) {
-                    invalidSticker[0] = sticker;
+                    invalidSticker.add(sticker);
                     return true;
                 }
             });
@@ -157,7 +167,7 @@ public class FetchStickerPackService {
                 throw new ContentProviderException("Pacote de figurinhas inválido: não restaram stickers após a validação.");
             }
 
-            return new StickerPackValidationResult.StickerPackResult(stickerPack, invalidSticker[0]);
+            return new StickerPackValidationResult(stickerPack, invalidSticker);
         } catch (PackValidatorException | InvalidWebsiteUrlException exception) {
             throw new ContentProviderException("Pacote de figurinhas inválido: " + exception.getMessage());
         }

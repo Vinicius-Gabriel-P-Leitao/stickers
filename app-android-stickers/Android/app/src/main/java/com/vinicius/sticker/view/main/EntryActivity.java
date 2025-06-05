@@ -24,9 +24,10 @@ import androidx.annotation.Nullable;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.exception.content.ContentProviderException;
-import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.dto.ListStickerPackValidationResult;
+import com.vinicius.sticker.domain.dto.StickerPackWithInvalidStickers;
 import com.vinicius.sticker.domain.service.fetch.FetchStickerPackService;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.feature.stickerpack.creation.activity.InitialStickerPackCreationActivity;
@@ -35,9 +36,13 @@ import com.vinicius.sticker.view.feature.stickerpack.list.activity.StickerPackLi
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+// @formatter:off
 public class EntryActivity extends BaseActivity {
     private final static String TAG_LOG = EntryActivity.class.getSimpleName();
 
@@ -57,19 +62,27 @@ public class EntryActivity extends BaseActivity {
         progressBar = findViewById(R.id.entry_activity_progress);
     }
 
-    private void showStickerPack(ArrayList<StickerPack> stickerPackList) {
+    private void showStickerPack(
+            ArrayList<StickerPack> validPacks, ArrayList<StickerPack> invalidPacks, HashMap<StickerPack, List<Sticker>> validPacksWithInvalidStickers
+    ) {
         progressBar.setVisibility(View.GONE);
 
-        if (stickerPackList == null || stickerPackList.isEmpty()) {
+        if (validPacks == null || validPacks.isEmpty()) {
             showErrorMessage("Nenhum pacote de figurinhas encontrado.");
             return;
         }
 
-        if (stickerPackList.size() > 1) {
+        if (validPacks.size() > 1) {
             final Intent intent = new Intent(this, StickerPackListActivity.class);
 
-            // TODO: Passar pacotes com sticker invalidos e pacotes invalidos
-            intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA, stickerPackList);
+            ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers = new ArrayList<>();
+            for (Map.Entry<StickerPack, List<Sticker>> entry : validPacksWithInvalidStickers.entrySet()) {
+                stickerPackWithInvalidStickers.add(new StickerPackWithInvalidStickers(entry.getKey(), new ArrayList<>(entry.getValue())));
+            }
+
+            intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA, validPacks);
+            intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_PACK_LIST_DATA, invalidPacks);
+            intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_MAP_DATA, stickerPackWithInvalidStickers);
 
             startActivity(intent);
             finish();
@@ -77,9 +90,8 @@ public class EntryActivity extends BaseActivity {
         } else {
             final Intent intent = new Intent(this, StickerPackDetailsActivity.class);
 
-            // TODO: Passar pacote com sticker invalido e pacote invalido
             intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, false);
-            intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, stickerPackList.get(0));
+            intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, validPacks.get(0));
 
             startActivity(intent);
             finish();
@@ -135,25 +147,12 @@ public class EntryActivity extends BaseActivity {
         // @formatter:off
         public void execute(ActivityResultLauncher<Intent> createPackLauncher) {
             executor.execute(() -> {
-                Pair<String, ArrayList<StickerPack>> result = new Pair<>(null, null);
+                Pair<String,  ListStickerPackValidationResult> result = new Pair<>(null, null);
                 final Context context = contextWeakReference.get();
 
                 if (context != null) {
                     try {
-                        StickerPackValidationResult.ListStickerPackResult stickerPackList =
-                                FetchStickerPackService.fetchStickerPackListFromContentProvider(context);
-
-                        ArrayList<StickerPack> validPacks = stickerPackList.validStickerPacks();
-
-                        // TODO: Enviar o tipo StickerPackValidationResult.ListStickerPackResult para ser renderizado e mostrar os erros ou corretos.
-                        ArrayList<StickerPack> invalidPacks = stickerPackList.invalidStickerPacks();
-                        ArrayList<Sticker> invalidStickers = stickerPackList.invalidStickers();
-
-                        Log.d(TAG_LOG, validPacks.toString());
-                        Log.d(TAG_LOG, invalidPacks.toString());
-                        Log.d(TAG_LOG, invalidStickers.toString());
-
-                        result = new Pair<>(null, validPacks);
+                        result = new Pair<>(null,  FetchStickerPackService.fetchStickerPackListFromContentProvider(context));
                     } catch (ContentProviderException exception) {
                         Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio", exception);
 
@@ -171,14 +170,16 @@ public class EntryActivity extends BaseActivity {
                     result = new Pair<>("Erro ao obter contexto da aplicação!", null);
                 }
 
-                Pair<String, ArrayList<StickerPack>> finalResult = result;
+                Pair<String,  ListStickerPackValidationResult> finalResult = result;
                 handler.post(() -> {
                     EntryActivity entryActivity = contextWeakReference.get();
                     if (entryActivity != null) {
                         if (finalResult.first != null) {
                             entryActivity.showErrorMessage(finalResult.first);
                         } else {
-                            entryActivity.showStickerPack(finalResult.second);
+                            entryActivity.showStickerPack(
+                                    finalResult.second.validPacks(), finalResult.second.invalidPacks(), finalResult.second.validPacksWithInvalidStickers()
+                            );
                         }
                     }
                 });

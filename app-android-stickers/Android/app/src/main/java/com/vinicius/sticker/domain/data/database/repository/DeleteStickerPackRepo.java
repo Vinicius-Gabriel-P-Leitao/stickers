@@ -13,8 +13,8 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.vinicius.sticker.core.exception.sticker.DeleteStickerException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
-import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
 import com.vinicius.sticker.domain.data.database.StickerDatabase;
+import com.vinicius.sticker.domain.dto.StickerPackValidationResult;
 import com.vinicius.sticker.domain.service.fetch.FetchStickerPackService;
 
 import java.sql.SQLException;
@@ -25,8 +25,8 @@ public class DeleteStickerPackRepo {
         StickerDatabase dbHelper = StickerDatabase.getInstance(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        StickerPackValidationResult.StickerPackResult fetchStickerPack = FetchStickerPackService.fetchStickerPackFromContentProvider(context, stickerPackIdentifier);
-        if (fetchStickerPack.validStickerPacks().identifier == null) {
+        StickerPackValidationResult fetchStickerPack = FetchStickerPackService.fetchStickerPackFromContentProvider(context, stickerPackIdentifier);
+        if (fetchStickerPack.stickerPack().identifier == null) {
             throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar.");
         }
 

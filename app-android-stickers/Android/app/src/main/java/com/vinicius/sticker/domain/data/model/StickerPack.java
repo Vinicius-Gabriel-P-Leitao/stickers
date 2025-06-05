@@ -13,13 +13,10 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class StickerPack implements Parcelable {
     public String identifier;
-
     public final String name;
-
     public final String publisher;
     public final String trayImageFile;
     public final String publisherEmail;
@@ -71,18 +68,6 @@ public class StickerPack implements Parcelable {
             totalSize += sticker.size;
         }
     }
-
-    public static final Creator<StickerPack> CREATOR = new Creator<StickerPack>() {
-        @Override
-        public StickerPack createFromParcel(Parcel in) {
-            return new StickerPack(in);
-        }
-
-        @Override
-        public StickerPack[] newArray(int size) {
-            return new StickerPack[size];
-        }
-    };
 
     public StickerPack(
             String identifier, String name, String publisher, String trayImageFile, String publisherEmail, String publisherWebsite,
@@ -140,11 +125,6 @@ public class StickerPack implements Parcelable {
     }
 
     @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(String.valueOf(identifier));
         dest.writeString(name);
@@ -163,4 +143,21 @@ public class StickerPack implements Parcelable {
         dest.writeByte((byte) (avoidCache ? 1 : 0));
         dest.writeByte((byte) (animatedStickerPack ? 1 : 0));
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<StickerPack> CREATOR = new Creator<StickerPack>() {
+        @Override
+        public StickerPack createFromParcel(Parcel parcel) {
+            return new StickerPack(parcel);
+        }
+
+        @Override
+        public StickerPack[] newArray(int size) {
+            return new StickerPack[size];
+        }
+    };
 }

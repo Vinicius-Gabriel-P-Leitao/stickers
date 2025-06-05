@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import com.vinicius.sticker.core.exception.base.AppCoreStateException;
 
 public class StickerValidatorException extends AppCoreStateException {
+
     public StickerValidatorException(@NonNull String message) {
         super(message, "STICKER_VALIDATOR_ERROR");
     }

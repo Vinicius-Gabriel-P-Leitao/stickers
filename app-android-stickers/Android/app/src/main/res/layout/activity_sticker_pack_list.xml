@@ -17,9 +17,10 @@
         tools:text="@string/error_message" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/sticker_pack_list"
+        android:id="@+id/recycler_valid_packs"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_redirect_create_stickers"

@@ -28,10 +28,12 @@ import com.google.android.material.button.MaterialButton;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.core.validation.WhatsappWhitelistValidator;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.dto.StickerPackWithInvalidStickers;
 import com.vinicius.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import com.vinicius.sticker.view.core.usecase.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
 import com.vinicius.sticker.view.feature.stickerpack.list.adapter.StickerPackListAdapter;
+import com.vinicius.sticker.view.feature.stickerpack.list.model.StickerPackListItem;
 import com.vinicius.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;
 
 import java.lang.ref.WeakReference;
@@ -43,13 +45,22 @@ import java.util.concurrent.Executors;
 
 public class StickerPackListActivity extends StickerPackAddActivity {
     public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
+    public static final String EXTRA_INVALID_STICKER_PACK_LIST_DATA = "invalid_sticker_pack_list";
+    public static final String EXTRA_INVALID_STICKER_MAP_DATA = "sticker_pack_with_invalid_stickers";
+
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
-    private StickerPackListAdapter allStickerPacksListAdapter;
+
     private LoadListStickerPackAsyncTask loadListStickerPackAsyncTask;
+    private StickerPackListAdapter allStickerPacksListAdapter;
     private MaterialButton buttonCreateStickerPackage;
-    private ArrayList<StickerPack> stickerPackList;
     private LinearLayoutManager packLayoutManager;
     private RecyclerView packRecyclerView;
+
+    private List<StickerPackListItem> unifiedList;
+
+    ArrayList<StickerPack> validStickerPackList;
+    ArrayList<StickerPack> invalidStickerPackList;
+    ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers;
 
     private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = pack -> addStickerPackToWhatsApp(
             pack.identifier,
@@ -60,13 +71,35 @@ public class StickerPackListActivity extends StickerPackAddActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sticker_pack_list);
 
-        packRecyclerView = findViewById(R.id.sticker_pack_list);
+        packRecyclerView = findViewById(R.id.recycler_valid_packs);
 
-        stickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_STICKER_PACK_LIST_DATA);
-        showStickerPackList(stickerPackList);
+        validStickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_STICKER_PACK_LIST_DATA);
+        if (validStickerPackList == null) validStickerPackList = new ArrayList<>();
+
+        invalidStickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_INVALID_STICKER_PACK_LIST_DATA);
+        if (invalidStickerPackList == null) invalidStickerPackList = new ArrayList<>();
+
+        stickerPackWithInvalidStickers = getIntent().getParcelableArrayListExtra(EXTRA_INVALID_STICKER_MAP_DATA);
+        if (stickerPackWithInvalidStickers == null) stickerPackWithInvalidStickers = new ArrayList<>();
+
+        unifiedList = new ArrayList<>();
+        for (StickerPack stickerPack : validStickerPackList) {
+            unifiedList.add(new StickerPackListItem(stickerPack, StickerPackListItem.Status.VALID));
+        }
+
+        for (StickerPack stickerPack : invalidStickerPackList) {
+            unifiedList.add(new StickerPackListItem(stickerPack, StickerPackListItem.Status.INVALID));
+        }
+
+        for (StickerPackWithInvalidStickers withInvalidStickers : stickerPackWithInvalidStickers) {
+            unifiedList.add(new StickerPackListItem(withInvalidStickers, StickerPackListItem.Status.WITH_INVALID_STICKER));
+        }
+
+        showStickerPack(unifiedList);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, stickerPackList.size()));
+            getSupportActionBar().setTitle(
+                    getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, validStickerPackList.size()));
         }
 
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
@@ -87,8 +120,9 @@ public class StickerPackListActivity extends StickerPackAddActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
         loadListStickerPackAsyncTask = new LoadListStickerPackAsyncTask(this);
-        loadListStickerPackAsyncTask.execute(stickerPackList.toArray(new StickerPack[0]));
+        loadListStickerPackAsyncTask.execute(unifiedList.toArray(new StickerPackListItem[0]));
     }
 
     @Override
@@ -99,8 +133,10 @@ public class StickerPackListActivity extends StickerPackAddActivity {
         }
     }
 
-    private void showStickerPackList(List<StickerPack> stickerPackList) {
-        allStickerPacksListAdapter = new StickerPackListAdapter(stickerPackList, onAddButtonClickedListener);
+    private void showStickerPack(
+            List<StickerPackListItem> validPacks
+    ) {
+        allStickerPacksListAdapter = new StickerPackListAdapter(validPacks, onAddButtonClickedListener);
         packRecyclerView.setAdapter(allStickerPacksListAdapter);
 
         packLayoutManager = new LinearLayoutManager(this);
@@ -150,7 +186,7 @@ public class StickerPackListActivity extends StickerPackAddActivity {
             this.stickerPackListActivityWeakReference = new WeakReference<>(stickerPackLibraryActivity);
         }
 
-        public void execute(StickerPack[] stickerPackArray) {
+        public void execute(StickerPackListItem[] stickerPackArray) {
             StickerPackListActivity activity = stickerPackListActivityWeakReference.get();
             if (activity == null) return;
 
@@ -158,15 +194,20 @@ public class StickerPackListActivity extends StickerPackAddActivity {
                 StickerPackListActivity currentActivity = stickerPackListActivityWeakReference.get();
                 if (currentActivity == null) return;
 
-                for (StickerPack stickerPack : stickerPackArray) {
-                    stickerPack.setIsWhitelisted(WhatsappWhitelistValidator.isWhitelisted(currentActivity, stickerPack.identifier));
+                for (StickerPackListItem stickerPack : stickerPackArray) {
+                    if (stickerPack.getStatus() == StickerPackListItem.Status.VALID ||
+                            stickerPack.getStatus() == StickerPackListItem.Status.INVALID) {
+
+                        StickerPack pack = (StickerPack) stickerPack.getStickerPack();
+                        pack.setIsWhitelisted(WhatsappWhitelistValidator.isWhitelisted(currentActivity, pack.identifier));
+                    }
                 }
 
-                List<StickerPack> resultList = new ArrayList<>(Arrays.asList(stickerPackArray));
+                List<StickerPackListItem> resultList = new ArrayList<>(Arrays.asList(stickerPackArray));
                 handler.post(() -> {
                     StickerPackListActivity uiActivity = stickerPackListActivityWeakReference.get();
                     if (uiActivity != null) {
-                        uiActivity.allStickerPacksListAdapter.addStickerPack(resultList);
+                        uiActivity.allStickerPacksListAdapter.updateStickerPackItems(resultList);
                     }
                 });
             });

@@ -31,18 +31,6 @@ public class Sticker implements Parcelable {
         this.stickerIsValid = stickerIsValid;
     }
 
-    public static final Creator<Sticker> CREATOR = new Creator<Sticker>() {
-        @Override
-        public Sticker createFromParcel(Parcel in) {
-            return new Sticker(in);
-        }
-
-        @Override
-        public Sticker[] newArray(int size) {
-            return new Sticker[size];
-        }
-    };
-
     public Sticker(String imageFileName, String emojis, String stickerIsValid, String accessibilityText, String uuidPack) {
         this.imageFileName = imageFileName;
         this.emojis = emojis;
@@ -61,11 +49,6 @@ public class Sticker implements Parcelable {
     }
 
     @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(imageFileName);
         dest.writeString(emojis);
@@ -74,4 +57,21 @@ public class Sticker implements Parcelable {
         dest.writeString(uuidPack);
         dest.writeLong(size);
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Sticker> CREATOR = new Creator<Sticker>() {
+        @Override
+        public Sticker createFromParcel(Parcel parcel) {
+            return new Sticker(parcel);
+        }
+
+        @Override
+        public Sticker[] newArray(int size) {
+            return new Sticker[size];
+        }
+    };
 }

@@ -42,9 +42,9 @@ import androidx.annotation.NonNull;
 import com.vinicius.sticker.core.exception.content.ContentProviderException;
 import com.vinicius.sticker.core.exception.sticker.StickerPackSaveException;
 import com.vinicius.sticker.core.pattern.CallbackResult;
-import com.vinicius.sticker.core.pattern.StickerPackValidationResult;
 import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.dto.StickerPackValidationResult;
 import com.vinicius.sticker.domain.service.fetch.FetchStickerPackService;
 
 import java.util.List;
@@ -91,22 +91,22 @@ public class InsertStickerPackRepo {
                 }, 1000);
     }
 
-    public void insertSticker(SQLiteDatabase dbHelper, Context context,List<Sticker> stickers, String stickerPackIdentifier,
+    public void insertSticker(SQLiteDatabase dbHelper, Context context, List<Sticker> stickers, String stickerPackIdentifier,
                               InsertStickerPackCallback callback) {
         new Handler(Looper.getMainLooper()).postDelayed(
                 () -> {
                     try{
-                        StickerPackValidationResult.StickerPackResult stickerPack =
+                        StickerPackValidationResult stickerPack =
                             FetchStickerPackService.fetchStickerPackFromContentProvider(context, stickerPackIdentifier);
 
-                        if (!stickerPack.validStickerPacks().identifier.isEmpty()) {
+                        if (!stickerPack.stickerPack().identifier.isEmpty()) {
                             for (Sticker sticker : stickers) {
                                 ContentValues stickerValues = writeStickerToContentValues(sticker);
                                 dbHelper.insert(TABLE_STICKER, null, stickerValues);
                             }
 
                             if (callback != null) {
-                                callback.onInsertResult(CallbackResult.success(stickerPack.validStickerPacks()));
+                                callback.onInsertResult(CallbackResult.success(stickerPack.stickerPack()));
                             }
                         } else {
                             if (callback != null) {
