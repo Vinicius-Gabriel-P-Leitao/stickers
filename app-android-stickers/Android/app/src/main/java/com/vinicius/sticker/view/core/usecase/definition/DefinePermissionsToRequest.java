@@ -53,4 +53,14 @@ public class DefinePermissionsToRequest {
 
         return permissionsNeeded.toArray(new String[0]);
     }
+
+    public static boolean areAllPermissionsGranted(String[] permissions, Context context) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

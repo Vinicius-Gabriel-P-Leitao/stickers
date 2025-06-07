@@ -152,8 +152,6 @@ public class PermissionRequestFragment extends BottomSheetDialogFragment {
                 if ( permanentlyDenied ) {
                    new Handler( Looper.getMainLooper() ).postDelayed(
                        () -> {
-                          PermissionSettingsViewModel.launchPermissionSettings(requireActivity());
-
                           permissionSettingsViewModel.getPermissionGranted().observe(
                                   requireActivity(), granted -> {
                                      if (granted != null && granted) {
@@ -168,6 +166,7 @@ public class PermissionRequestFragment extends BottomSheetDialogFragment {
                                      dismiss();
                                   });
 
+                          PermissionSettingsViewModel.launchPermissionSettings(requireActivity());
                        }, 250
                    );
                 } else {

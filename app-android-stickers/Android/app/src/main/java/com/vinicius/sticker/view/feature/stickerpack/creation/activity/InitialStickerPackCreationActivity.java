@@ -17,9 +17,9 @@ import android.widget.Toast;
 
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.view.core.usecase.activity.StickerPackCreationBaseActivity;
 import com.vinicius.sticker.view.core.usecase.component.FormatStickerPopupWindow;
 import com.vinicius.sticker.view.core.usecase.definition.MimeTypesSupported;
-import com.vinicius.sticker.view.core.usecase.activity.StickerPackCreationBaseActivity;
 
 public class InitialStickerPackCreationActivity extends StickerPackCreationBaseActivity {
     public static final String EXTRA_SHOW_UP_BUTTON = "show_up_button";

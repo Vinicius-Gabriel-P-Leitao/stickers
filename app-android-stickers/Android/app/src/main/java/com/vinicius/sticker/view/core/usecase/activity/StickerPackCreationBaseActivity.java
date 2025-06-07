@@ -31,8 +31,8 @@ import com.vinicius.sticker.domain.orchestrator.StickerPackOrchestrator;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.core.usecase.definition.DefinePermissionsToRequest;
 import com.vinicius.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.creation.fragment.NameStickerPackFragment;
 import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryMediaPickerViewModel;
+import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.NameStickerPackViewModel;
 import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.PermissionRequestViewModel;
 import com.vinicius.sticker.view.main.EntryActivity;
 
@@ -44,6 +44,7 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
 
     public GalleryMediaPickerViewModel galleryMediaPickerViewModel;
     public PermissionRequestViewModel permissionRequestViewModel;
+    public NameStickerPackViewModel nameStickerPackViewModel;
 
     public StickerPreviewAdapter stickerPreviewAdapter;
 
@@ -68,6 +69,7 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
         getViewModelStore().clear();
         galleryMediaPickerViewModel = new ViewModelProvider(this).get(GalleryMediaPickerViewModel.class);
         permissionRequestViewModel = new ViewModelProvider(this).get(PermissionRequestViewModel.class);
+        nameStickerPackViewModel = new ViewModelProvider(this).get(NameStickerPackViewModel.class);
 
         galleryMediaPickerViewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
 
@@ -93,7 +95,17 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
     }
 
     public void createStickerPackFlow() {
-        PermissionRequestViewModel.launchPermissionRequest(this);
+        String[] permissions = DefinePermissionsToRequest.getPermissionsToRequest(this);
+
+        if (DefinePermissionsToRequest.areAllPermissionsGranted(permissions, this)) {
+            if (namePack == null || namePack.isEmpty()) {
+                openMetadataGetter();
+            } else {
+                openGallery(namePack);
+            }
+
+            return;
+        }
 
         permissionRequestViewModel.setPermissions(DefinePermissionsToRequest.getPermissionsToRequest(this));
         permissionRequestViewModel.getPermissionGranted().observe(
@@ -103,6 +115,7 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
                             openMetadataGetter();
                         } else {
                             openGallery(namePack);
+                            Log.e(TAG_LOG, namePack);
                         }
                     }
                 });
@@ -114,24 +127,23 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
                     }
                 });
 
+        PermissionRequestViewModel.launchPermissionRequest(this);
     }
 
     public void openMetadataGetter() {
-        NameStickerPackFragment nameStickerPackFragment = new NameStickerPackFragment();
-        nameStickerPackFragment.setCallback(new NameStickerPackFragment.MetadataCallback() {
-            @Override
-            public void onGetMetadata(String namePack) {
-                saveNamePack(namePack);
-                openGallery(namePack);
-            }
+        nameStickerPackViewModel.getNameStickerPack().observe(
+                this, name -> {
+                    saveNamePack(name);
+                    openGallery(name);
+                });
 
-            @Override
-            public void onError(String error) {
-                Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
-            }
-        });
+        nameStickerPackViewModel.getErrorNameStickerPack().observe(
+                this, error -> {
+                    Log.e("ERRO", error);
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
+                });
 
-        nameStickerPackFragment.show(getSupportFragmentManager(), "PackMetadataBottomSheetDialogFragment");
+        NameStickerPackViewModel.launchNameStickerPack(this);
     }
 
     public abstract void openGallery(String namePack);
