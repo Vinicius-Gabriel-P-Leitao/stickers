@@ -29,7 +29,7 @@ import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.MultiTransformation;
 import com.vinicius.sticker.R;
-import com.vinicius.sticker.view.feature.media.transformation.CropSquareTransformation;
+import com.vinicius.sticker.view.feature.stickerpack.creation.transformation.CropSquareTransformation;
 import com.vinicius.sticker.view.feature.stickerpack.creation.viewholder.MediaViewHolder;
 
 import java.io.File;

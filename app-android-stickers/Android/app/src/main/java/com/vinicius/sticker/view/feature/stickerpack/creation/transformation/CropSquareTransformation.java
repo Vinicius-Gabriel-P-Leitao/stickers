@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.view.feature.media.transformation;
+package com.vinicius.sticker.view.feature.stickerpack.creation.transformation;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;

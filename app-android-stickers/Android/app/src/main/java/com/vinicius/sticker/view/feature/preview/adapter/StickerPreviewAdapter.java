@@ -31,7 +31,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.service.fetch.FetchStickerAssetService;
-import com.vinicius.sticker.view.feature.media.transformation.CropSquareTransformation;
+import com.vinicius.sticker.view.feature.stickerpack.creation.transformation.CropSquareTransformation;
 import com.vinicius.sticker.view.feature.preview.viewholder.StickerPreviewViewHolder;
 
 public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewViewHolder> {

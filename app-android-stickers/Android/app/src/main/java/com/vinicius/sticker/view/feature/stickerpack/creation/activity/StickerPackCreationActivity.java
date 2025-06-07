@@ -43,7 +43,7 @@ public class StickerPackCreationActivity extends StickerPackCreationBaseActivity
             rotation.setDuration(500);
             rotation.start();
 
-            viewModel.openFragmentState();
+            galleryMediaPickerViewModel.openFragmentState();
             createStickerPackFlow();
         });
     }

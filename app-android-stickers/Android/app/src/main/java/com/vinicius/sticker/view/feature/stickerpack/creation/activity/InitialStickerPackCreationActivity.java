@@ -40,7 +40,7 @@ public class InitialStickerPackCreationActivity extends StickerPackCreationBaseA
             getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator_first);
         }
 
-        viewModel.getStickerPackToPreview().observe(this, this::setStateSupportActionBar);
+        galleryMediaPickerViewModel.getStickerPackToPreview().observe(this, this::setStateSupportActionBar);
 
         ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
         buttonSelectMedia.setOnClickListener(view -> {
@@ -54,14 +54,14 @@ public class InitialStickerPackCreationActivity extends StickerPackCreationBaseA
                             @Override
                             public void onStaticStickerSelected() {
                                 setFormat(STATIC_STICKER);
-                                viewModel.openFragmentState();
+                                galleryMediaPickerViewModel.openFragmentState();
                                 createStickerPackFlow();
                             }
 
                             @Override
                             public void onAnimatedStickerSelected() {
                                 setFormat(ANIMATED_STICKER);
-                                viewModel.openFragmentState();
+                                galleryMediaPickerViewModel.openFragmentState();
                                 createStickerPackFlow();
                             }
                         });

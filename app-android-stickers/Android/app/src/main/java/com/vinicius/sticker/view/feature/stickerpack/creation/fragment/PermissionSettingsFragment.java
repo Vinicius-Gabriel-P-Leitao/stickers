@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.view.feature.media.fragment;
+package com.vinicius.sticker.view.feature.stickerpack.creation.fragment;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -22,23 +22,15 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
+import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.PermissionSettingsViewModel;
 
-public class PermissionSettingFragment extends BottomSheetDialogFragment {
-   private PermissionCallback callback;
-
-   public interface PermissionCallback {
-      void onPermissionsGranted();
-
-      void onPermissionsDenied();
-   }
-
-   public void setCallback(PermissionCallback callback) {
-      this.callback = callback;
-   }
+public class PermissionSettingsFragment extends BottomSheetDialogFragment {
+   private PermissionSettingsViewModel viewModel;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +45,8 @@ public class PermissionSettingFragment extends BottomSheetDialogFragment {
        @androidx.annotation.Nullable ViewGroup container,
        @androidx.annotation.Nullable Bundle savedInstanceState
    ) {
+      viewModel = new ViewModelProvider(requireActivity()).get(PermissionSettingsViewModel.class);
+
       View view = inflater.inflate( R.layout.dialog_permission_settings, container, false );
 
       Button buttonOpenSettings = view.findViewById(R.id.open_settings);
@@ -62,17 +56,13 @@ public class PermissionSettingFragment extends BottomSheetDialogFragment {
          intent.setData( uri );
          startActivity( intent );
 
-         if ( callback != null ) {
-            callback.onPermissionsGranted();
-         }
+         viewModel.setPermissionGranted();
          dismiss();
       } );
 
       Button buttonCancel = view.findViewById( R.id.cancel_permission_button );
       buttonCancel.setOnClickListener( viewCancel -> {
-         if ( callback != null ) {
-            callback.onPermissionsDenied();
-         }
+         viewModel.setPermissionDenied();
          dismiss();
       } );
 
@@ -91,6 +81,7 @@ public class PermissionSettingFragment extends BottomSheetDialogFragment {
             bottomSheet.setBackground(new ColorDrawable(Color.TRANSPARENT));
          }
       });
+
       return dialog;
    }
 }

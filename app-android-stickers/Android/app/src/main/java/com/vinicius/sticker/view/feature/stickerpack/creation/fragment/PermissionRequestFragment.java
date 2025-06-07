@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.view.feature.media.fragment;
+package com.vinicius.sticker.view.feature.stickerpack.creation.fragment;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -28,10 +28,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
+import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.PermissionRequestViewModel;
+import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.PermissionSettingsViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,23 +43,10 @@ import java.util.Map;
 public class PermissionRequestFragment extends BottomSheetDialogFragment {
    private final static String TAG_LOG = PermissionRequestFragment.class.getSimpleName();
 
+   private PermissionRequestViewModel permissionRequestViewModel;
+   private PermissionSettingsViewModel permissionSettingsViewModel;
+
    private ActivityResultLauncher<String[]> permissionLauncher;
-   private String[] permissionsToRequest;
-   private PermissionCallback callback;
-
-   public interface PermissionCallback {
-      void onPermissionsGranted();
-
-      void onPermissionsDenied();
-   }
-
-   public void setCallback(PermissionCallback callback) {
-      this.callback = callback;
-   }
-
-   public void setPermissions(String[] permissions) {
-      this.permissionsToRequest = permissions;
-   }
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -71,6 +61,9 @@ public class PermissionRequestFragment extends BottomSheetDialogFragment {
        @Nullable ViewGroup container,
        @Nullable Bundle savedInstanceState
    ) {
+      permissionRequestViewModel = new ViewModelProvider(requireActivity()).get(PermissionRequestViewModel.class);
+      permissionSettingsViewModel = new ViewModelProvider(requireActivity()).get(PermissionSettingsViewModel.class);
+
       View view = inflater.inflate( R.layout.dialog_permission_request, container, false );
 
       Button buttonGrantPermission = view.findViewById(R.id.open_permission_request);
@@ -78,7 +71,7 @@ public class PermissionRequestFragment extends BottomSheetDialogFragment {
 
       Button buttonCancelPermission = view.findViewById( R.id.cancel_permission_button );
       buttonCancelPermission.setOnClickListener( viewCancel -> {
-         callback.onPermissionsDenied();
+         permissionRequestViewModel.setPermissionDenied();
          dismiss();
       } );
 
@@ -101,7 +94,9 @@ public class PermissionRequestFragment extends BottomSheetDialogFragment {
    }
 
    private void requestPermissionsLogic() {
-      if ( permissionsToRequest.length != 0 ) {
+      String[] permissionsToRequest = permissionRequestViewModel.getPermissionsToRequest().getValue();
+
+      if ((permissionsToRequest != null ? permissionsToRequest.length : 0) != 0) {
          List<String> permissionsNotGranted = new ArrayList<>();
          for (String permission : permissionsToRequest) {
             if ( ContextCompat.checkSelfPermission(
@@ -111,17 +106,13 @@ public class PermissionRequestFragment extends BottomSheetDialogFragment {
          }
 
          if ( permissionsNotGranted.isEmpty() ) {
-            if ( callback != null ) {
-               callback.onPermissionsGranted();
-            }
+            permissionRequestViewModel.setPermissionGranted();
             dismiss();
          } else {
             permissionLauncher.launch( permissionsNotGranted.toArray( new String[0] ) );
          }
       } else {
-         if ( callback != null ) {
-            callback.onPermissionsGranted();
-         }
+         permissionRequestViewModel.setPermissionGranted();
          dismiss();
       }
    }
@@ -148,10 +139,8 @@ public class PermissionRequestFragment extends BottomSheetDialogFragment {
              }
 
              if ( allGranted ) {
-                if ( callback != null ) {
-                   callback.onPermissionsGranted();
-                   dismiss();
-                }
+                permissionRequestViewModel.setPermissionGranted();
+                dismiss();
              } else {
                 boolean permanentlyDenied = false;
                 for (String permission : deniedPermissions) {
@@ -163,36 +152,30 @@ public class PermissionRequestFragment extends BottomSheetDialogFragment {
                 if ( permanentlyDenied ) {
                    new Handler( Looper.getMainLooper() ).postDelayed(
                        () -> {
-                          PermissionSettingFragment dialog = getPermissionSettingsDialogFragment();
-                          dialog.show( getChildFragmentManager(), "PermissionSettingsDialog" );
+                          PermissionSettingsViewModel.launchPermissionSettings(requireActivity());
+
+                          permissionSettingsViewModel.getPermissionGranted().observe(
+                                  requireActivity(), granted -> {
+                                     if (granted != null && granted) {
+                                        permissionRequestViewModel.setPermissionGranted();
+                                        dismiss();
+                                     }
+                                  });
+
+                          permissionSettingsViewModel.getPermissionDenied().observe(
+                                  requireActivity(), denied -> {
+                                     permissionRequestViewModel.setPermissionDenied();
+                                     dismiss();
+                                  });
+
                        }, 250
                    );
                 } else {
-                   if ( callback != null ) {
-                      callback.onPermissionsDenied();
-                      dismiss();
-                   }
+                   permissionRequestViewModel.setPermissionDenied();
+                   dismiss();
                 }
              }
           }
       );
-   }
-
-   @NonNull
-   private PermissionSettingFragment getPermissionSettingsDialogFragment() {
-      PermissionSettingFragment dialog = new PermissionSettingFragment();
-      dialog.setCallback( new PermissionSettingFragment.PermissionCallback() {
-         @Override
-         public void onPermissionsGranted() {
-            dismiss();
-         }
-
-         @Override
-         public void onPermissionsDenied() {
-            callback.onPermissionsDenied();
-            dismiss();
-         }
-      } );
-      return dialog;
    }
 }

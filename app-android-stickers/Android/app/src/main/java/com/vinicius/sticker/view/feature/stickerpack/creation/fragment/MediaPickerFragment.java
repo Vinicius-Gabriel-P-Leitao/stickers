@@ -6,10 +6,9 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package com.vinicius.sticker.view.feature.media.fragment;
+package com.vinicius.sticker.view.feature.stickerpack.creation.fragment;
 
 import static com.vinicius.sticker.core.validation.StickerPackValidator.STICKER_SIZE_MIN;
-import static com.vinicius.sticker.view.core.util.ConvertMediaToStickerFormat.convertMediaToWebP;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -66,8 +65,9 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
     private static final String KEY_MEDIA_URIS = "key_media_uris";
     private static final String KEY_NAME_PACK = "key_name_pack";
 
-    private final List<File> mediaConvertedFile = Collections.synchronizedList(new ArrayList<>());
     private GalleryMediaPickerViewModel viewModel;
+
+    private final List<File> mediaConvertedFile = Collections.synchronizedList(new ArrayList<>());
     private boolean isAnimatedPack;
     private List<Uri> mediaUris;
     private String namePack;
@@ -222,7 +222,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
                     return;
                 }
 
-                convertMediaToWebP(
+                ConvertMediaToStickerFormat.convertMediaToWebP(
                         getContext(), uri, new File(uri.getPath()).getName(), new ConvertMediaToStickerFormat.MediaConversionCallback() {
                             @Override
                             public void onSuccess(File outputFile) {

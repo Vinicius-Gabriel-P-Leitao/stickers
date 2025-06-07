@@ -8,8 +8,6 @@
 
 package com.vinicius.sticker.view.core.usecase.activity;
 
-import static com.vinicius.sticker.view.core.usecase.definition.DefinePermissionsToRequest.getPermissionsToRequest;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -31,10 +29,11 @@ import com.vinicius.sticker.R;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.orchestrator.StickerPackOrchestrator;
 import com.vinicius.sticker.view.core.base.BaseActivity;
-import com.vinicius.sticker.view.feature.media.fragment.PermissionRequestFragment;
+import com.vinicius.sticker.view.core.usecase.definition.DefinePermissionsToRequest;
 import com.vinicius.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.creation.fragment.NameStickerPackFragment;
 import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryMediaPickerViewModel;
+import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.PermissionRequestViewModel;
 import com.vinicius.sticker.view.main.EntryActivity;
 
 public abstract class StickerPackCreationBaseActivity extends BaseActivity {
@@ -43,9 +42,12 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
     public static final String STATIC_STICKER = "animated";
     public static final String ANIMATED_STICKER = "static";
 
+    public GalleryMediaPickerViewModel galleryMediaPickerViewModel;
+    public PermissionRequestViewModel permissionRequestViewModel;
+
     public StickerPreviewAdapter stickerPreviewAdapter;
+
     public GridLayoutManager layoutManager;
-    public GalleryMediaPickerViewModel viewModel;
     public RecyclerView recyclerView;
     public String namePack;
     public int numColumns;
@@ -64,11 +66,12 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
         setContentView(R.layout.activity_create_sticker_pack);
 
         getViewModelStore().clear();
-        viewModel = new ViewModelProvider(this).get(GalleryMediaPickerViewModel.class);
-        viewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
+        galleryMediaPickerViewModel = new ViewModelProvider(this).get(GalleryMediaPickerViewModel.class);
+        permissionRequestViewModel = new ViewModelProvider(this).get(PermissionRequestViewModel.class);
+
+        galleryMediaPickerViewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
 
         StickerPackOrchestrator.resetData();
-
         setupUI(savedInstanceState);
     }
 
@@ -90,35 +93,27 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
     }
 
     public void createStickerPackFlow() {
-        PermissionRequestFragment permissionRequestFragment = new PermissionRequestFragment();
+        PermissionRequestViewModel.launchPermissionRequest(this);
 
-        String[] permissions = getPermissionsToRequest(this);
-        if (permissions.length > 0) {
-            permissionRequestFragment.setPermissions(permissions);
-            permissionRequestFragment.setCallback(new PermissionRequestFragment.PermissionCallback() {
-                @Override
-                public void onPermissionsGranted() {
-                    if (namePack == null || namePack.isEmpty()) {
-                        openMetadataGetter();
-                    } else {
-                        openGallery(namePack);
+        permissionRequestViewModel.setPermissions(DefinePermissionsToRequest.getPermissionsToRequest(this));
+        permissionRequestViewModel.getPermissionGranted().observe(
+                this, granted -> {
+                    if (granted != null && granted) {
+                        if (namePack == null || namePack.isEmpty()) {
+                            openMetadataGetter();
+                        } else {
+                            openGallery(namePack);
+                        }
                     }
-                }
+                });
 
-                @Override
-                public void onPermissionsDenied() {
-                    Toast.makeText(context, "Galeria não foi liberada.", Toast.LENGTH_SHORT).show();
-                }
-            });
+        permissionRequestViewModel.getPermissionDenied().observe(
+                this, denied -> {
+                    if (denied != null && denied) {
+                        Toast.makeText(this, "Galeria não foi liberada.", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
-            permissionRequestFragment.show(getSupportFragmentManager(), "permissionRequestBottomSheetDialogFragment");
-        } else {
-            if (namePack == null || namePack.isEmpty()) {
-                openMetadataGetter();
-            } else {
-                openGallery(namePack);
-            }
-        }
     }
 
     public void openMetadataGetter() {

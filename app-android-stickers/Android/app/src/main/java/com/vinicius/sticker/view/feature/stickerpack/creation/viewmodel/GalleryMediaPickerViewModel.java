@@ -21,8 +21,8 @@ import androidx.lifecycle.ViewModel;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.view.core.usecase.definition.MimeTypesSupported;
 import com.vinicius.sticker.view.core.util.CursorSearchUriMedia;
-import com.vinicius.sticker.view.feature.media.fragment.MediaPickerFragment;
 import com.vinicius.sticker.view.feature.stickerpack.creation.adapter.PickMediaListAdapter;
+import com.vinicius.sticker.view.feature.stickerpack.creation.fragment.MediaPickerFragment;
 
 import java.io.File;
 import java.util.ArrayList;
