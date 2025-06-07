@@ -21,7 +21,33 @@ main.py
 # Libraries
 *.lib
 # *.a
+*.lamain.py
+
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+# *.a
 *.la
+*.lo
+
+# Shared objects (inc. Windows DL
 *.lo
 
 # Shared objects (inc. Windows DLLs)
@@ -67,9 +93,9 @@ dkms.conf
 *.pch
 
 # Compiled Dynamic libraries
-*.so
+# *.so
 *.dylib
-*.dll
+# *.dll
 
 # Fortran module files
 *.mod
@@ -78,7 +104,7 @@ dkms.conf
 # Compiled Static libraries
 *.lai
 *.la
-*.a
+# *.a
 *.lib
 
 # Executables
@@ -118,10 +144,30 @@ render.experimental.xml
 google-services.json
 
 # Android Profiling
-*.hprof
+*.hprofmain.py
 
-# Libs 
-**arm64-v8a/*
-**armeabi-v7a/*
-**x86/*
-**x86_64/*
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+# *.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DL
