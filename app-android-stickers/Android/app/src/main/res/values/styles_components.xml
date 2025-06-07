@@ -64,6 +64,15 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
+    <!-- Alert Dialog Styles -->
+    <style name="AlterDialogStyle" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/FadeAnimation</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
     <!-- Animation Styles -->
     <style name="FadeAnimation">
         <item name="android:windowEnterAnimation">@anim/fade_enter</item>

@@ -197,10 +197,10 @@ public class StickerPackListActivity extends StickerPackAddActivity {
                 if (currentActivity == null) return;
 
                 for (StickerPackListItem stickerPack : stickerPackArray) {
-                    if (stickerPack.getStatus() == StickerPackListItem.Status.VALID ||
-                            stickerPack.getStatus() == StickerPackListItem.Status.INVALID) {
+                    if (stickerPack.status() == StickerPackListItem.Status.VALID ||
+                            stickerPack.status() == StickerPackListItem.Status.INVALID) {
 
-                        StickerPack pack = (StickerPack) stickerPack.getStickerPack();
+                        StickerPack pack = (StickerPack) stickerPack.stickerPack();
                         pack.setIsWhitelisted(WhatsappWhitelistValidator.isWhitelisted(currentActivity, pack.identifier));
                     }
                 }

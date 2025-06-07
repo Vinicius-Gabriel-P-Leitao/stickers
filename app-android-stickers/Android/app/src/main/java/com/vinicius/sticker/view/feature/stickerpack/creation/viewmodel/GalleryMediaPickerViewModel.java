@@ -36,18 +36,15 @@ public class GalleryMediaPickerViewModel extends ViewModel {
     public LiveData<StickerPack> getStickerPackToPreview() {
         return stickerPackPreview;
     }
-
     public void setStickerPackToPreview(StickerPack stickerPack) { stickerPackPreview.setValue(stickerPack); }
 
     // NOTE: Estado do fragment
     private final MutableLiveData<Boolean> fragmentVisibility = new MutableLiveData<>(false);
 
     public LiveData<Boolean> getFragment() { return fragmentVisibility; }
-
     public void openFragmentState() {
         fragmentVisibility.setValue(false);
     }
-
     public void closeFragmentState() {
         fragmentVisibility.setValue(true);
     }

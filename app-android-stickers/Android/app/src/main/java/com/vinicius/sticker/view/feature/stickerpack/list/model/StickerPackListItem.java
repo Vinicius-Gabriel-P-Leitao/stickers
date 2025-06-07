@@ -8,24 +8,8 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.list.model;
 
-public class StickerPackListItem {
-    private final Object stickerPack;
-    private final Status status;
-
+public record StickerPackListItem(Object stickerPack, Status status) {
     public enum Status {
         VALID, INVALID, WITH_INVALID_STICKER
-    }
-
-    public StickerPackListItem(Object stickerPack, Status status) {
-        this.stickerPack = stickerPack;
-        this.status = status;
-    }
-
-    public Object getStickerPack() {
-        return stickerPack;
-    }
-
-    public Status getStatus() {
-        return status;
     }
 }

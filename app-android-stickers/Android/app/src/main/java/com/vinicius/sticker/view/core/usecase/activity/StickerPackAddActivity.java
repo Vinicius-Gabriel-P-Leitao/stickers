@@ -18,6 +18,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -130,11 +133,23 @@ public abstract class StickerPackAddActivity extends BaseActivity {
                         .create();
             }
 
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity).setMessage(R.string.add_pack_fail_prompt_update_whatsapp)
-                    .setCancelable(true).setPositiveButton(android.R.string.ok, (dialog, which) -> dismiss())
-                    .setNeutralButton(R.string.add_pack_fail_prompt_update_play_link, (dialog, which) -> launchWhatsAppPlayStorePage());
+            LayoutInflater inflater = requireActivity().getLayoutInflater();
+            View view = inflater.inflate(R.layout.dialog_alert_error_submit_whatsapp, null);
 
-            return dialogBuilder.create();
+            Button okButton = view.findViewById(R.id.button_ok);
+            okButton.setOnClickListener(ok -> {
+                dismiss();
+            });
+
+            Button updateButton = view.findViewById(R.id.button_update_whatsapp);
+            updateButton.setOnClickListener(update -> {
+                launchWhatsAppPlayStorePage();
+            });
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setView(view);
+
+            return builder.create();
         }
 
         private void launchWhatsAppPlayStorePage() {

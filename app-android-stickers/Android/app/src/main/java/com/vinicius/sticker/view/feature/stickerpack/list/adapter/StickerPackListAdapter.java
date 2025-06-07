@@ -81,14 +81,14 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         viewHolder.imageRowView.setVisibility(View.VISIBLE);
         viewHolder.imageRowView.removeAllViews();
 
-        if (stickerPackListItem.getStatus() == StickerPackListItem.Status.INVALID) {
-            bindInvalidStickerPack(context, viewHolder, (StickerPack) stickerPackListItem.getStickerPack());
+        if (stickerPackListItem.status() == StickerPackListItem.Status.INVALID) {
+            bindInvalidStickerPack(context, viewHolder, (StickerPack) stickerPackListItem.stickerPack());
         } else {
-            if (stickerPackListItem.getStatus() == StickerPackListItem.Status.WITH_INVALID_STICKER) {
-                StickerPackWithInvalidStickers stickerPackWithInvalidStickers = (StickerPackWithInvalidStickers) stickerPackListItem.getStickerPack();
+            if (stickerPackListItem.status() == StickerPackListItem.Status.WITH_INVALID_STICKER) {
+                StickerPackWithInvalidStickers stickerPackWithInvalidStickers = (StickerPackWithInvalidStickers) stickerPackListItem.stickerPack();
                 bindStickerPack(context, viewHolder, stickerPackWithInvalidStickers.stickerPack, stickerPackWithInvalidStickers.invalidStickers);
             } else {
-                bindStickerPack(context, viewHolder, (StickerPack) stickerPackListItem.getStickerPack(), null);
+                bindStickerPack(context, viewHolder, (StickerPack) stickerPackListItem.stickerPack(), null);
             }
         }
     }
@@ -101,7 +101,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
     @Override
     public int getItemViewType(int position) {
         StickerPackListItem item = stickerPackListItems.get(position);
-        if (item.getStatus() == StickerPackListItem.Status.INVALID) {
+        if (item.status() == StickerPackListItem.Status.INVALID) {
             return 1;
         }
 
@@ -172,7 +172,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         viewHolder.container.setOnClickListener(view -> {
             // TODO: Criar dialog para deletar pacote ou revisar ele na activity de preview PreviewStickerInvalidActivity
             OperationInvalidStickerPackDialog dialog = new OperationInvalidStickerPackDialog();
-            dialog.show(fragmentManager, "meu_dialog");
+            dialog.show(fragmentManager, OperationInvalidStickerPackDialog.class.getSimpleName());
         });
 
         viewHolder.animatedStickerPackIndicator.setVisibility(stickerPack.animatedStickerPack ? View.VISIBLE : View.GONE);

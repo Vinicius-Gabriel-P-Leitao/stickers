@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/dialog_background"
+        android:background="@drawable/dialog_bottom_background"
         android:indeterminate="true"
         android:max="30"
         android:padding="20dp"
