@@ -24,6 +24,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vinicius.sticker.R;
@@ -31,6 +32,7 @@ import com.vinicius.sticker.domain.data.model.Sticker;
 import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.dto.StickerPackWithInvalidStickers;
 import com.vinicius.sticker.domain.service.fetch.FetchStickerAssetService;
+import com.vinicius.sticker.view.core.usecase.component.OperationInvalidStickerPackDialog;
 import com.vinicius.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
 import com.vinicius.sticker.view.feature.stickerpack.list.model.StickerPackListItem;
 import com.vinicius.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;
@@ -43,14 +45,17 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
     private final OnAddButtonClickedListener onAddButtonClickedListener;
     @NonNull
     private final List<StickerPackListItem> stickerPackListItems;
+    private final FragmentManager fragmentManager;
 
     private int maxNumberOfStickersInARow;
     private int minMarginBetweenImages;
 
+
     public StickerPackListAdapter(
-            @NonNull List<StickerPackListItem> stickerPackListItems, @NonNull OnAddButtonClickedListener onAddButtonClickedListener) {
+            @NonNull List<StickerPackListItem> stickerPackListItems, @NonNull OnAddButtonClickedListener onAddButtonClickedListener, FragmentManager fragmentManager) {
         this.stickerPackListItems = stickerPackListItems;
         this.onAddButtonClickedListener = onAddButtonClickedListener;
+        this.fragmentManager = fragmentManager;
     }
 
     public interface OnAddButtonClickedListener {
@@ -166,6 +171,8 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
 
         viewHolder.container.setOnClickListener(view -> {
             // TODO: Criar dialog para deletar pacote ou revisar ele na activity de preview PreviewStickerInvalidActivity
+            OperationInvalidStickerPackDialog dialog = new OperationInvalidStickerPackDialog();
+            dialog.show(fragmentManager, "meu_dialog");
         });
 
         viewHolder.animatedStickerPackIndicator.setVisibility(stickerPack.animatedStickerPack ? View.VISIBLE : View.GONE);

@@ -135,7 +135,7 @@ public class StickerPackListActivity extends StickerPackAddActivity {
     private void showStickerPack(
             List<StickerPackListItem> validPacks
     ) {
-        allStickerPacksListAdapter = new StickerPackListAdapter(validPacks, onAddButtonClickedListener);
+        allStickerPacksListAdapter = new StickerPackListAdapter(validPacks, onAddButtonClickedListener, getSupportFragmentManager());
         packRecyclerView.setAdapter(allStickerPacksListAdapter);
 
         packLayoutManager = new LinearLayoutManager(this);

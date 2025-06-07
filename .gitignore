@@ -20,13 +20,13 @@ main.py
 
 # Libraries
 *.lib
-*.a
+# *.a
 *.la
 *.lo
 
 # Shared objects (inc. Windows DLLs)
-*.dll
-*.so
+# *.dll
+# *.so
 *.so.*
 *.dylib
 
