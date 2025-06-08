@@ -34,9 +34,9 @@ import com.vinicius.sticker.domain.orchestrator.StickerPackOrchestrator;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.core.usecase.definition.DefinePermissionsToRequest;
 import com.vinicius.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.creation.adapter.PickMediaListAdapter;
+import com.vinicius.sticker.view.feature.stickerpack.creation.adapter.MediaPickerAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.creation.fragment.MediaPickerFragment;
-import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryMediaPickerViewModel;
+import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.MediaPickerViewModel;
 import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.NameStickerPackViewModel;
 import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.PermissionRequestViewModel;
 import com.vinicius.sticker.view.main.EntryActivity;
@@ -49,7 +49,7 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
     public static final String STATIC_STICKER = "animated";
     public static final String ANIMATED_STICKER = "static";
 
-    public GalleryMediaPickerViewModel galleryMediaPickerViewModel;
+    public MediaPickerViewModel mediaPickerViewModel;
     public PermissionRequestViewModel permissionRequestViewModel;
     public NameStickerPackViewModel nameStickerPackViewModel;
 
@@ -74,11 +74,11 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
         setContentView(R.layout.activity_create_sticker_pack);
 
         getViewModelStore().clear();
-        galleryMediaPickerViewModel = new ViewModelProvider(this).get(GalleryMediaPickerViewModel.class);
+        mediaPickerViewModel = new ViewModelProvider(this).get(MediaPickerViewModel.class);
         permissionRequestViewModel = new ViewModelProvider(this).get(PermissionRequestViewModel.class);
         nameStickerPackViewModel = new ViewModelProvider(this).get(NameStickerPackViewModel.class);
 
-        galleryMediaPickerViewModel.getStickerPackPreview().observe(this, this::setupStickerPackView);
+        mediaPickerViewModel.getStickerPackPreview().observe(this, this::setupStickerPackView);
 
         StickerPackOrchestrator.resetData();
         setupUI(savedInstanceState);
@@ -163,7 +163,7 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
             return;
         }
 
-        MediaPickerFragment fragment = MediaPickerFragment.newInstance(new PickMediaListAdapter.OnItemClickListener() {
+        MediaPickerFragment fragment = MediaPickerFragment.newInstance(new MediaPickerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(String imagePath) {
                 Uri selectedImageUri = Uri.fromFile(new File(imagePath));

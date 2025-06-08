@@ -31,8 +31,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.view.core.usecase.component.BottomFadingRecyclerView;
 import com.vinicius.sticker.view.core.util.CursorSearchUriMedia;
-import com.vinicius.sticker.view.feature.stickerpack.creation.adapter.PickMediaListAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryMediaPickerViewModel;
+import com.vinicius.sticker.view.feature.stickerpack.creation.adapter.MediaPickerAdapter;
+import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.MediaPickerViewModel;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -41,19 +41,19 @@ import java.util.List;
 import java.util.Set;
 
 public class MediaPickerFragment extends BottomSheetDialogFragment {
-    private GalleryMediaPickerViewModel viewModel;
-    private PickMediaListAdapter mediaListAdapter;
+    private MediaPickerViewModel viewModel;
+    private MediaPickerAdapter mediaListAdapter;
     private ProgressBar progressBar;
 
-    private PickMediaListAdapter.OnItemClickListener listener;
+    private MediaPickerAdapter.OnItemClickListener listener;
 
-    public static MediaPickerFragment newInstance(PickMediaListAdapter.OnItemClickListener listener) {
+    public static MediaPickerFragment newInstance(MediaPickerAdapter.OnItemClickListener listener) {
         MediaPickerFragment fragment = new MediaPickerFragment();
         fragment.setOnItemClickListener(listener);
         return fragment;
     }
 
-    public void setOnItemClickListener(PickMediaListAdapter.OnItemClickListener listener) {
+    public void setOnItemClickListener(MediaPickerAdapter.OnItemClickListener listener) {
         this.listener = listener;
     }
 
@@ -62,7 +62,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.BottomSheetStyle);
 
-        viewModel = new ViewModelProvider(requireActivity()).get(GalleryMediaPickerViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(MediaPickerViewModel.class);
     }
 
     @Nullable
@@ -82,7 +82,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
         BottomFadingRecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
 
-        mediaListAdapter = new PickMediaListAdapter(getContext(), uri -> {
+        mediaListAdapter = new MediaPickerAdapter(getContext(), uri -> {
             if (listener != null) {
                 listener.onItemClick(uri);
             }

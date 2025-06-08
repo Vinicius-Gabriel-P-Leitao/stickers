@@ -35,7 +35,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class GalleryMediaPickerViewModel extends ViewModel {
+public class MediaPickerViewModel extends ViewModel {
     private final List<File> convertedFiles = Collections.synchronizedList(new ArrayList<>());
     private final AtomicInteger completedConversions = new AtomicInteger(0);
     private int totalConversions = 0;

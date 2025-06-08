@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
+public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
    public static final String PAYLOAD_SELECTION_CHANGED = "PAYLOAD_SELECTION_CHANGED";
    private final List<Integer> selectedItems = new ArrayList<>();
    private final Context context;
@@ -48,7 +48,7 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
       void onItemClick(String imagePath);
    }
 
-   public PickMediaListAdapter(Context context, OnItemClickListener itemClickListener) {
+   public MediaPickerAdapter(Context context, OnItemClickListener itemClickListener) {
       super(new UriDiffCallback());
       this.context = context;
    }
@@ -163,7 +163,6 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
    }
 
    public static class UriDiffCallback extends DiffUtil.ItemCallback<Uri> {
-
       @Override
       public boolean areItemsTheSame(
           @NonNull Uri oldItem,

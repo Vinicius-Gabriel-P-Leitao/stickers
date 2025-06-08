@@ -22,14 +22,14 @@
             android:layout_height="24dp"
             android:layout_marginEnd="12dp"
             android:background="@android:color/transparent"
-            android:contentDescription="@string/menu_option_stickers_static"
+            android:contentDescription="@string/menu_option_sticker_static"
             android:src="@drawable/ic_stop_circle_24px" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:text="@string/menu_option_stickers_static"
+            android:text="@string/menu_option_sticker_static"
             android:textColor="@color/catppuccin_text"
             android:textSize="16sp" />
     </LinearLayout>
@@ -53,7 +53,7 @@
             android:layout_height="24dp"
             android:layout_marginEnd="12dp"
             android:background="@android:color/transparent"
-            android:contentDescription="@string/menu_option_stickers_static"
+            android:contentDescription="@string/menu_option_sticker_static"
             android:src="@drawable/ic_autoplay_24px" />
 
         <TextView

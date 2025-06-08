@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/transparent"
-        android:text="Título Personalizado"
+        android:text="@string/dialog_title_invalid_pack"
         android:textColor="@color/catppuccin_lavender"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -23,14 +23,36 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:backgroundTint="@android:color/transparent"
-        android:text="Mensagem do seu diálogo aqui."
+        android:text="@string/dialog_message_invalid_pack"
         android:textColor="@color/catppuccin_lavender" />
 
-    <Button
-        android:id="@+id/button_ok"
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="OK" />
+        android:layout_marginTop="15dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="10dp">
 
+        <Button
+            android:id="@+id/button_delete_pack"
+            style="@style/SurfaceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="60dp"
+            android:backgroundTint="@color/catppuccin_surface0"
+            android:text="@string/dialog_button_delete_pack"
+            android:textColor="@color/catppuccin_text" />
+
+        <Button
+            android:id="@+id/button_fix_pack"
+            style="@style/SurfaceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="60dp"
+            android:backgroundTint="@color/catppuccin_surface0"
+            android:text="@string/dialog_button_fix_pack"
+            android:textColor="@color/catppuccin_text" />
+    </LinearLayout>
 </LinearLayout>

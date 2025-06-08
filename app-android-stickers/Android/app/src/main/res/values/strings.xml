@@ -24,7 +24,7 @@
     <string name="sticker_pack_animation_indicator" tools:ignore="MissingTranslation">Animated sticker pack</string>
     <string name="sticker_pack_details_tap_to_preview" tools:ignore="MissingTranslation">Tap to preview sticker</string>
     <string name="button_create_sticker_package">Create new package</string>
-    <string name="menu_option_stickers_static">Static sticker</string>
+    <string name="menu_option_sticker_static">Static sticker</string>
     <string name="menu_option_stickers_animated">Animated sticker</string>
     <string name="button_select_media_sticker">Select files</string>
     <string name="button_select_medias">Select</string>
@@ -38,8 +38,8 @@
     <string name="dialog_settings_message_permission">Gallery access required.</string>
     <string name="dialog_settings_button_permission_accept">Settings</string>
     <string name="dialog_settings_button_permission_cancel">Cancel</string>
-    <string name="title_activity_sticker_packs_creator" tools:ignore="MissingQuantity">Create new package</string>
-    <string name="title_activity_sticker_packs_creator_first" tools:ignore="MissingQuantity">Create first package</string>
+    <string name="title_activity_sticker_creator" tools:ignore="MissingQuantity">Create new package</string>
+    <string name="title_activity_pack_creator_first" tools:ignore="MissingQuantity">Create first package</string>
     <string name="metadata_name_pack_empty">Fill in the package name!</string>
     <string name="button_open_media_getter">Open package name and gallery tab</string>
     <string name="preview_sticker_description">Sticker Pack Thumbnail</string>
@@ -48,4 +48,8 @@
     <string name="input_name_pack">Package name</string>
     <string name="button_open_gallery_description">Search for images or videos in the gallery</string>
     <string name="error_invalid_pack">Invalid pack!</string>
+    <string name="dialog_title_invalid_pack">Invalid sticker pack!</string>
+    <string name="dialog_message_invalid_pack">The sticker pack is invalid, please fix or delete the pack!</string>
+    <string name="dialog_button_delete_pack">Delete</string>
+    <string name="dialog_button_fix_pack">Fix package</string>
 </resources>

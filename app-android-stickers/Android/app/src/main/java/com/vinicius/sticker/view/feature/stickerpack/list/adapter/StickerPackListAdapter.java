@@ -170,8 +170,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         viewHolder.titleView.setText(stickerPack.name);
 
         viewHolder.container.setOnClickListener(view -> {
-            // TODO: Criar dialog para deletar pacote ou revisar ele na activity de preview PreviewStickerInvalidActivity
-            OperationInvalidStickerPackDialog dialog = new OperationInvalidStickerPackDialog();
+            OperationInvalidStickerPackDialog dialog = OperationInvalidStickerPackDialog.newInstance(stickerPack.identifier);
             dialog.show(fragmentManager, OperationInvalidStickerPackDialog.class.getSimpleName());
         });
 

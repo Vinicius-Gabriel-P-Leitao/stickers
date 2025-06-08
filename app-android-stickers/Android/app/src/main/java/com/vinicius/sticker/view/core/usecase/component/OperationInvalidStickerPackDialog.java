@@ -9,6 +9,8 @@
 package com.vinicius.sticker.view.core.usecase.component;
 
 import android.app.Dialog;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -16,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,8 +25,29 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.vinicius.sticker.R;
+import com.vinicius.sticker.domain.service.delete.DeleteStickerAssetService;
+import com.vinicius.sticker.domain.service.delete.DeleteStickerPackService;
+import com.vinicius.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity;
 
 public class OperationInvalidStickerPackDialog extends DialogFragment {
+    private static final String ARG_VALUE = "sticker_pack";
+    private OnDialogActionListener listener;
+
+    public OperationInvalidStickerPackDialog() {
+    }
+
+    public interface OnDialogActionListener {
+        void onReloadRequested();
+    }
+
+    public static OperationInvalidStickerPackDialog newInstance(String stickerPackIdentifier) {
+        OperationInvalidStickerPackDialog fragment = new OperationInvalidStickerPackDialog();
+        Bundle args = new Bundle();
+        args.putString(ARG_VALUE, stickerPackIdentifier);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,11 +60,29 @@ public class OperationInvalidStickerPackDialog extends DialogFragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_invalid_sticker_pack, null);
 
-        TextView title = view.findViewById(R.id.dialog_title);
-        TextView message = view.findViewById(R.id.dialog_message);
-        Button buttonOk = view.findViewById(R.id.button_ok);
+        Button buttonFixPack = view.findViewById(R.id.button_fix_pack);
+        buttonFixPack.setOnClickListener(fragment -> {
+            Intent intent = new Intent(fragment.getContext(), PreviewStickerInvalidActivity.class);
+            fragment.getContext().startActivity(intent);
+            dismiss();
+        });
 
-        buttonOk.setOnClickListener(fragment -> {
+        Button buttonDeletePack = view.findViewById(R.id.button_delete_pack);
+        buttonDeletePack.setOnClickListener(fragment -> {
+            String stickerPackIdentifier = null;
+
+            if (getArguments() != null) {
+                stickerPackIdentifier = getArguments().getString(ARG_VALUE);
+            }
+
+            if (stickerPackIdentifier != null) {
+                DeleteStickerPackService.deleteStickerPack(requireActivity(), stickerPackIdentifier);
+                DeleteStickerAssetService.deleteAllStickerAssetsInPack(requireActivity(), stickerPackIdentifier);
+
+                listener.onReloadRequested();
+                dismiss();
+            }
+
             dismiss();
         });
 
@@ -57,8 +97,17 @@ public class OperationInvalidStickerPackDialog extends DialogFragment {
                 window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             }
         });
-        ;
 
         return alertDialog;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnDialogActionListener) {
+            listener = (OnDialogActionListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " deve implementar OnDialogActionListener");
+        }
     }
 }

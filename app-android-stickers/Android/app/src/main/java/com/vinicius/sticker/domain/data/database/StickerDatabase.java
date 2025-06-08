@@ -122,6 +122,12 @@ public class StickerDatabase extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    @Override
+    public void onConfigure(SQLiteDatabase db) {
+        super.onConfigure(db);
+        db.setForeignKeyConstraintsEnabled(true);
+    }
+
     public static synchronized StickerDatabase getInstance(Context context) {
         if (instance == null) {
             instance = new StickerDatabase(context.getApplicationContext());

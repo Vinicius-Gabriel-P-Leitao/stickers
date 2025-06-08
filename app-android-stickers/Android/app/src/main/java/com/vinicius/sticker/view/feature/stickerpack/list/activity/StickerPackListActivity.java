@@ -31,10 +31,12 @@ import com.vinicius.sticker.domain.data.model.StickerPack;
 import com.vinicius.sticker.domain.dto.StickerPackWithInvalidStickers;
 import com.vinicius.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import com.vinicius.sticker.view.core.usecase.component.FormatStickerPopupWindow;
+import com.vinicius.sticker.view.core.usecase.component.OperationInvalidStickerPackDialog;
 import com.vinicius.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
 import com.vinicius.sticker.view.feature.stickerpack.list.adapter.StickerPackListAdapter;
 import com.vinicius.sticker.view.feature.stickerpack.list.model.StickerPackListItem;
 import com.vinicius.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;
+import com.vinicius.sticker.view.main.EntryActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class StickerPackListActivity extends StickerPackAddActivity {
+public class StickerPackListActivity extends StickerPackAddActivity implements OperationInvalidStickerPackDialog.OnDialogActionListener {
     public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
     public static final String EXTRA_INVALID_STICKER_PACK_LIST_DATA = "invalid_sticker_pack_list";
     public static final String EXTRA_INVALID_STICKER_MAP_DATA = "sticker_pack_with_invalid_stickers";
@@ -130,6 +132,16 @@ public class StickerPackListActivity extends StickerPackAddActivity {
         if (loadListStickerPackAsyncTask != null) {
             loadListStickerPackAsyncTask.shutdown();
         }
+    }
+
+    @Override
+    public void onReloadRequested() {
+        Intent intent = new Intent(this, EntryActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        startActivity(intent);
+        finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
     private void showStickerPack(

@@ -24,7 +24,7 @@
     <string name="sticker_pack_animation_indicator">Pacote de figurinhas animadas</string>
     <string name="sticker_pack_details_tap_to_preview">Toque para visualizar a figurinha</string>
     <string name="button_create_sticker_package">Criar novo pacote</string>
-    <string name="menu_option_stickers_static">Estáticos</string>
+    <string name="menu_option_sticker_static">Estáticos</string>
     <string name="menu_option_stickers_animated">Animados</string>
     <string name="button_select_media_sticker">Selecionar arquivos</string>
     <string name="button_select_medias">Selecionar</string>
@@ -38,8 +38,8 @@
     <string name="dialog_settings_message_permission">Permisão foi negada, necessário permitir manualmente</string>
     <string name="dialog_settings_button_permission_accept">Abrir configurações</string>
     <string name="dialog_settings_button_permission_cancel">Recusar</string>
-    <string name="title_activity_sticker_packs_creator" tools:ignore="MissingQuantity">Criar pacote</string>
-    <string name="title_activity_sticker_packs_creator_first" tools:ignore="MissingQuantity">Criar primeiro pacote</string>
+    <string name="title_activity_sticker_creator" tools:ignore="MissingQuantity">Criar pacote</string>
+    <string name="title_activity_pack_creator_first" tools:ignore="MissingQuantity">Criar primeiro pacote</string>
     <string name="metadata_name_pack_empty">Preecha o nome do pacote!</string>
     <string name="preview_sticker_description">Thumbnail do pacote de figurinhas</string>
     <string name="button_open_media_getter">Abrir aba de nome do pacote e galeria</string>
@@ -48,4 +48,8 @@
     <string name="input_name_pack">Nome do pacote</string>
     <string name="button_open_gallery_description">Buscar imagens ou vídeos na galeria</string>
     <string name="error_invalid_pack">Pacote inválido!</string>
+    <string name="dialog_title_invalid_pack">Pacote de figurinha invalido!</string>
+    <string name="dialog_message_invalid_pack">O pacote de figurinha é invalido, corrija ou exclua o pacote!</string>
+    <string name="dialog_button_delete_pack">Deletar</string>
+    <string name="dialog_button_fix_pack">Corrigir</string>
 </resources>

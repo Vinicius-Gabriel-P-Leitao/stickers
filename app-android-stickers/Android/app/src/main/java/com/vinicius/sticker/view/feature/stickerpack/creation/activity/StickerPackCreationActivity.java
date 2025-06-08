@@ -25,7 +25,7 @@ public class StickerPackCreationActivity extends StickerPackCreationBaseActivity
     @Override
     public void setupUI(Bundle savedInstanceState) {
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator);
+            getSupportActionBar().setTitle(R.string.title_activity_sticker_creator);
         }
 
         getOnBackPressedDispatcher().addCallback(
@@ -42,7 +42,7 @@ public class StickerPackCreationActivity extends StickerPackCreationBaseActivity
             rotation.setDuration(500);
             rotation.start();
 
-            galleryMediaPickerViewModel.setFragmentVisibility(true);
+            mediaPickerViewModel.setFragmentVisibility(true);
             createStickerPackFlow();
         });
     }
@@ -51,20 +51,20 @@ public class StickerPackCreationActivity extends StickerPackCreationBaseActivity
     public void openGallery(String namePack) {
         String selectedFormat = getIntent().getStringExtra(EXTRA_STICKER_FORMAT);
 
-        galleryMediaPickerViewModel.setNameStickerPack(namePack);
+        mediaPickerViewModel.setNameStickerPack(namePack);
 
         if (selectedFormat != null && selectedFormat.equals(STATIC_STICKER)) {
             StickerPackCreationBaseActivity.launchOwnGallery(this);
-            galleryMediaPickerViewModel.setIsAnimatedPack(false);
-            galleryMediaPickerViewModel.setMimeTypesSupported(MimeTypesSupported.IMAGE);
+            mediaPickerViewModel.setIsAnimatedPack(false);
+            mediaPickerViewModel.setMimeTypesSupported(MimeTypesSupported.IMAGE);
 
             return;
         }
 
         if (selectedFormat != null && selectedFormat.equals(ANIMATED_STICKER)) {
             StickerPackCreationBaseActivity.launchOwnGallery(this);
-            galleryMediaPickerViewModel.setIsAnimatedPack(true);
-            galleryMediaPickerViewModel.setMimeTypesSupported(MimeTypesSupported.ANIMATED);
+            mediaPickerViewModel.setIsAnimatedPack(true);
+            mediaPickerViewModel.setMimeTypesSupported(MimeTypesSupported.ANIMATED);
 
             return;
         }
