@@ -22,7 +22,6 @@ import androidx.annotation.NonNull;
 import com.vinicius.sticker.core.exception.media.MediaConversionException;
 import com.vinicius.sticker.core.lib.NativeConvertToWebp;
 import com.vinicius.sticker.view.core.usecase.definition.MimeTypesSupported;
-import com.vinicius.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;

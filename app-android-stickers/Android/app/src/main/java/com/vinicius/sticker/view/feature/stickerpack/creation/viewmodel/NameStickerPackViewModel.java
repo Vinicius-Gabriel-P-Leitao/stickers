@@ -37,7 +37,7 @@ public class NameStickerPackViewModel extends ViewModel {
     }
 
     public static void launchNameStickerPack(FragmentActivity activity) {
-        NameStickerPackFragment permissionRequestFragment = new NameStickerPackFragment();
-        permissionRequestFragment.show(activity.getSupportFragmentManager(), NameStickerPackFragment.class.getSimpleName());
+        NameStickerPackFragment nameStickerPackFragment = new NameStickerPackFragment();
+        nameStickerPackFragment.show(activity.getSupportFragmentManager(), NameStickerPackFragment.class.getSimpleName());
     }
 }

@@ -18,7 +18,6 @@ import androidx.activity.OnBackPressedCallback;
 import com.vinicius.sticker.R;
 import com.vinicius.sticker.view.core.usecase.activity.StickerPackCreationBaseActivity;
 import com.vinicius.sticker.view.core.usecase.definition.MimeTypesSupported;
-import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryMediaPickerViewModel;
 
 public class StickerPackCreationActivity extends StickerPackCreationBaseActivity {
     public static final String EXTRA_STICKER_FORMAT = "sticker_format";
@@ -43,7 +42,7 @@ public class StickerPackCreationActivity extends StickerPackCreationBaseActivity
             rotation.setDuration(500);
             rotation.start();
 
-            galleryMediaPickerViewModel.openFragmentState();
+            galleryMediaPickerViewModel.setFragmentVisibility(true);
             createStickerPackFlow();
         });
     }
@@ -52,13 +51,21 @@ public class StickerPackCreationActivity extends StickerPackCreationBaseActivity
     public void openGallery(String namePack) {
         String selectedFormat = getIntent().getStringExtra(EXTRA_STICKER_FORMAT);
 
+        galleryMediaPickerViewModel.setNameStickerPack(namePack);
+
         if (selectedFormat != null && selectedFormat.equals(STATIC_STICKER)) {
-            GalleryMediaPickerViewModel.launchOwnGallery(this, MimeTypesSupported.IMAGE.getMimeTypes(), namePack);
+            StickerPackCreationBaseActivity.launchOwnGallery(this);
+            galleryMediaPickerViewModel.setIsAnimatedPack(false);
+            galleryMediaPickerViewModel.setMimeTypesSupported(MimeTypesSupported.IMAGE);
+
             return;
         }
 
         if (selectedFormat != null && selectedFormat.equals(ANIMATED_STICKER)) {
-            GalleryMediaPickerViewModel.launchOwnGallery(this, MimeTypesSupported.ANIMATED.getMimeTypes(), namePack);
+            StickerPackCreationBaseActivity.launchOwnGallery(this);
+            galleryMediaPickerViewModel.setIsAnimatedPack(true);
+            galleryMediaPickerViewModel.setMimeTypesSupported(MimeTypesSupported.ANIMATED);
+
             return;
         }
 

@@ -155,10 +155,10 @@ public class PickMediaListAdapter extends ListAdapter<Uri, MediaViewHolder> {
             // NOTE: espaços depois é necessário para um "padding"
             holder.radioCheckBox.setText(String.format("%d  ", sequenceNumber));
          } else {
-            holder.radioCheckBox.setText("0  ");
+            holder.radioCheckBox.setText("");
          }
       } else {
-         holder.radioCheckBox.setText("0  ");
+         holder.radioCheckBox.setText("");
       }
    }
 

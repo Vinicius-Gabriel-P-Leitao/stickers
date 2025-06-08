@@ -36,7 +36,7 @@ public class PermissionSettingsViewModel extends ViewModel {
     }
 
     public static void launchPermissionSettings(FragmentActivity activity) {
-        PermissionSettingsFragment permissionRequestFragment = new PermissionSettingsFragment();
-        permissionRequestFragment.show(activity.getSupportFragmentManager(), PermissionSettingsFragment.class.getSimpleName());
+        PermissionSettingsFragment permissionSettingsFragment = new PermissionSettingsFragment();
+        permissionSettingsFragment.show(activity.getSupportFragmentManager(), PermissionSettingsFragment.class.getSimpleName());
     }
 }

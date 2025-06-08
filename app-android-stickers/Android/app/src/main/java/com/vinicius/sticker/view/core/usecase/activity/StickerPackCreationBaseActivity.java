@@ -20,6 +20,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,10 +34,14 @@ import com.vinicius.sticker.domain.orchestrator.StickerPackOrchestrator;
 import com.vinicius.sticker.view.core.base.BaseActivity;
 import com.vinicius.sticker.view.core.usecase.definition.DefinePermissionsToRequest;
 import com.vinicius.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
+import com.vinicius.sticker.view.feature.stickerpack.creation.adapter.PickMediaListAdapter;
+import com.vinicius.sticker.view.feature.stickerpack.creation.fragment.MediaPickerFragment;
 import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryMediaPickerViewModel;
 import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.NameStickerPackViewModel;
 import com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.PermissionRequestViewModel;
 import com.vinicius.sticker.view.main.EntryActivity;
+
+import java.io.File;
 
 public abstract class StickerPackCreationBaseActivity extends BaseActivity {
     private final static String TAG_LOG = StickerPackCreationBaseActivity.class.getSimpleName();
@@ -71,7 +78,7 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
         permissionRequestViewModel = new ViewModelProvider(this).get(PermissionRequestViewModel.class);
         nameStickerPackViewModel = new ViewModelProvider(this).get(NameStickerPackViewModel.class);
 
-        galleryMediaPickerViewModel.getStickerPackToPreview().observe(this, this::setupStickerPackView);
+        galleryMediaPickerViewModel.getStickerPackPreview().observe(this, this::setupStickerPackView);
 
         StickerPackOrchestrator.resetData();
         setupUI(savedInstanceState);
@@ -147,6 +154,29 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
     }
 
     public abstract void openGallery(String namePack);
+
+    public static void launchOwnGallery(FragmentActivity activity) {
+        FragmentManager supportFragmentManager = activity.getSupportFragmentManager();
+        Fragment existing = supportFragmentManager.findFragmentByTag(MediaPickerFragment.class.getSimpleName());
+
+        if (existing != null && existing.isVisible()) {
+            return;
+        }
+
+        MediaPickerFragment fragment = MediaPickerFragment.newInstance(new PickMediaListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(String imagePath) {
+                Uri selectedImageUri = Uri.fromFile(new File(imagePath));
+                Intent resultIntent = new Intent();
+                resultIntent.setData(selectedImageUri);
+
+                activity.setResult(RESULT_OK, resultIntent);
+                activity.finish();
+            }
+        });
+
+        fragment.show(supportFragmentManager, MediaPickerFragment.class.getSimpleName());
+    }
 
     public final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override

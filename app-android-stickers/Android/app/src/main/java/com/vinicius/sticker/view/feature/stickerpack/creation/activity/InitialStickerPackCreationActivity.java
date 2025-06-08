@@ -8,8 +8,6 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.creation.activity;
 
-import static com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel.GalleryMediaPickerViewModel.launchOwnGallery;
-
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.widget.ImageButton;
@@ -40,7 +38,7 @@ public class InitialStickerPackCreationActivity extends StickerPackCreationBaseA
             getSupportActionBar().setTitle(R.string.title_activity_sticker_packs_creator_first);
         }
 
-        galleryMediaPickerViewModel.getStickerPackToPreview().observe(this, this::setStateSupportActionBar);
+        galleryMediaPickerViewModel.getStickerPackPreview().observe(this, this::setStateSupportActionBar);
 
         ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
         buttonSelectMedia.setOnClickListener(view -> {
@@ -54,14 +52,14 @@ public class InitialStickerPackCreationActivity extends StickerPackCreationBaseA
                             @Override
                             public void onStaticStickerSelected() {
                                 setFormat(STATIC_STICKER);
-                                galleryMediaPickerViewModel.openFragmentState();
+                                galleryMediaPickerViewModel.setFragmentVisibility(true);
                                 createStickerPackFlow();
                             }
 
                             @Override
                             public void onAnimatedStickerSelected() {
                                 setFormat(ANIMATED_STICKER);
-                                galleryMediaPickerViewModel.openFragmentState();
+                                galleryMediaPickerViewModel.setFragmentVisibility(true);
                                 createStickerPackFlow();
                             }
                         });
@@ -71,13 +69,21 @@ public class InitialStickerPackCreationActivity extends StickerPackCreationBaseA
 
     @Override
     public void openGallery(String namePack) {
+        galleryMediaPickerViewModel.setNameStickerPack(namePack);
+
         if (selectedFormat != null && selectedFormat.equals(STATIC_STICKER)) {
-            launchOwnGallery(this, MimeTypesSupported.IMAGE.getMimeTypes(), namePack);
+            StickerPackCreationBaseActivity.launchOwnGallery(this);
+            galleryMediaPickerViewModel.setIsAnimatedPack(false);
+            galleryMediaPickerViewModel.setMimeTypesSupported(MimeTypesSupported.IMAGE);
+
             return;
         }
 
         if (selectedFormat != null && selectedFormat.equals(ANIMATED_STICKER)) {
-            launchOwnGallery(this, MimeTypesSupported.ANIMATED.getMimeTypes(), namePack);
+            StickerPackCreationBaseActivity.launchOwnGallery(this);
+            galleryMediaPickerViewModel.setIsAnimatedPack(true);
+            galleryMediaPickerViewModel.setMimeTypesSupported(MimeTypesSupported.ANIMATED);
+
             return;
         }
 

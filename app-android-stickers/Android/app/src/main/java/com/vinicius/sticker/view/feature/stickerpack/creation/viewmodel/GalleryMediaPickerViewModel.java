@@ -8,65 +8,158 @@
 
 package com.vinicius.sticker.view.feature.stickerpack.creation.viewmodel;
 
-import static android.app.Activity.RESULT_OK;
-
-import android.content.Intent;
+import android.content.Context;
 import android.net.Uri;
+import android.widget.Toast;
 
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.vinicius.sticker.core.exception.base.InternalAppException;
+import com.vinicius.sticker.core.exception.sticker.StickerPackSaveException;
+import com.vinicius.sticker.core.pattern.CallbackResult;
 import com.vinicius.sticker.domain.data.model.StickerPack;
+import com.vinicius.sticker.domain.orchestrator.StickerPackOrchestrator;
 import com.vinicius.sticker.view.core.usecase.definition.MimeTypesSupported;
-import com.vinicius.sticker.view.core.util.CursorSearchUriMedia;
-import com.vinicius.sticker.view.feature.stickerpack.creation.adapter.PickMediaListAdapter;
-import com.vinicius.sticker.view.feature.stickerpack.creation.fragment.MediaPickerFragment;
+import com.vinicius.sticker.view.core.util.ConvertMediaToStickerFormat;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-// @formatter:off
 public class GalleryMediaPickerViewModel extends ViewModel {
-    // NOTE: Pacote para o preview na activity
+    private final List<File> convertedFiles = Collections.synchronizedList(new ArrayList<>());
+    private final AtomicInteger completedConversions = new AtomicInteger(0);
+    private int totalConversions = 0;
+
+    public final MutableLiveData<CallbackResult<StickerPack>> stickerPackResult = new MutableLiveData<>();
     private final MutableLiveData<StickerPack> stickerPackPreview = new MutableLiveData<>();
-    public LiveData<StickerPack> getStickerPackToPreview() {
+    private final MutableLiveData<Boolean> fragmentVisibility = new MutableLiveData<>(false);
+    private final MutableLiveData<ProgressState> conversionProgress = new MutableLiveData<>();
+    public final MutableLiveData<Boolean> isAnimatedPack = new MutableLiveData<>();
+    public final MutableLiveData<String> nameStickerPack = new MutableLiveData<>();
+    public final MutableLiveData<MimeTypesSupported> mimeTypesSupported = new MutableLiveData<>();
+
+    public MutableLiveData<CallbackResult<StickerPack>> getStickerPackResult() {
+        return stickerPackResult;
+    }
+
+    public LiveData<StickerPack> getStickerPackPreview() {
         return stickerPackPreview;
     }
-    public void setStickerPackToPreview(StickerPack stickerPack) { stickerPackPreview.setValue(stickerPack); }
 
-    // NOTE: Estado do fragment
-    private final MutableLiveData<Boolean> fragmentVisibility = new MutableLiveData<>(false);
-
-    public LiveData<Boolean> getFragment() { return fragmentVisibility; }
-    public void openFragmentState() {
-        fragmentVisibility.setValue(false);
-    }
-    public void closeFragmentState() {
-        fragmentVisibility.setValue(true);
+    public MutableLiveData<MimeTypesSupported> getMimeTypesSupported() {
+        return mimeTypesSupported;
     }
 
-    public static void launchOwnGallery(FragmentActivity activity, String[] mimeType, String namePack) {
-        boolean isAnimatedPack = Arrays.equals(mimeType,MimeTypesSupported.ANIMATED.getMimeTypes());
-        List<Uri> uris = CursorSearchUriMedia.fetchMediaUri(activity, mimeType);
+    public void setStickerPackResult(CallbackResult<StickerPack> stickerPack) {
+        stickerPackResult.setValue(stickerPack);
+    }
 
+    public void setStickerPackPreview(StickerPack stickerPack) {
+        stickerPackPreview.setValue(stickerPack);
+    }
 
-        MediaPickerFragment fragment = MediaPickerFragment.newInstance(
-                new ArrayList<>(uris), namePack, isAnimatedPack, new PickMediaListAdapter.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(String imagePath) {
-                        Uri selectedImageUri = Uri.fromFile(new File(imagePath));
-                        Intent resultIntent = new Intent();
-                        resultIntent.setData(selectedImageUri);
+    public void setFragmentVisibility(Boolean visibility) {
+        fragmentVisibility.setValue(visibility);
+    }
 
-                        activity.setResult(RESULT_OK, resultIntent);
-                        activity.finish();
+    public void setIsAnimatedPack(Boolean animated) {
+        isAnimatedPack.setValue(animated);
+    }
+
+    public void setNameStickerPack(String name) {
+        nameStickerPack.setValue(name);
+    }
+
+    public void setMimeTypesSupported(MimeTypesSupported mimeTypes) {
+        mimeTypesSupported.setValue(mimeTypes);
+    }
+
+    public void startConversions(Set<Uri> uris, Context context) {
+        int cores = Runtime.getRuntime().availableProcessors();
+        int maxThreads = Math.min(30, cores * 2);
+        ExecutorService executor = new ThreadPoolExecutor(cores, maxThreads, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+
+        if (uris == null) {
+            postFailure("A lista de URIS para buscar as midias são nulas!");
+            return;
+        }
+
+        totalConversions = uris.size();
+        completedConversions.set(0);
+        convertedFiles.clear();
+
+        for (Uri uri : uris) {
+            executor.submit(() -> {
+                if (uri.getPath() == null) {
+                    postFailure("Caminho nulo para mídia.");
+                    return;
+                }
+
+                ConvertMediaToStickerFormat.convertMediaToWebP(
+                        context, uri, new File(uri.getPath()).getName(), new ConvertMediaToStickerFormat.MediaConversionCallback() {
+                            @Override
+                            public void onSuccess(File outputFile) {
+                                convertedFiles.add(outputFile);
+                                int done = completedConversions.incrementAndGet();
+                                conversionProgress.postValue(new ProgressState(totalConversions, done, done == totalConversions));
+
+                                if (done == totalConversions) {
+                                    generateStickerPack(context, isAnimatedPack.getValue(), nameStickerPack.getValue());
+                                }
+                            }
+
+                            @Override
+                            public void onError(Exception exception) {
+                                postFailure(exception.getMessage());
+                            }
+                        });
+            });
+        }
+    }
+
+    private void generateStickerPack(Context context, Boolean isAnimatedPack, String nameStickerPack) {
+        StickerPackOrchestrator.generateObjectToSave(
+                context, isAnimatedPack, convertedFiles, nameStickerPack, callbackResult -> {
+                    if (context != null) {
+                        switch (callbackResult.getStatus()) {
+                            case SUCCESS:
+                                setStickerPackResult(CallbackResult.success(callbackResult.getData()));
+                                break;
+                            case WARNING:
+                                Toast.makeText(context, "Aviso: " + callbackResult.getWarningMessage(), Toast.LENGTH_SHORT).show();
+                                setStickerPackResult(CallbackResult.warning(callbackResult.getWarningMessage()));
+                                break;
+                            case FAILURE:
+                                if (callbackResult.getError() instanceof InternalAppException exception) {
+                                    Toast.makeText(context, exception.getMessage(), Toast.LENGTH_SHORT).show();
+                                    setStickerPackResult(CallbackResult.failure(callbackResult.getError()));
+                                    break;
+                                }
+
+                                Toast.makeText(context, callbackResult.getError().getMessage(), Toast.LENGTH_SHORT).show();
+                                setStickerPackResult(CallbackResult.failure(callbackResult.getError()));
+                                break;
+                        }
+                    } else {
+                        throw new StickerPackSaveException("Fragment ou Contexto não estão mais válidos.");
                     }
                 });
+    }
 
-        fragment.show(activity.getSupportFragmentManager(), MediaPickerFragment.class.getSimpleName());
+    private void postFailure(String message) {
+        stickerPackResult.postValue(CallbackResult.failure(new Exception(message)));
+    }
+
+    private record ProgressState(int total, int completed, boolean done) {
     }
 }
