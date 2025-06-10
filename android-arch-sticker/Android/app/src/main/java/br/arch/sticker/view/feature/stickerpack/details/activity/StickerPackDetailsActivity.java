@@ -34,6 +34,11 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+
+import java.lang.ref.WeakReference;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import br.arch.sticker.R;
 import br.arch.sticker.core.validation.WhatsappWhitelistValidator;
 import br.arch.sticker.domain.data.model.StickerPack;
@@ -43,10 +48,6 @@ import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
 import br.arch.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
 import br.arch.sticker.view.feature.stickerpack.metadata.activity.StickerPackMetadataActivity;
-
-import java.lang.ref.WeakReference;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class StickerPackDetailsActivity extends StickerPackAddActivity {
 
@@ -114,20 +115,18 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
         packSizeTextView.setText(Formatter.formatShortFileSize(this, stickerPack.getTotalSize()));
 
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
-        buttonCreateStickerPackage.setOnClickListener(view -> {
-            FormatStickerPopupWindow.popUpButtonChooserStickerModel(
-                    this, buttonCreateStickerPackage, new FormatStickerPopupWindow.OnOptionClickListener() {
-                        @Override
-                        public void onStaticStickerSelected() {
-                            openCreateStickerPackActivity(STATIC_STICKER);
-                        }
+        buttonCreateStickerPackage.setOnClickListener(view -> FormatStickerPopupWindow.popUpButtonChooserStickerModel(
+                this, buttonCreateStickerPackage, new FormatStickerPopupWindow.OnOptionClickListener() {
+                    @Override
+                    public void onStaticStickerSelected() {
+                        openCreateStickerPackActivity(STATIC_STICKER);
+                    }
 
-                        @Override
-                        public void onAnimatedStickerSelected() {
-                            openCreateStickerPackActivity(ANIMATED_STICKER);
-                        }
-                    });
-        });
+                    @Override
+                    public void onAnimatedStickerSelected() {
+                        openCreateStickerPackActivity(ANIMATED_STICKER);
+                    }
+                }));
 
         addButton = findViewById(R.id.add_to_whatsapp_button);
         addButton.setOnClickListener(view -> addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name));

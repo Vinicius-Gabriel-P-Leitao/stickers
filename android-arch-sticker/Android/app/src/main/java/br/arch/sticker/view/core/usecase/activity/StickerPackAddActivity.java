@@ -137,14 +137,10 @@ public abstract class StickerPackAddActivity extends BaseActivity {
             View view = inflater.inflate(R.layout.dialog_alert_error_submit_whatsapp, null);
 
             Button okButton = view.findViewById(R.id.button_ok);
-            okButton.setOnClickListener(ok -> {
-                dismiss();
-            });
+            okButton.setOnClickListener(ok -> dismiss());
 
             Button updateButton = view.findViewById(R.id.button_update_whatsapp);
-            updateButton.setOnClickListener(update -> {
-                launchWhatsAppPlayStorePage();
-            });
+            updateButton.setOnClickListener(update -> launchWhatsAppPlayStorePage());
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(view);

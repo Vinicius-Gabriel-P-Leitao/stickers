@@ -49,7 +49,7 @@ public class StickerPackWithInvalidStickers implements Parcelable {
         return 0;
     }
 
-    public static final Creator<StickerPackWithInvalidStickers> CREATOR = new Creator<StickerPackWithInvalidStickers>() {
+    public static final Creator<StickerPackWithInvalidStickers> CREATOR = new Creator<>() {
         @Override
         public StickerPackWithInvalidStickers createFromParcel(Parcel parcel) {
             return new StickerPackWithInvalidStickers(parcel);

@@ -19,16 +19,16 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import br.arch.sticker.core.exception.media.MediaConversionException;
-import br.arch.sticker.core.lib.NativeConvertToWebp;
-import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import br.arch.sticker.core.exception.media.MediaConversionException;
+import br.arch.sticker.core.lib.NativeConvertToWebp;
+import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 
 public class ConvertMediaToStickerFormat {
     private final static String TAG_LOG = ConvertMediaToStickerFormat.class.getSimpleName();
@@ -85,7 +85,9 @@ public class ConvertMediaToStickerFormat {
 
                 return outputFile.getAbsoluteFile();
             } catch (IOException exception) {
-                callback.onError(new MediaConversionException(exception.getMessage(), exception.getCause()));
+                callback.onError(new MediaConversionException(
+                        Objects.toString(exception.getMessage(), "Erro desconhecido ao converter mídia"),
+                        exception.getCause()));
             }
         }
 
@@ -108,7 +110,10 @@ public class ConvertMediaToStickerFormat {
 
                     @Override
                     public void onError(Exception exception) {
-                        callback.onError(new MediaConversionException(exception.getMessage(), exception.getCause()));
+                        callback.onError(
+                                new MediaConversionException(
+                                        Objects.toString(exception.getMessage(), "Erro desconhecido ao converter mídia"),
+                                        exception.getCause()));
                     }
                 });
     }

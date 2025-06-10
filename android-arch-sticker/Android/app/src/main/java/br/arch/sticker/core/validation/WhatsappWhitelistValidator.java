@@ -53,8 +53,8 @@ public class WhatsappWhitelistValidator {
 
         if (isPackageInstalled(whatsappPackageName, packageManager)) {
             final String whatsappProviderAuthority = whatsappPackageName + CONTENT_PROVIDER;
-            final ProviderInfo providerInfo = packageManager.resolveContentProvider(whatsappProviderAuthority, PackageManager.GET_META_DATA);
 
+            final ProviderInfo providerInfo = packageManager.resolveContentProvider(whatsappProviderAuthority, PackageManager.GET_META_DATA);
             // provider is not there. The WhatsApp app may be an old version.
             if (providerInfo == null) {
                 return false;

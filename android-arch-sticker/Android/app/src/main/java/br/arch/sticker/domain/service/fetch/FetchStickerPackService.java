@@ -66,7 +66,7 @@ public class FetchStickerPackService {
         final ArrayList<StickerPack> stickerPackList;
 
         final ArrayList<StickerPack> invalidPacks = new ArrayList<>();
-        final HashMap<StickerPack, List<Sticker>> validPacksWithInvalidStickers = new HashMap<StickerPack, List<Sticker>>();
+        final HashMap<StickerPack, List<Sticker>> validPacksWithInvalidStickers = new HashMap<>();
 
         if (cursor.moveToFirst()) {
             stickerPackList = new ArrayList<>(buildListStickerPack(cursor, context));

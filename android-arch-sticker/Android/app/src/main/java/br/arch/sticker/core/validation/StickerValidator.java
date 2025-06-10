@@ -16,14 +16,15 @@ import androidx.annotation.Nullable;
 
 import com.facebook.animated.webp.WebPImage;
 import com.facebook.imagepipeline.common.ImageDecodeOptions;
+
+import java.io.IOException;
+
 import br.arch.sticker.core.exception.base.InternalAppException;
 import br.arch.sticker.core.exception.sticker.StickerFileException;
 import br.arch.sticker.core.exception.sticker.StickerValidatorException;
 import br.arch.sticker.core.pattern.ErrorFileCode;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
-
-import java.io.IOException;
 
 public class StickerValidator {
     static final int MAX_STATIC_STICKER_A11Y_TEXT_CHAR_LIMIT = 125;
@@ -63,6 +64,7 @@ public class StickerValidator {
         if (accessibilityText == null) {
             return false;
         }
+
         final int length = accessibilityText.length();
         return isAnimatedStickerPack && length > MAX_ANIMATED_STICKER_A11Y_TEXT_CHAR_LIMIT ||
                 !isAnimatedStickerPack && length > MAX_STATIC_STICKER_A11Y_TEXT_CHAR_LIMIT;

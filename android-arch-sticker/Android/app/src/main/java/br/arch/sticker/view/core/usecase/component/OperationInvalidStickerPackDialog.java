@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,6 +26,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import br.arch.sticker.R;
+import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.service.delete.DeleteStickerAssetService;
 import br.arch.sticker.domain.service.delete.DeleteStickerPackService;
 import br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity;
@@ -76,8 +78,28 @@ public class OperationInvalidStickerPackDialog extends DialogFragment {
             }
 
             if (stickerPackIdentifier != null) {
-                DeleteStickerPackService.deleteStickerPack(requireActivity(), stickerPackIdentifier);
-                DeleteStickerAssetService.deleteAllStickerAssetsInPack(requireActivity(), stickerPackIdentifier);
+                CallbackResult<Boolean> deletedStickerPack = DeleteStickerPackService.deleteStickerPack(requireActivity(), stickerPackIdentifier);
+                CallbackResult<Boolean> deletedAllStickerAssetsInPack = DeleteStickerAssetService.deleteAllStickerAssetsInPack(
+                        requireActivity(),
+                        stickerPackIdentifier);
+
+                switch (deletedStickerPack.getStatus()) {
+                    case WARNING:
+                        Toast.makeText(requireContext(), deletedStickerPack.getWarningMessage(), Toast.LENGTH_LONG).show();
+                        break;
+                    case FAILURE:
+                        Toast.makeText(requireContext(), deletedStickerPack.getError().getMessage(), Toast.LENGTH_LONG).show();
+                        break;
+                }
+
+                switch (deletedAllStickerAssetsInPack.getStatus()) {
+                    case WARNING:
+                        Toast.makeText(requireContext(), deletedAllStickerAssetsInPack.getWarningMessage(), Toast.LENGTH_LONG).show();
+                        break;
+                    case FAILURE:
+                        Toast.makeText(requireContext(), deletedAllStickerAssetsInPack.getError().getMessage(), Toast.LENGTH_LONG).show();
+                        break;
+                }
 
                 listener.onReloadRequested();
                 dismiss();
@@ -107,7 +129,7 @@ public class OperationInvalidStickerPackDialog extends DialogFragment {
         if (context instanceof OnDialogActionListener) {
             listener = (OnDialogActionListener) context;
         } else {
-            throw new RuntimeException(context.toString() + " deve implementar OnDialogActionListener");
+            throw new RuntimeException(context + " deve implementar OnDialogActionListener");
         }
     }
 }

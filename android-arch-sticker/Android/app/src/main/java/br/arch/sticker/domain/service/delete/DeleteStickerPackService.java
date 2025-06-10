@@ -21,18 +21,10 @@ public class DeleteStickerPackService {
     public static CallbackResult<Boolean> deleteStickerPack(@NonNull Context context, @NonNull String stickerPackIdentifier) {
         CallbackResult<Integer> stickerPackDeletedInDb = DeleteStickerPackRepo.deleteStickerPackFromDatabase(context, stickerPackIdentifier);
         return switch (stickerPackDeletedInDb.getStatus()) {
-            case SUCCESS -> {
-                yield CallbackResult.debug("Pacote de figurinhas deletado com sucesso. Status: " + stickerPackDeletedInDb.getData());
-            }
-            case WARNING -> {
-                yield CallbackResult.warning(stickerPackDeletedInDb.getWarningMessage());
-            }
-            case DEBUG -> {
-                yield CallbackResult.debug(stickerPackDeletedInDb.getDebugMessage());
-            }
-            case FAILURE -> {
-                yield CallbackResult.failure(new DeleteStickerException("Falha ao limpar pacote de figurinhas do banco.", stickerPackDeletedInDb.getError()));
-            }
+            case SUCCESS -> CallbackResult.debug("Pacote de figurinhas deletado com sucesso. Status: " + stickerPackDeletedInDb.getData());
+            case WARNING -> CallbackResult.warning(stickerPackDeletedInDb.getWarningMessage());
+            case DEBUG -> CallbackResult.debug(stickerPackDeletedInDb.getDebugMessage());
+            case FAILURE -> CallbackResult.failure(new DeleteStickerException("Falha ao limpar pacote de figurinhas do banco.", stickerPackDeletedInDb.getError()));
         };
     }
 }
