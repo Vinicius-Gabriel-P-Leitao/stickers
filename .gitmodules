@@ -1,6 +1,0 @@
-[submodule "references/stickers"]
-	path = references/stickers
-	url = https://github.com/WhatsApp/stickers.git
-[submodule "references/ffmpeg-android-maker"]
-	path = references/ffmpeg-android-maker
-	url = https://github.com/Javernaut/ffmpeg-android-maker.git
