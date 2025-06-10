@@ -52,6 +52,8 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
     public static final String EXTRA_INVALID_STICKER_PACK_LIST_DATA = "invalid_sticker_pack_list";
     public static final String EXTRA_INVALID_STICKER_MAP_DATA = "sticker_pack_with_invalid_stickers";
 
+    private List<StickerPackListItem> unifiedList;
+
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
 
     private LoadListStickerPackAsyncTask loadListStickerPackAsyncTask;
@@ -60,26 +62,16 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
     private LinearLayoutManager packLayoutManager;
     private RecyclerView packRecyclerView;
 
-    private List<StickerPackListItem> unifiedList;
+    private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = (stickerPack, isValid) -> {
+        if (isValid) {
+            addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name);
+        } else {
+            DialogOperationInvalidSticker dialog = DialogOperationInvalidSticker.newInstance(
+                    stickerPack.identifier, stickerPack.name,
+                    stickerPack.getStickers());
 
-    ArrayList<StickerPack> validStickerPackList;
-    ArrayList<StickerPack> invalidStickerPackList;
-    ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers;
-
-    private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = new StickerPackListAdapter.OnAddButtonClickedListener() {
-        @Override
-        public void onAddButtonClicked(StickerPack stickerPack, boolean isValid) {
-
-            if (isValid) {
-                addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name);
-            } else {
-                DialogOperationInvalidSticker dialog = DialogOperationInvalidSticker.newInstance(
-                        stickerPack.identifier, stickerPack.name,
-                        stickerPack.getStickers());
-
-                dialog.setStickerPackHandler(StickerPackListActivity.this);
-                dialog.show(getSupportFragmentManager(), DialogOperationInvalidSticker.class.getSimpleName());
-            }
+            dialog.setStickerPackHandler(StickerPackListActivity.this);
+            dialog.show(getSupportFragmentManager(), DialogOperationInvalidSticker.class.getSimpleName());
         }
     };
 
@@ -95,13 +87,14 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
 
         packRecyclerView = findViewById(R.id.recycler_valid_packs);
 
-        validStickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_STICKER_PACK_LIST_DATA);
+        ArrayList<StickerPack> validStickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_STICKER_PACK_LIST_DATA);
         if (validStickerPackList == null) validStickerPackList = new ArrayList<>();
 
-        invalidStickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_INVALID_STICKER_PACK_LIST_DATA);
+        ArrayList<StickerPack> invalidStickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_INVALID_STICKER_PACK_LIST_DATA);
         if (invalidStickerPackList == null) invalidStickerPackList = new ArrayList<>();
 
-        stickerPackWithInvalidStickers = getIntent().getParcelableArrayListExtra(EXTRA_INVALID_STICKER_MAP_DATA);
+        ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers = getIntent().getParcelableArrayListExtra(
+                EXTRA_INVALID_STICKER_MAP_DATA);
         if (stickerPackWithInvalidStickers == null) stickerPackWithInvalidStickers = new ArrayList<>();
 
         unifiedList = new ArrayList<>();
@@ -120,8 +113,7 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
         showStickerPack(unifiedList);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(
-                    getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, validStickerPackList.size()));
+            getSupportActionBar().setTitle(getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, unifiedList.size()));
         }
 
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
