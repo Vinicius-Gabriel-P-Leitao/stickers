@@ -40,7 +40,7 @@
             style="@style/SurfaceButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="60dp"
+            android:layout_marginEnd="50dp"
             android:backgroundTint="@color/catppuccin_surface0"
             android:text="@string/dialog_button_delete_pack"
             android:textColor="@color/catppuccin_text" />
@@ -50,7 +50,8 @@
             style="@style/SurfaceButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="60dp"
+            android:layout_marginStart="50dp"
+            android:minWidth="400dp"
             android:backgroundTint="@color/catppuccin_surface0"
             android:text="@string/dialog_button_fix_pack"
             android:textColor="@color/catppuccin_text" />

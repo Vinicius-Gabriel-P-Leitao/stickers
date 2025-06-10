@@ -54,4 +54,5 @@
     <string name="dialog_button_fix_pack">Fix package</string>
     <string name="dialog_button_ignore_pack">Ignore</string>
     <string name="dialog_button_fix_stickers">Fix stickers</string>
+    <string name="dialog_message_invalid_stickers">The package contains invalid stickers.</string>
 </resources>

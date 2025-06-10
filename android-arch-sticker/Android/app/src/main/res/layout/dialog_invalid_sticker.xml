@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:backgroundTint="@android:color/transparent"
-        android:text="@string/dialog_message_invalid_pack"
+        android:text="@string/dialog_message_invalid_stickers"
         android:textColor="@color/catppuccin_lavender" />
 
     <LinearLayout
@@ -40,7 +40,7 @@
             style="@style/SurfaceButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="60dp"
+            android:layout_marginEnd="50dp"
             android:backgroundTint="@color/catppuccin_surface0"
             android:text="@string/dialog_button_ignore_pack"
             android:textColor="@color/catppuccin_text" />
@@ -50,7 +50,8 @@
             style="@style/SurfaceButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="60dp"
+            android:layout_marginStart="50dp"
+            android:minWidth="600dp"
             android:backgroundTint="@color/catppuccin_surface0"
             android:text="@string/dialog_button_fix_stickers"
             android:textColor="@color/catppuccin_text" />
