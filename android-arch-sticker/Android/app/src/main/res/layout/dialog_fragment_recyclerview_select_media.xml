@@ -1,0 +1,61 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.feature.stickerpack.creation.fragment.MediaPickerFragment">
+
+
+    <br.arch.sticker.view.core.usecase.component.BottomFadingRecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="600dp"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/recyclerview_background"
+        android:clipToPadding="false"
+        android:contentDescription="@string/recycle_select_medias"
+        android:paddingTop="30dp"
+        android:paddingBottom="72dp" />
+
+
+    <LinearLayout
+        android:id="@+id/top_handler_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/drag_handle_container_rounded_background"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <View
+            android:id="@+id/top_handler"
+            android:layout_width="60dp"
+            android:layout_height="6dp"
+            android:layout_gravity="center|top"
+            android:background="@drawable/drag_handle_background" />
+    </LinearLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_bar_media"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/dialog_bottom_background"
+        android:indeterminate="true"
+        android:max="30"
+        android:padding="20dp"
+        android:progress="0"
+        android:visibility="gone"
+        app:indicatorColor="@color/catppuccin_text" />
+
+    <Button
+        android:id="@+id/select_medias_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/catppuccin_surface0"
+        android:elevation="6dp"
+        android:text="@string/button_select_medias"
+        android:textColor="@color/catppuccin_text" />
+
+</FrameLayout>
