@@ -31,21 +31,22 @@ import br.arch.sticker.domain.service.delete.DeleteStickerAssetService;
 import br.arch.sticker.domain.service.delete.DeleteStickerPackService;
 import br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity;
 
-public class OperationInvalidStickerPackDialog extends DialogFragment {
-    private static final String ARG_VALUE = "sticker_pack";
+public class DialogOperationInvalidStickerPack extends DialogFragment {
+    private static final String STICKER_PACK_IDENTIFIER = "sticker_pack_identifier";
     private OnDialogActionListener listener;
 
-    public OperationInvalidStickerPackDialog() {
+    public DialogOperationInvalidStickerPack() {
     }
 
     public interface OnDialogActionListener {
         void onReloadRequested();
     }
 
-    public static OperationInvalidStickerPackDialog newInstance(String stickerPackIdentifier) {
-        OperationInvalidStickerPackDialog fragment = new OperationInvalidStickerPackDialog();
+    public static DialogOperationInvalidStickerPack newInstance(String stickerPackIdentifier) {
+        DialogOperationInvalidStickerPack fragment = new DialogOperationInvalidStickerPack();
         Bundle args = new Bundle();
-        args.putString(ARG_VALUE, stickerPackIdentifier);
+        args.putString(STICKER_PACK_IDENTIFIER, stickerPackIdentifier);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -65,6 +66,8 @@ public class OperationInvalidStickerPackDialog extends DialogFragment {
         Button buttonFixPack = view.findViewById(R.id.button_fix_pack);
         buttonFixPack.setOnClickListener(fragment -> {
             Intent intent = new Intent(fragment.getContext(), PreviewStickerInvalidActivity.class);
+            // TODO: Mandar identificador do pacote ou pacote completo.
+
             fragment.getContext().startActivity(intent);
             dismiss();
         });
@@ -74,7 +77,7 @@ public class OperationInvalidStickerPackDialog extends DialogFragment {
             String stickerPackIdentifier = null;
 
             if (getArguments() != null) {
-                stickerPackIdentifier = getArguments().getString(ARG_VALUE);
+                stickerPackIdentifier = getArguments().getString(STICKER_PACK_IDENTIFIER);
             }
 
             if (stickerPackIdentifier != null) {

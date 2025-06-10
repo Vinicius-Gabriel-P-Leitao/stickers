@@ -25,18 +25,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
-import br.arch.sticker.R;
-import br.arch.sticker.core.validation.WhatsappWhitelistValidator;
-import br.arch.sticker.domain.data.model.StickerPack;
-import br.arch.sticker.domain.dto.StickerPackWithInvalidStickers;
-import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
-import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
-import br.arch.sticker.view.core.usecase.component.OperationInvalidStickerPackDialog;
-import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
-import br.arch.sticker.view.feature.stickerpack.list.adapter.StickerPackListAdapter;
-import br.arch.sticker.view.feature.stickerpack.list.model.StickerPackListItem;
-import br.arch.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;
-import br.arch.sticker.view.main.EntryActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -45,7 +33,21 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class StickerPackListActivity extends StickerPackAddActivity implements OperationInvalidStickerPackDialog.OnDialogActionListener {
+import br.arch.sticker.R;
+import br.arch.sticker.core.validation.WhatsappWhitelistValidator;
+import br.arch.sticker.domain.data.model.StickerPack;
+import br.arch.sticker.domain.dto.StickerPackWithInvalidStickers;
+import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
+import br.arch.sticker.view.core.usecase.component.DialogOperationInvalidSticker;
+import br.arch.sticker.view.core.usecase.component.DialogOperationInvalidStickerPack;
+import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
+import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
+import br.arch.sticker.view.feature.stickerpack.list.adapter.StickerPackListAdapter;
+import br.arch.sticker.view.feature.stickerpack.list.model.StickerPackListItem;
+import br.arch.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;
+import br.arch.sticker.view.main.EntryActivity;
+
+public class StickerPackListActivity extends StickerPackAddActivity implements DialogOperationInvalidStickerPack.OnDialogActionListener {
     public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
     public static final String EXTRA_INVALID_STICKER_PACK_LIST_DATA = "invalid_sticker_pack_list";
     public static final String EXTRA_INVALID_STICKER_MAP_DATA = "sticker_pack_with_invalid_stickers";
@@ -64,9 +66,27 @@ public class StickerPackListActivity extends StickerPackAddActivity implements O
     ArrayList<StickerPack> invalidStickerPackList;
     ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers;
 
-    private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = pack -> addStickerPackToWhatsApp(
-            pack.identifier,
-            pack.name);
+    private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = new StickerPackListAdapter.OnAddButtonClickedListener() {
+        @Override
+        public void onAddButtonClicked(StickerPack stickerPack, boolean isValid) {
+
+            if (isValid) {
+                addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name);
+            } else {
+                DialogOperationInvalidSticker dialog = DialogOperationInvalidSticker.newInstance(
+                        stickerPack.identifier, stickerPack.name,
+                        stickerPack.getStickers());
+
+                dialog.setStickerPackHandler(StickerPackListActivity.this);
+                dialog.show(getSupportFragmentManager(), DialogOperationInvalidSticker.class.getSimpleName());
+            }
+        }
+    };
+
+    @Override
+    public void addStickerPackToWhatsApp(String stickerPackIdentifier, String stickerPackName) {
+        super.addStickerPackToWhatsApp(stickerPackIdentifier, stickerPackName);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_alert_background"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/transparent"
+        android:text="@string/dialog_title_invalid_pack"
+        android:textColor="@color/catppuccin_lavender"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@android:color/transparent"
+        android:text="@string/dialog_message_invalid_pack"
+        android:textColor="@color/catppuccin_lavender" />
+
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/button_ignore_invalid_sticker"
+            style="@style/SurfaceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="60dp"
+            android:backgroundTint="@color/catppuccin_surface0"
+            android:text="@string/dialog_button_ignore_pack"
+            android:textColor="@color/catppuccin_text" />
+
+        <Button
+            android:id="@+id/button_fix_stickers"
+            style="@style/SurfaceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="60dp"
+            android:backgroundTint="@color/catppuccin_surface0"
+            android:text="@string/dialog_button_fix_stickers"
+            android:textColor="@color/catppuccin_text" />
+    </LinearLayout>
+</LinearLayout>

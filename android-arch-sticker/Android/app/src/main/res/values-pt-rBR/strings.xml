@@ -52,4 +52,6 @@
     <string name="dialog_message_invalid_pack">O pacote de figurinha é invalido, corrija ou exclua o pacote!</string>
     <string name="dialog_button_delete_pack">Deletar</string>
     <string name="dialog_button_fix_pack">Corrigir</string>
+    <string name="dialog_button_ignore_pack">Ignorar</string>
+    <string name="dialog_button_fix_stickers">Corrigir figurinhas</string>
 </resources>

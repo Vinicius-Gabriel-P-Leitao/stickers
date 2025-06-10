@@ -52,4 +52,6 @@
     <string name="dialog_message_invalid_pack">The sticker pack is invalid, please fix or delete the pack!</string>
     <string name="dialog_button_delete_pack">Delete</string>
     <string name="dialog_button_fix_pack">Fix package</string>
+    <string name="dialog_button_ignore_pack">Ignore</string>
+    <string name="dialog_button_fix_stickers">Fix stickers</string>
 </resources>
