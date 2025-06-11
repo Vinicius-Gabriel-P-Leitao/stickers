@@ -1,18 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_gravity="center"
     android:background="@drawable/dialog_alert_background"
     android:gravity="center"
     android:orientation="vertical"
+    android:maxWidth="400dp"
+    android:minWidth="350dp"
     android:padding="24dp">
+
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/dialog_button_icon"
+        android:src="@drawable/sticker_3rdparty_warning"
+        app:tint="@color/catppuccin_lavender" />
 
     <TextView
         android:id="@+id/dialog_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/transparent"
-        android:text="@string/dialog_title_invalid_pack"
+        android:text="@string/dialog_title_invalid_stickers"
         android:textColor="@color/catppuccin_lavender"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -33,14 +46,16 @@
         android:layout_marginTop="15dp"
         android:gravity="center"
         android:orientation="horizontal"
+        android:baselineAligned="false"
         android:padding="10dp">
 
         <Button
             android:id="@+id/button_ignore_invalid_sticker"
             style="@style/SurfaceButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="50dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
             android:backgroundTint="@color/catppuccin_surface0"
             android:text="@string/dialog_button_ignore_pack"
             android:textColor="@color/catppuccin_text" />
@@ -48,10 +63,10 @@
         <Button
             android:id="@+id/button_fix_stickers"
             style="@style/SurfaceButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
-            android:minWidth="600dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
             android:backgroundTint="@color/catppuccin_surface0"
             android:text="@string/dialog_button_fix_stickers"
             android:textColor="@color/catppuccin_text" />
