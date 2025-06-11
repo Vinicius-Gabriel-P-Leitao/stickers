@@ -11,6 +11,8 @@
 
 package br.arch.sticker.view.feature.stickerpack.list.adapter;
 
+import static br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity.EXTRA_INVALID_STICKERS;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import br.arch.sticker.R;
@@ -121,7 +124,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
             intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, stickerPack);
             if (!isValid) {
-                // TODO: Implementar lógica que manda os stickers invalidos junto para serem tratados.
+              intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKERS, new ArrayList<>(stickers));
             }
 
             view.getContext().startActivity(intent);

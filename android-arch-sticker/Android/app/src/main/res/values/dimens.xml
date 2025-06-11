@@ -4,6 +4,8 @@
     <dimen name="margin_from_tray_to_name">16dp</dimen>
     <dimen name="sticker_pack_details_image_size">80dp</dimen>
     <dimen name="sticker_pack_details_image_padding">8dp</dimen>
+    <dimen name="sticker_pack_details_button_size">40dp</dimen>
+    <dimen name="sticker_pack_details_button_padding">8dp</dimen>
     <dimen name="fading_edge_length">8dp</dimen>
     <dimen name="sticker_pack_list_item_preview_image_size">50dp</dimen>
     <dimen name="sticker_pack_list_item_preview_image_padding">4dp</dimen>

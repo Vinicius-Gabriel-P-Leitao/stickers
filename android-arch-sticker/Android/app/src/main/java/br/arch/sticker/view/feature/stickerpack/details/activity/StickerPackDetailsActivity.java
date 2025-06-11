@@ -36,11 +36,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import br.arch.sticker.R;
 import br.arch.sticker.core.validation.WhatsappWhitelistValidator;
+import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
 import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
@@ -49,6 +51,7 @@ import br.arch.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
 import br.arch.sticker.view.feature.stickerpack.metadata.activity.StickerPackMetadataActivity;
 
+// @formatter:off
 public class StickerPackDetailsActivity extends StickerPackAddActivity {
 
     /**
@@ -59,6 +62,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
     public static final String EXTRA_STICKER_PACK_AUTHORITY = "sticker_pack_authority";
     public static final String EXTRA_STICKER_PACK_TRAY_ICON = "sticker_pack_tray_icon";
     public static final String EXTRA_STICKER_PACK_WEBSITE = "sticker_pack_website";
+    public static final String EXTRA_INVALID_STICKERS = "invalid_sticker_list";
     public static final String EXTRA_STICKER_PACK_EMAIL = "sticker_pack_email";
     public static final String EXTRA_STICKER_PACK_NAME = "sticker_pack_name";
     public static final String EXTRA_STICKER_PACK_DATA = "sticker_pack";
@@ -84,6 +88,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
 
         boolean showUpButton = getIntent().getBooleanExtra(EXTRA_SHOW_UP_BUTTON, false);
         stickerPack = getIntent().getParcelableExtra(EXTRA_STICKER_PACK_DATA);
+        ArrayList<Sticker> stickers = getIntent().getParcelableArrayListExtra(EXTRA_INVALID_STICKERS);
 
         TextView packNameTextView = findViewById(R.id.pack_name);
         TextView packPublisherTextView = findViewById(R.id.author);
@@ -103,8 +108,14 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
 
         if (stickerPreviewAdapter == null) {
             stickerPreviewAdapter = new StickerPreviewAdapter(
-                    getLayoutInflater(), R.drawable.sticker_error, getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
-                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, expandedStickerView);
+                    getLayoutInflater(),
+                    R.drawable.sticker_error,
+                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
+                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding),
+                    stickerPack,
+                    stickers != null ? stickers : new ArrayList<>(),
+                    expandedStickerView);
+
             recyclerView.setAdapter(stickerPreviewAdapter);
         }
 

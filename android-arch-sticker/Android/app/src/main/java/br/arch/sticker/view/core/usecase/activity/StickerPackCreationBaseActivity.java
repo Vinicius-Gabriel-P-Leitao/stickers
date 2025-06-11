@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import br.arch.sticker.R;
 import br.arch.sticker.domain.data.model.StickerPack;
@@ -199,7 +200,8 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
         if (stickerPreviewAdapter == null) {
             stickerPreviewAdapter = new StickerPreviewAdapter(
                     getLayoutInflater(), R.drawable.sticker_error, getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
-                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, expandedStickerView);
+                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, new ArrayList<>(),
+                    expandedStickerView);
 
             recyclerView.setAdapter(stickerPreviewAdapter);
         }

@@ -28,19 +28,29 @@ import com.bumptech.glide.integration.webp.decoder.WebpDrawable;
 import com.bumptech.glide.integration.webp.decoder.WebpDrawableTransformation;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.request.RequestOptions;
+
+import java.util.ArrayList;
+
 import br.arch.sticker.R;
+import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
-import br.arch.sticker.view.feature.stickerpack.creation.transformation.CropSquareTransformation;
+import br.arch.sticker.view.feature.preview.viewholder.ButtonPreviewInvalidStickerViewHolder;
 import br.arch.sticker.view.feature.preview.viewholder.StickerPreviewViewHolder;
+import br.arch.sticker.view.feature.stickerpack.creation.transformation.CropSquareTransformation;
 
-public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewViewHolder> {
+// @formatter:off
+public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final float COLLAPSED_STICKER_PREVIEW_BACKGROUND_ALPHA = 1f;
     private static final float EXPANDED_STICKER_PREVIEW_BACKGROUND_ALPHA = 0.2f;
+    private static final int VIEW_TYPE_STICKER = 0;
+    private static final int VIEW_TYPE_BUTTON = 1;
 
     @NonNull
     private final StickerPack stickerPack;
+    @NonNull
+    private final ArrayList<Sticker> invalidStickers;
 
     private final int cellSize;
     private final int cellLimit;
@@ -67,8 +77,13 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
     };
 
     public StickerPreviewAdapter(
-            @NonNull final LayoutInflater layoutInflater, final int errorResource, final int cellSize, final int cellPadding,
-            @NonNull final StickerPack stickerPack, final ImageView expandedStickerView
+            @NonNull final LayoutInflater layoutInflater,
+            final int errorResource,
+            final int cellSize,
+            final int cellPadding,
+            @NonNull final StickerPack stickerPack,
+            @NonNull ArrayList<Sticker> invalidStickers,
+            final ImageView expandedStickerView
     ) {
         this.cellSize = cellSize;
         this.cellPadding = cellPadding;
@@ -76,30 +91,51 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
         this.layoutInflater = layoutInflater;
         this.errorResource = errorResource;
         this.stickerPack = stickerPack;
+        this.invalidStickers = invalidStickers;
         this.expandedStickerPreview = expandedStickerView;
     }
 
     @NonNull
     @Override
-    public StickerPreviewViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int viewType) {
-        View itemView = layoutInflater.inflate(R.layout.sticker_icon_item_preview, viewGroup, false);
-        StickerPreviewViewHolder stickerPreviewViewHolder = new StickerPreviewViewHolder(itemView);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int viewType) {
+        if (viewType == VIEW_TYPE_STICKER) {
+            View itemView = layoutInflater.inflate(R.layout.sticker_icon_item_preview, viewGroup, false);
+            StickerPreviewViewHolder stickerPreviewViewHolder = new StickerPreviewViewHolder(itemView);
 
-        ViewGroup.LayoutParams layoutParams = stickerPreviewViewHolder.stickerPreviewView.getLayoutParams();
-        layoutParams.height = cellSize;
-        layoutParams.width = cellSize;
-        stickerPreviewViewHolder.stickerPreviewView.setLayoutParams(layoutParams);
-        stickerPreviewViewHolder.stickerPreviewView.setPadding(cellPadding, cellPadding, cellPadding, cellPadding);
+            ViewGroup.LayoutParams layoutParams = stickerPreviewViewHolder.stickerPreviewView.getLayoutParams();
+            layoutParams.height = cellSize;
+            layoutParams.width = cellSize;
 
-        return stickerPreviewViewHolder;
+            stickerPreviewViewHolder.stickerPreviewView.setLayoutParams(layoutParams);
+            stickerPreviewViewHolder.stickerPreviewView.setPadding(cellPadding, cellPadding, cellPadding, cellPadding);
+            return stickerPreviewViewHolder;
+        } else {
+            View itemView = layoutInflater.inflate(R.layout.button_invalid_item_preview, viewGroup, false);
+            ButtonPreviewInvalidStickerViewHolder buttonPreviewInvalidStickerViewHolder = new ButtonPreviewInvalidStickerViewHolder(itemView);
+
+            ViewGroup.LayoutParams layoutParams = buttonPreviewInvalidStickerViewHolder.materialButton.getLayoutParams();
+            layoutParams.height = cellSize;
+            layoutParams.width = cellSize;
+
+            buttonPreviewInvalidStickerViewHolder.materialButton.setLayoutParams(layoutParams);
+            buttonPreviewInvalidStickerViewHolder.materialButton.setPadding(cellPadding, cellPadding, cellPadding, cellPadding);
+            return buttonPreviewInvalidStickerViewHolder;
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final StickerPreviewViewHolder stickerPreviewViewHolder, final int position) {
-        stickerPreviewViewHolder.stickerPreviewView.setImageResource(errorResource);
-        stickerPreviewViewHolder.stickerPreviewView.setImageURI(
-                FetchStickerAssetService.buildStickerAssetUri(stickerPack.identifier, stickerPack.getStickers().get(position).imageFileName));
-        stickerPreviewViewHolder.stickerPreviewView.setOnClickListener(v -> expandPreview(position, stickerPreviewViewHolder.stickerPreviewView));
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder viewHolder, final int position) {
+        if (viewHolder instanceof StickerPreviewViewHolder previewViewHolder) {
+            Sticker sticker = stickerPack.getStickers().get(position);
+
+            previewViewHolder.stickerPreviewView.setImageResource(errorResource);
+            previewViewHolder.stickerPreviewView.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPack.identifier, sticker.imageFileName));
+            previewViewHolder.stickerPreviewView.setOnClickListener(view -> expandPreview(position, previewViewHolder.stickerPreviewView));
+        }
+
+        if (viewHolder instanceof ButtonPreviewInvalidStickerViewHolder buttonPreviewInvalidStickerViewHolder) {
+            buttonPreviewInvalidStickerViewHolder.materialButton.setOnClickListener(view -> openDialogViewInvalidSticker());
+        }
     }
 
     @Override
@@ -116,6 +152,23 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
         this.recyclerView = null;
     }
 
+    @Override
+    public int getItemCount() {
+        int validCount = stickerPack.getStickers().size();
+        boolean hasInvalid = !invalidStickers.isEmpty();
+        return validCount + (hasInvalid ? 1 : 0);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        int validCount = stickerPack.getStickers().size();
+        if (!invalidStickers.isEmpty() && position == validCount) {
+            return VIEW_TYPE_BUTTON;
+        }
+
+        return VIEW_TYPE_STICKER;
+    }
+
     private void positionExpandedStickerPreview(int selectedPosition) {
         if (expandedStickerPreview != null) {
             // Calculate the view's center (x, y), then use expandedStickerPreview's height and
@@ -127,12 +180,13 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
             final int recyclerViewWidth = recyclerView.getWidth();
             final int recyclerViewHeight = recyclerView.getHeight();
 
-            final StickerPreviewViewHolder clickedViewHolder = (StickerPreviewViewHolder) recyclerView.findViewHolderForAdapterPosition(
-                    selectedPosition);
+            final StickerPreviewViewHolder clickedViewHolder = (StickerPreviewViewHolder) recyclerView.findViewHolderForAdapterPosition(selectedPosition);
+
             if (clickedViewHolder == null) {
                 hideExpandedStickerPreview();
                 return;
             }
+
             clickedStickerPreview = clickedViewHolder.itemView;
             final float clickedViewCenterX = clickedStickerPreview.getX() + recyclerViewLeftMargin + clickedStickerPreview.getWidth() / 2f;
             final float clickedViewCenterY = clickedStickerPreview.getY() + clickedStickerPreview.getHeight() / 2f;
@@ -147,8 +201,7 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
 
             // If the bottom or right sides are clipped, we need to move the top left positions
             // so that those sides are no longer clipped.
-            final float adjustmentX = Math.max(
-                    expandedViewLeftX + expandedStickerPreview.getWidth() - recyclerViewWidth - recyclerViewRightMargin, 0);
+            final float adjustmentX = Math.max(expandedViewLeftX + expandedStickerPreview.getWidth() - recyclerViewWidth - recyclerViewRightMargin, 0);
             final float adjustmentY = Math.max(expandedViewTopY + expandedStickerPreview.getHeight() - recyclerViewHeight, 0);
 
             expandedViewLeftX -= adjustmentX;
@@ -197,17 +250,28 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
 
             if (extension.equals("webp") && isAnimatedWebp) {
                 expandedStickerPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                glide.load(stickerAssetUri).apply(requestOptions).transform(WebpDrawable.class, new WebpDrawableTransformation(commonTransform))
+                glide.load(stickerAssetUri)
+                        .apply(requestOptions)
+                        .transform(WebpDrawable.class, new WebpDrawableTransformation(commonTransform))
                         .into(expandedStickerPreview);
             } else {
-                glide.asBitmap().load(stickerAssetUri).apply(requestOptions).centerCrop().transform(commonTransform).into(expandedStickerPreview);
+                glide.asBitmap()
+                        .load(stickerAssetUri)
+                        .apply(requestOptions)
+                        .centerCrop()
+                        .transform(commonTransform)
+                        .into(expandedStickerPreview);
             }
 
             expandedStickerPreview.setVisibility(View.VISIBLE);
             recyclerView.setAlpha(EXPANDED_STICKER_PREVIEW_BACKGROUND_ALPHA);
 
-            expandedStickerPreview.setOnClickListener(v -> hideExpandedStickerPreview());
+            expandedStickerPreview.setOnClickListener(view -> hideExpandedStickerPreview());
         }
+    }
+
+    private void openDialogViewInvalidSticker() {
+
     }
 
     public void hideExpandedStickerPreview() {
@@ -220,15 +284,5 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<StickerPreviewVi
 
     private boolean isStickerPreviewExpanded() {
         return expandedStickerPreview != null && expandedStickerPreview.getVisibility() == View.VISIBLE;
-    }
-
-    @Override
-    public int getItemCount() {
-        int numberOfPreviewImagesInPack;
-        numberOfPreviewImagesInPack = stickerPack.getStickers().size();
-        if (cellLimit > 0) {
-            return Math.min(numberOfPreviewImagesInPack, cellLimit);
-        }
-        return numberOfPreviewImagesInPack;
     }
 }
