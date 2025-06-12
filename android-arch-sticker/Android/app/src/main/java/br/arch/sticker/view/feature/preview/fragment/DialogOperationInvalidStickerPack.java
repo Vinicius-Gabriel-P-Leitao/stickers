@@ -8,6 +8,8 @@
 
 package br.arch.sticker.view.feature.preview.fragment;
 
+import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_PACK;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -65,8 +67,14 @@ public class DialogOperationInvalidStickerPack extends DialogFragment {
 
         Button buttonFixPack = view.findViewById(R.id.button_fix_pack);
         buttonFixPack.setOnClickListener(fragment -> {
+            String stickerPackIdentifier = null;
+
+            if (getArguments() != null) {
+                stickerPackIdentifier = getArguments().getString(STICKER_PACK_IDENTIFIER);
+            }
+
             Intent intent = new Intent(fragment.getContext(), PreviewStickerInvalidActivity.class);
-            // TODO: Mandar identificador do pacote ou pacote completo.
+            intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPackIdentifier);
 
             fragment.getContext().startActivity(intent);
             dismiss();

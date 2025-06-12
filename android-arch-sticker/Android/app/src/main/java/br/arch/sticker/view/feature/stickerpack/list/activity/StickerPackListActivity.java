@@ -11,6 +11,8 @@
 
 package br.arch.sticker.view.feature.stickerpack.list.activity;
 
+import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_LIST;
+import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_PACK;
 import static br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity.ANIMATED_STICKER;
 import static br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity.STATIC_STICKER;
 
@@ -18,6 +20,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Parcelable;
 
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -80,7 +83,8 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
             dialog.setTextFixButton(this.getString(R.string.dialog_button_fix_stickers));
             dialog.setOnFixClick(fragment -> {
                 Intent intent = new Intent(fragment.getContext(), PreviewStickerInvalidActivity.class);
-                // TODO: Mandar lista de stickers e identificador do pacote.
+                intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPack.identifier);
+                intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKER_LIST, (ArrayList<? extends Parcelable>) stickerPack.getStickers());
 
                 fragment.getContext().startActivity(intent);
                 dialog.dismiss();

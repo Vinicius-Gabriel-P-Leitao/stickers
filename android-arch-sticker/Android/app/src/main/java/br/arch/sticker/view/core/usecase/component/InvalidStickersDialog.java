@@ -74,5 +74,9 @@ public class InvalidStickersDialog extends Dialog {
     public void setOnFixClick(View.OnClickListener listener) {
         fixButton.setOnClickListener(listener);
     }
+
+    public void setIconImageView(int icon) {
+        iconImageView.setImageResource(icon);
+    }
 }
 

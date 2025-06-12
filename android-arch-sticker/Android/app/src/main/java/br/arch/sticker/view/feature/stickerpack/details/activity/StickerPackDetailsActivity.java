@@ -11,6 +11,8 @@
 
 package br.arch.sticker.view.feature.stickerpack.details.activity;
 
+import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_LIST;
+import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_PACK;
 import static br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity.ANIMATED_STICKER;
 import static br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity.STATIC_STICKER;
 
@@ -127,7 +129,8 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
                         dialog.setTextFixButton(this.getString(R.string.dialog_button_fix_stickers));
                         dialog.setOnFixClick(fragment -> {
                             Intent intent = new Intent(fragment.getContext(), PreviewStickerInvalidActivity.class);
-                            // TODO: Mandar lista de stickers e identificador do pacote.
+                            intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPack.identifier);
+                            intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKER_LIST, stickers);
 
                             fragment.getContext().startActivity(intent);
                             dialog.dismiss();
