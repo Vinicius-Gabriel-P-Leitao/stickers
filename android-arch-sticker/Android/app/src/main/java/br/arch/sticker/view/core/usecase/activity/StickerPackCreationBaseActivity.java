@@ -44,6 +44,7 @@ import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.NameStickerPa
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.PermissionRequestViewModel;
 import br.arch.sticker.view.main.EntryActivity;
 
+// @formatter:off
 public abstract class StickerPackCreationBaseActivity extends BaseActivity {
     private final static String TAG_LOG = StickerPackCreationBaseActivity.class.getSimpleName();
 
@@ -199,8 +200,12 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
 
         if (stickerPreviewAdapter == null) {
             stickerPreviewAdapter = new StickerPreviewAdapter(
-                    getLayoutInflater(), R.drawable.sticker_error, getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
-                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, new ArrayList<>(),
+                    getLayoutInflater(),
+                    R.drawable.sticker_error,
+                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
+                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding),
+                    stickerPack,
+                    new ArrayList<>(),
                     expandedStickerView);
 
             recyclerView.setAdapter(stickerPreviewAdapter);

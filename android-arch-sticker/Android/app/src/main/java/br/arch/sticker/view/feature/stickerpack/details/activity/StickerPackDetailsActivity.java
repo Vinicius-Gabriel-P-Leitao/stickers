@@ -47,6 +47,8 @@ import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
 import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
+import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
+import br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity;
 import br.arch.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
 import br.arch.sticker.view.feature.stickerpack.metadata.activity.StickerPackMetadataActivity;
@@ -114,7 +116,26 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
                     getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding),
                     stickerPack,
                     stickers != null ? stickers : new ArrayList<>(),
-                    expandedStickerView);
+                    expandedStickerView,
+                    ()-> {
+                        InvalidStickersDialog dialog = new InvalidStickersDialog(this);
+                        dialog.setTitleText(this.getString(R.string.dialog_title_invalid_stickers));
+                        dialog.setMessageText(this.getString(R.string.dialog_message_invalid_stickers));
+
+                        dialog.setVisibilityIgnoreButton(View.GONE);
+
+                        dialog.setTextFixButton(this.getString(R.string.dialog_button_fix_stickers));
+                        dialog.setOnFixClick(fragment -> {
+                            Intent intent = new Intent(fragment.getContext(), PreviewStickerInvalidActivity.class);
+                            // TODO: Mandar lista de stickers e identificador do pacote.
+
+                            fragment.getContext().startActivity(intent);
+                            dialog.dismiss();
+                        });
+
+                        dialog.show();
+                    }
+            );
 
             recyclerView.setAdapter(stickerPreviewAdapter);
         }

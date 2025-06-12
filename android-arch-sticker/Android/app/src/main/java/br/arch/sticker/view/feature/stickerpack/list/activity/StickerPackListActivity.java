@@ -38,9 +38,10 @@ import br.arch.sticker.core.validation.WhatsappWhitelistValidator;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.StickerPackWithInvalidStickers;
 import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
-import br.arch.sticker.view.core.usecase.component.DialogOperationInvalidSticker;
-import br.arch.sticker.view.core.usecase.component.DialogOperationInvalidStickerPack;
 import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
+import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
+import br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity;
+import br.arch.sticker.view.feature.preview.fragment.DialogOperationInvalidStickerPack;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
 import br.arch.sticker.view.feature.stickerpack.list.adapter.StickerPackListAdapter;
 import br.arch.sticker.view.feature.stickerpack.list.model.StickerPackListItem;
@@ -66,12 +67,26 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
         if (isValid) {
             addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name);
         } else {
-            DialogOperationInvalidSticker dialog = DialogOperationInvalidSticker.newInstance(
-                    stickerPack.identifier, stickerPack.name,
-                    stickerPack.getStickers());
+            InvalidStickersDialog dialog = new InvalidStickersDialog(this);
+            dialog.setTitleText(this.getString(R.string.dialog_title_invalid_stickers));
+            dialog.setMessageText(this.getString(R.string.dialog_message_invalid_stickers));
 
-            dialog.setStickerPackHandler(StickerPackListActivity.this);
-            dialog.show(getSupportFragmentManager(), DialogOperationInvalidSticker.class.getSimpleName());
+            dialog.setTextIgnoreButton(this.getString(R.string.dialog_button_ignore_pack));
+            dialog.setOnIgnoreClick(fragment -> {
+                addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name);
+                dialog.dismiss();
+            });
+
+            dialog.setTextFixButton(this.getString(R.string.dialog_button_fix_stickers));
+            dialog.setOnFixClick(fragment -> {
+                Intent intent = new Intent(fragment.getContext(), PreviewStickerInvalidActivity.class);
+                // TODO: Mandar lista de stickers e identificador do pacote.
+
+                fragment.getContext().startActivity(intent);
+                dialog.dismiss();
+            });
+
+            dialog.show();
         }
     };
 

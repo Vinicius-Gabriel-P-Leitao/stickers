@@ -41,6 +41,9 @@ import br.arch.sticker.view.feature.stickerpack.creation.transformation.CropSqua
 
 // @formatter:off
 public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    public interface OnInvalidStickerClickListener {
+        void onInvalidStickerClicked();
+    }
 
     private static final float COLLAPSED_STICKER_PREVIEW_BACKGROUND_ALPHA = 1f;
     private static final float EXPANDED_STICKER_PREVIEW_BACKGROUND_ALPHA = 0.2f;
@@ -53,18 +56,17 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private final ArrayList<Sticker> invalidStickers;
 
     private final int cellSize;
-    private final int cellLimit;
     private final int cellPadding;
     private final int errorResource;
 
     private final ImageView expandedStickerPreview;
-
-    float expandedViewLeftX;
-    float expandedViewTopY;
-
     private final LayoutInflater layoutInflater;
     private RecyclerView recyclerView;
     private View clickedStickerPreview;
+    float expandedViewLeftX;
+    float expandedViewTopY;
+
+    private OnInvalidStickerClickListener invalidStickerClickListener;
 
     private final RecyclerView.OnScrollListener hideExpandedViewScrollListener = new RecyclerView.OnScrollListener() {
         @Override
@@ -83,11 +85,30 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             final int cellPadding,
             @NonNull final StickerPack stickerPack,
             @NonNull ArrayList<Sticker> invalidStickers,
+            final ImageView expandedStickerView,
+            OnInvalidStickerClickListener invalidStickerClickListener
+    ) {
+        this.cellSize = cellSize;
+        this.cellPadding = cellPadding;
+        this.layoutInflater = layoutInflater;
+        this.errorResource = errorResource;
+        this.stickerPack = stickerPack;
+        this.invalidStickers = invalidStickers;
+        this.expandedStickerPreview = expandedStickerView;
+        this.invalidStickerClickListener = invalidStickerClickListener;
+    }
+
+    public StickerPreviewAdapter(
+            @NonNull final LayoutInflater layoutInflater,
+            final int errorResource,
+            final int cellSize,
+            final int cellPadding,
+            @NonNull final StickerPack stickerPack,
+            @NonNull ArrayList<Sticker> invalidStickers,
             final ImageView expandedStickerView
     ) {
         this.cellSize = cellSize;
         this.cellPadding = cellPadding;
-        this.cellLimit = 0;
         this.layoutInflater = layoutInflater;
         this.errorResource = errorResource;
         this.stickerPack = stickerPack;
@@ -134,7 +155,11 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
 
         if (viewHolder instanceof ButtonPreviewInvalidStickerViewHolder buttonPreviewInvalidStickerViewHolder) {
-            buttonPreviewInvalidStickerViewHolder.materialButton.setOnClickListener(view -> openDialogViewInvalidSticker());
+            buttonPreviewInvalidStickerViewHolder.materialButton.setOnClickListener(view -> {
+                if (invalidStickerClickListener != null) {
+                    invalidStickerClickListener.onInvalidStickerClicked();
+                }
+            });
         }
     }
 
@@ -268,10 +293,6 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             expandedStickerPreview.setOnClickListener(view -> hideExpandedStickerPreview());
         }
-    }
-
-    private void openDialogViewInvalidSticker() {
-
     }
 
     public void hideExpandedStickerPreview() {

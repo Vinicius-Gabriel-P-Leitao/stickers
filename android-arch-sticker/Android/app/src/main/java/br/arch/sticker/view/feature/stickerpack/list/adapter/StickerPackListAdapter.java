@@ -37,7 +37,7 @@ import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.StickerPackWithInvalidStickers;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
-import br.arch.sticker.view.core.usecase.component.DialogOperationInvalidStickerPack;
+import br.arch.sticker.view.feature.preview.fragment.DialogOperationInvalidStickerPack;
 import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
 import br.arch.sticker.view.feature.stickerpack.list.model.StickerPackListItem;
 import br.arch.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;

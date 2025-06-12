@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package br.arch.sticker.view.core.usecase.component;
+package br.arch.sticker.view.feature.preview.fragment;
 
 import android.app.Dialog;
 import android.content.Context;
