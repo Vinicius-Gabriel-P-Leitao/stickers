@@ -8,6 +8,7 @@
 
 package br.arch.sticker.view.feature.preview.fragment;
 
+import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_LIST;
 import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_PACK;
 
 import android.app.Dialog;

@@ -40,6 +40,7 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 
 import br.arch.sticker.core.exception.content.ContentProviderException;
+import br.arch.sticker.core.exception.sticker.FetchStickerPackException;
 import br.arch.sticker.core.exception.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.model.Sticker;
@@ -114,7 +115,7 @@ public class InsertStickerPackRepo {
                                         new StickerPackSaveException("Erro ao inserir pacote, o identificador é vázio")));
                             }
                         }
-                    } catch (ContentProviderException exception) {
+                    } catch (FetchStickerPackException exception) {
                        callback.onInsertResult(CallbackResult.failure(exception));
                     }
                 }, 1000);

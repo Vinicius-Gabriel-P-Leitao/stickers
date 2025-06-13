@@ -20,14 +20,12 @@ import br.arch.sticker.R;
 
 public class InvalidStickerListViewHolder extends RecyclerView.ViewHolder {
     public final ImageView stickerPreview;
-    public final TextView textErrorTitle;
     public final TextView textErrorMessage;
     public final Button buttonFix;
 
     public InvalidStickerListViewHolder(@NonNull View itemView) {
         super(itemView);
         this.stickerPreview = itemView.findViewById(R.id.invalid_sticker_preview);
-        this.textErrorTitle = itemView.findViewById(R.id.text_error_title);
         this.textErrorMessage = itemView.findViewById(R.id.text_error_message);
         this.buttonFix = itemView.findViewById(R.id.button_fix_invalid);
     }

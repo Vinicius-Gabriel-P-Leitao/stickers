@@ -66,7 +66,7 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
     private LinearLayoutManager packLayoutManager;
     private RecyclerView packRecyclerView;
 
-    private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = (stickerPack, isValid) -> {
+    private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = (stickerPack, stickers, isValid) -> {
         if (isValid) {
             addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name);
         } else {
@@ -84,7 +84,7 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
             dialog.setOnFixClick(fragment -> {
                 Intent intent = new Intent(fragment.getContext(), PreviewStickerInvalidActivity.class);
                 intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPack.identifier);
-                intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKER_LIST, (ArrayList<? extends Parcelable>) stickerPack.getStickers());
+                intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKER_LIST, (ArrayList<? extends Parcelable>) stickers);
 
                 fragment.getContext().startActivity(intent);
                 dialog.dismiss();
