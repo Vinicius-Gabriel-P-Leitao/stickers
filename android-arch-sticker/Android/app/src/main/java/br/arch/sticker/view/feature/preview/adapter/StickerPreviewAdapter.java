@@ -35,9 +35,9 @@ import br.arch.sticker.R;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
-import br.arch.sticker.view.feature.preview.viewholder.ButtonPreviewInvalidStickerViewHolder;
+import br.arch.sticker.view.feature.preview.viewholder.InvalidStickerButtonPreviewViewHolder;
 import br.arch.sticker.view.feature.preview.viewholder.StickerPreviewViewHolder;
-import br.arch.sticker.view.feature.stickerpack.creation.transformation.CropSquareTransformation;
+import br.arch.sticker.view.core.util.transformation.CropSquareTransformation;
 
 // @formatter:off
 public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -132,15 +132,15 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             return stickerPreviewViewHolder;
         } else {
             View itemView = layoutInflater.inflate(R.layout.button_invalid_item_preview, viewGroup, false);
-            ButtonPreviewInvalidStickerViewHolder buttonPreviewInvalidStickerViewHolder = new ButtonPreviewInvalidStickerViewHolder(itemView);
+            InvalidStickerButtonPreviewViewHolder invalidStickerButtonPreviewViewHolder = new InvalidStickerButtonPreviewViewHolder(itemView);
 
-            ViewGroup.LayoutParams layoutParams = buttonPreviewInvalidStickerViewHolder.materialButton.getLayoutParams();
+            ViewGroup.LayoutParams layoutParams = invalidStickerButtonPreviewViewHolder.materialButton.getLayoutParams();
             layoutParams.height = cellSize;
             layoutParams.width = cellSize;
 
-            buttonPreviewInvalidStickerViewHolder.materialButton.setLayoutParams(layoutParams);
-            buttonPreviewInvalidStickerViewHolder.materialButton.setPadding(cellPadding, cellPadding, cellPadding, cellPadding);
-            return buttonPreviewInvalidStickerViewHolder;
+            invalidStickerButtonPreviewViewHolder.materialButton.setLayoutParams(layoutParams);
+            invalidStickerButtonPreviewViewHolder.materialButton.setPadding(cellPadding, cellPadding, cellPadding, cellPadding);
+            return invalidStickerButtonPreviewViewHolder;
         }
     }
 
@@ -154,8 +154,8 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             previewViewHolder.stickerPreviewView.setOnClickListener(view -> expandPreview(position, previewViewHolder.stickerPreviewView));
         }
 
-        if (viewHolder instanceof ButtonPreviewInvalidStickerViewHolder buttonPreviewInvalidStickerViewHolder) {
-            buttonPreviewInvalidStickerViewHolder.materialButton.setOnClickListener(view -> {
+        if (viewHolder instanceof InvalidStickerButtonPreviewViewHolder invalidStickerButtonPreviewViewHolder) {
+            invalidStickerButtonPreviewViewHolder.materialButton.setOnClickListener(view -> {
                 if (invalidStickerClickListener != null) {
                     invalidStickerClickListener.onInvalidStickerClicked();
                 }

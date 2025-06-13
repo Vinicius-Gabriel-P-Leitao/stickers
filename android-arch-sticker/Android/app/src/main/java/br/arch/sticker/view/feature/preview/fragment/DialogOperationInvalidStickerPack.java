@@ -8,8 +8,7 @@
 
 package br.arch.sticker.view.feature.preview.fragment;
 
-import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_LIST;
-import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_PACK;
+import static br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity.EXTRA_INVALID_STICKER_PACK;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -32,7 +31,7 @@ import br.arch.sticker.R;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.service.delete.DeleteStickerAssetService;
 import br.arch.sticker.domain.service.delete.DeleteStickerPackService;
-import br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity;
+import br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity;
 
 public class DialogOperationInvalidStickerPack extends DialogFragment {
     private static final String STICKER_PACK_IDENTIFIER = "sticker_pack_identifier";
@@ -74,7 +73,7 @@ public class DialogOperationInvalidStickerPack extends DialogFragment {
                 stickerPackIdentifier = getArguments().getString(STICKER_PACK_IDENTIFIER);
             }
 
-            Intent intent = new Intent(fragment.getContext(), PreviewStickerInvalidActivity.class);
+            Intent intent = new Intent(fragment.getContext(), PreviewInvalidStickerActivity.class);
             intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPackIdentifier);
 
             fragment.getContext().startActivity(intent);

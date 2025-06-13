@@ -29,7 +29,7 @@ import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.MultiTransformation;
 import br.arch.sticker.R;
-import br.arch.sticker.view.feature.stickerpack.creation.transformation.CropSquareTransformation;
+import br.arch.sticker.view.core.util.transformation.CropSquareTransformation;
 import br.arch.sticker.view.feature.stickerpack.creation.viewholder.MediaViewHolder;
 
 import java.io.File;

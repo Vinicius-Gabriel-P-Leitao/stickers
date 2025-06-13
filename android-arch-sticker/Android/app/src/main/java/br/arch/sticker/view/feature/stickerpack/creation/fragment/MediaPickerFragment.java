@@ -30,7 +30,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import br.arch.sticker.R;
 import br.arch.sticker.view.core.usecase.component.BottomFadingRecyclerView;
-import br.arch.sticker.view.core.util.CursorSearchUriMedia;
+import br.arch.sticker.view.core.util.resolver.UriDetailsResolver;
 import br.arch.sticker.view.feature.stickerpack.creation.adapter.MediaPickerAdapter;
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.MediaPickerViewModel;
 
@@ -108,7 +108,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
 
         viewModel.getMimeTypesSupported().observe(
                 getViewLifecycleOwner(), mimeTypesSupported -> {
-                    List<Uri> uris = CursorSearchUriMedia.fetchMediaUri(requireContext(), mimeTypesSupported.getMimeTypes());
+                    List<Uri> uris = UriDetailsResolver.fetchMediaUri(requireContext(), mimeTypesSupported.getMimeTypes());
                     mediaListAdapter.submitList(new ArrayList<>(uris));
                 });
 

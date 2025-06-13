@@ -28,7 +28,7 @@ import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
 import br.arch.sticker.view.feature.preview.viewholder.InvalidStickerListViewHolder;
 
-public class InvalidStickerPreviewAdapter extends RecyclerView.Adapter<InvalidStickerListViewHolder> {
+public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidStickerListViewHolder> {
     @NonNull
     private final String stickerPackIdentifier;
     @NonNull
@@ -38,13 +38,13 @@ public class InvalidStickerPreviewAdapter extends RecyclerView.Adapter<InvalidSt
 
     private int maxNumberOfStickersInARow;
 
-    public InvalidStickerPreviewAdapter(@NonNull String stickerPackIdentifier, @NonNull List<Sticker> stickerList) {
+    public PreviewInvalidStickerAdapter(@NonNull String stickerPackIdentifier, @NonNull List<Sticker> stickerList) {
         this.stickerPackIdentifier = stickerPackIdentifier;
         this.stickerList = new ArrayList<>(stickerList);
         stickerPack = null;
     }
 
-    public InvalidStickerPreviewAdapter(@NonNull StickerPack stickerPack) {
+    public PreviewInvalidStickerAdapter(@NonNull StickerPack stickerPack) {
         this.stickerPack = stickerPack;
         this.stickerList = new ArrayList<>(stickerPack.getStickers());
         this.stickerPackIdentifier = stickerPack.identifier;

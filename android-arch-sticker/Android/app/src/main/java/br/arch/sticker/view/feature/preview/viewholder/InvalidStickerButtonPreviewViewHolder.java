@@ -17,10 +17,10 @@ import com.google.android.material.button.MaterialButton;
 
 import br.arch.sticker.R;
 
-public class ButtonPreviewInvalidStickerViewHolder extends RecyclerView.ViewHolder {
+public class InvalidStickerButtonPreviewViewHolder extends RecyclerView.ViewHolder {
     public final MaterialButton materialButton;
 
-    public ButtonPreviewInvalidStickerViewHolder(@NonNull View itemView) {
+    public InvalidStickerButtonPreviewViewHolder(@NonNull View itemView) {
         super(itemView);
         materialButton = itemView.findViewById(R.id.button_invalid_preview);
     }

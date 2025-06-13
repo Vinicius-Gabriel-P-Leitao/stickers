@@ -37,12 +37,12 @@ import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.StickerPackValidationResult;
 import br.arch.sticker.domain.service.fetch.FetchStickerPackService;
 import br.arch.sticker.view.core.base.BaseActivity;
-import br.arch.sticker.view.feature.preview.adapter.InvalidStickerPreviewAdapter;
+import br.arch.sticker.view.feature.preview.adapter.PreviewInvalidStickerAdapter;
 import br.arch.sticker.view.feature.preview.viewholder.InvalidStickerListViewHolder;
 
 // @formatter:off
-public class PreviewStickerInvalidActivity extends BaseActivity {
-    private final static String TAG_LOG = PreviewStickerInvalidActivity.class.getSimpleName();
+public class PreviewInvalidStickerActivity extends BaseActivity {
+    private final static String TAG_LOG = PreviewInvalidStickerActivity.class.getSimpleName();
 
     public static final String EXTRA_INVALID_STICKER_PACK = "invalid_sticker_pack";
     public static final String EXTRA_INVALID_STICKER_LIST = "invalid_sticker_list";
@@ -50,7 +50,7 @@ public class PreviewStickerInvalidActivity extends BaseActivity {
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
 
     private LoadListInvalidStickersAsyncTask loadListInvalidStickersAsyncTask;
-    private InvalidStickerPreviewAdapter invalidStickerPreviewAdapter;
+    private PreviewInvalidStickerAdapter previewInvalidStickerAdapter;
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView recyclerViewInvalidStickers;
 
@@ -107,7 +107,7 @@ public class PreviewStickerInvalidActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         if (stickerArrayList != null && !stickerArrayList.isEmpty()) {
-            loadListInvalidStickersAsyncTask = new PreviewStickerInvalidActivity.LoadListInvalidStickersAsyncTask(this);
+            loadListInvalidStickersAsyncTask = new PreviewInvalidStickerActivity.LoadListInvalidStickersAsyncTask(this);
             loadListInvalidStickersAsyncTask.execute(stickerArrayList.toArray(new Sticker[0]));
         } else {
             Log.w(TAG_LOG, "stickerArrayList está nula ou vazia. Nada para validar.");
@@ -129,14 +129,14 @@ public class PreviewStickerInvalidActivity extends BaseActivity {
         }
         stickerArrayList = new ArrayList<>(stickerList);
 
-        invalidStickerPreviewAdapter = new InvalidStickerPreviewAdapter(stickerPackIdentifier, stickerArrayList);
-        recyclerViewInvalidStickers.setAdapter(invalidStickerPreviewAdapter);
+        previewInvalidStickerAdapter = new PreviewInvalidStickerAdapter(stickerPackIdentifier, stickerArrayList);
+        recyclerViewInvalidStickers.setAdapter(previewInvalidStickerAdapter);
         decorateRecyclerView();
     }
 
     private void showStickerPackInvalid(StickerPack stickerPack) {
-        invalidStickerPreviewAdapter = new InvalidStickerPreviewAdapter(stickerPack);
-        recyclerViewInvalidStickers.setAdapter(invalidStickerPreviewAdapter);
+        previewInvalidStickerAdapter = new PreviewInvalidStickerAdapter(stickerPack);
+        recyclerViewInvalidStickers.setAdapter(previewInvalidStickerAdapter);
         decorateRecyclerView();
     }
 
@@ -167,33 +167,33 @@ public class PreviewStickerInvalidActivity extends BaseActivity {
             if (maxNumberOfImagesInARow > 1) {
                 minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) / (maxNumberOfImagesInARow - 1);
             }
-            invalidStickerPreviewAdapter.setImageRowSpec(maxNumberOfImagesInARow, minMarginBetweenImages);
+            previewInvalidStickerAdapter.setImageRowSpec(maxNumberOfImagesInARow, minMarginBetweenImages);
         }
     }
 
     static class LoadListInvalidStickersAsyncTask {
-        private final WeakReference<PreviewStickerInvalidActivity> stickerPackListActivityWeakReference;
+        private final WeakReference<PreviewInvalidStickerActivity> stickerPackListActivityWeakReference;
 
         private final ExecutorService executor = Executors.newSingleThreadExecutor();
         private final Handler handler = new Handler(Looper.getMainLooper());
 
-        LoadListInvalidStickersAsyncTask(PreviewStickerInvalidActivity stickerPackLibraryActivity) {
+        LoadListInvalidStickersAsyncTask(PreviewInvalidStickerActivity stickerPackLibraryActivity) {
             this.stickerPackListActivityWeakReference = new WeakReference<>(stickerPackLibraryActivity);
         }
 
         public void execute(Sticker[] stickers) {
-            PreviewStickerInvalidActivity activity = stickerPackListActivityWeakReference.get();
+            PreviewInvalidStickerActivity activity = stickerPackListActivityWeakReference.get();
             if (activity == null) return;
 
             executor.execute(() -> {
-                PreviewStickerInvalidActivity currentActivity = stickerPackListActivityWeakReference.get();
+                PreviewInvalidStickerActivity currentActivity = stickerPackListActivityWeakReference.get();
                 if (currentActivity == null) return;
 
                 List<Sticker> resultList = new ArrayList<>(Arrays.asList(stickers));
                 handler.post(() -> {
-                    PreviewStickerInvalidActivity uiActivity = stickerPackListActivityWeakReference.get();
+                    PreviewInvalidStickerActivity uiActivity = stickerPackListActivityWeakReference.get();
                     if (uiActivity != null) {
-                        uiActivity.invalidStickerPreviewAdapter.updateStickerPackItems(resultList);
+                        uiActivity.previewInvalidStickerAdapter.updateStickerPackItems(resultList);
                     }
                 });
             });

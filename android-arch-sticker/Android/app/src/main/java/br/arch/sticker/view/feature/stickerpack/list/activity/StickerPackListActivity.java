@@ -11,8 +11,8 @@
 
 package br.arch.sticker.view.feature.stickerpack.list.activity;
 
-import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_LIST;
-import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_PACK;
+import static br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity.EXTRA_INVALID_STICKER_LIST;
+import static br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity.EXTRA_INVALID_STICKER_PACK;
 import static br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity.ANIMATED_STICKER;
 import static br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity.STATIC_STICKER;
 
@@ -43,11 +43,11 @@ import br.arch.sticker.domain.dto.StickerPackWithInvalidStickers;
 import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
 import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
-import br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity;
+import br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity;
 import br.arch.sticker.view.feature.preview.fragment.DialogOperationInvalidStickerPack;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
 import br.arch.sticker.view.feature.stickerpack.list.adapter.StickerPackListAdapter;
-import br.arch.sticker.view.feature.stickerpack.list.model.StickerPackListItem;
+import br.arch.sticker.view.core.model.StickerPackListItem;
 import br.arch.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;
 import br.arch.sticker.view.main.EntryActivity;
 
@@ -82,7 +82,7 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
 
             dialog.setTextFixButton(this.getString(R.string.dialog_button_fix_stickers));
             dialog.setOnFixClick(fragment -> {
-                Intent intent = new Intent(fragment.getContext(), PreviewStickerInvalidActivity.class);
+                Intent intent = new Intent(fragment.getContext(), PreviewInvalidStickerActivity.class);
                 intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPack.identifier);
                 intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKER_LIST, (ArrayList<? extends Parcelable>) stickers);
 

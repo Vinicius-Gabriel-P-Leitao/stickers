@@ -13,7 +13,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import br.arch.sticker.view.core.util.SingleLiveEvent;
+import br.arch.sticker.view.core.util.event.SingleLiveEvent;
 import br.arch.sticker.view.feature.stickerpack.creation.fragment.NameStickerPackFragment;
 
 public class NameStickerPackViewModel extends ViewModel {

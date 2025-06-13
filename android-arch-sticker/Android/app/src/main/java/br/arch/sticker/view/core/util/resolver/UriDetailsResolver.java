@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package br.arch.sticker.view.core.util;
+package br.arch.sticker.view.core.util.resolver;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CursorSearchUriMedia {
+public class UriDetailsResolver {
 
     /**
      * <p><b>Descrição:</b>Busca as URI dos arquivos baseado nos mimetypes e o contexto.</p>
