@@ -149,7 +149,7 @@ public class StickerPack implements Parcelable {
         return 0;
     }
 
-    public static final Creator<StickerPack> CREATOR = new Creator<StickerPack>() {
+    public static final Creator<StickerPack> CREATOR = new Creator<>() {
         @Override
         public StickerPack createFromParcel(Parcel parcel) {
             return new StickerPack(parcel);

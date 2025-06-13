@@ -22,8 +22,17 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import br.arch.sticker.R;
 import br.arch.sticker.core.exception.content.ContentProviderException;
+import br.arch.sticker.core.exception.sticker.FetchStickerPackException;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.ListStickerPackValidationResult;
@@ -33,14 +42,6 @@ import br.arch.sticker.view.core.base.BaseActivity;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.InitialStickerPackCreationActivity;
 import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
 import br.arch.sticker.view.feature.stickerpack.list.activity.StickerPackListActivity;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 // @formatter:off
 public class EntryActivity extends BaseActivity {
@@ -147,13 +148,13 @@ public class EntryActivity extends BaseActivity {
         // @formatter:off
         public void execute(ActivityResultLauncher<Intent> createPackLauncher) {
             executor.execute(() -> {
-                Pair<String,  ListStickerPackValidationResult> result = new Pair<>(null, null);
+                Pair<String,  ListStickerPackValidationResult> result;
                 final Context context = contextWeakReference.get();
 
                 if (context != null) {
                     try {
                         result = new Pair<>(null,  FetchStickerPackService.fetchStickerPackListFromContentProvider(context));
-                    } catch (ContentProviderException exception) {
+                    } catch (FetchStickerPackException exception) {
                         Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio", exception);
 
                         Intent intent = new Intent(context, InitialStickerPackCreationActivity.class);

@@ -6,7 +6,10 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package br.arch.sticker.view.core.usecase.component;
+package br.arch.sticker.view.feature.preview.fragment;
+
+import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_LIST;
+import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_PACK;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -18,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,25 +29,27 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import br.arch.sticker.R;
+import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.service.delete.DeleteStickerAssetService;
 import br.arch.sticker.domain.service.delete.DeleteStickerPackService;
 import br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity;
 
-public class OperationInvalidStickerPackDialog extends DialogFragment {
-    private static final String ARG_VALUE = "sticker_pack";
+public class DialogOperationInvalidStickerPack extends DialogFragment {
+    private static final String STICKER_PACK_IDENTIFIER = "sticker_pack_identifier";
     private OnDialogActionListener listener;
 
-    public OperationInvalidStickerPackDialog() {
+    public DialogOperationInvalidStickerPack() {
     }
 
     public interface OnDialogActionListener {
         void onReloadRequested();
     }
 
-    public static OperationInvalidStickerPackDialog newInstance(String stickerPackIdentifier) {
-        OperationInvalidStickerPackDialog fragment = new OperationInvalidStickerPackDialog();
+    public static DialogOperationInvalidStickerPack newInstance(String stickerPackIdentifier) {
+        DialogOperationInvalidStickerPack fragment = new DialogOperationInvalidStickerPack();
         Bundle args = new Bundle();
-        args.putString(ARG_VALUE, stickerPackIdentifier);
+        args.putString(STICKER_PACK_IDENTIFIER, stickerPackIdentifier);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -62,7 +68,15 @@ public class OperationInvalidStickerPackDialog extends DialogFragment {
 
         Button buttonFixPack = view.findViewById(R.id.button_fix_pack);
         buttonFixPack.setOnClickListener(fragment -> {
+            String stickerPackIdentifier = null;
+
+            if (getArguments() != null) {
+                stickerPackIdentifier = getArguments().getString(STICKER_PACK_IDENTIFIER);
+            }
+
             Intent intent = new Intent(fragment.getContext(), PreviewStickerInvalidActivity.class);
+            intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPackIdentifier);
+
             fragment.getContext().startActivity(intent);
             dismiss();
         });
@@ -72,12 +86,32 @@ public class OperationInvalidStickerPackDialog extends DialogFragment {
             String stickerPackIdentifier = null;
 
             if (getArguments() != null) {
-                stickerPackIdentifier = getArguments().getString(ARG_VALUE);
+                stickerPackIdentifier = getArguments().getString(STICKER_PACK_IDENTIFIER);
             }
 
             if (stickerPackIdentifier != null) {
-                DeleteStickerPackService.deleteStickerPack(requireActivity(), stickerPackIdentifier);
-                DeleteStickerAssetService.deleteAllStickerAssetsInPack(requireActivity(), stickerPackIdentifier);
+                CallbackResult<Boolean> deletedStickerPack = DeleteStickerPackService.deleteStickerPack(requireActivity(), stickerPackIdentifier);
+                CallbackResult<Boolean> deletedAllStickerAssetsInPack = DeleteStickerAssetService.deleteAllStickerAssetsInPack(
+                        requireActivity(),
+                        stickerPackIdentifier);
+
+                switch (deletedStickerPack.getStatus()) {
+                    case WARNING:
+                        Toast.makeText(requireContext(), deletedStickerPack.getWarningMessage(), Toast.LENGTH_LONG).show();
+                        break;
+                    case FAILURE:
+                        Toast.makeText(requireContext(), deletedStickerPack.getError().getMessage(), Toast.LENGTH_LONG).show();
+                        break;
+                }
+
+                switch (deletedAllStickerAssetsInPack.getStatus()) {
+                    case WARNING:
+                        Toast.makeText(requireContext(), deletedAllStickerAssetsInPack.getWarningMessage(), Toast.LENGTH_LONG).show();
+                        break;
+                    case FAILURE:
+                        Toast.makeText(requireContext(), deletedAllStickerAssetsInPack.getError().getMessage(), Toast.LENGTH_LONG).show();
+                        break;
+                }
 
                 listener.onReloadRequested();
                 dismiss();
@@ -107,7 +141,7 @@ public class OperationInvalidStickerPackDialog extends DialogFragment {
         if (context instanceof OnDialogActionListener) {
             listener = (OnDialogActionListener) context;
         } else {
-            throw new RuntimeException(context.toString() + " deve implementar OnDialogActionListener");
+            throw new RuntimeException(context + " deve implementar OnDialogActionListener");
         }
     }
 }

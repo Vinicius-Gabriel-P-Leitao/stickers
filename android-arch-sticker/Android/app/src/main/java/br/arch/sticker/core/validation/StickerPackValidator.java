@@ -23,16 +23,16 @@ import android.webkit.URLUtil;
 
 import androidx.annotation.NonNull;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+
 import br.arch.sticker.core.exception.content.InvalidWebsiteUrlException;
 import br.arch.sticker.core.exception.sticker.PackValidatorException;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 
 public class StickerPackValidator {
     public static final int STICKER_SIZE_MIN = 3;
@@ -137,7 +137,7 @@ public class StickerPackValidator {
                                 " pixels, a largura atual da imagem da bandeja é " + bitmap.getWidth() + ", arquivo: " + stickerPack.trayImageFile);
             }
         } catch (IOException exception) {
-            throw new PackValidatorException("Não é possível abrir a thumbnail, " + stickerPack.trayImageFile, exception);
+            throw new PackValidatorException("Não é possível abrir a thumbnail: " + stickerPack.trayImageFile, exception);
         }
 
         final List<Sticker> stickers = stickerPack.getStickers();

@@ -15,10 +15,10 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import java.io.File;
+
 import br.arch.sticker.core.exception.sticker.DeleteStickerException;
 import br.arch.sticker.core.pattern.CallbackResult;
-
-import java.io.File;
 
 public class DeleteStickerAssetService {
     private final static String TAG_LOG = DeleteStickerAssetService.class.getSimpleName();
@@ -42,25 +42,25 @@ public class DeleteStickerAssetService {
         }
     }
 
-        public static CallbackResult<Boolean> deleteAllStickerAssetsInPack(@NonNull Context context, @NonNull String stickerPackIdentifier) {
-            File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
-            File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);
+    public static CallbackResult<Boolean> deleteAllStickerAssetsInPack(@NonNull Context context, @NonNull String stickerPackIdentifier) {
+        File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
+        File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);
 
-            if (stickerPackDirectory.exists() && stickerPackDirectory.isDirectory()) {
-                File[] files = stickerPackDirectory.listFiles();
+        if (stickerPackDirectory.exists() && stickerPackDirectory.isDirectory()) {
+            File[] files = stickerPackDirectory.listFiles();
 
-                if (files != null) {
-                    for (File file : files) {
-                        if (!file.delete()) {
-                            return CallbackResult.failure(new DeleteStickerException("Falha ao deletar o arquivo: " + file.getAbsolutePath()));
-                        }
-
+            if (files != null) {
+                for (File file : files) {
+                    if (!file.delete()) {
+                        return CallbackResult.failure(new DeleteStickerException("Falha ao deletar o arquivo: " + file.getAbsolutePath()));
                     }
-                }
 
-                return CallbackResult.success(true);
-            } else {
-                return CallbackResult.warning("Diretório não encontrado: " + stickerPackDirectory.getAbsolutePath());
+                }
             }
+
+            return CallbackResult.success(true);
+        } else {
+            return CallbackResult.warning("Diretório não encontrado: " + stickerPackDirectory.getAbsolutePath());
         }
+    }
 }

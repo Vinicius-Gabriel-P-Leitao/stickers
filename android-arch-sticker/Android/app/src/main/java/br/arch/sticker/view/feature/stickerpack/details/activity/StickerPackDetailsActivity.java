@@ -11,6 +11,8 @@
 
 package br.arch.sticker.view.feature.stickerpack.details.activity;
 
+import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_LIST;
+import static br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity.EXTRA_INVALID_STICKER_PACK;
 import static br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity.ANIMATED_STICKER;
 import static br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity.STATIC_STICKER;
 
@@ -34,20 +36,26 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import br.arch.sticker.R;
 import br.arch.sticker.core.validation.WhatsappWhitelistValidator;
+import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
 import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
+import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
+import br.arch.sticker.view.feature.preview.activity.PreviewStickerInvalidActivity;
 import br.arch.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
 import br.arch.sticker.view.feature.stickerpack.metadata.activity.StickerPackMetadataActivity;
 
-import java.lang.ref.WeakReference;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+// @formatter:off
 public class StickerPackDetailsActivity extends StickerPackAddActivity {
 
     /**
@@ -58,6 +66,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
     public static final String EXTRA_STICKER_PACK_AUTHORITY = "sticker_pack_authority";
     public static final String EXTRA_STICKER_PACK_TRAY_ICON = "sticker_pack_tray_icon";
     public static final String EXTRA_STICKER_PACK_WEBSITE = "sticker_pack_website";
+    public static final String EXTRA_INVALID_STICKERS = "invalid_sticker_list";
     public static final String EXTRA_STICKER_PACK_EMAIL = "sticker_pack_email";
     public static final String EXTRA_STICKER_PACK_NAME = "sticker_pack_name";
     public static final String EXTRA_STICKER_PACK_DATA = "sticker_pack";
@@ -83,6 +92,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
 
         boolean showUpButton = getIntent().getBooleanExtra(EXTRA_SHOW_UP_BUTTON, false);
         stickerPack = getIntent().getParcelableExtra(EXTRA_STICKER_PACK_DATA);
+        ArrayList<Sticker> stickers = getIntent().getParcelableArrayListExtra(EXTRA_INVALID_STICKERS);
 
         TextView packNameTextView = findViewById(R.id.pack_name);
         TextView packPublisherTextView = findViewById(R.id.author);
@@ -102,8 +112,34 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
 
         if (stickerPreviewAdapter == null) {
             stickerPreviewAdapter = new StickerPreviewAdapter(
-                    getLayoutInflater(), R.drawable.sticker_error, getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
-                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, expandedStickerView);
+                    getLayoutInflater(),
+                    R.drawable.sticker_error,
+                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
+                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding),
+                    stickerPack,
+                    stickers != null ? stickers : new ArrayList<>(),
+                    expandedStickerView,
+                    ()-> {
+                        InvalidStickersDialog dialog = new InvalidStickersDialog(this);
+                        dialog.setTitleText(this.getString(R.string.dialog_title_invalid_stickers));
+                        dialog.setMessageText(this.getString(R.string.dialog_message_invalid_stickers));
+
+                        dialog.setVisibilityIgnoreButton(View.GONE);
+
+                        dialog.setTextFixButton(this.getString(R.string.dialog_button_fix_stickers));
+                        dialog.setOnFixClick(fragment -> {
+                            Intent intent = new Intent(fragment.getContext(), PreviewStickerInvalidActivity.class);
+                            intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPack.identifier);
+                            intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKER_LIST, stickers);
+
+                            fragment.getContext().startActivity(intent);
+                            dialog.dismiss();
+                        });
+
+                        dialog.show();
+                    }
+            );
+
             recyclerView.setAdapter(stickerPreviewAdapter);
         }
 
@@ -114,20 +150,18 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
         packSizeTextView.setText(Formatter.formatShortFileSize(this, stickerPack.getTotalSize()));
 
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
-        buttonCreateStickerPackage.setOnClickListener(view -> {
-            FormatStickerPopupWindow.popUpButtonChooserStickerModel(
-                    this, buttonCreateStickerPackage, new FormatStickerPopupWindow.OnOptionClickListener() {
-                        @Override
-                        public void onStaticStickerSelected() {
-                            openCreateStickerPackActivity(STATIC_STICKER);
-                        }
+        buttonCreateStickerPackage.setOnClickListener(view -> FormatStickerPopupWindow.popUpButtonChooserStickerModel(
+                this, buttonCreateStickerPackage, new FormatStickerPopupWindow.OnOptionClickListener() {
+                    @Override
+                    public void onStaticStickerSelected() {
+                        openCreateStickerPackActivity(STATIC_STICKER);
+                    }
 
-                        @Override
-                        public void onAnimatedStickerSelected() {
-                            openCreateStickerPackActivity(ANIMATED_STICKER);
-                        }
-                    });
-        });
+                    @Override
+                    public void onAnimatedStickerSelected() {
+                        openCreateStickerPackActivity(ANIMATED_STICKER);
+                    }
+                }));
 
         addButton = findViewById(R.id.add_to_whatsapp_button);
         addButton.setOnClickListener(view -> addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name));

@@ -63,7 +63,7 @@ public class Sticker implements Parcelable {
         return 0;
     }
 
-    public static final Creator<Sticker> CREATOR = new Creator<Sticker>() {
+    public static final Creator<Sticker> CREATOR = new Creator<>() {
         @Override
         public Sticker createFromParcel(Parcel parcel) {
             return new Sticker(parcel);

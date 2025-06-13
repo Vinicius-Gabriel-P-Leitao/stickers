@@ -47,20 +47,14 @@ public class FormatStickerPopupWindow {
 
         popupWindow.showAtLocation(anchorView, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, yPosition);
 
-        popupView.findViewById(R.id.item_option_static).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listener.onStaticStickerSelected();
-                popupWindow.dismiss();
-            }
+        popupView.findViewById(R.id.item_option_static).setOnClickListener(view -> {
+            listener.onStaticStickerSelected();
+            popupWindow.dismiss();
         });
 
-        popupView.findViewById(R.id.item_option_animated).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listener.onAnimatedStickerSelected();
-                popupWindow.dismiss();
-            }
+        popupView.findViewById(R.id.item_option_animated).setOnClickListener(view -> {
+            listener.onAnimatedStickerSelected();
+            popupWindow.dismiss();
         });
     }
 

@@ -28,21 +28,23 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.io.File;
+import java.util.ArrayList;
+
 import br.arch.sticker.R;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.orchestrator.StickerPackOrchestrator;
 import br.arch.sticker.view.core.base.BaseActivity;
 import br.arch.sticker.view.core.usecase.definition.DefinePermissionsToRequest;
 import br.arch.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
-import br.arch.sticker.view.feature.stickerpack.creation.adapter.MediaPickerAdapter;
 import br.arch.sticker.view.feature.stickerpack.creation.fragment.MediaPickerFragment;
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.MediaPickerViewModel;
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.NameStickerPackViewModel;
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.PermissionRequestViewModel;
 import br.arch.sticker.view.main.EntryActivity;
 
-import java.io.File;
-
+// @formatter:off
 public abstract class StickerPackCreationBaseActivity extends BaseActivity {
     private final static String TAG_LOG = StickerPackCreationBaseActivity.class.getSimpleName();
 
@@ -163,16 +165,13 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
             return;
         }
 
-        MediaPickerFragment fragment = MediaPickerFragment.newInstance(new MediaPickerAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(String imagePath) {
-                Uri selectedImageUri = Uri.fromFile(new File(imagePath));
-                Intent resultIntent = new Intent();
-                resultIntent.setData(selectedImageUri);
+        MediaPickerFragment fragment = MediaPickerFragment.newInstance(imagePath -> {
+            Uri selectedImageUri = Uri.fromFile(new File(imagePath));
+            Intent resultIntent = new Intent();
+            resultIntent.setData(selectedImageUri);
 
-                activity.setResult(RESULT_OK, resultIntent);
-                activity.finish();
-            }
+            activity.setResult(RESULT_OK, resultIntent);
+            activity.finish();
         });
 
         fragment.show(supportFragmentManager, MediaPickerFragment.class.getSimpleName());
@@ -201,8 +200,13 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
 
         if (stickerPreviewAdapter == null) {
             stickerPreviewAdapter = new StickerPreviewAdapter(
-                    getLayoutInflater(), R.drawable.sticker_error, getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
-                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, expandedStickerView);
+                    getLayoutInflater(),
+                    R.drawable.sticker_error,
+                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
+                    getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding),
+                    stickerPack,
+                    new ArrayList<>(),
+                    expandedStickerView);
 
             recyclerView.setAdapter(stickerPreviewAdapter);
         }

@@ -11,6 +11,8 @@
 
 package br.arch.sticker.view.feature.stickerpack.list.adapter;
 
+import static br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity.EXTRA_INVALID_STICKERS;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -27,17 +29,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import br.arch.sticker.R;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.StickerPackWithInvalidStickers;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
-import br.arch.sticker.view.core.usecase.component.OperationInvalidStickerPackDialog;
+import br.arch.sticker.view.feature.preview.fragment.DialogOperationInvalidStickerPack;
 import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
 import br.arch.sticker.view.feature.stickerpack.list.model.StickerPackListItem;
 import br.arch.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;
-
-import java.util.List;
 
 // @formatter:off
 public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackListViewHolder> {
@@ -59,12 +62,12 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
     }
 
     public interface OnAddButtonClickedListener {
-        void onAddButtonClicked(StickerPack stickerPack);
+        void onAddButtonClicked(StickerPack stickerPack, List<Sticker> stickers,boolean isValid);
     }
 
     @NonNull
     @Override
-    public StickerPackListViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int i) {
+    public StickerPackListViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int viewType) {
         final Context context = viewGroup.getContext();
         final LayoutInflater layoutInflater = LayoutInflater.from(context);
         final View stickerPackRow = layoutInflater.inflate(R.layout.sticker_packs_list_item, viewGroup, false);
@@ -83,13 +86,15 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
 
         if (stickerPackListItem.status() == StickerPackListItem.Status.INVALID) {
             bindInvalidStickerPack(context, viewHolder, (StickerPack) stickerPackListItem.stickerPack());
-        } else {
-            if (stickerPackListItem.status() == StickerPackListItem.Status.WITH_INVALID_STICKER) {
-                StickerPackWithInvalidStickers stickerPackWithInvalidStickers = (StickerPackWithInvalidStickers) stickerPackListItem.stickerPack();
-                bindStickerPack(context, viewHolder, stickerPackWithInvalidStickers.stickerPack, stickerPackWithInvalidStickers.invalidStickers);
-            } else {
-                bindStickerPack(context, viewHolder, (StickerPack) stickerPackListItem.stickerPack(), null);
-            }
+        }
+
+        if(stickerPackListItem.status() == StickerPackListItem.Status.VALID) {
+            bindStickerPack(context, viewHolder, (StickerPack) stickerPackListItem.stickerPack(), null);
+        }
+
+        if (stickerPackListItem.status() == StickerPackListItem.Status.WITH_INVALID_STICKER) {
+            StickerPackWithInvalidStickers stickerPackWithInvalidStickers = (StickerPackWithInvalidStickers) stickerPackListItem.stickerPack();
+            bindStickerPack(context, viewHolder, stickerPackWithInvalidStickers.getStickerPack(), stickerPackWithInvalidStickers.getInvalidStickers());
         }
     }
 
@@ -121,7 +126,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
             intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, stickerPack);
             if (!isValid) {
-                // TODO: Implementar lógica que manda os stickers invalidos junto para serem tratados.
+              intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKERS, new ArrayList<>(stickers));
             }
 
             view.getContext().startActivity(intent);
@@ -153,9 +158,10 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             viewHolder.imageRowView.addView(rowImage);
         }
 
-        setAddButtonAppearance(viewHolder.addButton, stickerPack, R.drawable.sticker_3rdparty_add);
+        // NOTE: Só passar null em stickers por que o pacote é valido.
+        setAddButtonAppearance(viewHolder.addButton, stickerPack, null, R.drawable.sticker_3rdparty_add, true);
         if (!isValid) {
-            setAddButtonAppearance(viewHolder.addButton, stickerPack, R.drawable.sticker_3rdparty_warning);
+            setAddButtonAppearance(viewHolder.addButton, stickerPack, stickers,R.drawable.sticker_3rdparty_warning, false);
         }
 
         viewHolder.animatedStickerPackIndicator.setVisibility(stickerPack.animatedStickerPack ? View.VISIBLE : View.GONE);
@@ -170,15 +176,15 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         viewHolder.titleView.setText(stickerPack.name);
 
         viewHolder.container.setOnClickListener(view -> {
-            OperationInvalidStickerPackDialog dialog = OperationInvalidStickerPackDialog.newInstance(stickerPack.identifier);
-            dialog.show(fragmentManager, OperationInvalidStickerPackDialog.class.getSimpleName());
+            DialogOperationInvalidStickerPack dialog = DialogOperationInvalidStickerPack.newInstance(stickerPack.identifier);
+            dialog.show(fragmentManager, DialogOperationInvalidStickerPack.class.getSimpleName());
         });
 
         viewHolder.animatedStickerPackIndicator.setVisibility(stickerPack.animatedStickerPack ? View.VISIBLE : View.GONE);
         viewHolder.alertMessage.setVisibility(View.VISIBLE);
     }
 
-    private void setAddButtonAppearance(ImageView addButton, StickerPack stickerPack, int drawableIcon) {
+    private void setAddButtonAppearance(ImageView addButton, StickerPack stickerPack, List<Sticker> stickers, int drawableIcon, boolean isValid) {
         if (stickerPack.getIsWhitelisted()) {
             addButton.setImageResource( R.drawable.sticker_3rdparty_added);
             addButton.setClickable(false);
@@ -187,10 +193,9 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             setBackground(addButton);
         } else {
             addButton.setImageResource(drawableIcon);
-            addButton.setOnClickListener(view -> onAddButtonClickedListener.onAddButtonClicked(stickerPack));
+            addButton.setOnClickListener(view -> onAddButtonClickedListener.onAddButtonClicked(stickerPack, stickers, isValid));
 
             TypedValue outValue = new TypedValue();
-
             addButton.getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
             addButton.setBackgroundResource(outValue.resourceId);
         }
