@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <ImageView
+        android:id="@+id/invalid_sticker_preview"
+        android:layout_width="@dimen/sticker_pack_details_image_size"
+        android:layout_height="@dimen/sticker_pack_details_image_size"
+        android:contentDescription="@string/preview_sticker_description"
+        android:padding="@dimen/sticker_pack_details_image_padding"
+        android:scaleType="centerCrop" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_error_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ERROR_CODE"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/text_error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:text="Mensagem de erro detalhada aqui"
+            android:textColor="#444444"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button_fix_invalid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/darker_gray"
+        android:text="Corrigir"
+        android:textColor="@android:color/white" />
+</LinearLayout>
