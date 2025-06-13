@@ -10,17 +10,21 @@ package br.arch.sticker.view.feature.preview.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import br.arch.sticker.R;
 import br.arch.sticker.domain.data.model.Sticker;
+import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
 import br.arch.sticker.view.feature.preview.viewholder.InvalidStickerListViewHolder;
 
@@ -29,14 +33,23 @@ public class InvalidStickerPreviewAdapter extends RecyclerView.Adapter<InvalidSt
     private final String stickerPackIdentifier;
     @NonNull
     private final List<Sticker> stickerList;
+    @Nullable
+    private final StickerPack stickerPack;
 
     private int maxNumberOfStickersInARow;
-    private int minMarginBetweenImages;
 
     public InvalidStickerPreviewAdapter(@NonNull String stickerPackIdentifier, @NonNull List<Sticker> stickerList) {
         this.stickerPackIdentifier = stickerPackIdentifier;
-        this.stickerList = stickerList;
+        this.stickerList = new ArrayList<>(stickerList);
+        stickerPack = null;
     }
+
+    public InvalidStickerPreviewAdapter(@NonNull StickerPack stickerPack) {
+        this.stickerPack = stickerPack;
+        this.stickerList = new ArrayList<>(stickerPack.getStickers());
+        this.stickerPackIdentifier = stickerPack.identifier;
+    }
+
 
     @NonNull
     @Override
@@ -49,23 +62,29 @@ public class InvalidStickerPreviewAdapter extends RecyclerView.Adapter<InvalidSt
 
     @Override
     public void onBindViewHolder(@NonNull InvalidStickerListViewHolder viewHolder, int position) {
-        final Context context = viewHolder.stickerPreview.getContext();
+        Context context = viewHolder.itemView.getContext();
 
-        final Sticker sticker = stickerList.get(position);
+        if (!stickerList.isEmpty()) {
+            final Sticker sticker = stickerList.get(position);
+            viewHolder.stickerPreview.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
+            viewHolder.textErrorMessage.setText(sticker.stickerIsValid);
+        }
 
-        viewHolder.stickerPreview.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
-        viewHolder.textErrorMessage.setText(sticker.stickerIsValid);
-
+        if (stickerPack != null) {
+            final Sticker sticker = stickerList.get(position);
+            viewHolder.stickerPreview.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
+            viewHolder.textErrorMessage.setText(TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(R.string.sticker_is_valid) : sticker.stickerIsValid);
+            viewHolder.buttonFix.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return stickerList.size();
+        return stickerList != null ? stickerList.size() : 0;
     }
 
     @SuppressLint("NotifyDataSetChanged")
     public void setImageRowSpec(int maxNumberOfStickersInARow, int minMarginBetweenImages) {
-        this.minMarginBetweenImages = minMarginBetweenImages;
         if (this.maxNumberOfStickersInARow != maxNumberOfStickersInARow) {
             this.maxNumberOfStickersInARow = maxNumberOfStickersInARow;
             notifyDataSetChanged();

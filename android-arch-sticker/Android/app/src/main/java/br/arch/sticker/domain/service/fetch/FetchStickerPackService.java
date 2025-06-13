@@ -169,7 +169,9 @@ public class FetchStickerPackService {
 
             return new StickerPackValidationResult(stickerPack, invalidSticker);
         } catch (PackValidatorException | InvalidWebsiteUrlException exception) {
-            throw new FetchStickerPackException("Pacote de figurinhas inválido: " + exception.getMessage(), exception.getCause(),  new Object[]{ stickerPack });
+            throw new FetchStickerPackException(
+                    exception.getMessage() != null ? exception.getMessage() : "Pacote de figurinhas invalido", exception.getCause(),
+                    new Object[]{stickerPack});
         }
     }
 
