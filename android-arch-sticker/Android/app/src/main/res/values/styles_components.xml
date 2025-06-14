@@ -5,6 +5,12 @@
         <item name="colorControlNormal">@color/action_bar_arrow_color</item>
     </style>
 
+    <!-- Container styles -->
+    <style name="WhiteOutlineContainer">
+        <item name="android:background">@drawable/menu_dropdown_background</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
     <!-- Button Styles -->
     <style name="StickerPreviewButtonText" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">@android:color/white</item>
@@ -81,15 +87,5 @@
     <style name="PopupBounceAnimation">
         <item name="android:windowEnterAnimation">@anim/fade_enter</item>
         <item name="android:windowExitAnimation">@anim/popup_bound_exit</item>
-    </style>
-
-    <!-- Popup style -->
-    <style name="PopupMenuItem">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:orientation">horizontal</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:padding">16dp</item>
-        <item name="android:background">@drawable/ripple_menu_item</item>
     </style>
 </resources>
