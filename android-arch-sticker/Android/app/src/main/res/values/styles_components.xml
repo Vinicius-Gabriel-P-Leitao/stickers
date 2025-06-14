@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- Action Bar Theme -->
     <style name="MyApp.ActionBarTheme" parent="@style/ThemeOverlay.MaterialComponents.ActionBar">
         <item name="colorControlNormal">@color/action_bar_arrow_color</item>
@@ -84,4 +83,13 @@
         <item name="android:windowExitAnimation">@anim/popup_bound_exit</item>
     </style>
 
+    <!-- Popup style -->
+    <style name="PopupMenuItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:background">@drawable/ripple_menu_item</item>
+    </style>
 </resources>

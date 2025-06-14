@@ -16,6 +16,7 @@ import static br.arch.sticker.view.feature.preview.activity.PreviewInvalidSticke
 import static br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity.ANIMATED_STICKER;
 import static br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity.STATIC_STICKER;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,7 +28,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import br.arch.sticker.R;
 import br.arch.sticker.core.validation.WhatsappWhitelistValidator;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.StickerPackWithInvalidStickers;
+import br.arch.sticker.view.core.model.StickerPackListItem;
 import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
 import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
@@ -47,7 +49,6 @@ import br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivi
 import br.arch.sticker.view.feature.preview.fragment.DialogOperationInvalidStickerPack;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
 import br.arch.sticker.view.feature.stickerpack.list.adapter.StickerPackListAdapter;
-import br.arch.sticker.view.core.model.StickerPackListItem;
 import br.arch.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;
 import br.arch.sticker.view.main.EntryActivity;
 
@@ -62,7 +63,7 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
 
     private LoadListStickerPackAsyncTask loadListStickerPackAsyncTask;
     private StickerPackListAdapter allStickerPacksListAdapter;
-    private MaterialButton buttonCreateStickerPackage;
+    private FloatingActionButton buttonCreateStickerPackage;
     private LinearLayoutManager packLayoutManager;
     private RecyclerView packRecyclerView;
 
@@ -136,7 +137,13 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
         }
 
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
-        buttonCreateStickerPackage.setOnClickListener(view -> FormatStickerPopupWindow.popUpButtonChooserStickerModel(
+
+        buttonCreateStickerPackage.setOnClickListener(view -> {
+            ObjectAnimator rotation = ObjectAnimator.ofFloat(buttonCreateStickerPackage, "rotation", 0f, 360f);
+            rotation.setDuration(500);
+            rotation.start();
+
+            FormatStickerPopupWindow.popUpButtonChooserStickerModel(
                 this, buttonCreateStickerPackage, new FormatStickerPopupWindow.OnOptionClickListener() {
                     @Override
                     public void onStaticStickerSelected() {
@@ -147,7 +154,8 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
                     public void onAnimatedStickerSelected() {
                         openCreateStickerPackActivity(ANIMATED_STICKER);
                     }
-                }));
+                    });
+        });
     }
 
     @Override

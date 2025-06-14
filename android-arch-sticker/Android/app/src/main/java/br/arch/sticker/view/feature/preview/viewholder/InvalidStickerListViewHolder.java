@@ -9,7 +9,7 @@
 package br.arch.sticker.view.feature.preview.viewholder;
 
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,7 +21,7 @@ import br.arch.sticker.R;
 public class InvalidStickerListViewHolder extends RecyclerView.ViewHolder {
     public final ImageView stickerPreview;
     public final TextView textErrorMessage;
-    public final Button buttonFix;
+    public final ImageButton buttonFix;
 
     public InvalidStickerListViewHolder(@NonNull View itemView) {
         super(itemView);
