@@ -42,7 +42,7 @@ public class DeleteStickerAssetService {
         }
     }
 
-    public static CallbackResult<Boolean> deleteAllStickerAssetsInPack(@NonNull Context context, @NonNull String stickerPackIdentifier) {
+    public static CallbackResult<Boolean> deleteAllStickerAssetsByPack(@NonNull Context context, @NonNull String stickerPackIdentifier) {
         File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
         File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);
 
