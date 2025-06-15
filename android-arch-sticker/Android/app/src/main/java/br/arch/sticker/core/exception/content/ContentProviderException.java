@@ -12,4 +12,8 @@ public class ContentProviderException extends IllegalStateException {
     public ContentProviderException(String message) {
         super(message);
     }
+
+    public ContentProviderException(String message, Throwable causa) {
+        super(message, causa);
+    }
 }

@@ -8,11 +8,9 @@
 
 package br.arch.sticker.domain.data.content.provider;
 
-import static br.arch.sticker.core.validation.StickerValidator.ANIMATED_STICKER_FILE_LIMIT_KB;
-import static br.arch.sticker.core.validation.StickerValidator.KB_IN_BYTES;
-import static br.arch.sticker.core.validation.StickerValidator.STATIC_STICKER_FILE_LIMIT_KB;
 import static br.arch.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
 import static br.arch.sticker.domain.data.database.StickerDatabase.ANIMATED_STICKER_PACK;
+import static br.arch.sticker.view.core.util.convert.ConvertThumbnail.THUMBNAIL_FILE;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -25,15 +23,18 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import br.arch.sticker.core.exception.content.ContentProviderException;
-import br.arch.sticker.domain.data.database.StickerDatabase;
-import br.arch.sticker.domain.data.database.repository.SelectStickerPackRepo;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
-// @formatter:off
+import br.arch.sticker.core.exception.base.InternalAppException;
+import br.arch.sticker.core.exception.content.ContentProviderException;
+import br.arch.sticker.core.exception.sticker.StickerFileException;
+import br.arch.sticker.core.validation.StickerValidator;
+import br.arch.sticker.domain.data.database.StickerDatabase;
+import br.arch.sticker.domain.data.database.repository.SelectStickerPackRepo;
+
 public class StickerAssetProvider {
     private final static String TAG_LOG = StickerAssetProvider.class.getSimpleName();
 
@@ -44,70 +45,81 @@ public class StickerAssetProvider {
         this.context = context;
     }
 
-    public AssetFileDescriptor fetchStickerAsset(@NonNull Uri uri, StickerDatabase dbHelper,boolean isWhatsApp) throws IllegalArgumentException {
+    public AssetFileDescriptor fetchStickerAsset(@NonNull Uri uri, StickerDatabase dbHelper, boolean isWhatsApp) throws IllegalArgumentException {
         final File stickerPackDir = new File(context.getFilesDir(), STICKERS_ASSET);
 
         final List<String> pathSegments = uri.getPathSegments();
         if (pathSegments.size() != 3) {
-            throw new ContentProviderException("Segmentos de caminho devem ser 3, uri é:" + uri);
+            throw new ContentProviderException("Segmentos de caminho devem ser 3, uri é: " + uri);
         }
-        String fileName = pathSegments.get(pathSegments.size() - 1);
-        final String stickerPackIdentifier = pathSegments.get(pathSegments.size() - 2);
+
+        final String fileName = pathSegments.get(2);
+        final String stickerPackIdentifier = pathSegments.get(1);
 
         if (TextUtils.isEmpty(stickerPackIdentifier)) {
-            throw new ContentProviderException("Identificador está vazio, uri:" + uri);
+            throw new ContentProviderException("Identificador está vazio, uri: " + uri);
         }
 
         if (TextUtils.isEmpty(fileName)) {
-            throw new ContentProviderException("Nome do arquivo está vazio, uri:" + uri);
+            throw new ContentProviderException("Nome do arquivo está vazio, uri: " + uri);
         }
 
         final File stickerDirectory = new File(stickerPackDir, stickerPackIdentifier);
+        final File stickerFile = new File(stickerDirectory, fileName);
+
         if (!stickerDirectory.exists() || !stickerDirectory.isDirectory()) {
-            throw new ContentProviderException("Diretório de figurinhas não encontrado:" + stickerDirectory.getPath());
+            throw new ContentProviderException("Diretório de figurinhas não encontrado: " + stickerDirectory.getPath());
         }
 
-        File stickerFile = new File(stickerDirectory, fileName);
-        if (stickerFile.exists() && stickerFile.isFile()) {
-            Cursor cursor;
+        if (!stickerFile.exists() || !stickerFile.isFile()) {
+            Log.w(TAG_LOG, "Arquivo não encontrado ou inválido: " + stickerFile.getAbsolutePath());
+            return null;
+        }
 
-            try{
-                cursor = SelectStickerPackRepo.getStickerPackIsAnimated(dbHelper, stickerPackIdentifier);
-            } catch (SQLException sqlException) {
-                Log.e(TAG_LOG, "Erro no banco de dados ao buscar se o pacote  de figurinhas é animado: " + stickerPackIdentifier, sqlException);
-                throw sqlException;
-            } catch (RuntimeException exception) {
-                Log.e(TAG_LOG, "Error retrieving sticker pack: " + stickerPackIdentifier, exception);
-                throw new RuntimeException("Erro inesperado ao buscar sticker pack", exception);
+        if (THUMBNAIL_FILE.equalsIgnoreCase(fileName)) {
+            return openAssetFileSafely(stickerFile, "thumbnail");
+        }
+
+        try (Cursor cursor = SelectStickerPackRepo.getStickerPackIsAnimated(dbHelper, stickerPackIdentifier)) {
+            if (!cursor.moveToFirst()) {
+                Log.e(TAG_LOG, "Pacote de figurinha não encontrado no banco: " + stickerPackIdentifier);
+                return null;
             }
 
-            if (cursor.moveToFirst()) {
-                boolean animatedStickerPack = cursor.getInt(cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) != 0;
-
-                if (animatedStickerPack && isWhatsApp && stickerFile.length() > ANIMATED_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
-                    Log.w(TAG_LOG, "Arquivo " + stickerFile.getAbsolutePath() + " passa de 500KB, ignorado.");
-                    return null;
-                }
-
-                if (!animatedStickerPack && isWhatsApp && stickerFile.length() > STATIC_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
-                    Log.w(TAG_LOG, "Arquivo " + stickerFile.getAbsolutePath() + " passa de 100KB, ignorado.");
+            final boolean animatedStickerPack = cursor.getInt(cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) != 0;
+            if (isWhatsApp) {
+                if (!fileName.toLowerCase(Locale.ROOT).endsWith(".webp")) {
+                    Log.w(TAG_LOG, "Arquivo ignorado por não ser .webp: " + fileName);
                     return null;
                 }
 
                 try {
-                    ParcelFileDescriptor fileDescriptor = ParcelFileDescriptor.open(stickerFile, ParcelFileDescriptor.MODE_READ_ONLY);
-                    return new AssetFileDescriptor(fileDescriptor, 0, AssetFileDescriptor.UNKNOWN_LENGTH);
-                } catch (IOException exception) {
-                    Log.e(TAG_LOG, "Erro ao abrir arquivo da figurinhas: " + stickerFile.getAbsolutePath(), exception);
-                } finally {
-                    cursor.close();
+                    StickerValidator.validateStickerFile(context, stickerPackIdentifier, fileName, animatedStickerPack);
+                } catch (StickerFileException | InternalAppException exception) {
+                    Log.w(TAG_LOG, "Sticker inválido, ignorado: " + stickerFile.getAbsolutePath() + " - " + exception.getMessage());
+                    return null;
                 }
             } else {
-                Log.e(TAG_LOG, "Pacote de figurinha não encontrado: " + stickerPackIdentifier);
-                return null;
+                Log.d(TAG_LOG, "Ignorando validação porque não é o WhatsApp: " + stickerFile.getAbsolutePath());
             }
-        }
 
-        return null;
+            return openAssetFileSafely(stickerFile, "sticker");
+        } catch (SQLException sqlException) {
+            Log.e(TAG_LOG, "Erro no banco de dados ao buscar se o pacote é animado: " + stickerPackIdentifier, sqlException);
+            throw new ContentProviderException(sqlException.getMessage(), sqlException);
+        } catch (RuntimeException exception) {
+            Log.e(TAG_LOG, "Erro inesperado ao buscar sticker pack: " + stickerPackIdentifier, exception);
+            throw new ContentProviderException("Erro inesperado ao buscar sticker pack", exception);
+        }
+    }
+
+    private AssetFileDescriptor openAssetFileSafely(File file, String type) {
+        try {
+            ParcelFileDescriptor parcelFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+            return new AssetFileDescriptor(parcelFileDescriptor, 0, AssetFileDescriptor.UNKNOWN_LENGTH);
+        } catch (IOException exception) {
+            Log.e(TAG_LOG, "Erro ao abrir " + type + ": " + file.getAbsolutePath(), exception);
+            return null;
+        }
     }
 }
