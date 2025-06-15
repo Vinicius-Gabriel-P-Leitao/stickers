@@ -7,7 +7,7 @@
 
     <!-- Container styles -->
     <style name="WhiteOutlineContainer">
-        <item name="android:background">@drawable/menu_dropdown_background</item>
+        <item name="android:background">@drawable/background_menu_dropdown</item>
         <item name="android:padding">8dp</item>
     </style>
 
@@ -74,7 +74,7 @@
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="android:background">@android:color/transparent</item>
-        <item name="android:windowAnimationStyle">@style/PopupBounceAnimation</item>
+        <item name="android:windowAnimationStyle">@style/FadeAnimation</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
@@ -84,7 +84,7 @@
         <item name="android:windowExitAnimation">@anim/fade_exit</item>
     </style>
 
-    <style name="PopupBounceAnimation">
+    <style name="BounceAnimation">
         <item name="android:windowEnterAnimation">@anim/fade_enter</item>
         <item name="android:windowExitAnimation">@anim/popup_bound_exit</item>
     </style>

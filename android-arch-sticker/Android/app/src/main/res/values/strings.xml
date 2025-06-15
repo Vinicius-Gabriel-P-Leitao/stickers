@@ -59,4 +59,6 @@
     <string name="dialog_title_invalid_stickers">Invalid stickers!</string>
     <string name="title_activity_preview_invalid_sticker">Invalid stickers</string>
     <string name="sticker_is_valid">The sticker is valid!</string>
+    <string name="button_fix_stickerpack">Fix package</string>
+    <string name="sticker_invalid_description">Error with the sticker!</string>
 </resources>
