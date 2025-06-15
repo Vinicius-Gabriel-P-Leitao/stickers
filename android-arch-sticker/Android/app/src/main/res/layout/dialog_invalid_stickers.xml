@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:background="@drawable/dialog_alert_background"
+    android:background="@drawable/background_dialog_alert"
     android:gravity="center"
     android:maxWidth="400dp"
     android:minWidth="350dp"
@@ -49,7 +49,7 @@
         android:padding="10dp">
 
         <Button
-            android:id="@+id/button_ignore_invalid_sticker"
+            android:id="@+id/button_cancel_operation"
             style="@style/SurfaceButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
             android:textColor="@color/catppuccin_text" />
 
         <Button
-            android:id="@+id/button_fix_stickers"
+            android:id="@+id/button_fix_operation"
             style="@style/SurfaceButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
