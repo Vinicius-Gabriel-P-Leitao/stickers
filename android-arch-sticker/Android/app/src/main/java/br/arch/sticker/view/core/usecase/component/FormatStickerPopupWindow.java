@@ -37,7 +37,7 @@ public class FormatStickerPopupWindow {
         popupWindow.setElevation(12f);
         popupWindow.setClippingEnabled(true);
         popupWindow.setOutsideTouchable(true);
-        popupWindow.setAnimationStyle(R.style.PopupBounceAnimation);
+        popupWindow.setAnimationStyle(R.style.BounceAnimation);
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         int[] location = new int[2];

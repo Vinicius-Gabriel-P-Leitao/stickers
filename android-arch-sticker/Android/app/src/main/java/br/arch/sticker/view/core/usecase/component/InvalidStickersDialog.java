@@ -38,8 +38,8 @@ public class InvalidStickersDialog extends Dialog {
 
         titleTextView = findViewById(R.id.dialog_title);
         messageTextView = findViewById(R.id.dialog_message);
-        ignoreButton = findViewById(R.id.button_ignore_invalid_sticker);
-        fixButton = findViewById(R.id.button_fix_stickers);
+        ignoreButton = findViewById(R.id.button_cancel_operation);
+        fixButton = findViewById(R.id.button_fix_operation);
         iconImageView = findViewById(R.id.dialog_icon);
     }
 
