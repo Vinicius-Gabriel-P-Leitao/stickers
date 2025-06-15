@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package br.arch.sticker.view.feature.stickerpack.creation.transformation;
+package br.arch.sticker.view.core.util.transformation;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;

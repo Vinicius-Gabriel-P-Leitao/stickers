@@ -57,10 +57,10 @@
                 android:value=".view.feature.stickerpack.creation.activity.InitialStickerPackCreationActivity" />
         </activity>
 
-        <activity android:name=".view.feature.preview.activity.PreviewStickerInvalidActivity">
+        <activity android:name=".view.feature.preview.activity.PreviewInvalidStickerActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.feature.preview.activity.PreviewStickerInvalidActivity" />
+                android:value=".view.feature.preview.activity.PreviewInvalidStickerActivity" />
         </activity>
 
         <provider

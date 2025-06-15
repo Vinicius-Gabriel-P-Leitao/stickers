@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import br.arch.sticker.R;
-import br.arch.sticker.core.exception.content.ContentProviderException;
 import br.arch.sticker.core.exception.sticker.FetchStickerPackException;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
@@ -68,36 +68,48 @@ public class EntryActivity extends BaseActivity {
     ) {
         progressBar.setVisibility(View.GONE);
 
-        if (validPacks == null || validPacks.isEmpty()) {
+        boolean hasValid = validPacks != null && !validPacks.isEmpty();
+        boolean hasInvalid = invalidPacks != null && !invalidPacks.isEmpty();
+        boolean hasValidWithInvalidStickers = validPacksWithInvalidStickers != null && !validPacksWithInvalidStickers.isEmpty();
+
+        if (!hasValid && !hasInvalid && !hasValidWithInvalidStickers) {
             showErrorMessage("Nenhum pacote de figurinhas encontrado.");
             return;
         }
 
-        if (validPacks.size() > 1 || !validPacksWithInvalidStickers.isEmpty() || invalidPacks.size() > 1) {
-            final Intent intent = new Intent(this, StickerPackListActivity.class);
-
-            ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers = new ArrayList<>();
-            for (Map.Entry<StickerPack, List<Sticker>> entry : validPacksWithInvalidStickers.entrySet()) {
-                stickerPackWithInvalidStickers.add(new StickerPackWithInvalidStickers(entry.getKey(), new ArrayList<>(entry.getValue())));
-            }
-
-            intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA, validPacks);
-            intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_PACK_LIST_DATA, invalidPacks);
-            intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_MAP_DATA, stickerPackWithInvalidStickers);
-
-            startActivity(intent);
-            finish();
-            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-        } else {
-            final Intent intent = new Intent(this, StickerPackDetailsActivity.class);
-
+        if (hasValid && validPacks.size() == 1 && !hasInvalid && !hasValidWithInvalidStickers) {
+            Intent intent = new Intent(this, StickerPackDetailsActivity.class);
             intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, false);
             intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, validPacks.get(0));
 
             startActivity(intent);
             finish();
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+
+            return;
         }
+
+        final Intent intent = new Intent(this, StickerPackListActivity.class);
+
+        Map<StickerPack, List<Sticker>> safeMap = validPacksWithInvalidStickers != null
+                ? validPacksWithInvalidStickers
+                : Collections.emptyMap();
+
+        ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers = new ArrayList<>();
+        if (validPacksWithInvalidStickers != null) {
+            for (Map.Entry<StickerPack, List<Sticker>> entry : validPacksWithInvalidStickers.entrySet()) {
+                stickerPackWithInvalidStickers.add(new StickerPackWithInvalidStickers(entry.getKey(), new ArrayList<>(entry.getValue()))
+                );
+            }
+        }
+
+        intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA, validPacks);
+        intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_PACK_LIST_DATA, invalidPacks);
+        intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_MAP_DATA, stickerPackWithInvalidStickers);
+
+        startActivity(intent);
+        finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
     private void showErrorMessage(String errorMessage) {

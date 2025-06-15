@@ -8,8 +8,17 @@
 
 package br.arch.sticker.domain.orchestrator;
 
+import static br.arch.sticker.view.core.util.convert.ConvertThumbnail.THUMBNAIL_FILE;
+
 import android.content.Context;
 import android.util.Log;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 import br.arch.sticker.core.exception.base.InternalAppException;
 import br.arch.sticker.core.exception.content.InvalidWebsiteUrlException;
@@ -22,14 +31,7 @@ import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.save.SaveStickerPackService;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
-// @formatter:off
 public class StickerPackOrchestrator {
     private final static String TAG_LOG = StickerPackOrchestrator.class.getSimpleName();
 
@@ -47,13 +49,7 @@ public class StickerPackOrchestrator {
     ) {
         String nameStickerPack = namePack.trim() + " - [" + uuidPack.substring(0, 8) + "]";
         StickerPack stickerPack = new StickerPack(
-                uuidPack,
-                nameStickerPack,
-                "vinicius",
-                "thumbnail.jpg",
-                "",
-                "",
-                "",
+                uuidPack, nameStickerPack, "vinicius", THUMBNAIL_FILE, "", "", "",
                 "",
                 "1",
                 false,

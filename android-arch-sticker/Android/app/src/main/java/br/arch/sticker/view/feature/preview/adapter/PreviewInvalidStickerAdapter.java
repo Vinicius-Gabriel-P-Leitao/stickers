@@ -28,7 +28,7 @@ import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
 import br.arch.sticker.view.feature.preview.viewholder.InvalidStickerListViewHolder;
 
-public class InvalidStickerPreviewAdapter extends RecyclerView.Adapter<InvalidStickerListViewHolder> {
+public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidStickerListViewHolder> {
     @NonNull
     private final String stickerPackIdentifier;
     @NonNull
@@ -38,16 +38,24 @@ public class InvalidStickerPreviewAdapter extends RecyclerView.Adapter<InvalidSt
 
     private int maxNumberOfStickersInARow;
 
-    public InvalidStickerPreviewAdapter(@NonNull String stickerPackIdentifier, @NonNull List<Sticker> stickerList) {
+    public interface OnFixClickListener {
+        void onFixClick(Sticker sticker);
+    }
+
+    private final OnFixClickListener listener;
+
+    public PreviewInvalidStickerAdapter(@NonNull String stickerPackIdentifier, @NonNull List<Sticker> stickerList, OnFixClickListener listener) {
         this.stickerPackIdentifier = stickerPackIdentifier;
         this.stickerList = new ArrayList<>(stickerList);
         stickerPack = null;
+        this.listener = listener;
     }
 
-    public InvalidStickerPreviewAdapter(@NonNull StickerPack stickerPack) {
+    public PreviewInvalidStickerAdapter(@NonNull StickerPack stickerPack, OnFixClickListener listener) {
         this.stickerPack = stickerPack;
         this.stickerList = new ArrayList<>(stickerPack.getStickers());
         this.stickerPackIdentifier = stickerPack.identifier;
+        this.listener = listener;
     }
 
 
@@ -63,19 +71,24 @@ public class InvalidStickerPreviewAdapter extends RecyclerView.Adapter<InvalidSt
     @Override
     public void onBindViewHolder(@NonNull InvalidStickerListViewHolder viewHolder, int position) {
         Context context = viewHolder.itemView.getContext();
+        final Sticker sticker = stickerList.get(position);
 
         if (!stickerList.isEmpty()) {
-            final Sticker sticker = stickerList.get(position);
             viewHolder.stickerPreview.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
             viewHolder.textErrorMessage.setText(sticker.stickerIsValid);
         }
 
         if (stickerPack != null) {
-            final Sticker sticker = stickerList.get(position);
             viewHolder.stickerPreview.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
             viewHolder.textErrorMessage.setText(TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(R.string.sticker_is_valid) : sticker.stickerIsValid);
-            viewHolder.buttonFix.setVisibility(View.GONE);
+            viewHolder.buttonFix.setVisibility(TextUtils.isEmpty(sticker.stickerIsValid) ? View.GONE : View.VISIBLE);
         }
+
+        viewHolder.buttonFix.setOnClickListener(view -> {
+            if (listener != null) {
+                listener.onFixClick(sticker);
+            }
+        });
     }
 
     @Override

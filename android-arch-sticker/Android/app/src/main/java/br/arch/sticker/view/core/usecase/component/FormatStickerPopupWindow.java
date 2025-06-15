@@ -9,6 +9,8 @@
 package br.arch.sticker.view.core.usecase.component;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.PopupWindow;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 
 import br.arch.sticker.R;
 
@@ -34,9 +35,10 @@ public class FormatStickerPopupWindow {
 
         PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setElevation(12f);
+        popupWindow.setClippingEnabled(true);
         popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.menu_dropdown_background));
-        popupWindow.setAnimationStyle(R.style.PopupBounceAnimation);
+        popupWindow.setAnimationStyle(R.style.BounceAnimation);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         int[] location = new int[2];
         anchorView.getLocationOnScreen(location);

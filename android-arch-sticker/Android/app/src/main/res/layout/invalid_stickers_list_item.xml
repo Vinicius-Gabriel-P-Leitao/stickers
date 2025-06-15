@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
@@ -16,7 +17,7 @@
         android:scaleType="centerCrop" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp"
@@ -29,16 +30,20 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="3"
-            android:text="Mensagem de erro detalhada aqui"
+            android:text="@string/sticker_invalid_description"
             android:textColor="@color/catppuccin_lavender"
             android:textSize="14sp" />
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
-        style="@style/SurfaceButton"
+    <ImageButton
         android:id="@+id/button_fix_invalid"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Corrigir"
-        android:textColor="@android:color/white" />
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/background_rounded_button_open_gallery"
+        android:backgroundTint="@color/catppuccin_surface1"
+        android:contentDescription="@string/button_fix_stickerpack"
+        android:padding="4dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_build_24dp"
+        app:tint="@color/catppuccin_text" />
 </LinearLayout>

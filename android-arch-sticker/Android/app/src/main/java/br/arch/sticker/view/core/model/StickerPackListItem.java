@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package br.arch.sticker.view.feature.stickerpack.list.model;
+package br.arch.sticker.view.core.model;
 
 public record StickerPackListItem(Object stickerPack, Status status) {
     public enum Status {

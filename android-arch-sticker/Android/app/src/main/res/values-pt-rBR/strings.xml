@@ -59,4 +59,6 @@
     <string name="dialog_title_invalid_stickers">Figurinhas invalidas!</string>
     <string name="title_activity_preview_invalid_sticker">Figurinhas invalidas</string>
     <string name="sticker_is_valid">A figurinha é valida!</string>
+    <string name="button_fix_stickerpack">Corrigir pacote</string>
+    <string name="sticker_invalid_description">Erro com a figurinha!</string>
 </resources>

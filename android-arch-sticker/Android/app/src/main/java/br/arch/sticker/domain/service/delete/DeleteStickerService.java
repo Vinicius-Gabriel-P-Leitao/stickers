@@ -48,7 +48,7 @@ public class DeleteStickerService {
 
     public static CallbackResult<Boolean> deleteAllStickerByPack(@NonNull Context context, @NonNull String stickerPackIdentifier) {
         try {
-            CallbackResult<Boolean> stickerAssetDeleted = DeleteStickerAssetService.deleteAllStickerAssetsInPack(context, stickerPackIdentifier);
+            CallbackResult<Boolean> stickerAssetDeleted = DeleteStickerAssetService.deleteAllStickerAssetsByPack(context, stickerPackIdentifier);
             if (stickerAssetDeleted.getStatus() == CallbackResult.Status.FAILURE) {
                 return CallbackResult.failure(stickerAssetDeleted.getError());
             }

@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/WhiteOutlineButton"
+    style="@style/WhiteOutlineContainer"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/menu_dropdown_background"
     android:orientation="vertical"
     android:paddingVertical="4dp">
-
 
     <LinearLayout
         android:id="@+id/item_option_static"

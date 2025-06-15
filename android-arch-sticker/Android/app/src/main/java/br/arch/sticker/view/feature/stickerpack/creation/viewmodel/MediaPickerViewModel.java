@@ -22,7 +22,7 @@ import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.orchestrator.StickerPackOrchestrator;
 import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
-import br.arch.sticker.view.core.util.ConvertMediaToStickerFormat;
+import br.arch.sticker.view.core.util.convert.ConvertMediaToStickerFormat;
 
 import java.io.File;
 import java.util.ArrayList;

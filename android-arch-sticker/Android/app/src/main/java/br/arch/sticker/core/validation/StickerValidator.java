@@ -70,7 +70,7 @@ public class StickerValidator {
                 !isAnimatedStickerPack && length > MAX_STATIC_STICKER_A11Y_TEXT_CHAR_LIMIT;
     }
 
-    private static void validateStickerFile(
+    public static void validateStickerFile(
             @NonNull Context context, @NonNull String stickerPackIdentifier, @NonNull final String fileName,
             final boolean animatedStickerPack
     ) throws IllegalStateException {
@@ -92,6 +92,7 @@ public class StickerValidator {
                                 ANIMATED_STICKER_FILE_LIMIT_KB, stickerInBytes.length / KB_IN_BYTES, stickerPackIdentifier, fileName),
                         ErrorFileCode.ERROR_FILE_SIZE.getMessage(), stickerPackIdentifier, fileName);
             }
+
             try {
                 final WebPImage webPImage = WebPImage.createFromByteArray(stickerInBytes, ImageDecodeOptions.defaults());
                 if (webPImage.getHeight() != IMAGE_HEIGHT) {
