@@ -17,6 +17,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,15 +41,18 @@ import br.arch.sticker.domain.service.fetch.FetchStickerPackService;
 import br.arch.sticker.view.core.base.BaseActivity;
 import br.arch.sticker.view.feature.preview.adapter.PreviewInvalidStickerAdapter;
 import br.arch.sticker.view.feature.preview.viewholder.InvalidStickerListViewHolder;
+import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerViewModel;
 
 // @formatter:off
-public class PreviewInvalidStickerActivity extends BaseActivity {
+public class PreviewInvalidStickerActivity extends BaseActivity  implements PreviewInvalidStickerAdapter.OnFixClickListener{
     private final static String TAG_LOG = PreviewInvalidStickerActivity.class.getSimpleName();
 
     public static final String EXTRA_INVALID_STICKER_PACK = "invalid_sticker_pack";
     public static final String EXTRA_INVALID_STICKER_LIST = "invalid_sticker_list";
 
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
+
+    private PreviewInvalidStickerViewModel viewModel;
 
     private LoadListInvalidStickersAsyncTask loadListInvalidStickersAsyncTask;
     private PreviewInvalidStickerAdapter previewInvalidStickerAdapter;
@@ -61,10 +66,12 @@ public class PreviewInvalidStickerActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preview_invalid_sticker);
+        viewModel = new ViewModelProvider(this).get(PreviewInvalidStickerViewModel.class);
 
         recyclerViewInvalidStickers = findViewById(R.id.recycler_invalid_stickers);
         TextView textInvalidTitle = findViewById(R.id.text_invalid_title);
         MaterialButton buttonFixInvalid = findViewById(R.id.button_fix_invalid);
+        CardView cardViewInvalidPack = findViewById(R.id.header_container);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.title_activity_preview_invalid_sticker);
@@ -91,9 +98,12 @@ public class PreviewInvalidStickerActivity extends BaseActivity {
         } catch (FetchStickerPackException exception) {
             Object[] details = exception.getDetails();
             if (details != null && details.length > 0 && details[0] instanceof StickerPack recoveredPack) {
-                buttonFixInvalid.setVisibility(View.VISIBLE);
-                textInvalidTitle.setVisibility(View.VISIBLE);
+                cardViewInvalidPack.setVisibility(View.VISIBLE);
                 textInvalidTitle.setText(exception.getMessage());
+
+                buttonFixInvalid.setOnClickListener(view -> {
+                    viewModel.handleFixStickerPackClick(recoveredPack);
+                });
 
                 showStickerPackInvalid(recoveredPack);
                 return;
@@ -122,6 +132,11 @@ public class PreviewInvalidStickerActivity extends BaseActivity {
         }
     }
 
+
+    @Override public void onFixClick(Sticker sticker) {
+        viewModel.handleFixStickerClick(sticker);
+    }
+
     private void showInvalidStickerList(List<Sticker> stickerList) {
         if (stickerList == null || stickerList.isEmpty()) {
             Log.w(TAG_LOG, "Lista de stickers inválidos está vazia ou nula.");
@@ -129,13 +144,13 @@ public class PreviewInvalidStickerActivity extends BaseActivity {
         }
         stickerArrayList = new ArrayList<>(stickerList);
 
-        previewInvalidStickerAdapter = new PreviewInvalidStickerAdapter(stickerPackIdentifier, stickerArrayList);
+        previewInvalidStickerAdapter = new PreviewInvalidStickerAdapter(stickerPackIdentifier, stickerArrayList, this);
         recyclerViewInvalidStickers.setAdapter(previewInvalidStickerAdapter);
         decorateRecyclerView();
     }
 
     private void showStickerPackInvalid(StickerPack stickerPack) {
-        previewInvalidStickerAdapter = new PreviewInvalidStickerAdapter(stickerPack);
+        previewInvalidStickerAdapter = new PreviewInvalidStickerAdapter(stickerPack, this);
         recyclerViewInvalidStickers.setAdapter(previewInvalidStickerAdapter);
         decorateRecyclerView();
     }

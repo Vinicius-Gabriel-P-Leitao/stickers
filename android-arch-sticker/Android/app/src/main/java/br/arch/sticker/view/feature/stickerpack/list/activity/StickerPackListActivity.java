@@ -15,6 +15,7 @@ import static br.arch.sticker.view.feature.preview.activity.PreviewInvalidSticke
 import static br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity.EXTRA_INVALID_STICKER_PACK;
 import static br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity.ANIMATED_STICKER;
 import static br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity.STATIC_STICKER;
+import static br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity.EXTRA_INVALID_STICKERS;
 
 import android.animation.ObjectAnimator;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
+import android.widget.Toast;
 
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -38,27 +40,28 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import br.arch.sticker.R;
+import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.core.validation.WhatsappWhitelistValidator;
+import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.StickerPackWithInvalidStickers;
+import br.arch.sticker.domain.service.delete.DeleteStickerPackPathService;
+import br.arch.sticker.domain.service.delete.DeleteStickerPackService;
 import br.arch.sticker.view.core.model.StickerPackListItem;
 import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
 import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
 import br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity;
-import br.arch.sticker.view.feature.preview.fragment.DialogOperationInvalidStickerPack;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
+import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
 import br.arch.sticker.view.feature.stickerpack.list.adapter.StickerPackListAdapter;
 import br.arch.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;
 import br.arch.sticker.view.main.EntryActivity;
 
-public class StickerPackListActivity extends StickerPackAddActivity implements DialogOperationInvalidStickerPack.OnDialogActionListener {
+public class StickerPackListActivity extends StickerPackAddActivity {
     public static final String EXTRA_STICKER_PACK_LIST_DATA = "sticker_pack_list";
     public static final String EXTRA_INVALID_STICKER_PACK_LIST_DATA = "invalid_sticker_pack_list";
     public static final String EXTRA_INVALID_STICKER_MAP_DATA = "sticker_pack_with_invalid_stickers";
-
-    private List<StickerPackListItem> unifiedList;
-
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
 
     private LoadListStickerPackAsyncTask loadListStickerPackAsyncTask;
@@ -67,21 +70,33 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
     private LinearLayoutManager packLayoutManager;
     private RecyclerView packRecyclerView;
 
-    private final StickerPackListAdapter.OnAddButtonClickedListener onAddButtonClickedListener = (stickerPack, stickers, isValid) -> {
-        if (isValid) {
-            addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name);
-        } else {
-            InvalidStickersDialog dialog = new InvalidStickersDialog(this);
-            dialog.setTitleText(this.getString(R.string.dialog_title_invalid_stickers));
-            dialog.setMessageText(this.getString(R.string.dialog_message_invalid_stickers));
+    private List<StickerPackListItem> unifiedList;
 
-            dialog.setTextIgnoreButton(this.getString(R.string.dialog_button_ignore_pack));
+    public interface OnEventClickedListener {
+        void onAddButtonClicked(StickerPack stickerPack, List<Sticker> stickers, StickerPackListItem.Status status);
+
+        void onStickerPackClicked(StickerPack stickerPack, List<Sticker> stickers, StickerPackListItem.Status status);
+    }
+
+    private final OnEventClickedListener onEventClickedListener = new OnEventClickedListener() {
+        @Override
+        public void onAddButtonClicked(StickerPack stickerPack, List<Sticker> stickers, StickerPackListItem.Status status) {
+            if (status == StickerPackListItem.Status.VALID) {
+                addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name);
+                return;
+            }
+
+            InvalidStickersDialog dialog = new InvalidStickersDialog(StickerPackListActivity.this);
+            dialog.setTitleText(getString(R.string.dialog_title_invalid_stickers));
+            dialog.setMessageText(getString(R.string.dialog_message_invalid_stickers));
+
+            dialog.setTextIgnoreButton(getString(R.string.dialog_button_ignore_pack));
             dialog.setOnIgnoreClick(fragment -> {
                 addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name);
                 dialog.dismiss();
             });
 
-            dialog.setTextFixButton(this.getString(R.string.dialog_button_fix_stickers));
+            dialog.setTextFixButton(getString(R.string.dialog_button_fix_stickers));
             dialog.setOnFixClick(fragment -> {
                 Intent intent = new Intent(fragment.getContext(), PreviewInvalidStickerActivity.class);
                 intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPack.identifier);
@@ -93,12 +108,72 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
 
             dialog.show();
         }
-    };
 
-    @Override
-    public void addStickerPackToWhatsApp(String stickerPackIdentifier, String stickerPackName) {
-        super.addStickerPackToWhatsApp(stickerPackIdentifier, stickerPackName);
-    }
+        @Override
+        public void onStickerPackClicked(StickerPack stickerPack, List<Sticker> stickers, StickerPackListItem.Status status) {
+            if (status == StickerPackListItem.Status.VALID || status == StickerPackListItem.Status.WITH_INVALID_STICKER) {
+                Intent intent = new Intent(StickerPackListActivity.this, StickerPackDetailsActivity.class);
+
+                intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
+                intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, stickerPack);
+
+                if (status == StickerPackListItem.Status.WITH_INVALID_STICKER) {
+                    intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKERS, new ArrayList<>(stickers));
+                }
+
+                StickerPackListActivity.this.startActivity(intent);
+                return;
+            }
+
+            final String stickerPackIdentifier = stickerPack.identifier;
+
+            final InvalidStickersDialog dialog = new InvalidStickersDialog(StickerPackListActivity.this);
+            dialog.setTitleText(getString(R.string.dialog_title_invalid_pack));
+            dialog.setMessageText(getString(R.string.dialog_message_invalid_pack));
+
+            dialog.setTextFixButton(getString(R.string.dialog_button_fix_pack));
+            dialog.setOnFixClick(fragment -> {
+                Intent intent = new Intent(fragment.getContext(), PreviewInvalidStickerActivity.class);
+                intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPackIdentifier);
+
+                fragment.getContext().startActivity(intent);
+                dialog.dismiss();
+            });
+
+            dialog.setTextIgnoreButton(getString(R.string.dialog_button_delete_pack));
+            dialog.setOnIgnoreClick(fragment -> {
+                if (stickerPackIdentifier != null) {
+                    CallbackResult<Boolean> deletedStickerPack = DeleteStickerPackService.deleteStickerPack(
+                            fragment.getContext(), stickerPackIdentifier);
+                    CallbackResult<Boolean> deleteAllStickerAssets = DeleteStickerPackPathService.deleteStickerPackPath(
+                            fragment.getContext(), stickerPackIdentifier);
+
+                    switch (deletedStickerPack.getStatus()) {
+                        case WARNING:
+                            Toast.makeText(getBaseContext(), deletedStickerPack.getWarningMessage(), Toast.LENGTH_LONG).show();
+                            break;
+                        case FAILURE:
+                            Toast.makeText(getBaseContext(), deletedStickerPack.getError().getMessage(), Toast.LENGTH_LONG).show();
+                            break;
+                    }
+
+                    switch (deleteAllStickerAssets.getStatus()) {
+                        case WARNING:
+                            Toast.makeText(getBaseContext(), deleteAllStickerAssets.getWarningMessage(), Toast.LENGTH_LONG).show();
+                            break;
+                        case FAILURE:
+                            Toast.makeText(getBaseContext(), deleteAllStickerAssets.getError().getMessage(), Toast.LENGTH_LONG).show();
+                            break;
+                    }
+
+                    onReloadRequested();
+                    dialog.dismiss();
+                }
+            });
+
+            dialog.show();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +214,7 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
 
         buttonCreateStickerPackage.setOnClickListener(view -> {
-            ObjectAnimator rotation = ObjectAnimator.ofFloat(buttonCreateStickerPackage, "rotation", 0f, 360f);
+            final ObjectAnimator rotation = ObjectAnimator.ofFloat(buttonCreateStickerPackage, "rotation", 0f, 360f);
             rotation.setDuration(500);
             rotation.start();
 
@@ -173,9 +248,8 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
         }
     }
 
-    @Override
-    public void onReloadRequested() {
-        Intent intent = new Intent(this, EntryActivity.class);
+    private void onReloadRequested() {
+        final Intent intent = new Intent(this, EntryActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         startActivity(intent);
@@ -184,9 +258,9 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
     }
 
     private void showStickerPack(
-            List<StickerPackListItem> validPacks
+            List<StickerPackListItem> stickerPackListItems
     ) {
-        allStickerPacksListAdapter = new StickerPackListAdapter(validPacks, onAddButtonClickedListener, getSupportFragmentManager());
+        allStickerPacksListAdapter = new StickerPackListAdapter(stickerPackListItems, onEventClickedListener);
         packRecyclerView.setAdapter(allStickerPacksListAdapter);
 
         packLayoutManager = new LinearLayoutManager(this);
@@ -215,12 +289,13 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
             if (maxNumberOfImagesInARow > 1) {
                 minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) / (maxNumberOfImagesInARow - 1);
             }
+
             allStickerPacksListAdapter.setImageRowSpec(maxNumberOfImagesInARow, minMarginBetweenImages);
         }
     }
 
     private void openCreateStickerPackActivity(String format) {
-        Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreationActivity.class);
+        final Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreationActivity.class);
         intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
 
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -248,8 +323,7 @@ public class StickerPackListActivity extends StickerPackAddActivity implements D
                 if (currentActivity == null) return;
 
                 for (StickerPackListItem stickerPack : stickerPackArray) {
-                    if (stickerPack.status() == StickerPackListItem.Status.VALID ||
-                            stickerPack.status() == StickerPackListItem.Status.INVALID) {
+                    if (stickerPack.status() == StickerPackListItem.Status.VALID || stickerPack.status() == StickerPackListItem.Status.INVALID) {
 
                         StickerPack pack = (StickerPack) stickerPack.stickerPack();
                         pack.setIsWhitelisted(WhatsappWhitelistValidator.isWhitelisted(currentActivity, pack.identifier));
