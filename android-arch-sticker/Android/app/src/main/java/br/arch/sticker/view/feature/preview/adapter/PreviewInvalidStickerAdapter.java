@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.arch.sticker.R;
+import br.arch.sticker.core.exception.throwable.sticker.StickerFileException;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
@@ -47,7 +48,7 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
     public PreviewInvalidStickerAdapter(@NonNull String stickerPackIdentifier, @NonNull List<Sticker> stickerList, OnFixClickListener listener) {
         this.stickerPackIdentifier = stickerPackIdentifier;
         this.stickerList = new ArrayList<>(stickerList);
-        stickerPack = null;
+        this.stickerPack = null;
         this.listener = listener;
     }
 
@@ -73,14 +74,18 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
         Context context = viewHolder.itemView.getContext();
         final Sticker sticker = stickerList.get(position);
 
+        StickerFileException.ErrorFileCode code = StickerFileException.ErrorFileCode.fromName(sticker.stickerIsValid);
+        int resId = (code != null) ? code.getMessageResId() : R.string.throw_unknown_error;
+
         if (!stickerList.isEmpty()) {
             viewHolder.stickerPreview.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
-            viewHolder.textErrorMessage.setText(sticker.stickerIsValid);
+            viewHolder.textErrorMessage.setText(context.getString(resId));
         }
 
         if (stickerPack != null) {
             viewHolder.stickerPreview.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
-            viewHolder.textErrorMessage.setText(TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(R.string.sticker_is_valid) : sticker.stickerIsValid);
+
+            viewHolder.textErrorMessage.setText(TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(R.string.sticker_is_valid) : context.getString(resId));
             viewHolder.buttonFix.setVisibility(TextUtils.isEmpty(sticker.stickerIsValid) ? View.GONE : View.VISIBLE);
         }
 

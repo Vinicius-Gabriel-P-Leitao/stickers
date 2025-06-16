@@ -84,6 +84,7 @@ public class PreviewInvalidStickerActivity extends BaseActivity  implements Prev
             showInvalidStickerList(stickerArrayList);
             return;
         }
+
         try{
             StickerPackValidationResult result = FetchStickerPackService.fetchStickerPackFromContentProvider(this, stickerPackIdentifier);
             List<Sticker> invalidStickers = result.invalidSticker();
@@ -132,7 +133,6 @@ public class PreviewInvalidStickerActivity extends BaseActivity  implements Prev
         }
     }
 
-
     @Override public void onFixClick(Sticker sticker) {
         viewModel.handleFixStickerClick(sticker);
     }
@@ -142,6 +142,7 @@ public class PreviewInvalidStickerActivity extends BaseActivity  implements Prev
             Log.w(TAG_LOG, "Lista de stickers inválidos está vazia ou nula.");
             return;
         }
+
         stickerArrayList = new ArrayList<>(stickerList);
 
         previewInvalidStickerAdapter = new PreviewInvalidStickerAdapter(stickerPackIdentifier, stickerArrayList, this);

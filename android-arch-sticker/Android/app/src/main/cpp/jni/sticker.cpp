@@ -76,7 +76,7 @@ Java_br_arch_sticker_core_lib_NativeConvertToWebp_convertToWebp(JNIEnv *env,
 
     int outputSize = 512;
 
-    jclass nativeMediaException = env->FindClass("br/arch/sticker/core/exception/media/NativeConversionException");
+    jclass nativeMediaException = env->FindClass("br/arch/sticker/core/exception/throwable/media/NativeConversionException");
 
     if (!inPath.get() || !outPath.get()) {
         std::string msgError = fmt::format("Caminhos de entrada ou saída inválidos");

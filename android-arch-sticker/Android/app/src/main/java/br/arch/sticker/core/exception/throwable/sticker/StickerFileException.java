@@ -11,10 +11,10 @@ package br.arch.sticker.core.exception.throwable.sticker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.Locale;
-
+import br.arch.sticker.R;
 import br.arch.sticker.core.exception.throwable.base.AppCoreStateException;
 
+// @formatter:off
 public class StickerFileException extends AppCoreStateException {
     private final String stickerPackIdentifier;
     @Nullable
@@ -27,8 +27,8 @@ public class StickerFileException extends AppCoreStateException {
     }
 
     public StickerFileException(
-            @NonNull String message, @NonNull String errorCode, @Nullable String stickerPackIdentifier, @Nullable String fileName) {
-        super(message, errorCode);
+            @NonNull String message, @NonNull ErrorFileCode errorCode, @Nullable String stickerPackIdentifier, @Nullable String fileName) {
+        super(message, errorCode.name());
         this.stickerPackIdentifier = stickerPackIdentifier;
         this.fileName = fileName;
     }
@@ -42,30 +42,33 @@ public class StickerFileException extends AppCoreStateException {
         return fileName;
     }
 
-    public static StickerFileException durationExceeded(@NonNull String identifier, @Nullable String fileName, int minDuration) {
-        String message = String.format(
-                Locale.ROOT, "O limite mínimo de duração de um quadro da figurinha animada é %d ms, identificador do pacote: %s, arquivo: %s",
-                minDuration, identifier, fileName);
-
-        return new StickerFileException(message, ErrorFileCode.ERROR_STICKER_DURATION.name(), identifier, fileName);
-    }
-
     // @formatter:off
     public enum ErrorFileCode {
-        ERROR_FILE_SIZE("O arquivo ultrapassou o tamanho em KB permitido."),
-        ERROR_SIZE_STICKER("O tamanho da figurinha deve ser de 512x512 e ultrapassou"),
-        ERROR_STICKER_TYPE("As figurinhas não são condizente com o tipo do pacote"),
-        ERROR_STICKER_DURATION("A duração da figurinha animada ultrapaça o permitido"),
-        ERROR_FILE_TYPE("Tipo de arquivo não suportado.");
+        ERROR_FILE_SIZE(R.string.throw_exceeded_file_size),
+        ERROR_SIZE_STICKER(R.string.throw_invalid_sticker_size),
+        ERROR_STICKER_TYPE(R.string.throw_sticker_not_match_pack),
+        ERROR_STICKER_DURATION(R.string.throw_animated_sticker_exceeded),
+        ERROR_FILE_TYPE(R.string.throw_unsuported_file_type);
 
-        private final String message;
+        private final int message;
 
-        ErrorFileCode(String message) {
+        ErrorFileCode(int message) {
             this.message = message;
         }
 
-        public String getMessage() {
+        public int getMessageResId() {
             return message;
+        }
+
+        @Nullable
+        public static ErrorFileCode fromName(@Nullable String name) {
+            if (name == null) return null;
+
+            try {
+                return ErrorFileCode.valueOf(name);
+            } catch (IllegalArgumentException exception) {
+                return null;
+            }
         }
     }
 }

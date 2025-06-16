@@ -61,4 +61,10 @@
     <string name="sticker_is_valid">The sticker is valid!</string>
     <string name="button_fix_stickerpack">Fix package</string>
     <string name="sticker_invalid_description">Error with the sticker!</string>
+    <string name="throw_exceeded_file_size">The file exceeded the allowed KB size.</string>
+    <string name="throw_invalid_sticker_size">The sticker size must be 512x512.</string>
+    <string name="throw_sticker_not_match_pack">The stickers do not match the package type.</string>
+    <string name="throw_animated_sticker_exceeded">The duration of the animated sticker exceeds the permitted duration.</string>
+    <string name="throw_unsuported_file_type">Unsupported file type.</string>
+    <string name="throw_unknown_error">Unknown error.</string>
 </resources>

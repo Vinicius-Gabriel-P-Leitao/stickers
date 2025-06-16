@@ -61,4 +61,10 @@
     <string name="sticker_is_valid">A figurinha é valida!</string>
     <string name="button_fix_stickerpack">Corrigir pacote</string>
     <string name="sticker_invalid_description">Erro com a figurinha!</string>
+    <string name="throw_exceeded_file_size">O arquivo ultrapassou o tamanho em KB permitido.</string>
+    <string name="throw_invalid_sticker_size">O tamanho da figurinha deve ser de 512x512</string>
+    <string name="throw_sticker_not_match_pack">As figurinhas não são condizentes com o tipo do pacote.</string>
+    <string name="throw_animated_sticker_exceeded">A duração da figurinha animada ultrapassa o permitido.</string>
+    <string name="throw_unsuported_file_type">Tipo de arquivo não suportado.</string>
+    <string name="throw_unknown_error">Erro desconhecido.</string>
 </resources>

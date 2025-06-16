@@ -19,23 +19,33 @@ import br.arch.sticker.domain.data.model.StickerPack;
 
 public class PreviewInvalidStickerViewModel extends ViewModel {
     public void handleFixStickerClick(Sticker sticker) {
-        if (TextUtils.equals(sticker.stickerIsValid, StickerFileException.ErrorFileCode.ERROR_FILE_SIZE.getMessage())) {
+        if (TextUtils.equals(
+                sticker.stickerIsValid,
+                StickerFileException.ErrorFileCode.ERROR_FILE_SIZE.name())) {
             Log.d("ViewModel", "Botão Fix clicado para o sticker: " + sticker.imageFileName);
         }
 
-        if (TextUtils.equals(sticker.stickerIsValid, StickerFileException.ErrorFileCode.ERROR_SIZE_STICKER.getMessage())) {
+        if (TextUtils.equals(
+                sticker.stickerIsValid,
+                StickerFileException.ErrorFileCode.ERROR_SIZE_STICKER.name())) {
             Log.d("ViewModel", "Botão Fix clicado para o sticker: " + sticker.imageFileName);
         }
 
-        if (TextUtils.equals(sticker.stickerIsValid, StickerFileException.ErrorFileCode.ERROR_STICKER_TYPE.getMessage())) {
+        if (TextUtils.equals(
+                sticker.stickerIsValid,
+                StickerFileException.ErrorFileCode.ERROR_STICKER_TYPE.name())) {
             Log.d("ViewModel", "Botão Fix clicado para o sticker: " + sticker.imageFileName);
         }
 
-        if (TextUtils.equals(sticker.stickerIsValid, StickerFileException.ErrorFileCode.ERROR_STICKER_DURATION.getMessage())) {
+        if (TextUtils.equals(
+                sticker.stickerIsValid,
+                StickerFileException.ErrorFileCode.ERROR_STICKER_DURATION.name())) {
             Log.d("ViewModel", "Botão Fix clicado para o sticker: " + sticker.imageFileName);
         }
 
-        if (TextUtils.equals(sticker.stickerIsValid, StickerFileException.ErrorFileCode.ERROR_FILE_TYPE.getMessage())) {
+        if (TextUtils.equals(
+                sticker.stickerIsValid,
+                StickerFileException.ErrorFileCode.ERROR_FILE_TYPE.name())) {
             Log.d("ViewModel", "Botão Fix clicado para o sticker: " + sticker.imageFileName);
         }
     }

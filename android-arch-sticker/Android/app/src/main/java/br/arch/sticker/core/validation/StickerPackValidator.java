@@ -79,7 +79,7 @@ public class StickerPackValidator {
         if (stickerPack.name.length() > CHAR_COUNT_MAX) {
             throw new PackValidatorException(
                     "O nome do pacote de figurinhas não pode exceder " + CHAR_COUNT_MAX + " caracteres, identificador do pacote de figurinhas:" +
-                            stickerPack.identifier, PackValidatorException.ErrorCode.STICKERPACK_SIZE);
+                            stickerPack.identifier, PackValidatorException.ErrorCode.INVALID_STICKERPACK_NAME);
         }
 
         if (TextUtils.isEmpty(stickerPack.trayImageFile)) {
