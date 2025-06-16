@@ -6,11 +6,11 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package br.arch.sticker.core.exception.media;
+package br.arch.sticker.core.exception.throwable.media;
 
 import androidx.annotation.NonNull;
 
-import br.arch.sticker.core.exception.base.AppCoreStateException;
+import br.arch.sticker.core.exception.throwable.base.AppCoreStateException;
 
 public class MediaConversionException extends AppCoreStateException {
     public MediaConversionException(@NonNull String message) {

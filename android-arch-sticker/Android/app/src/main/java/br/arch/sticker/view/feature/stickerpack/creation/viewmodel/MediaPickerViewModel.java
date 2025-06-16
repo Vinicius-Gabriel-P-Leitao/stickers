@@ -16,8 +16,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import br.arch.sticker.core.exception.base.InternalAppException;
-import br.arch.sticker.core.exception.sticker.StickerPackSaveException;
+import br.arch.sticker.core.exception.throwable.base.InternalAppException;
+import br.arch.sticker.core.exception.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.orchestrator.StickerPackOrchestrator;

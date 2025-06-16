@@ -7,22 +7,16 @@
  */
 
 
-package br.arch.sticker.core.exception.content;
+package br.arch.sticker.core.exception.throwable.content;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import br.arch.sticker.core.exception.base.AppCoreStateException;
+import br.arch.sticker.core.exception.throwable.base.AppCoreStateException;
 
 public class InvalidWebsiteUrlException extends AppCoreStateException {
 
     public InvalidWebsiteUrlException(@NonNull String message, @Nullable Throwable cause, @Nullable String invalidUrl) {
         super(message, cause, "INVALID_URL", new Object[]{invalidUrl});
-    }
-
-    @Nullable
-    public String getInvalidUrl() {
-        Object[] details = getDetails();
-        return details != null && details.length > 0 ? (String) details[0] : null;
     }
 }

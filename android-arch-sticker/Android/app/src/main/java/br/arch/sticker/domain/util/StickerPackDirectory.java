@@ -10,7 +10,7 @@ package br.arch.sticker.domain.util;
 
 import java.io.File;
 
-import br.arch.sticker.core.exception.sticker.StickerPackSaveException;
+import br.arch.sticker.core.exception.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.service.save.SaveStickerPackService;
 

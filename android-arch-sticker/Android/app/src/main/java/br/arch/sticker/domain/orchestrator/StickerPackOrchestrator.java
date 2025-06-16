@@ -20,12 +20,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import br.arch.sticker.core.exception.base.InternalAppException;
-import br.arch.sticker.core.exception.content.InvalidWebsiteUrlException;
-import br.arch.sticker.core.exception.sticker.DeleteStickerException;
-import br.arch.sticker.core.exception.sticker.PackValidatorException;
-import br.arch.sticker.core.exception.sticker.StickerFileException;
-import br.arch.sticker.core.exception.sticker.StickerPackSaveException;
+import br.arch.sticker.core.exception.throwable.base.InternalAppException;
+import br.arch.sticker.core.exception.throwable.content.InvalidWebsiteUrlException;
+import br.arch.sticker.core.exception.throwable.sticker.DeleteStickerException;
+import br.arch.sticker.core.exception.throwable.sticker.PackValidatorException;
+import br.arch.sticker.core.exception.throwable.sticker.StickerFileException;
+import br.arch.sticker.core.exception.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;

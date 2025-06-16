@@ -21,7 +21,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
-import br.arch.sticker.core.exception.base.AppCoreStateException;
+import br.arch.sticker.core.exception.throwable.base.AppCoreStateException;
 
 public abstract class BaseActivity extends AppCompatActivity {
     @Override

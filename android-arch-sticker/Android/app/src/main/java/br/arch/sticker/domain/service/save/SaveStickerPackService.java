@@ -17,12 +17,12 @@ import android.util.Log;
 import java.io.File;
 import java.util.Objects;
 
-import br.arch.sticker.core.exception.base.InternalAppException;
-import br.arch.sticker.core.exception.content.InvalidWebsiteUrlException;
-import br.arch.sticker.core.exception.sticker.PackValidatorException;
-import br.arch.sticker.core.exception.sticker.StickerFileException;
-import br.arch.sticker.core.exception.sticker.StickerPackSaveException;
-import br.arch.sticker.core.exception.sticker.StickerValidatorException;
+import br.arch.sticker.core.exception.throwable.base.InternalAppException;
+import br.arch.sticker.core.exception.throwable.content.InvalidWebsiteUrlException;
+import br.arch.sticker.core.exception.throwable.sticker.PackValidatorException;
+import br.arch.sticker.core.exception.throwable.sticker.StickerFileException;
+import br.arch.sticker.core.exception.throwable.sticker.StickerPackSaveException;
+import br.arch.sticker.core.exception.throwable.sticker.StickerValidatorException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.core.validation.StickerPackValidator;
 import br.arch.sticker.core.validation.StickerValidator;

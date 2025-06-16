@@ -15,7 +15,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import br.arch.sticker.core.exception.media.MediaConversionException;
+import br.arch.sticker.core.exception.throwable.media.MediaConversionException;
 import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 
 import java.util.ArrayList;

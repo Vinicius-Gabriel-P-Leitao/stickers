@@ -17,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import br.arch.sticker.core.exception.media.MediaConversionException;
+import br.arch.sticker.core.exception.throwable.media.MediaConversionException;
 import br.arch.sticker.core.validation.MimeTypeValidator;
 import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 import br.arch.sticker.view.core.util.resolver.FileDetailsResolver;

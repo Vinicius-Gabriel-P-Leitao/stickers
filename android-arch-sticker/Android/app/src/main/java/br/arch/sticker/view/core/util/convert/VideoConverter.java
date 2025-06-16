@@ -14,7 +14,7 @@ import android.net.Uri;
 import java.io.File;
 import java.util.Objects;
 
-import br.arch.sticker.core.exception.media.MediaConversionException;
+import br.arch.sticker.core.exception.throwable.media.MediaConversionException;
 import br.arch.sticker.core.lib.NativeConvertToWebp;
 import br.arch.sticker.view.core.util.resolver.FileDetailsResolver;
 

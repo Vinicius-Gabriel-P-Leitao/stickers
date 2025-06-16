@@ -8,7 +8,7 @@
 
 package br.arch.sticker.core.lib;
 
-import br.arch.sticker.core.exception.media.MediaConversionException;
+import br.arch.sticker.core.exception.throwable.media.MediaConversionException;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;

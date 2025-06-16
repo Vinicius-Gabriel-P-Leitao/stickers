@@ -11,7 +11,7 @@ package br.arch.sticker.domain.data.database.repository;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import br.arch.sticker.core.exception.sticker.DeleteStickerException;
+import br.arch.sticker.core.exception.throwable.sticker.DeleteStickerException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.database.StickerDatabase;
 import br.arch.sticker.domain.dto.StickerPackValidationResult;

@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 
 import java.io.File;
 
-import br.arch.sticker.core.exception.sticker.DeleteStickerException;
+import br.arch.sticker.core.exception.throwable.sticker.DeleteStickerException;
 import br.arch.sticker.core.pattern.CallbackResult;
 
 public class DeleteStickerAssetService {

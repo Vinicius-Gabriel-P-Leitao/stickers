@@ -38,11 +38,11 @@ import java.util.HashSet;
 import java.util.List;
 
 import br.arch.sticker.BuildConfig;
-import br.arch.sticker.core.exception.content.InvalidWebsiteUrlException;
-import br.arch.sticker.core.exception.sticker.FetchStickerPackException;
-import br.arch.sticker.core.exception.sticker.PackValidatorException;
-import br.arch.sticker.core.exception.sticker.StickerFileException;
-import br.arch.sticker.core.exception.sticker.StickerValidatorException;
+import br.arch.sticker.core.exception.throwable.content.InvalidWebsiteUrlException;
+import br.arch.sticker.core.exception.throwable.sticker.FetchStickerPackException;
+import br.arch.sticker.core.exception.throwable.sticker.PackValidatorException;
+import br.arch.sticker.core.exception.throwable.sticker.StickerFileException;
+import br.arch.sticker.core.exception.throwable.sticker.StickerValidatorException;
 import br.arch.sticker.core.validation.StickerPackValidator;
 import br.arch.sticker.core.validation.StickerValidator;
 import br.arch.sticker.domain.data.model.Sticker;
@@ -170,8 +170,8 @@ public class FetchStickerPackService {
             return new StickerPackValidationResult(stickerPack, invalidSticker);
         } catch (PackValidatorException | InvalidWebsiteUrlException exception) {
             throw new FetchStickerPackException(
-                    exception.getMessage() != null ? exception.getMessage() : "Pacote de figurinhas invalido", exception.getCause(),
-                    new Object[]{stickerPack});
+                    exception.getMessage() != null ? exception.getMessage() : "Pacote de figurinhas invalido",
+                    exception.getCause(), new Object[]{stickerPack});
         }
     }
 

@@ -18,7 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 
-import br.arch.sticker.core.exception.media.MediaConversionException;
+import br.arch.sticker.core.exception.throwable.media.MediaConversionException;
 
 public class ImageConverter {
     private static ConvertMediaToStickerFormat.MediaConversionCallback callback;

@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package br.arch.sticker.core.exception.content;
+package br.arch.sticker.core.exception.throwable.content;
 
 public class ContentProviderException extends IllegalStateException {
     public ContentProviderException(String message) {

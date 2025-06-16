@@ -16,7 +16,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import br.arch.sticker.core.exception.sticker.StickerPackSaveException;
+import br.arch.sticker.core.exception.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.service.save.SaveStickerPackService;
 
