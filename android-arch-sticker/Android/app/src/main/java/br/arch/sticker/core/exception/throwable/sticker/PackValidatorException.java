@@ -11,6 +11,7 @@ package br.arch.sticker.core.exception.throwable.sticker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import br.arch.sticker.R;
 import br.arch.sticker.core.exception.throwable.base.AppCoreStateException;
 
 // @formatter:off
@@ -25,24 +26,35 @@ public class PackValidatorException extends AppCoreStateException {
     }
 
     public enum ErrorCode {
-        INVALID_IDENTIFIER("O identificador do pacote é invalido!"),
-        INVALID_PUBLISHER("O campo de publisher do pacote é invalido!"),
-        INVALID_STICKERPACK_NAME("O nome do pacote de figurinhas é invalido!"),
-        STICKERPACK_SIZE("O tamanho do pacote de figurinhas é invalido!"),
-        INVALID_THUMBNAIL("A thumbnail do pacote é invalida!"),
-        INVALID_ANDROID_URL_SITE("A url ANDROID do aplicativo que está registrada no pacote é invalida!"),
-        INVALID_IOS_URL_SITE("A url IOS do aplicativo que está registrada no pacote é invalida!"),
-        INVALID_WEBSITE("O site vinculado ao pacote de figurinhas é invalido!"),
-        INVALID_EMAIL("O e-mail vinculado ao pacote de figurinhas é invalido!");
+        INVALID_IDENTIFIER(R.string.throw_identifier_stickerpack_invalid),
+        INVALID_PUBLISHER(R.string.throw_publisher_stickerpack_invalid),
+        INVALID_STICKERPACK_NAME(R.string.throw_name_stickerpack_invalid),
+        STICKERPACK_SIZE(R.string.throw_stickerpack_size_invalid),
+        INVALID_THUMBNAIL(R.string.throw_thumbnail_stickerpack_invalid),
+        INVALID_ANDROID_URL_SITE(R.string.throw_url_android_stickerpack_invalid),
+        INVALID_IOS_URL_SITE(R.string.throw_url_ios_stickerpack_invalid),
+        INVALID_WEBSITE(R.string.throw_stickerpack_website_invalid),
+        INVALID_EMAIL(R.string.throw_stickerpack_email_invalid);
 
-        private final String message;
+        private final int message;
 
-        ErrorCode(String message) {
+        ErrorCode(int message) {
             this.message = message;
         }
 
-        public String getMessage() {
+        public int getMessageResId() {
             return message;
+        }
+
+        @Nullable
+        public static StickerFileException.ErrorFileCode fromName(@Nullable String name) {
+            if (name == null) return null;
+
+            try {
+                return StickerFileException.ErrorFileCode.valueOf(name);
+            } catch (IllegalArgumentException exception) {
+                return null;
+            }
         }
     }
 }
