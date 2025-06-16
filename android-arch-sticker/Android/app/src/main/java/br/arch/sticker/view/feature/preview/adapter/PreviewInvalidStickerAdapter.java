@@ -84,7 +84,6 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
 
         if (stickerPack != null) {
             viewHolder.stickerPreview.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
-
             viewHolder.textErrorMessage.setText(TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(R.string.sticker_is_valid) : context.getString(resId));
             viewHolder.buttonFix.setVisibility(TextUtils.isEmpty(sticker.stickerIsValid) ? View.GONE : View.VISIBLE);
         }

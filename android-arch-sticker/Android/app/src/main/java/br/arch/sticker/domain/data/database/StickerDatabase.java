@@ -52,6 +52,11 @@ public class StickerDatabase extends SQLiteOpenHelper {
     public static final String STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY = "sticker_accessibility_text";
     public static final String FK_STICKER_PACK = "fk_sticker_pack";
 
+    // Valores de campos que tem são constantes no app todo
+    public static final int CHAR_IDENTIFIER_COUNT_MAX = 36;
+    public static final int CHAR_NAME_COUNT_MAX = 35;
+    public static final int CHAR_PUBLISHER_COUNT_MAX = 40;
+
     public StickerDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -77,12 +82,15 @@ public class StickerDatabase extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(
                 "CREATE TABLE IF NOT EXISTS " + TABLE_STICKER_PACK +
                         " (" +
-                            STICKER_PACK_IDENTIFIER_IN_QUERY + " TEXT PRIMARY KEY, " +
-                            STICKER_PACK_NAME_IN_QUERY + " VARCHAR(20) NOT NULL, " +
+                            STICKER_PACK_IDENTIFIER_IN_QUERY + " TEXT PRIMARY KEY " +
+                                        "CHECK(length(" + STICKER_PACK_IDENTIFIER_IN_QUERY +") <= "+ CHAR_IDENTIFIER_COUNT_MAX +"), " +
+                            STICKER_PACK_NAME_IN_QUERY + " VARCHAR NOT NULL " +
+                                        "CHECK(length(" + STICKER_PACK_NAME_IN_QUERY +") <= "+ CHAR_NAME_COUNT_MAX + "), " +
                             STICKER_PACK_PUBLISHER_IN_QUERY + " VARCHAR(20) NOT NULL, " +
                             STICKER_PACK_TRAY_IMAGE_IN_QUERY + " CHAR(3) NOT NULL, " +
                             PUBLISHER_EMAIL + " VARCHAR(60), " +
-                            PUBLISHER_WEBSITE + " VARCHAR(40), " +
+                            PUBLISHER_WEBSITE + " VARCHAR " +
+                                        "CHECK(length("+ PUBLISHER_WEBSITE +") <= " +CHAR_PUBLISHER_COUNT_MAX +"), " +
                             PRIVACY_POLICY_WEBSITE + " VARCHAR(100), " +
                             LICENSE_AGREEMENT_WEBSITE + " VARCHAR(100), " +
                             ANIMATED_STICKER_PACK + " CHAR(1) NOT NULL, " +

@@ -67,4 +67,14 @@
     <string name="throw_animated_sticker_exceeded">A duração da figurinha animada ultrapassa o permitido.</string>
     <string name="throw_unsuported_file_type">Tipo de arquivo não suportado.</string>
     <string name="throw_unknown_error">Erro desconhecido.</string>
+    <string name="throw_identifier_stickerpack_invalid">O identificador do pacote é invalido.</string>
+    <string name="throw_publisher_stickerpack_invalid">O campo de publisher do pacote é invalido.</string>
+    <string name="throw_name_stickerpack_invalid">O nome do pacote de figurinhas é invalido.</string>
+    <string name="throw_stickerpack_size_invalid">O tamanho do pacote de figurinhas é invalido.</string>
+    <string name="throw_thumbnail_stickerpack_invalid">A thumbnail do pacote é inválido.</string>
+    <string name="throw_url_android_stickerpack_invalid">A url ANDROID do aplicativo, que está registrada no pacote, é invalida.</string>
+    <string name="throw_url_ios_stickerpack_invalid">A url IOS do aplicativo, que está registrada no pacote, é invalida.</string>
+    <string name="throw_stickerpack_website_invalid">O site vinculado ao pacote de figurinhas é invalido.</string>
+    <string name="throw_stickerpack_email_invalid">O e-mail vinculado ao pacote de figurinhas é invalido.</string>
+    <string name="input_name_cannot_exceed_stickerpack_size">Não pode passar de 20.</string>
 </resources>

@@ -67,4 +67,14 @@
     <string name="throw_animated_sticker_exceeded">The duration of the animated sticker exceeds the permitted duration.</string>
     <string name="throw_unsuported_file_type">Unsupported file type.</string>
     <string name="throw_unknown_error">Unknown error.</string>
+    <string name="throw_identifier_stickerpack_invalid">The package identifier is invalid.</string>
+    <string name="throw_publisher_stickerpack_invalid">The package publisher field is invalid.</string>
+    <string name="throw_name_stickerpack_invalid">The sticker pack name is invalid.</string>
+    <string name="throw_stickerpack_size_invalid">The sticker pack size is invalid.</string>
+    <string name="throw_thumbnail_stickerpack_invalid">The package thumbnail is invalid.</string>
+    <string name="throw_url_android_stickerpack_invalid">The ANDROID url of the application that is registered in the package is invalid.</string>
+    <string name="throw_url_ios_stickerpack_invalid">The IOS url of the application, which is registered in the package, is invalid.</string>
+    <string name="throw_stickerpack_website_invalid">The website linked to the sticker pack is invalid.</string>
+    <string name="throw_stickerpack_email_invalid">The email linked to the sticker pack is invalid.</string>
+    <string name="input_name_cannot_exceed_stickerpack_size">Cannot exceed 20.</string>
 </resources>

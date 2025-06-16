@@ -8,10 +8,14 @@
 
 package br.arch.sticker.view.feature.stickerpack.creation.fragment;
 
+import static br.arch.sticker.domain.data.database.StickerDatabase.CHAR_NAME_COUNT_MAX;
+
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +30,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.textfield.TextInputEditText;
+
 import br.arch.sticker.R;
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.NameStickerPackViewModel;
 
@@ -46,8 +51,27 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
         View view = inflater.inflate(R.layout.dialog_metadata_pack, container, false);
 
         ImageButton buttonGrantPermission = view.findViewById(R.id.open_gallery);
+        TextInputEditText textInputEditText = view.findViewById(R.id.et_user_input);
+        textInputEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                if (charSequence.length() > CHAR_NAME_COUNT_MAX) {
+                    textInputEditText.setError(getString(R.string.input_name_cannot_exceed_stickerpack_size));
+                } else {
+                    textInputEditText.setError(null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+
         buttonGrantPermission.setOnClickListener(viewAccept -> {
-            TextInputEditText textInputEditText = view.findViewById(R.id.et_user_input);
             textInputEditText.setFocusable(true);
             textInputEditText.setFocusableInTouchMode(true);
 
