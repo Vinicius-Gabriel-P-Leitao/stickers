@@ -33,7 +33,7 @@ public class ImageConverter {
 
         if (bitmap == null) {
             throw new MediaConversionException(
-                    "Failed to decode image from path: " + cleanedPath,
+                    String.format("Falha ao decodificar a imagem do caminho: %s", cleanedPath),
                     MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
         }
 

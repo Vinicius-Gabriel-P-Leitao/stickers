@@ -47,9 +47,9 @@ public class StickerPackDirectory {
 
             }
 
-           return CallbackResult.debug("Pasta criada com sucesso: " + stickerPackDirectory.getPath());
+           return CallbackResult.success(stickerPackDirectory);
         } else {
-           return CallbackResult.warning("Pasta já existe: " + stickerPackDirectory.getPath());
+           return CallbackResult.debug("Pasta já existe: " + stickerPackDirectory.getPath());
         }
     }
 }

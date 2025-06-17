@@ -21,16 +21,18 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import br.arch.sticker.BuildConfig;
-import br.arch.sticker.domain.data.content.StickerContentProvider;
-import br.arch.sticker.domain.data.model.Sticker;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FetchStickerService {
+import br.arch.sticker.BuildConfig;
+import br.arch.sticker.core.error.code.FetchErrorCode;
+import br.arch.sticker.core.error.throwable.sticker.FetchStickerPackException;
+import br.arch.sticker.domain.data.content.StickerContentProvider;
+import br.arch.sticker.domain.data.model.Sticker;
 
+// @formatter:off
+public class FetchStickerService {
     @NonNull
     public static List<Sticker> fetchListStickerForPack(Context context, String stickerPackIdentifier) {
         final List<Sticker> stickers = fetchListStickerFromContentProvider(stickerPackIdentifier, context.getContentResolver());
@@ -41,15 +43,16 @@ public class FetchStickerService {
                 bytes = FetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, sticker.imageFileName, context);
 
                 if (bytes.length == 0) {
-                    throw new IllegalStateException(
-                            "O arquivo está vazio, pacote: " + stickerPackIdentifier + ", figurinha: " + sticker.imageFileName);
+                    throw new FetchStickerPackException(
+                            String.format("O arquivo está vazio, pacote: %s, figurinha: %s", stickerPackIdentifier, sticker.imageFileName),
+                            FetchErrorCode.ERROR_EMPTY_STICKERS_IN_STICKERPACK);
                 }
 
                 sticker.setSize(bytes.length);
             } catch (IOException | IllegalArgumentException exception) {
-                throw new IllegalStateException(
-                        "O arquivo não existe. pacote:" + stickerPackIdentifier + ", figurinha: " + sticker.imageFileName,
-                        exception);
+                throw new FetchStickerPackException(
+                        String.format("O arquivo não existe. pacote: %s, figurinha: %s", stickerPackIdentifier, sticker.imageFileName),
+                        exception, FetchErrorCode.ERROR_EMPTY_STICKERS_IN_STICKERPACK);
             }
         }
 

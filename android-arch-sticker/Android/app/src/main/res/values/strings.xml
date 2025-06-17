@@ -66,7 +66,6 @@
     <string name="throw_sticker_not_match_pack">The stickers do not match the package type.</string>
     <string name="throw_animated_sticker_exceeded">The duration of the animated sticker exceeds the permitted duration.</string>
     <string name="throw_unsuported_file_type">Unsupported file type.</string>
-    <string name="throw_unknown_error">Unknown error.</string>
     <string name="throw_identifier_stickerpack_invalid">The package identifier is invalid.</string>
     <string name="throw_publisher_stickerpack_invalid">The package publisher field is invalid.</string>
     <string name="throw_name_stickerpack_invalid">The sticker pack name is invalid.</string>
@@ -88,4 +87,11 @@
     <string name="throw_invalid_size_acessibility">The accessibility text exceeds the allowed size.</string>
     <string name="throw_invalid_url">The URL provided is invalid.</string>
     <string name="throw_suplicate_stickerpack_identifier">The sticker pack identifier is duplicated.</string>
+    <string name="throw_unknown_error">Unknown error.</string>
+    <string name="throw_operation_not_possible">Unable to perform operation.</string>
+    <string name="throw_base_activity">Error on main screen.</string>
+    <string name="throw_delete_stickerpack_in_db">Error deleting at the database layer.</string>
+    <string name="throw_delete_stickerpack_service">Error deleting at service layer.</string>
+    <string name="throw_delete_stickerpack_util">Error deleting at utility layer.</string>
+    <string name="throw_delete_stickerpack_ui">Error deleting at interface layer.</string>
 </resources>

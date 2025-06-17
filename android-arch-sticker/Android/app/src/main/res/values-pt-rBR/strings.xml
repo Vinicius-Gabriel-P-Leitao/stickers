@@ -66,7 +66,6 @@
     <string name="throw_sticker_not_match_pack">As figurinhas não são condizentes com o tipo do pacote.</string>
     <string name="throw_animated_sticker_exceeded">A duração da figurinha animada ultrapassa o permitido.</string>
     <string name="throw_unsuported_file_type">Tipo de arquivo não suportado.</string>
-    <string name="throw_unknown_error">Erro desconhecido.</string>
     <string name="throw_identifier_stickerpack_invalid">O identificador do pacote é invalido.</string>
     <string name="throw_publisher_stickerpack_invalid">O campo de publisher do pacote é invalido.</string>
     <string name="throw_name_stickerpack_invalid">O nome do pacote de figurinhas é invalido.</string>
@@ -88,4 +87,11 @@
     <string name="throw_invalid_size_acessibility">O texto de acessibilidade ultrapassa o tamanho permitido.</string>
     <string name="throw_invalid_url">A URL fornecida é invalida.</string>
     <string name="throw_suplicate_stickerpack_identifier">O identificador do pacote de figurinhas está duplicado.</string>
+    <string name="throw_unknown_error">Erro desconhecido.</string>
+    <string name="throw_operation_not_possible">Não foi possível executar operação.</string>
+    <string name="throw_base_activity">Erro na tela principal.</string>
+    <string name="throw_delete_stickerpack_in_db">Erro ao deletar na camada de banco de dados.</string>
+    <string name="throw_delete_stickerpack_service">Erro ao deletar na camada de serviço.</string>
+    <string name="throw_delete_stickerpack_util">Erro ao deletar na camada de utilitário.</string>
+    <string name="throw_delete_stickerpack_ui">Erro ao deletar na camada de interface.</string>
 </resources>

@@ -10,6 +10,7 @@ package br.arch.sticker.domain.service.save;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -32,9 +33,16 @@ import br.arch.sticker.view.core.util.convert.ConvertThumbnail;
 
 // @formatter:off
 public class SaveStickerAssetService {
-    public static  CallbackResult<Boolean>  copyStickerFromCache(@NonNull Context context, @NonNull StickerPack stickerPack, @NonNull File stickerPackDirectory) {
+    public static CallbackResult<Boolean> copyStickerFromCache(@NonNull Context context, @NonNull StickerPack stickerPack, @NonNull File stickerPackDirectory) {
+        if (!stickerPackDirectory.canWrite()) {
+            return CallbackResult.failure(new StickerPackSaveException(
+                    "Sem permissão de escrita no diretório destino: " + stickerPackDirectory,
+                    SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
+        }
+
         List<Sticker> stickerList = stickerPack.getStickers();
         if (stickerList.isEmpty()) {
+            Log.e("copyStickerFromCache", "Lista de stickers vazia!");
             return CallbackResult.failure(new StickerPackSaveException(
                     "Lista de stickers vazia no pacote",
                     SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
@@ -50,15 +58,20 @@ public class SaveStickerAssetService {
 
         for (Sticker sticker : stickerList) {
             String fileName = sticker.imageFileName;
-            File sourceFile = new File(context.getCacheDir(), fileName);
-            File destFile = new File(stickerPackDirectory, fileName);
+            if (fileName == null || fileName.trim().isEmpty()) {
+                return CallbackResult.failure(new StickerPackSaveException(
+                        "Nome do arquivo do sticker é nulo ou vazio",
+                        SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
+            }
 
+            File sourceFile = new File(context.getCacheDir(), fileName);
             if (!sourceFile.exists()) {
                 return CallbackResult.failure(new StickerPackSaveException(
                         String.format("Arquivo não encontrado: %s", fileName),
                         SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
             }
 
+            File destFile = new File(stickerPackDirectory, fileName);
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     Path sourcePath = sourceFile.toPath();

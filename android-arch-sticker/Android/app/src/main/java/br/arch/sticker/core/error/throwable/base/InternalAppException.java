@@ -11,17 +11,20 @@ package br.arch.sticker.core.error.throwable.base;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import br.arch.sticker.core.error.ErrorCodeProvider;
+
+// @formatter:off
 public class InternalAppException extends AppCoreStateException {
-    public InternalAppException(@NonNull String message) {
-        super(message, "INTERNAL_ERROR");
+    public InternalAppException(@NonNull String message, @NonNull ErrorCodeProvider errorCode) {
+        super(message, errorCode);
     }
 
-    public InternalAppException(@NonNull String message, Exception exception) {
-        super(message, exception, "INTERNAL_ERROR");
+    public InternalAppException(@NonNull String message, Exception exception, @NonNull ErrorCodeProvider errorCode) {
+        super(message, exception, errorCode);
     }
 
-    public InternalAppException(@NonNull String message, @Nullable Throwable cause, @Nullable String errorDetails) {
-        super(message, cause, "INTERNAL_ERROR", new Object[]{errorDetails});
+    public InternalAppException(@NonNull String message, @Nullable Throwable cause, @NonNull ErrorCodeProvider errorCode, @Nullable String errorDetails) {
+        super(message, cause, errorCode, new Object[]{errorDetails});
     }
 
     @Nullable

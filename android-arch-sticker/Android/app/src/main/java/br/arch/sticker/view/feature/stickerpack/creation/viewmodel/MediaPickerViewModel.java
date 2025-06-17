@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -56,8 +56,7 @@ public class MediaPickerViewModel extends AndroidViewModel {
             super(application);
 
             convertedFilesLiveData.observeForever(files -> {
-                if (files != null)
-                {
+                if (files != null) {
                     generateStickerPack(files);
                 }
             });
@@ -81,11 +80,6 @@ public class MediaPickerViewModel extends AndroidViewModel {
     public LiveData<MimeTypesSupported> getMimeTypesSupported()
         {
             return mimeTypesSupported;
-        }
-
-    public LiveData<ProgressState> getConversionProgress()
-        {
-            return conversionProgress;
         }
 
     public void setStickerPackPreview(StickerPack stickerPack)
@@ -119,8 +113,7 @@ public class MediaPickerViewModel extends AndroidViewModel {
             int maxThreads = Math.min(30, cores * 2);
             ExecutorService executor = new ThreadPoolExecutor(cores, maxThreads, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
-            if (uris == null || uris.isEmpty())
-            {
+            if (uris == null || uris.isEmpty()) {
                 postFailure("A lista de URIs está vazia ou nula.");
                 return;
             }
@@ -129,11 +122,9 @@ public class MediaPickerViewModel extends AndroidViewModel {
             completedConversions.set(0);
             convertedFiles.clear();
 
-            for (Uri uri : uris)
-            {
+            for (Uri uri : uris) {
                 executor.submit(() -> {
-                    try
-                    {
+                    try {
                         if (uri.getPath() == null) throw new Exception("URI sem caminho válido.");
                         String fileName = new File(uri.getPath()).getName();
                         convertedFiles.add(ConvertMediaToStickerFormat.convertMediaToWebPAsyncFuture(context, uri, fileName).get());
@@ -141,12 +132,10 @@ public class MediaPickerViewModel extends AndroidViewModel {
                         int done = completedConversions.incrementAndGet();
                         conversionProgress.postValue(new ProgressState(totalConversions, done, done == totalConversions));
 
-                        if (done == totalConversions)
-                        {
+                        if (done == totalConversions) {
                             convertedFilesLiveData.postValue(new ArrayList<>(convertedFiles));
                         }
-                    } catch (Exception exception)
-                    {
+                    } catch (Exception exception) {
                         postFailure("Erro na conversão: " + exception.getMessage());
                     }
                 });
@@ -155,29 +144,29 @@ public class MediaPickerViewModel extends AndroidViewModel {
 
     private void generateStickerPack(List<File> files)
         {
-            try
-            {
+            try {
                 Boolean animated = isAnimatedPack.getValue();
                 String name = nameStickerPack.getValue();
 
-                if (animated == null || name == null || name.isBlank())
-                {
+                if (animated == null || name == null || name.isBlank()) {
                     throw new IllegalArgumentException("Dados insuficientes para gerar o pacote.");
                 }
 
                 Context context = getAppContext();
-                if (context == null)
-                {
+                if (context == null) {
                     throw new IllegalStateException("Contexto inválido para gerar o pack.");
                 }
 
-                stickerPackResult.postValue(SaveStickerPackService.saveStickerPackAsync(context, animated, files, name).get());
-            } catch (InternalAppException internalAppException)
-            {
+                Executors.newSingleThreadExecutor().submit(() -> {
+                    try {
+                        CallbackResult<StickerPack> result = SaveStickerPackService.saveStickerPackAsync(context, animated, files, name).get();
+                        stickerPackResult.postValue(result);
+                    } catch (Exception exception) {
+                        postFailure(exception.getMessage());
+                    }
+                });
+            } catch (InternalAppException internalAppException) {
                 stickerPackResult.postValue(CallbackResult.failure(internalAppException));
-            } catch (ExecutionException | InterruptedException exception)
-            {
-                throw new RuntimeException(exception);
             }
         }
 

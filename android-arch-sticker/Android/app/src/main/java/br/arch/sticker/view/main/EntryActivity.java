@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import br.arch.sticker.R;
+import br.arch.sticker.core.error.code.FetchErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.FetchStickerPackException;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
@@ -160,21 +161,33 @@ public class EntryActivity extends BaseActivity {
         // @formatter:off
         public void execute(ActivityResultLauncher<Intent> createPackLauncher) {
             executor.execute(() -> {
-                Pair<String,  ListStickerPackValidationResult> result;
+                Pair<String,  ListStickerPackValidationResult> result = new Pair<>(null, null);
                 final Context context = contextWeakReference.get();
 
                 if (context != null) {
                     try {
                         result = new Pair<>(null,  FetchStickerPackService.fetchStickerPackListFromContentProvider(context));
                     } catch (FetchStickerPackException exception) {
-                        Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio", exception);
+                        if (exception.getErrorCode() == FetchErrorCode.ERROR_EMPTY_STICKERPACK) {
 
-                        Intent intent = new Intent(context, InitialStickerPackCreationActivity.class);
-                        intent.putExtra("database_empty", true);
-                        intent.putExtra(InitialStickerPackCreationActivity.EXTRA_SHOW_UP_BUTTON, false);
+                            return;
+                        }
 
-                        createPackLauncher.launch(intent);
-                        return;
+                        if (exception.getErrorCode() == FetchErrorCode.ERROR_EMPTY_STICKERS_IN_STICKERPACK) {
+
+                            return;
+                        }
+
+                        if (exception.getErrorCode() == FetchErrorCode.ERROR_CONTENT_PROVIDER) {
+                            Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio", exception);
+
+                            Intent intent = new Intent(context, InitialStickerPackCreationActivity.class);
+                            intent.putExtra("database_empty", true);
+                            intent.putExtra(InitialStickerPackCreationActivity.EXTRA_SHOW_UP_BUTTON, false);
+
+                            createPackLauncher.launch(intent);
+                            return;
+                        }
                     } catch (Exception exception) {
                         Log.e(TAG_LOG, "Erro ao obter pacotes de figurinhas", exception);
                         result = new Pair<>(exception.getMessage(), null);

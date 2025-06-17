@@ -25,49 +25,39 @@ import br.arch.sticker.view.core.util.resolver.FileDetailsResolver;
 
 public class ConvertMediaToStickerFormat {
     public static CompletableFuture<File> convertMediaToWebPAsyncFuture(
-            @NonNull Context context, @NonNull Uri inputUri,
-            @NonNull String outputFileName
-    ) throws MediaConversionException {
+            @NonNull Context context, @NonNull Uri inputUri, @NonNull String outputFileName) throws MediaConversionException
+        {
 
-        Map<String, String> fileDetails = FileDetailsResolver.getFileDetailsFromUri(context, inputUri);
-        CompletableFuture<File> future = new CompletableFuture<>();
+            Map<String, String> fileDetails = FileDetailsResolver.getFileDetailsFromUri(context, inputUri);
+            CompletableFuture<File> future = new CompletableFuture<>();
 
-        if (fileDetails.isEmpty()) {
-            future.completeExceptionally(new MediaConversionException(
-                    "Unable to determine file MIME type!",
-                    MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
+            if (fileDetails.isEmpty()) {
+                future.completeExceptionally(
+                        new MediaConversionException("Unable to determine file MIME type!", MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
+                return future;
+            }
+
+            for (Map.Entry<String, String> entry : fileDetails.entrySet()) {
+                String filePath = entry.getKey();
+                String mimeType = entry.getValue();
+
+                try {
+                    if (MimeTypeValidator.validateUniqueMimeType(mimeType, MimeTypesSupported.IMAGE.getMimeTypes())) {
+                        File file = ImageConverter.convertImageToWebPAsyncFuture(context, filePath, outputFileName);
+                        future.complete(file);
+                    } else if (MimeTypeValidator.validateUniqueMimeType(mimeType, MimeTypesSupported.ANIMATED.getMimeTypes())) {
+                        return VideoConverter.convertVideoToWebPAsyncFuture(context, inputUri, outputFileName);
+                    } else {
+                        future.completeExceptionally(new IllegalArgumentException("MIME type não suportado: " + mimeType));
+                    }
+                } catch (MediaConversionException exception) {
+                    future.completeExceptionally(new MediaConversionException(
+                            "Error durante conversão de midia.", exception.getCause(),
+                                                                              MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
+                }
+            }
+
             return future;
         }
-
-        for (Map.Entry<String, String> entry : fileDetails.entrySet()) {
-            String filePath = entry.getKey();
-            String mimeType = entry.getValue();
-
-            try {
-                if (MimeTypeValidator.validateUniqueMimeType(mimeType, MimeTypesSupported.IMAGE.getMimeTypes())) {
-                    File file = ImageConverter.convertImageToWebPAsyncFuture(
-                            context,
-                            filePath,
-                            outputFileName);
-
-                    future.complete(file);
-                } else if (MimeTypeValidator.validateUniqueMimeType(mimeType, MimeTypesSupported.ANIMATED.getMimeTypes())) {
-                    return VideoConverter.convertVideoToWebPAsyncFuture(
-                            context,
-                            inputUri,
-                            outputFileName);
-                } else {
-                    future.completeExceptionally(new IllegalArgumentException("Unsupported MIME type: " + mimeType));
-                }
-            } catch (MediaConversionException exception) {
-                future.completeExceptionally(new MediaConversionException(
-                        "Error durante conversão de midia.",
-                        exception.getCause(),
-                        MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
-            }
-        }
-
-        return future;
-    }
 }
 

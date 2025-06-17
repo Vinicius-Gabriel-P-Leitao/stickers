@@ -14,15 +14,14 @@ import br.arch.sticker.R;
 import br.arch.sticker.core.error.ErrorCodeProvider;
 
 // @formatter:off
-public enum DeleteErrorCode implements ErrorCodeProvider {
-    ERROR_PACK_DELETE_DB(R.string.throw_delete_stickerpack_in_db),
-    ERROR_PACK_DELETE_SERVICE(R.string.throw_delete_stickerpack_service),
-    ERROR_PACK_DELETE_UTIL(R.string.throw_delete_stickerpack_util),
-    ERROR_PACK_DELETE_UI(R.string.throw_delete_stickerpack_ui);
+public enum BaseErrorCode implements ErrorCodeProvider {
+    ERROR_UNKNOWN(R.string.throw_unknown_error),
+    ERROR_BASE_ACTIVITY(R.string.throw_base_activity),
+    ERROR_OPERATION_NOT_POSSIBLE(R.string.throw_operation_not_possible);
 
     private final int message;
 
-    DeleteErrorCode(int message) {
+    BaseErrorCode(int message) {
         this.message = message;
     }
 
@@ -32,11 +31,11 @@ public enum DeleteErrorCode implements ErrorCodeProvider {
     }
 
     @Nullable
-    public static DeleteErrorCode fromName(@Nullable String name) {
+    public static BaseErrorCode fromName(@Nullable String name) {
         if (name == null) return null;
 
         try {
-            return DeleteErrorCode.valueOf(name);
+            return BaseErrorCode.valueOf(name);
         } catch (IllegalArgumentException exception) {
             return null;
         }

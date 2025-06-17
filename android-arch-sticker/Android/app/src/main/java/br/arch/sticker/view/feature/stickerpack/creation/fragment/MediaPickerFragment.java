@@ -124,12 +124,12 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
                         }
 
                         if (result.isWarning()) {
-                            Toast.makeText(getContext(), "Erro: " + result.getWarningMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), result.getWarningMessage(), Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
                         }
 
                         if (result.isFailure()) {
-                            Toast.makeText(getContext(), "Erro: " + result.getError().getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), result.getError().getMessage(), Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
                         }
                     }

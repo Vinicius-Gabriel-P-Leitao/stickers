@@ -20,6 +20,10 @@ public class FetchStickerPackException extends AppCoreStateException {
         super(message, errorCode);
     }
 
+    public FetchStickerPackException(@NonNull String message, @Nullable Throwable cause, ErrorCodeProvider errorCode) {
+        super(message, cause, errorCode);
+    }
+
     public FetchStickerPackException(@NonNull String message, @Nullable Throwable cause, ErrorCodeProvider errorCode, @Nullable Object[] details) {
         super(message, cause, errorCode, details);
     }

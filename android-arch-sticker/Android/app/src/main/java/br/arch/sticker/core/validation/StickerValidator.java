@@ -19,6 +19,7 @@ import com.facebook.imagepipeline.common.ImageDecodeOptions;
 
 import java.io.IOException;
 
+import br.arch.sticker.core.error.code.BaseErrorCode;
 import br.arch.sticker.core.error.factory.StickerExceptionFactory;
 import br.arch.sticker.core.error.throwable.base.InternalAppException;
 import br.arch.sticker.domain.data.model.Sticker;
@@ -146,7 +147,8 @@ public class StickerValidator {
                             "Não foi possível abrir o arquivo da figurinha. Identificador do pacote: %s, arquivo: %s",
                             stickerPackIdentifier,
                             fileName),
-                    exception);
+                    exception,
+                    BaseErrorCode.ERROR_OPERATION_NOT_POSSIBLE);
         }
     }
 
