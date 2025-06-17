@@ -81,6 +81,10 @@ public class FetchStickerPackService {
                     FetchErrorCode.ERROR_CONTENT_PROVIDER);
         }
 
+        if (stickerPackList.isEmpty()) {
+            throw new FetchStickerPackException("Deve haver pelo menos um pacote de adesivos no aplicativo", FetchErrorCode.ERROR_EMPTY_STICKERPACK);
+        }
+
         for (StickerPack stickerPack : stickerPackList) {
             if (!stickerPackIdentifierSet.add(stickerPack.identifier)) {
                 throw new StickerValidatorException(
@@ -89,12 +93,6 @@ public class FetchStickerPackService {
                                 stickerPack.identifier),
                         StickerPackErrorCode.DUPLICATE_IDENTIFIER);
             }
-        }
-
-        if (stickerPackList.isEmpty()) {
-            throw new FetchStickerPackException(
-                    "Deve haver pelo menos um pacote de adesivos no aplicativo",
-                    FetchErrorCode.ERROR_EMPTY_STICKERPACK);
         }
 
         stickerPackList.removeIf(stickerPack -> {

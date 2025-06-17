@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.facebook.animated.webp.WebPFrame;
 import com.facebook.animated.webp.WebPImage;
 import com.facebook.imagepipeline.common.ImageDecodeOptions;
 

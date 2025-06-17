@@ -37,6 +37,7 @@ public class FetchStickerService {
     public static List<Sticker> fetchListStickerForPack(Context context, String stickerPackIdentifier) {
         final List<Sticker> stickers = fetchListStickerFromContentProvider(stickerPackIdentifier, context.getContentResolver());
 
+        // FIXME: Verificar forma de simplesmente ignorar o arquivo invalido e marcar ele no banco de dados caso esteja lá.
         for (Sticker sticker : stickers) {
             final byte[] bytes;
             try {
