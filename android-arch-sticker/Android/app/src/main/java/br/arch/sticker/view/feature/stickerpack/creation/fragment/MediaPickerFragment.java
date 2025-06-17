@@ -28,17 +28,18 @@ import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import br.arch.sticker.R;
-import br.arch.sticker.view.core.usecase.component.BottomFadingRecyclerView;
-import br.arch.sticker.view.core.util.resolver.UriDetailsResolver;
-import br.arch.sticker.view.feature.stickerpack.creation.adapter.MediaPickerAdapter;
-import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.MediaPickerViewModel;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import br.arch.sticker.R;
+import br.arch.sticker.view.core.usecase.component.BottomFadingRecyclerView;
+import br.arch.sticker.view.core.util.resolver.UriDetailsResolver;
+import br.arch.sticker.view.feature.stickerpack.creation.adapter.MediaPickerAdapter;
+import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.MediaPickerViewModel;
 
 public class MediaPickerFragment extends BottomSheetDialogFragment {
     private MediaPickerViewModel viewModel;

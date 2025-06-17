@@ -14,8 +14,8 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import br.arch.sticker.core.error.code.MediaConversionErrorCode;
 import br.arch.sticker.core.error.throwable.media.MediaConversionException;
@@ -24,36 +24,50 @@ import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 import br.arch.sticker.view.core.util.resolver.FileDetailsResolver;
 
 public class ConvertMediaToStickerFormat {
-    public interface MediaConversionCallback {
-        void onSuccess(File outputFile);
-        void onError(Exception exception);
-    }
+    public static CompletableFuture<File> convertMediaToWebPAsyncFuture(
+            @NonNull Context context, @NonNull Uri inputUri,
+            @NonNull String outputFileName
+    ) throws MediaConversionException {
 
-    public static void convertMediaToWebP(Context context, @NonNull Uri inputUri, @NonNull String outputFile, MediaConversionCallback callback) {
         Map<String, String> fileDetails = FileDetailsResolver.getFileDetailsFromUri(context, inputUri);
+        CompletableFuture<File> future = new CompletableFuture<>();
+
         if (fileDetails.isEmpty()) {
-            callback.onError(new MediaConversionException(
+            future.completeExceptionally(new MediaConversionException(
                     "Unable to determine file MIME type!",
                     MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
-            return;
+            return future;
         }
 
-        fileDetails.forEach((filePath, mimeType) -> {
+        for (Map.Entry<String, String> entry : fileDetails.entrySet()) {
+            String filePath = entry.getKey();
+            String mimeType = entry.getValue();
+
             try {
                 if (MimeTypeValidator.validateUniqueMimeType(mimeType, MimeTypesSupported.IMAGE.getMimeTypes())) {
-                    File imageOutputFile = ImageConverter.convertImageToWebP(context, filePath, outputFile);
-                    callback.onSuccess(imageOutputFile);
+                    File file = ImageConverter.convertImageToWebPAsyncFuture(
+                            context,
+                            filePath,
+                            outputFileName);
+
+                    future.complete(file);
                 } else if (MimeTypeValidator.validateUniqueMimeType(mimeType, MimeTypesSupported.ANIMATED.getMimeTypes())) {
-                    VideoConverter.convertVideoToWebP(context, inputUri, outputFile, callback);
+                    return VideoConverter.convertVideoToWebPAsyncFuture(
+                            context,
+                            inputUri,
+                            outputFileName);
                 } else {
-                    callback.onError(new IllegalArgumentException("Unsupported MIME type for conversion: " + mimeType));
+                    future.completeExceptionally(new IllegalArgumentException("Unsupported MIME type: " + mimeType));
                 }
-            } catch (IOException exception) {
-                callback.onError(new MediaConversionException(
-                        "Error during media conversion",
+            } catch (MediaConversionException exception) {
+                future.completeExceptionally(new MediaConversionException(
+                        "Error durante conversão de midia.",
                         exception.getCause(),
                         MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
             }
-        });
+        }
+
+        return future;
     }
 }
+

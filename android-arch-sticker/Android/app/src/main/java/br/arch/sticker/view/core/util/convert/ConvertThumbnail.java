@@ -11,6 +11,8 @@ package br.arch.sticker.view.core.util.convert;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import androidx.annotation.NonNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,21 +26,18 @@ import br.arch.sticker.domain.service.save.SaveStickerPackService;
 public class ConvertThumbnail {
     public static final String THUMBNAIL_FILE = "thumbnail.jpg";
 
-    public static void createThumbnail(File originalFile, File destinationDir, SaveStickerPackService.SaveStickerPackCallback callback) {
+    @NonNull
+    public static CallbackResult<Void> createThumbnail(@NonNull File originalFile, @NonNull File destinationDir) {
         if (!originalFile.exists()) {
-            callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException(
-                    String.format(
-                            "Arquivo para thumbnail não encontrado: %s",
-                            originalFile.getAbsolutePath()),
-                    SaveErrorCode.ERROR_PACK_SAVE_THUMBNAIL)));
-            return;
+            return CallbackResult.failure(new StickerPackSaveException(
+                    String.format("Arquivo para thumbnail não encontrado: %s", originalFile.getAbsolutePath()),
+                    SaveErrorCode.ERROR_PACK_SAVE_THUMBNAIL));
         }
 
         try {
             Bitmap bitmap = BitmapFactory.decodeFile(originalFile.getAbsolutePath());
             if (bitmap == null) {
-                callback.onStickerPackSaveResult(CallbackResult.warning("Erro ao decodificar o bitmap."));
-                return;
+                return CallbackResult.warning("Erro ao decodificar o bitmap.");
             }
 
             File thumbnailFile = new File(destinationDir, THUMBNAIL_FILE);
@@ -54,15 +53,15 @@ public class ConvertThumbnail {
                 quality -= 5;
             } while (compressedBytes.length > 40 * 1024 && quality > 5);
 
-            FileOutputStream fileOutputStream = new FileOutputStream(thumbnailFile);
-            fileOutputStream.write(compressedBytes);
-            fileOutputStream.flush();
-            fileOutputStream.getFD().sync();
-            fileOutputStream.close();
+            try (FileOutputStream fileOutputStream = new FileOutputStream(thumbnailFile)) {
+                fileOutputStream.write(compressedBytes);
+                fileOutputStream.flush();
+                fileOutputStream.getFD().sync();
+            }
 
-            callback.onStickerPackSaveResult(CallbackResult.debug("Thumbnail salva com sucesso: " + thumbnailFile.getAbsolutePath()));
+            return CallbackResult.debug(String.format("Thumbnail salva com sucesso: %s", thumbnailFile.getAbsolutePath()));
         } catch (IOException exception) {
-            callback.onStickerPackSaveResult(CallbackResult.failure(exception));
+            return CallbackResult.failure(exception);
         }
     }
 }

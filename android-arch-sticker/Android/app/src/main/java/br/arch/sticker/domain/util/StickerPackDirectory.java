@@ -8,55 +8,48 @@
 
 package br.arch.sticker.domain.util;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 
 import br.arch.sticker.core.error.code.SaveErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
-import br.arch.sticker.domain.service.save.SaveStickerPackService;
 
+// @formatter:off
 public class StickerPackDirectory {
-    public static boolean createMainDirectory(File mainDirectory, SaveStickerPackService.SaveStickerPackCallback callback) {
+    public static CallbackResult<Boolean> createMainDirectory(@NonNull File mainDirectory) {
         if (!mainDirectory.exists()) {
             boolean created = mainDirectory.mkdirs();
 
             if (!created) {
-                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException(
-                        String.format(
-                                "Falha ao criar o mainDirectory: %s",
-                                mainDirectory.getPath()),
-                        SaveErrorCode.ERROR_PACK_SAVE_UTIL)));
-                return false;
+                return CallbackResult.failure(new StickerPackSaveException(
+                        String.format("Falha ao criar o mainDirectory: %s", mainDirectory.getPath()),
+                        SaveErrorCode.ERROR_PACK_SAVE_UTIL));
             }
-            callback.onStickerPackSaveResult(CallbackResult.debug("mainDirectory criado com sucesso: " + mainDirectory.getPath()));
-        } else {
-            callback.onStickerPackSaveResult(CallbackResult.debug("mainDirectory já existe: " + mainDirectory.getPath()));
-        }
 
-        return true;
+            return CallbackResult.success(created);
+        } else {
+           return CallbackResult.debug("mainDirectory já existe: " + mainDirectory.getPath());
+        }
     }
 
-    public static File createStickerPackDirectory(
-            File mainDirectory, String stickerPackIdentifier, SaveStickerPackService.SaveStickerPackCallback callback) {
+    public static CallbackResult<File> createStickerPackDirectory(@NonNull  File mainDirectory,@NonNull String stickerPackIdentifier) {
         File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);
 
         if (!stickerPackDirectory.exists()) {
             boolean created = stickerPackDirectory.mkdirs();
 
             if (!created) {
-                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException(
-                        String.format(
-                                "Falha ao criar a pasta: %s",
-                                stickerPackDirectory.getPath()),
-                        SaveErrorCode.ERROR_PACK_SAVE_UTIL)));
-                return null;
+                return  CallbackResult.failure(new StickerPackSaveException(
+                        String.format("Falha ao criar a pasta: %s", stickerPackDirectory.getPath()),
+                        SaveErrorCode.ERROR_PACK_SAVE_UTIL));
+
             }
 
-            callback.onStickerPackSaveResult(CallbackResult.debug("Pasta criada com sucesso: " + stickerPackDirectory.getPath()));
+           return CallbackResult.debug("Pasta criada com sucesso: " + stickerPackDirectory.getPath());
         } else {
-            callback.onStickerPackSaveResult(CallbackResult.warning("Pasta já existe: " + stickerPackDirectory.getPath()));
+           return CallbackResult.warning("Pasta já existe: " + stickerPackDirectory.getPath());
         }
-        return stickerPackDirectory;
     }
-
 }

@@ -13,6 +13,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,9 +24,9 @@ import br.arch.sticker.core.error.code.MediaConversionErrorCode;
 import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 
 public class ImageConverter {
-    private static ConvertMediaToStickerFormat.MediaConversionCallback callback;
 
-    public static File convertImageToWebP(Context context, String inputPath, String outputFileName) throws IOException {
+    public static File convertImageToWebPAsyncFuture(
+            @NonNull Context context, @NonNull String inputPath, @NonNull String outputFileName) throws MediaConversionException {
         String finalOutputFileName = ensureWebpExtension(outputFileName);
         String cleanedPath = inputPath.startsWith("file://") ? inputPath.substring(7) : inputPath;
         Bitmap bitmap = BitmapFactory.decodeFile(cleanedPath);
@@ -47,13 +49,11 @@ public class ImageConverter {
 
             return outputFile.getAbsoluteFile();
         } catch (IOException exception) {
-            callback.onError(new MediaConversionException(
+            throw new MediaConversionException(
                     Objects.toString(exception.getMessage(), "Erro desconhecido ao converter mídia"),
                     exception.getCause(),
-                    MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
+                    MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
         }
-
-        return null;
     }
 
     private static Bitmap cropImageAndResizeToSquare(Bitmap bitmap) {
