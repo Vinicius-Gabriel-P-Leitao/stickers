@@ -24,7 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import br.arch.sticker.BuildConfig;
-import br.arch.sticker.core.exception.throwable.content.ContentProviderException;
+import br.arch.sticker.core.error.throwable.content.ContentProviderException;
 import br.arch.sticker.domain.data.content.provider.StickerAssetProvider;
 import br.arch.sticker.domain.data.content.provider.StickerPackQueryProvider;
 import br.arch.sticker.domain.data.content.provider.StickerQueryProvider;

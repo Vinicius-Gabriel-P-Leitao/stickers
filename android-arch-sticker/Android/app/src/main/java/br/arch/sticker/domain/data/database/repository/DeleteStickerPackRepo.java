@@ -11,13 +11,14 @@ package br.arch.sticker.domain.data.database.repository;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import br.arch.sticker.core.exception.throwable.sticker.DeleteStickerException;
+import java.sql.SQLException;
+
+import br.arch.sticker.core.error.code.DeleteErrorCode;
+import br.arch.sticker.core.error.throwable.sticker.DeleteStickerException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.database.StickerDatabase;
 import br.arch.sticker.domain.dto.StickerPackValidationResult;
 import br.arch.sticker.domain.service.fetch.FetchStickerPackService;
-
-import java.sql.SQLException;
 
 // @formatter:off
 public class DeleteStickerPackRepo {
@@ -27,7 +28,7 @@ public class DeleteStickerPackRepo {
 
         StickerPackValidationResult fetchStickerPack = FetchStickerPackService.fetchStickerPackFromContentProvider(context, stickerPackIdentifier);
         if (fetchStickerPack.stickerPack().identifier == null) {
-            throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar.");
+            throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar.", DeleteErrorCode.ERROR_PACK_DELETE_DB);
         }
 
         return db.delete(

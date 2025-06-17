@@ -16,14 +16,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import br.arch.sticker.core.exception.throwable.base.InternalAppException;
-import br.arch.sticker.core.exception.throwable.sticker.StickerPackSaveException;
-import br.arch.sticker.core.pattern.CallbackResult;
-import br.arch.sticker.domain.data.model.StickerPack;
-import br.arch.sticker.domain.orchestrator.StickerPackOrchestrator;
-import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
-import br.arch.sticker.view.core.util.convert.ConvertMediaToStickerFormat;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +26,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import br.arch.sticker.core.error.code.SaveErrorCode;
+import br.arch.sticker.core.error.throwable.base.InternalAppException;
+import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
+import br.arch.sticker.core.pattern.CallbackResult;
+import br.arch.sticker.domain.data.model.StickerPack;
+import br.arch.sticker.domain.orchestrator.StickerPackOrchestrator;
+import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
+import br.arch.sticker.view.core.util.convert.ConvertMediaToStickerFormat;
 
 public class MediaPickerViewModel extends ViewModel {
     private final List<File> convertedFiles = Collections.synchronizedList(new ArrayList<>());
@@ -129,31 +130,47 @@ public class MediaPickerViewModel extends ViewModel {
 
     private void generateStickerPack(Context context, Boolean isAnimatedPack, String nameStickerPack) {
         StickerPackOrchestrator.generateObjectToSave(
-                context, isAnimatedPack, convertedFiles, nameStickerPack, callbackResult -> {
-                    if (context != null) {
-                        switch (callbackResult.getStatus()) {
-                            case SUCCESS:
-                                setStickerPackResult(CallbackResult.success(callbackResult.getData()));
-                                break;
-                            case WARNING:
-                                Toast.makeText(context, "Aviso: " + callbackResult.getWarningMessage(), Toast.LENGTH_SHORT).show();
-                                setStickerPackResult(CallbackResult.warning(callbackResult.getWarningMessage()));
-                                break;
-                            case FAILURE:
-                                if (callbackResult.getError() instanceof InternalAppException exception) {
-                                    Toast.makeText(context, exception.getMessage(), Toast.LENGTH_SHORT).show();
-                                    setStickerPackResult(CallbackResult.failure(callbackResult.getError()));
-                                    break;
-                                }
+                context,
+                isAnimatedPack,
+                convertedFiles,
+                nameStickerPack);
 
-                                Toast.makeText(context, callbackResult.getError().getMessage(), Toast.LENGTH_SHORT).show();
-                                setStickerPackResult(CallbackResult.failure(callbackResult.getError()));
-                                break;
+        StickerPackOrchestrator.SavedStickerPackCallback savedStickerPackCallback = callbackResult -> {
+            if (context != null) {
+                switch (callbackResult.getStatus()) {
+                    case SUCCESS:
+                        setStickerPackResult(CallbackResult.success(callbackResult.getData()));
+                        break;
+                    case WARNING:
+                        Toast.makeText(
+                                context,
+                                "Aviso: " + callbackResult.getWarningMessage(),
+                                Toast.LENGTH_SHORT).show();
+                        setStickerPackResult(CallbackResult.warning(callbackResult.getWarningMessage()));
+                        break;
+                    case FAILURE:
+                        if (callbackResult.getError() instanceof InternalAppException exception) {
+                            Toast.makeText(
+                                    context,
+                                    exception.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                            setStickerPackResult(CallbackResult.failure(callbackResult.getError()));
+                            break;
                         }
-                    } else {
-                        throw new StickerPackSaveException("Fragment ou Contexto não estão mais válidos.");
-                    }
-                });
+
+                        Toast.makeText(
+                                context,
+                                callbackResult.getError().getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                        setStickerPackResult(CallbackResult.failure(callbackResult.getError()));
+                        break;
+                }
+            } else {
+                throw new StickerPackSaveException(
+                        "Fragment ou Contexto não estão mais válidos.",
+                        SaveErrorCode.ERROR_PACK_SAVE_UI);
+            }
+        };
     }
 
     private void postFailure(String message) {

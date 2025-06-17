@@ -15,12 +15,13 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import br.arch.sticker.core.exception.throwable.media.MediaConversionException;
-import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import br.arch.sticker.core.error.code.MediaConversionErrorCode;
+import br.arch.sticker.core.error.throwable.media.MediaConversionException;
+import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 
 public class UriDetailsResolver {
 
@@ -39,7 +40,9 @@ public class UriDetailsResolver {
         } else if (Arrays.equals(mimeTypes, MimeTypesSupported.ANIMATED.getMimeTypes())) {
             mediaUris = fetchListUri(context, MimeTypesSupported.ANIMATED);
         } else {
-            throw new MediaConversionException("Tipo MIME não suportado para conversão: " + Arrays.toString(mimeTypes));
+            throw new MediaConversionException(
+                    "Tipo MIME não suportado para conversão: " + Arrays.toString(mimeTypes),
+                    MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
         }
 
         return mediaUris;

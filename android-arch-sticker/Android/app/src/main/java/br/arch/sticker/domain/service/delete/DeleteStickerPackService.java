@@ -12,7 +12,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import br.arch.sticker.core.exception.throwable.sticker.DeleteStickerException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.database.repository.DeleteStickerPackRepo;
 
@@ -24,7 +23,7 @@ public class DeleteStickerPackService {
             case SUCCESS -> CallbackResult.debug("Pacote de figurinhas deletado com sucesso. Status: " + stickerPackDeletedInDb.getData());
             case WARNING -> CallbackResult.warning(stickerPackDeletedInDb.getWarningMessage());
             case DEBUG -> CallbackResult.debug(stickerPackDeletedInDb.getDebugMessage());
-            case FAILURE -> CallbackResult.failure(new DeleteStickerException("Falha ao limpar pacote de figurinhas do banco.", stickerPackDeletedInDb.getError()));
+            case FAILURE -> CallbackResult.failure(stickerPackDeletedInDb.getError());
         };
     }
 }

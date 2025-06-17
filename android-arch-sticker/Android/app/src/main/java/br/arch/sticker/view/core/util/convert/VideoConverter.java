@@ -14,7 +14,8 @@ import android.net.Uri;
 import java.io.File;
 import java.util.Objects;
 
-import br.arch.sticker.core.exception.throwable.media.MediaConversionException;
+import br.arch.sticker.core.error.code.MediaConversionErrorCode;
+import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 import br.arch.sticker.core.lib.NativeConvertToWebp;
 import br.arch.sticker.view.core.util.resolver.FileDetailsResolver;
 
@@ -38,7 +39,8 @@ public class VideoConverter {
                         callback.onError(
                                 new MediaConversionException(
                                         Objects.toString(exception.getMessage(), "Erro desconhecido ao converter mídia"),
-                                        exception.getCause()));
+                                        exception.getCause(),
+                                        MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
                     }
                 });
     }

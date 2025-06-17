@@ -6,14 +6,16 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package br.arch.sticker.core.exception.factory;
+package br.arch.sticker.core.error.factory;
 
 import androidx.annotation.NonNull;
 
 import java.util.Locale;
 
-import br.arch.sticker.core.exception.throwable.sticker.StickerFileException;
-import br.arch.sticker.core.exception.throwable.sticker.StickerValidatorException;
+import br.arch.sticker.core.error.code.StickerAssetErrorCode;
+import br.arch.sticker.core.error.code.StickerPackErrorCode;
+import br.arch.sticker.core.error.throwable.sticker.StickerFileException;
+import br.arch.sticker.core.error.throwable.sticker.StickerValidatorException;
 
 public final class StickerExceptionFactory {
     private StickerExceptionFactory() {
@@ -29,7 +31,7 @@ public final class StickerExceptionFactory {
 
         return new StickerFileException(
                 message,
-                StickerFileException.ErrorFileCode.ERROR_STICKER_DURATION,
+                StickerAssetErrorCode.ERROR_STICKER_DURATION,
                 stickerPackIdentifier,
                 fileName);
     }
@@ -43,7 +45,7 @@ public final class StickerExceptionFactory {
                         actualKb,
                         stickerPackIdentifier,
                         fileName),
-                StickerFileException.ErrorFileCode.ERROR_FILE_SIZE,
+                StickerAssetErrorCode.ERROR_FILE_SIZE,
                 stickerPackIdentifier,
                 fileName);
     }
@@ -57,7 +59,7 @@ public final class StickerExceptionFactory {
                         actualKb,
                         stickerPackIdentifier,
                         fileName),
-                StickerFileException.ErrorFileCode.ERROR_FILE_SIZE,
+                StickerAssetErrorCode.ERROR_FILE_SIZE,
                 stickerPackIdentifier,
                 fileName);
     }
@@ -71,7 +73,7 @@ public final class StickerExceptionFactory {
                         actual,
                         stickerPackIdentifier,
                         fileName),
-                StickerFileException.ErrorFileCode.ERROR_SIZE_STICKER,
+                StickerAssetErrorCode.ERROR_SIZE_STICKER,
                 stickerPackIdentifier,
                 fileName);
     }
@@ -85,7 +87,7 @@ public final class StickerExceptionFactory {
                         actual,
                         stickerPackIdentifier,
                         fileName),
-                StickerFileException.ErrorFileCode.ERROR_SIZE_STICKER,
+                StickerAssetErrorCode.ERROR_SIZE_STICKER,
                 stickerPackIdentifier,
                 fileName);
     }
@@ -97,7 +99,7 @@ public final class StickerExceptionFactory {
                         "Este pacote está marcado como animado, todas as figurinhas devem ser animadas. Identificador do pacote: %s, arquivo: %s",
                         stickerPackIdentifier,
                         fileName),
-                StickerFileException.ErrorFileCode.ERROR_STICKER_TYPE,
+                StickerAssetErrorCode.ERROR_STICKER_TYPE,
                 stickerPackIdentifier,
                 fileName);
     }
@@ -109,7 +111,7 @@ public final class StickerExceptionFactory {
                         "Este pacote não está marcado como animado, todas as figurinhas devem ser estáticas. Identificador do pacote: %s, arquivo: %s",
                         stickerPackIdentifier,
                         fileName),
-                StickerFileException.ErrorFileCode.ERROR_STICKER_TYPE,
+                StickerAssetErrorCode.ERROR_STICKER_TYPE,
                 stickerPackIdentifier,
                 fileName);
     }
@@ -123,7 +125,7 @@ public final class StickerExceptionFactory {
                         actualDuration,
                         stickerPackIdentifier,
                         fileName),
-                StickerFileException.ErrorFileCode.ERROR_STICKER_DURATION,
+                StickerAssetErrorCode.ERROR_STICKER_DURATION,
                 stickerPackIdentifier,
                 fileName);
     }
@@ -135,7 +137,7 @@ public final class StickerExceptionFactory {
                         "Erro ao processar a imagem WebP. Identificador do pacote: %s, arquivo: %s",
                         stickerPackIdentifier,
                         fileName),
-                StickerFileException.ErrorFileCode.ERROR_FILE_TYPE,
+                StickerAssetErrorCode.ERROR_FILE_TYPE,
                 stickerPackIdentifier,
                 fileName);
     }
@@ -143,19 +145,25 @@ public final class StickerExceptionFactory {
     public static StickerFileException fromStickerValidity(@NonNull String stickerPackIdentifier) {
         return new StickerFileException(
                 "Figurinha inválida.",
-                StickerFileException.ErrorFileCode.ERROR_FILE_SIZE,
+                StickerAssetErrorCode.ERROR_FILE_SIZE,
                 stickerPackIdentifier,
                 null);
     }
 
     public static StickerValidatorException missingStickerFileName(String stickerPackIdentifier) {
-        return new StickerValidatorException("Nenhum caminho de arquivo para o adesivo, identificador do pacote de figurinhas: " + stickerPackIdentifier);
+        return new StickerValidatorException(
+                String.format(
+                        "Nenhum caminho de figurinha para o figurinha, identificador do pacote de figurinhas: %s",
+                        stickerPackIdentifier),
+                StickerPackErrorCode.INVALID_STICKER_FILENAME);
     }
 
     public static StickerValidatorException accessibilityTextTooLong(String stickerPackIdentifier, String fileName) {
-        return new StickerValidatorException(String.format(
-                "Comprimento do texto de acessibilidade excedeu o limite, identificador do pacote de " + "figurinhas: " + "%s, " + "arquivo: %s",
-                stickerPackIdentifier,
-                fileName));
+        return new StickerValidatorException(
+                String.format(
+                        "Comprimento do texto de acessibilidade excedeu o limite, identificador do pacote de figurinhas: %s, arquivo: %s",
+                        stickerPackIdentifier,
+                        fileName),
+                StickerPackErrorCode.INVALID_STICKER_ACCESSIBILITY);
     }
 }

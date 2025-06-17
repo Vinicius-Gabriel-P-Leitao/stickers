@@ -33,7 +33,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import br.arch.sticker.R;
-import br.arch.sticker.core.exception.throwable.sticker.FetchStickerPackException;
+import br.arch.sticker.core.error.code.StickerAssetErrorCode;
+import br.arch.sticker.core.error.throwable.sticker.FetchStickerPackException;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.StickerPackValidationResult;
@@ -100,7 +101,10 @@ public class PreviewInvalidStickerActivity extends BaseActivity  implements Prev
             Object[] details = exception.getDetails();
             if (details != null && details.length > 0 && details[0] instanceof StickerPack recoveredPack) {
                 cardViewInvalidPack.setVisibility(View.VISIBLE);
-                textInvalidTitle.setText(exception.getMessage());
+
+                StickerAssetErrorCode code = StickerAssetErrorCode.fromName(exception.getErrorCodeName());
+                int resId = (code != null) ? code.getMessageResId() : R.string.throw_unknown_error;
+                textInvalidTitle.setText(getString(resId));
 
                 buttonFixInvalid.setOnClickListener(view -> {
                     viewModel.handleFixStickerPackClick(recoveredPack, exception.getCause());

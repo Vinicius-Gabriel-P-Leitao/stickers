@@ -30,8 +30,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import br.arch.sticker.core.exception.factory.StickerPackExceptionFactory;
-import br.arch.sticker.core.exception.throwable.content.InvalidWebsiteUrlException;
+import br.arch.sticker.core.error.code.InvalidUrlErrorCode;
+import br.arch.sticker.core.error.factory.StickerPackExceptionFactory;
+import br.arch.sticker.core.error.throwable.content.InvalidWebsiteUrlException;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
@@ -176,7 +177,13 @@ public class StickerPackValidator {
             new URL(websiteUrl);
         } catch (MalformedURLException exception) {
             Log.e("StickerPackValidator", "url: " + websiteUrl + " é malformado");
-            throw new InvalidWebsiteUrlException("Url: " + websiteUrl + " está malformada", exception, websiteUrl);
+            throw new InvalidWebsiteUrlException(
+                    String.format(
+                            "Url: %s está malformada",
+                            websiteUrl),
+                    exception,
+                    InvalidUrlErrorCode.INVALID_URL,
+                    websiteUrl);
         }
 
         return URLUtil.isHttpUrl(websiteUrl) || URLUtil.isHttpsUrl(websiteUrl);
@@ -190,9 +197,16 @@ public class StickerPackValidator {
             if (domain.equals(url.getHost())) {
                 return true;
             }
+
         } catch (MalformedURLException exception) {
             Log.e("StickerPackValidator", "url: " + urlString + " é malformado");
-            throw new InvalidWebsiteUrlException("Url: " + urlString + " está malformada", exception.getCause(), urlString);
+            throw new InvalidWebsiteUrlException(
+                    String.format(
+                            "Url: %s está malformada",
+                            urlString),
+                    exception.getCause(),
+                    InvalidUrlErrorCode.INVALID_URL,
+                    urlString);
         }
 
         return false;

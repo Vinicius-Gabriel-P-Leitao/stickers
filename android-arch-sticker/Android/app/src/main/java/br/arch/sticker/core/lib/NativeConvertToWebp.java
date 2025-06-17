@@ -8,19 +8,18 @@
 
 package br.arch.sticker.core.lib;
 
-import br.arch.sticker.core.exception.throwable.media.MediaConversionException;
-
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import br.arch.sticker.core.error.code.MediaConversionErrorCode;
+import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 
 public class NativeConvertToWebp {
     static {
         System.loadLibrary("sticker");
     }
-
     public native boolean convertToWebp(String inputPath, String outputPath);
-
     public interface ConversionCallback {
         void onSuccess(File file);
 
@@ -40,16 +39,22 @@ public class NativeConvertToWebp {
                         Thread.sleep(100);
                     } catch (InterruptedException exception) {
                         throw new MediaConversionException(
-                                exception.getMessage() != null ? exception.getMessage() :
-                                        "Erro fazer ao pausar a thread, e não foi retornado mensagem de erro!", exception.getCause());
+                                exception.getMessage() != null ? exception.getMessage() : "Erro fazer ao pausar a thread, e não foi retornado mensagem de erro!",
+                                exception.getCause(),
+                                MediaConversionErrorCode.ERROR_NATIVE_CONVERSION);
                     }
 
                     callback.onSuccess(outputFile);
                 } else {
-                    callback.onError(new MediaConversionException("Falha na conversão ou arquivo não gerado."));
+                    callback.onError(new MediaConversionException(
+                            "Falha na conversão ou arquivo não gerado.",
+                            MediaConversionErrorCode.ERROR_NATIVE_CONVERSION));
                 }
             } catch (Exception exception) {
-                callback.onError(new MediaConversionException("Erro inesperado durante a conversão nativa: ", exception));
+                callback.onError(new MediaConversionException(
+                        "Erro inesperado durante a conversão nativa: ",
+                        exception,
+                        MediaConversionErrorCode.ERROR_NATIVE_CONVERSION));
             }
         });
     }

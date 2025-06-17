@@ -19,8 +19,8 @@ import com.facebook.imagepipeline.common.ImageDecodeOptions;
 
 import java.io.IOException;
 
-import br.arch.sticker.core.exception.factory.StickerExceptionFactory;
-import br.arch.sticker.core.exception.throwable.base.InternalAppException;
+import br.arch.sticker.core.error.factory.StickerExceptionFactory;
+import br.arch.sticker.core.error.throwable.base.InternalAppException;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
 

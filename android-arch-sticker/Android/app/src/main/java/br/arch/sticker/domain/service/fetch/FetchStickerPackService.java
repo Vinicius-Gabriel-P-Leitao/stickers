@@ -38,11 +38,13 @@ import java.util.HashSet;
 import java.util.List;
 
 import br.arch.sticker.BuildConfig;
-import br.arch.sticker.core.exception.throwable.content.InvalidWebsiteUrlException;
-import br.arch.sticker.core.exception.throwable.sticker.FetchStickerPackException;
-import br.arch.sticker.core.exception.throwable.sticker.PackValidatorException;
-import br.arch.sticker.core.exception.throwable.sticker.StickerFileException;
-import br.arch.sticker.core.exception.throwable.sticker.StickerValidatorException;
+import br.arch.sticker.core.error.code.FetchErrorCode;
+import br.arch.sticker.core.error.code.StickerPackErrorCode;
+import br.arch.sticker.core.error.throwable.content.InvalidWebsiteUrlException;
+import br.arch.sticker.core.error.throwable.sticker.FetchStickerPackException;
+import br.arch.sticker.core.error.throwable.sticker.PackValidatorException;
+import br.arch.sticker.core.error.throwable.sticker.StickerFileException;
+import br.arch.sticker.core.error.throwable.sticker.StickerValidatorException;
 import br.arch.sticker.core.validation.StickerPackValidator;
 import br.arch.sticker.core.validation.StickerValidator;
 import br.arch.sticker.domain.data.model.Sticker;
@@ -58,7 +60,9 @@ public class FetchStickerPackService {
     ) throws FetchStickerPackException {
         final Cursor cursor = context.getContentResolver().query(AUTHORITY_URI, null, null, null, null);
         if (cursor == null) {
-            throw new FetchStickerPackException("Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY);
+            throw new FetchStickerPackException(
+                    "Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY,
+                    FetchErrorCode.ERROR_CONTENT_PROVIDER);
         }
 
         HashSet<String> stickerPackIdentifierSet = new HashSet<>();
@@ -72,19 +76,25 @@ public class FetchStickerPackService {
             stickerPackList = new ArrayList<>(buildListStickerPack(cursor, context));
         } else {
             cursor.close();
-            throw new FetchStickerPackException("Nenhum pacote de figurinhas encontrado no content provider");
+            throw new FetchStickerPackException(
+                    "Nenhum pacote de figurinhas encontrado no content provider",
+                    FetchErrorCode.ERROR_CONTENT_PROVIDER);
         }
 
         for (StickerPack stickerPack : stickerPackList) {
             if (!stickerPackIdentifierSet.add(stickerPack.identifier)) {
-                throw new FetchStickerPackException(
-                        "Os identificadores dos pacotes de figurinhas devem ser únicos, há mais de um pacote com identificador: " +
-                                stickerPack.identifier);
+                throw new StickerValidatorException(
+                        String.format(
+                                "Os identificadores dos pacotes de figurinhas devem ser únicos, há mais de um pacote com identificador: %s",
+                                stickerPack.identifier),
+                        StickerPackErrorCode.DUPLICATE_IDENTIFIER);
             }
         }
 
         if (stickerPackList.isEmpty()) {
-            throw new FetchStickerPackException("Deve haver pelo menos um pacote de adesivos no aplicativo");
+            throw new FetchStickerPackException(
+                    "Deve haver pelo menos um pacote de adesivos no aplicativo",
+                    FetchErrorCode.ERROR_EMPTY_STICKERPACK);
         }
 
         stickerPackList.removeIf(stickerPack -> {
@@ -136,7 +146,9 @@ public class FetchStickerPackService {
 
         Cursor cursor = context.getContentResolver().query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null, null);
         if (cursor == null || cursor.getCount() == 0) {
-            throw new FetchStickerPackException("Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY);
+            throw new FetchStickerPackException(
+                    "Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY,
+                    FetchErrorCode.ERROR_CONTENT_PROVIDER);
         }
 
         final StickerPack stickerPack;
@@ -147,7 +159,9 @@ public class FetchStickerPackService {
             stickerPack = writeCursorToStickerPack(cursor, context);
         } else {
             cursor.close();
-            throw new FetchStickerPackException("Nenhum pacote de figurinhas encontrado no content provider");
+            throw new FetchStickerPackException(
+                    "Nenhum pacote de figurinhas encontrado no content provider",
+                    FetchErrorCode.ERROR_EMPTY_STICKERPACK);
         }
 
         try {
@@ -164,14 +178,18 @@ public class FetchStickerPackService {
             });
 
             if (stickerPack.getStickers().isEmpty()) {
-                throw new FetchStickerPackException("Pacote de figurinhas inválido: não restaram stickers após a validação.");
+                throw new FetchStickerPackException(
+                        "Pacote de figurinhas inválido: não restaram stickers após a validação.",
+                        FetchErrorCode.ERROR_EMPTY_STICKERS_IN_STICKERPACK);
             }
 
             return new StickerPackValidationResult(stickerPack, invalidSticker);
         } catch (PackValidatorException | InvalidWebsiteUrlException exception) {
             throw new FetchStickerPackException(
                     exception.getMessage() != null ? exception.getMessage() : "Pacote de figurinhas invalido",
-                    exception.getCause(), new Object[]{stickerPack});
+                    exception.getCause(),
+                    exception.getErrorCode(),
+                    new Object[]{stickerPack});
         }
     }
 

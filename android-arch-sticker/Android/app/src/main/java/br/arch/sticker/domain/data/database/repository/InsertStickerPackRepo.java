@@ -39,15 +39,16 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
-import br.arch.sticker.core.exception.throwable.sticker.FetchStickerPackException;
-import br.arch.sticker.core.exception.throwable.sticker.StickerPackSaveException;
+import java.util.List;
+
+import br.arch.sticker.core.error.code.SaveErrorCode;
+import br.arch.sticker.core.error.throwable.sticker.FetchStickerPackException;
+import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.StickerPackValidationResult;
 import br.arch.sticker.domain.service.fetch.FetchStickerPackService;
-
-import java.util.List;
 
 // @formatter:off
 public class InsertStickerPackRepo {
@@ -80,12 +81,12 @@ public class InsertStickerPackRepo {
                             }
                         } else {
                             if (callback != null) {
-                                callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Erro ao inserir pacote.")));
+                                callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Erro ao inserir pacote.",  SaveErrorCode.ERROR_PACK_SAVE_DB)));
                             }
                         }
                     } else {
                         if (callback != null) {
-                            callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Erro ao inserir detalhe dos pacotes.")));
+                            callback.onInsertResult(CallbackResult.failure(new StickerPackSaveException("Erro ao inserir detalhe dos pacotes.",  SaveErrorCode.ERROR_PACK_SAVE_DB)));
                         }
                     }
                 }, 1000);
@@ -111,7 +112,7 @@ public class InsertStickerPackRepo {
                         } else {
                             if (callback != null) {
                                 callback.onInsertResult(CallbackResult.failure(
-                                        new StickerPackSaveException("Erro ao inserir pacote, o identificador é vázio")));
+                                        new StickerPackSaveException("Erro ao inserir pacote, o identificador é vázio", SaveErrorCode.ERROR_PACK_SAVE_DB)));
                             }
                         }
                     } catch (FetchStickerPackException exception) {

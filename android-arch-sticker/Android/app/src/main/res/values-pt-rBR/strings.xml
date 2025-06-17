@@ -77,4 +77,15 @@
     <string name="throw_stickerpack_website_invalid">O site vinculado ao pacote de figurinhas é invalido.</string>
     <string name="throw_stickerpack_email_invalid">O e-mail vinculado ao pacote de figurinhas é invalido.</string>
     <string name="input_name_cannot_exceed_stickerpack_size">Não pode passar de 20.</string>
+    <string name="throw_save_stickerpack_in_db">Erro ao salvar figurinha no banco de dados.</string>
+    <string name="throw_save_stickerpack_service">Erro ao salvar figurinha na camada de serviço.</string>
+    <string name="throw_save_stickerpack_util">Erro ao salvar figurinha na camada de utilitário.</string>
+    <string name="throw_save_stickerpack_ui">Erro ao salvar figurinha na camada de interface.</string>
+    <string name="throw_save_stickerpack_thumbnail">Erro ao salvar thumbnail.</string>
+    <string name="throw_error_in_native_conversion">Erro ao realizar conversão nativa.</string>
+    <string name="throw_error_conversion_media">Erro ao converter media.</string>
+    <string name="throw_invalid_sticker_filename">O arquivo da figurinha é invalido.</string>
+    <string name="throw_invalid_size_acessibility">O texto de acessibilidade ultrapassa o tamanho permitido.</string>
+    <string name="throw_invalid_url">A URL fornecida é invalida.</string>
+    <string name="throw_suplicate_stickerpack_identifier">O identificador do pacote de figurinhas está duplicado.</string>
 </resources>

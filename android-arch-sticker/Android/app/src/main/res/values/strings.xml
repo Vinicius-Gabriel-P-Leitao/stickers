@@ -77,4 +77,15 @@
     <string name="throw_stickerpack_website_invalid">The website linked to the sticker pack is invalid.</string>
     <string name="throw_stickerpack_email_invalid">The email linked to the sticker pack is invalid.</string>
     <string name="input_name_cannot_exceed_stickerpack_size">Cannot exceed 20.</string>
+    <string name="throw_save_stickerpack_in_db">Error saving sticker in database.</string>
+    <string name="throw_save_stickerpack_service">Error saving sticker in the service layer.</string>
+    <string name="throw_save_stickerpack_util">Error saving sticker in utility layer.</string>
+    <string name="throw_save_stickerpack_ui">Error saving sticker in interface layer.</string>
+    <string name="throw_save_stickerpack_thumbnail">Error saving thumbnail.</string>
+    <string name="throw_error_in_native_conversion">Error performing native conversion.</string>
+    <string name="throw_error_conversion_media">Error converting media.</string>
+    <string name="throw_invalid_sticker_filename">The sticker file is invalid.</string>
+    <string name="throw_invalid_size_acessibility">The accessibility text exceeds the allowed size.</string>
+    <string name="throw_invalid_url">The URL provided is invalid.</string>
+    <string name="throw_suplicate_stickerpack_identifier">The sticker pack identifier is duplicated.</string>
 </resources>

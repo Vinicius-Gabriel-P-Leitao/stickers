@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import br.arch.sticker.R;
-import br.arch.sticker.core.exception.throwable.sticker.FetchStickerPackException;
+import br.arch.sticker.core.error.throwable.sticker.FetchStickerPackException;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.ListStickerPackValidationResult;

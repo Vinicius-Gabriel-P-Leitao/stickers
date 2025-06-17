@@ -28,9 +28,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-import br.arch.sticker.core.exception.throwable.base.InternalAppException;
-import br.arch.sticker.core.exception.throwable.content.ContentProviderException;
-import br.arch.sticker.core.exception.throwable.sticker.StickerFileException;
+import br.arch.sticker.core.error.throwable.base.InternalAppException;
+import br.arch.sticker.core.error.throwable.content.ContentProviderException;
+import br.arch.sticker.core.error.throwable.sticker.StickerFileException;
 import br.arch.sticker.core.validation.StickerValidator;
 import br.arch.sticker.domain.data.database.StickerDatabase;
 import br.arch.sticker.domain.data.database.repository.SelectStickerPackRepo;

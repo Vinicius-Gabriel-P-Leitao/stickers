@@ -6,19 +6,18 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package br.arch.sticker.core.exception.throwable.sticker;
+package br.arch.sticker.core.error.throwable.sticker;
 
 import androidx.annotation.NonNull;
 
-import br.arch.sticker.core.exception.throwable.base.AppCoreStateException;
+import br.arch.sticker.core.error.ErrorCodeProvider;
+import br.arch.sticker.core.error.code.StickerPackErrorCode;
+import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 
+// @formatter:off
 public class StickerValidatorException extends AppCoreStateException {
 
-    public StickerValidatorException(@NonNull String message) {
-        super(message, "STICKER_VALIDATOR_ERROR");
-    }
-
-    public StickerValidatorException(String message, @NonNull Throwable cause) {
-        super(message, cause, "STICKER_VALIDATOR_ERROR");
+    public StickerValidatorException(@NonNull String message, ErrorCodeProvider errorCode) {
+        super(message, errorCode);
     }
 }

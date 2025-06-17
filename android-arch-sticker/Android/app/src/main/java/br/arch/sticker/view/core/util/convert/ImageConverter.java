@@ -18,7 +18,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 
-import br.arch.sticker.core.exception.throwable.media.MediaConversionException;
+import br.arch.sticker.core.error.code.MediaConversionErrorCode;
+import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 
 public class ImageConverter {
     private static ConvertMediaToStickerFormat.MediaConversionCallback callback;
@@ -29,7 +30,9 @@ public class ImageConverter {
         Bitmap bitmap = BitmapFactory.decodeFile(cleanedPath);
 
         if (bitmap == null) {
-            throw new MediaConversionException("Failed to decode image from path: " + cleanedPath);
+            throw new MediaConversionException(
+                    "Failed to decode image from path: " + cleanedPath,
+                    MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
         }
 
         Bitmap squareBitmap = cropImageAndResizeToSquare(bitmap);
@@ -46,7 +49,8 @@ public class ImageConverter {
         } catch (IOException exception) {
             callback.onError(new MediaConversionException(
                     Objects.toString(exception.getMessage(), "Erro desconhecido ao converter mídia"),
-                    exception.getCause()));
+                    exception.getCause(),
+                    MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
         }
 
         return null;

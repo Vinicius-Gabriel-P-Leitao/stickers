@@ -17,7 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import br.arch.sticker.core.exception.throwable.media.MediaConversionException;
+import br.arch.sticker.core.error.code.MediaConversionErrorCode;
+import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 import br.arch.sticker.core.validation.MimeTypeValidator;
 import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 import br.arch.sticker.view.core.util.resolver.FileDetailsResolver;
@@ -31,7 +32,9 @@ public class ConvertMediaToStickerFormat {
     public static void convertMediaToWebP(Context context, @NonNull Uri inputUri, @NonNull String outputFile, MediaConversionCallback callback) {
         Map<String, String> fileDetails = FileDetailsResolver.getFileDetailsFromUri(context, inputUri);
         if (fileDetails.isEmpty()) {
-            callback.onError(new MediaConversionException("Unable to determine file MIME type!"));
+            callback.onError(new MediaConversionException(
+                    "Unable to determine file MIME type!",
+                    MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
             return;
         }
 
@@ -46,7 +49,10 @@ public class ConvertMediaToStickerFormat {
                     callback.onError(new IllegalArgumentException("Unsupported MIME type for conversion: " + mimeType));
                 }
             } catch (IOException exception) {
-                callback.onError(new MediaConversionException("Error during media conversion", exception.getCause()));
+                callback.onError(new MediaConversionException(
+                        "Error during media conversion",
+                        exception.getCause(),
+                        MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
             }
         });
     }

@@ -10,7 +10,8 @@ package br.arch.sticker.domain.util;
 
 import java.io.File;
 
-import br.arch.sticker.core.exception.throwable.sticker.StickerPackSaveException;
+import br.arch.sticker.core.error.code.SaveErrorCode;
+import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.service.save.SaveStickerPackService;
 
@@ -20,8 +21,11 @@ public class StickerPackDirectory {
             boolean created = mainDirectory.mkdirs();
 
             if (!created) {
-                callback.onStickerPackSaveResult(
-                        CallbackResult.failure(new StickerPackSaveException("Falha ao criar o mainDirectory: " + mainDirectory.getPath())));
+                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException(
+                        String.format(
+                                "Falha ao criar o mainDirectory: %s",
+                                mainDirectory.getPath()),
+                        SaveErrorCode.ERROR_PACK_SAVE_UTIL)));
                 return false;
             }
             callback.onStickerPackSaveResult(CallbackResult.debug("mainDirectory criado com sucesso: " + mainDirectory.getPath()));
@@ -40,8 +44,11 @@ public class StickerPackDirectory {
             boolean created = stickerPackDirectory.mkdirs();
 
             if (!created) {
-                callback.onStickerPackSaveResult(
-                        CallbackResult.failure(new StickerPackSaveException("Falha ao criar a pasta: " + stickerPackDirectory.getPath())));
+                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException(
+                        String.format(
+                                "Falha ao criar a pasta: %s",
+                                stickerPackDirectory.getPath()),
+                        SaveErrorCode.ERROR_PACK_SAVE_UTIL)));
                 return null;
             }
 

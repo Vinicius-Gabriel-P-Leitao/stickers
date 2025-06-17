@@ -7,7 +7,7 @@
  */
 
 
-package br.arch.sticker.core.exception.throwable.media;
+package br.arch.sticker.core.error.throwable.media;
 
 import androidx.annotation.NonNull;
 

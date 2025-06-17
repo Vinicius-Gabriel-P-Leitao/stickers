@@ -16,7 +16,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import br.arch.sticker.core.exception.throwable.sticker.StickerPackSaveException;
+import br.arch.sticker.core.error.code.SaveErrorCode;
+import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.service.save.SaveStickerPackService;
 
@@ -25,8 +26,11 @@ public class ConvertThumbnail {
 
     public static void createThumbnail(File originalFile, File destinationDir, SaveStickerPackService.SaveStickerPackCallback callback) {
         if (!originalFile.exists()) {
-            callback.onStickerPackSaveResult(
-                    CallbackResult.failure(new StickerPackSaveException("Arquivo para thumbnail não encontrado: " + originalFile.getAbsolutePath())));
+            callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException(
+                    String.format(
+                            "Arquivo para thumbnail não encontrado: %s",
+                            originalFile.getAbsolutePath()),
+                    SaveErrorCode.ERROR_PACK_SAVE_THUMBNAIL)));
             return;
         }
 

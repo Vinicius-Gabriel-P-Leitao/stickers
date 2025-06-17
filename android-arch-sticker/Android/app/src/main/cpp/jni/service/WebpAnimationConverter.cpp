@@ -41,7 +41,7 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
                                       int width,
                                       int height,
                                       int durationMs) {
-    jclass nativeMediaException = env->FindClass("br/arch/sticker/core/exception/throwable/media/NativeConversionException");
+    jclass nativeMediaException = env->FindClass("br/arch/sticker/core/error/throwable/media/NativeConversionException");
 
     WebPAnimEncoderOptions encOptions;
     if (!WebPAnimEncoderOptionsInit(&encOptions)) {
