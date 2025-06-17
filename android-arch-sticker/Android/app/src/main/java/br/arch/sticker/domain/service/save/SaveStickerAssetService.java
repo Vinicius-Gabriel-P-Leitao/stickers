@@ -17,7 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import br.arch.sticker.core.exception.throwable.sticker.StickerPackSaveException;
+import br.arch.sticker.core.error.code.SaveErrorCode;
+import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
@@ -50,12 +51,20 @@ public class SaveStickerAssetService {
                         callback.onStickerPackSaveResult(CallbackResult.debug("Arquivo copiado para: " + destFile.getPath()));
                     }
                 } catch (IOException exception) {
-                    callback.onStickerPackSaveResult(
-                            CallbackResult.failure(new StickerPackSaveException("Arquivo não encontrado: " + fileName, exception)));
+                    callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException(
+                            String.format(
+                                    "Arquivo não encontrado: %s",
+                                    fileName),
+                            exception,
+                            SaveErrorCode.ERROR_PACK_SAVE_SERVICE)));
                     return false;
                 }
             } else {
-                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Arquivo não encontrado: " + fileName)));
+                callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException(
+                        String.format(
+                                "Arquivo não encontrado: %s",
+                                fileName),
+                        SaveErrorCode.ERROR_PACK_SAVE_SERVICE)));
                 return false;
             }
         }

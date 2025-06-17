@@ -17,12 +17,13 @@ import android.util.Log;
 import java.io.File;
 import java.util.Objects;
 
-import br.arch.sticker.core.exception.throwable.base.InternalAppException;
-import br.arch.sticker.core.exception.throwable.content.InvalidWebsiteUrlException;
-import br.arch.sticker.core.exception.throwable.sticker.PackValidatorException;
-import br.arch.sticker.core.exception.throwable.sticker.StickerFileException;
-import br.arch.sticker.core.exception.throwable.sticker.StickerPackSaveException;
-import br.arch.sticker.core.exception.throwable.sticker.StickerValidatorException;
+import br.arch.sticker.core.error.code.SaveErrorCode;
+import br.arch.sticker.core.error.throwable.base.InternalAppException;
+import br.arch.sticker.core.error.throwable.content.InvalidWebsiteUrlException;
+import br.arch.sticker.core.error.throwable.sticker.PackValidatorException;
+import br.arch.sticker.core.error.throwable.sticker.StickerFileException;
+import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
+import br.arch.sticker.core.error.throwable.sticker.StickerValidatorException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.core.validation.StickerPackValidator;
 import br.arch.sticker.core.validation.StickerValidator;
@@ -47,7 +48,7 @@ public class SaveStickerPackService {
     ) {
         File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
         if (!StickerPackDirectory.createMainDirectory(mainDirectory, callback)) {
-            callback.onStickerPackSaveResult(CallbackResult.failure(new Exception("Erro ao criar pacote principal de figurinhas")));
+            callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Erro ao criar pacote principal de figurinhas", SaveErrorCode.ERROR_PACK_SAVE_SERVICE)));
             return;
         }
 
@@ -57,7 +58,7 @@ public class SaveStickerPackService {
         }
 
         if (!SaveStickerAssetService.copyStickerFromCache(context, stickerPack, stickerPackDirectory, callback)) {
-            callback.onStickerPackSaveResult(CallbackResult.failure(new Exception("Erro ao copiar os figurinhas")));
+            callback.onStickerPackSaveResult(CallbackResult.failure(new StickerPackSaveException("Erro ao copiar os figurinhas", SaveErrorCode.ERROR_PACK_SAVE_SERVICE)));
             return;
         }
 
@@ -72,7 +73,7 @@ public class SaveStickerPackService {
                 StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
             } catch (StickerFileException stickerFileException) {
                 if (Objects.equals(sticker.imageFileName, stickerFileException.getFileName())) {
-                    sticker.setStickerIsInvalid(stickerFileException.getErrorCode());
+                    sticker.setStickerIsInvalid(stickerFileException.getErrorCodeName());
                     callback.onStickerPackSaveResult(
                             CallbackResult.warning("Alguns stickers foram marcados como inválidos: " + stickerFileException.getFileName()));
                 }
@@ -92,7 +93,8 @@ public class SaveStickerPackService {
                 writableDatabase, stickerPack, callbackResult -> {
                     switch (callbackResult.getStatus()) {
                         case SUCCESS:
-                            callback.onStickerPackSaveResult(CallbackResult.success(callbackResult.getData())); // NOTE: Somente esse deve retornar os dados.
+                            // NOTE: Somente esse deve retornar os dados como success.
+                            callback.onStickerPackSaveResult(CallbackResult.success(callbackResult.getData()));
                             break;
                         case WARNING:
                             Log.w(TAG_LOG, callbackResult.getWarningMessage());
