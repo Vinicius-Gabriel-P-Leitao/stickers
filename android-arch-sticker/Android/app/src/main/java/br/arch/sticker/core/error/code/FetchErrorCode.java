@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import br.arch.sticker.R;
 import br.arch.sticker.core.error.ErrorCodeProvider;
 
+// @formatter:off
 public enum FetchErrorCode implements ErrorCodeProvider {
     ERROR_EMPTY_STICKERPACK(R.string.throw_invalid_url),
     ERROR_EMPTY_STICKERS_IN_STICKERPACK(R.string.throw_invalid_url),

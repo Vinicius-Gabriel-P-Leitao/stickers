@@ -18,42 +18,46 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import br.arch.sticker.BuildConfig;
-import br.arch.sticker.core.error.code.FetchErrorCode;
-import br.arch.sticker.core.error.throwable.sticker.FetchStickerPackException;
+import br.arch.sticker.core.error.throwable.sticker.FetchStickerException;
 import br.arch.sticker.domain.data.content.StickerContentProvider;
 import br.arch.sticker.domain.data.model.Sticker;
 
 // @formatter:off
 public class FetchStickerService {
-    @NonNull
-    public static List<Sticker> fetchListStickerForPack(Context context, String stickerPackIdentifier) {
-        final List<Sticker> stickers = fetchListStickerFromContentProvider(stickerPackIdentifier, context.getContentResolver());
+    private final static String TAG_LOG = FetchStickerService.class.getSimpleName();
 
-        // FIXME: Verificar forma de simplesmente ignorar o arquivo invalido e marcar ele no banco de dados caso esteja lá.
-        for (Sticker sticker : stickers) {
-            final byte[] bytes;
+    @NonNull
+    public static List<Sticker> fetchListStickerForPack(Context context, String stickerPackIdentifier){
+        final List<Sticker> stickers = fetchListStickerFromContentProvider(stickerPackIdentifier, context.getContentResolver());
+        final Iterator<Sticker> iterator = stickers.iterator();
+
+        while (iterator.hasNext()) {
+            Sticker sticker = iterator.next();
             try {
-                bytes = FetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, sticker.imageFileName, context);
+                byte[] bytes = FetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, sticker.imageFileName, context);
 
                 if (bytes.length == 0) {
-                    throw new FetchStickerPackException(
-                            String.format("O arquivo está vazio, pacote: %s, figurinha: %s", stickerPackIdentifier, sticker.imageFileName),
-                            FetchErrorCode.ERROR_EMPTY_STICKERS_IN_STICKERPACK);
+                    iterator.remove();
+                    continue;
                 }
 
                 sticker.setSize(bytes.length);
-            } catch (IOException | IllegalArgumentException exception) {
-                throw new FetchStickerPackException(
-                        String.format("O arquivo não existe. pacote: %s, figurinha: %s", stickerPackIdentifier, sticker.imageFileName),
-                        exception, FetchErrorCode.ERROR_EMPTY_STICKERS_IN_STICKERPACK);
+            } catch (FetchStickerException exception) {
+                iterator.remove();
+                Log.w(TAG_LOG, String.format(
+                              "Removendo figurinha inválida: %s - pacote: %s",
+                              sticker.imageFileName,
+                              stickerPackIdentifier),
+                      exception);
             }
         }
 

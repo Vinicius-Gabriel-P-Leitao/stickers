@@ -14,15 +14,13 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.facebook.animated.webp.WebPFrame;
 import com.facebook.animated.webp.WebPImage;
 import com.facebook.imagepipeline.common.ImageDecodeOptions;
-
-import java.io.IOException;
 
 import br.arch.sticker.core.error.code.BaseErrorCode;
 import br.arch.sticker.core.error.factory.StickerExceptionFactory;
 import br.arch.sticker.core.error.throwable.base.InternalAppException;
+import br.arch.sticker.core.error.throwable.sticker.FetchStickerException;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
 
@@ -142,7 +140,7 @@ public class StickerValidator {
                         stickerPackIdentifier,
                         fileName);
             }
-        } catch (IOException exception) {
+        } catch (FetchStickerException exception) {
             throw new InternalAppException(
                     String.format(
                             "Não foi possível abrir o arquivo da figurinha. Identificador do pacote: %s, arquivo: %s",

@@ -25,7 +25,6 @@ import android.webkit.URLUtil;
 
 import androidx.annotation.NonNull;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -33,6 +32,7 @@ import java.util.List;
 import br.arch.sticker.core.error.code.InvalidUrlErrorCode;
 import br.arch.sticker.core.error.factory.StickerPackExceptionFactory;
 import br.arch.sticker.core.error.throwable.content.InvalidWebsiteUrlException;
+import br.arch.sticker.core.error.throwable.sticker.FetchStickerException;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
@@ -145,7 +145,7 @@ public class StickerPackValidator {
                         TRAY_IMAGE_DIMENSION_MIN,
                         TRAY_IMAGE_DIMENSION_MAX);
             }
-        } catch (IOException exception) {
+        } catch (FetchStickerException exception) {
             throw StickerPackExceptionFactory.cannotOpenTrayImage(
                     stickerPack.trayImageFile,
                     exception);
