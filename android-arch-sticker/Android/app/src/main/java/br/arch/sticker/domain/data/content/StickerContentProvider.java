@@ -146,7 +146,7 @@ public class StickerContentProvider extends ContentProvider {
                     if (isWhatsApp) {
                         return null;
                     }
-                    
+
                     try {
                         return context.getAssets().openFd("sticker_3rdparty_warning.webp");
                     } catch (IOException ioException) {

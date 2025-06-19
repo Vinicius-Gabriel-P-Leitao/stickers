@@ -15,9 +15,8 @@ import br.arch.sticker.core.error.ErrorCodeProvider;
 
 // @formatter:off
 public enum FetchErrorCode implements ErrorCodeProvider {
-    ERROR_EMPTY_STICKERPACK(R.string.throw_invalid_url),
-    ERROR_EMPTY_STICKERS_IN_STICKERPACK(R.string.throw_invalid_url),
-    ERROR_CONTENT_PROVIDER(R.string.throw_invalid_url);
+    ERROR_EMPTY_STICKERPACK(R.string.throw_empty_stickerpack),
+    ERROR_CONTENT_PROVIDER(R.string.throw_stickerpack_content_provider);
 
     private final int message;
 

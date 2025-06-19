@@ -107,7 +107,7 @@ public class PreviewInvalidStickerActivity extends BaseActivity  implements Prev
                 textInvalidTitle.setText(getString(resId));
 
                 buttonFixInvalid.setOnClickListener(view -> {
-                    viewModel.handleFixStickerPackClick(recoveredPack, exception.getCause());
+                    viewModel.handleFixStickerPackClick(recoveredPack, exception.getErrorCode());
                 });
 
                 showStickerPackInvalid(recoveredPack);

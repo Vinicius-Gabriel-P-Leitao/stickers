@@ -66,15 +66,15 @@ public class FetchStickerPackService {
                                                     FetchErrorCode.ERROR_CONTENT_PROVIDER);
             }
 
-            HashSet<String> stickerPackIdentifierSet = new HashSet<>();
+            final HashSet<String> stickerPackIdentifierSet = new HashSet<>();
+            final ArrayList<StickerPack> allStickerPacks;
 
-            final ArrayList<StickerPack> stickerPackList;
-
+            final ArrayList<StickerPack> validPacks = new ArrayList<>();
             final ArrayList<StickerPack> invalidPacks = new ArrayList<>();
             final HashMap<StickerPack, List<Sticker>> validPacksWithInvalidStickers = new HashMap<>();
 
             if (cursor.moveToFirst()) {
-                stickerPackList = new ArrayList<>(buildListStickerPack(cursor, context));
+                allStickerPacks = new ArrayList<>(buildListStickerPack(cursor, context));
             } else {
                 cursor.close();
                 throw new FetchStickerPackException(
@@ -82,12 +82,12 @@ public class FetchStickerPackService {
                                                     FetchErrorCode.ERROR_CONTENT_PROVIDER);
             }
 
-            if (stickerPackList.isEmpty()) {
+            if (allStickerPacks.isEmpty()) {
                 throw new FetchStickerPackException(
                         "Deve haver pelo menos um pacote de adesivos no aplicativo", FetchErrorCode.ERROR_EMPTY_STICKERPACK);
             }
 
-            for (StickerPack stickerPack : stickerPackList) {
+            for (StickerPack stickerPack : allStickerPacks) {
                 if (!stickerPackIdentifierSet.add(stickerPack.identifier)) {
                     throw new StickerValidatorException(
                             String.format(
@@ -96,7 +96,7 @@ public class FetchStickerPackService {
                 }
             }
 
-            stickerPackList.removeIf(stickerPack -> {
+            allStickerPacks.removeIf(stickerPack -> {
                 try {
                     StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
 
@@ -112,19 +112,24 @@ public class FetchStickerPackService {
                         }
                     });
 
+                    if (stickerPack.getStickers().isEmpty()) {
+                        invalidPacks.add(stickerPack);
+                        return true;
+                    }
+
                     if (!invalidStickers.isEmpty()) {
                         validPacksWithInvalidStickers.put(stickerPack, invalidStickers);
                         return true;
                     }
 
-                    return stickerPack.getStickers().isEmpty();
+                    return false;
                 } catch (PackValidatorException | InvalidWebsiteUrlException appCoreStateException) {
                     invalidPacks.add(stickerPack);
                     return true;
                 }
             });
 
-            return new ListStickerPackValidationResult(stickerPackList, invalidPacks, validPacksWithInvalidStickers);
+            return new ListStickerPackValidationResult(allStickerPacks, invalidPacks, validPacksWithInvalidStickers);
         }
 
     @NonNull
@@ -145,7 +150,8 @@ public class FetchStickerPackService {
             Context context, String stickerPackIdentifier) throws FetchStickerPackException
         {
 
-            final Cursor cursor = context.getContentResolver().query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null, null);
+            final Cursor cursor = context.getContentResolver().query(
+                    Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null, null);
             if (cursor == null || cursor.getCount() == 0) {
                 throw new FetchStickerPackException(
                         "Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY,
@@ -153,8 +159,6 @@ public class FetchStickerPackService {
             }
 
             final StickerPack stickerPack;
-            final List<Sticker> invalidSticker = new ArrayList<>();
-
             if (cursor.moveToFirst()) {
                 stickerPack = writeCursorToStickerPack(cursor, context);
             } else {
@@ -164,6 +168,8 @@ public class FetchStickerPackService {
                                                     FetchErrorCode.ERROR_EMPTY_STICKERPACK);
             }
 
+            List<Sticker> invalidStickers = new ArrayList<>();
+
             try {
                 StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
 
@@ -172,7 +178,7 @@ public class FetchStickerPackService {
                         StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
                         return false;
                     } catch (StickerFileException | StickerValidatorException exception) {
-                        invalidSticker.add(sticker);
+                        invalidStickers.add(sticker);
                         return true;
                     }
                 });
@@ -180,10 +186,10 @@ public class FetchStickerPackService {
                 if (stickerPack.getStickers().isEmpty()) {
                     throw new FetchStickerPackException(
                             "Pacote de figurinhas inválido: não restaram stickers após a validação.",
-                                                        FetchErrorCode.ERROR_EMPTY_STICKERS_IN_STICKERPACK);
+                            FetchErrorCode.ERROR_EMPTY_STICKERPACK, new Object[]{stickerPack});
                 }
 
-                return new StickerPackValidationResult(stickerPack, invalidSticker);
+                return new StickerPackValidationResult(stickerPack, invalidStickers);
             } catch (PackValidatorException | InvalidWebsiteUrlException exception) {
                 throw new FetchStickerPackException(
                         exception.getMessage() != null

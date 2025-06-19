@@ -95,4 +95,6 @@
     <string name="throw_delete_stickerpack_util">Error deleting at utility layer.</string>
     <string name="throw_delete_stickerpack_ui">Error deleting at interface layer.</string>
     <string name="sticker_file_not_exist">The sticker file does not exist.</string>
+    <string name="throw_empty_stickerpack">The sticker pack is empty.</string>
+    <string name="throw_stickerpack_content_provider">Error fetching from content provider.</string>
 </resources>

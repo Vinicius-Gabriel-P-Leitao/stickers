@@ -95,4 +95,6 @@
     <string name="throw_delete_stickerpack_util">Erro ao deletar na camada de utilitário.</string>
     <string name="throw_delete_stickerpack_ui">Erro ao deletar na camada de interface.</string>
     <string name="sticker_file_not_exist">O arquivo da figurinha não existe.</string>
+    <string name="throw_empty_stickerpack">O pacote de figurinha está vazio.</string>
+    <string name="throw_stickerpack_content_provider">Erro ao buscar no provedor de conteúdo.</string>
 </resources>
