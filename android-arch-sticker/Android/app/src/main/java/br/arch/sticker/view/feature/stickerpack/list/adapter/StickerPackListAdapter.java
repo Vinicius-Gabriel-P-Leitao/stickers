@@ -28,10 +28,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import br.arch.sticker.R;
+import br.arch.sticker.core.util.BuildStickerUri;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.StickerPackWithInvalidStickers;
-import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
 import br.arch.sticker.view.core.model.StickerPackListItem;
 import br.arch.sticker.view.feature.stickerpack.list.activity.StickerPackListActivity;
 import br.arch.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;
@@ -114,7 +114,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             final ImageView rowImage = (ImageView) LayoutInflater.from(context)
                     .inflate(R.layout.sticker_packs_list_media_item, viewHolder.imageRowView, false);
 
-            rowImage.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPack.identifier, stickerPack.getStickers().get(counter).imageFileName));
+            rowImage.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPack.identifier, stickerPack.getStickers().get(counter).imageFileName));
 
             final LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) rowImage.getLayoutParams();
             final int marginBetweenImages = minMarginBetweenImages - layoutParams.leftMargin - layoutParams.rightMargin;

@@ -43,10 +43,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import br.arch.sticker.R;
+import br.arch.sticker.core.util.BuildStickerUri;
 import br.arch.sticker.core.validation.WhatsappWhitelistValidator;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
-import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
 import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
 import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
@@ -146,7 +146,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
         packNameTextView.setText(stickerPack.name);
         packPublisherTextView.setText(stickerPack.publisher);
 
-        packTrayIcon.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile));
+        packTrayIcon.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile));
         packSizeTextView.setText(Formatter.formatShortFileSize(this, stickerPack.getTotalSize()));
 
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
@@ -237,7 +237,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_info && stickerPack != null) {
-            Uri trayIconUri = FetchStickerAssetService.buildStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile);
+            Uri trayIconUri = BuildStickerUri.buildStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile);
             launchInfoActivity(
                     stickerPack.publisherWebsite, stickerPack.publisherEmail, stickerPack.privacyPolicyWebsite, stickerPack.licenseAgreementWebsite,
                     trayIconUri.toString());

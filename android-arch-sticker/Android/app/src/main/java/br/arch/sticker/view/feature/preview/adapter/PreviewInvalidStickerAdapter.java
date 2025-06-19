@@ -24,9 +24,9 @@ import java.util.List;
 
 import br.arch.sticker.R;
 import br.arch.sticker.core.error.code.StickerAssetErrorCode;
+import br.arch.sticker.core.util.BuildStickerUri;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
-import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
 import br.arch.sticker.view.feature.preview.viewholder.InvalidStickerListViewHolder;
 
 public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidStickerListViewHolder> {
@@ -78,12 +78,12 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
         int resId = (code != null) ? code.getMessageResId() : R.string.throw_unknown_error;
 
         if (!stickerList.isEmpty()) {
-            viewHolder.stickerPreview.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
+            viewHolder.stickerPreview.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
             viewHolder.textErrorMessage.setText(context.getString(resId));
         }
 
         if (stickerPack != null) {
-            viewHolder.stickerPreview.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
+            viewHolder.stickerPreview.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
             viewHolder.textErrorMessage.setText(TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(R.string.sticker_is_valid) : context.getString(resId));
             viewHolder.buttonFix.setVisibility(TextUtils.isEmpty(sticker.stickerIsValid) ? View.GONE : View.VISIBLE);
         }

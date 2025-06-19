@@ -16,25 +16,28 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import br.arch.sticker.BuildConfig;
-import br.arch.sticker.R;
 import br.arch.sticker.core.error.throwable.content.ContentProviderException;
 import br.arch.sticker.domain.data.content.provider.StickerAssetProvider;
 import br.arch.sticker.domain.data.content.provider.StickerPackQueryProvider;
 import br.arch.sticker.domain.data.content.provider.StickerQueryProvider;
 import br.arch.sticker.domain.data.database.StickerDatabase;
 
-// @formatter:off
 public class StickerContentProvider extends ContentProvider {
+    private final static String TAG_LOG = StickerContentProvider.class.getSimpleName();
+
     private static final UriMatcher MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 
     public static final String STICKERS_ASSET = "stickers_asset";
@@ -49,144 +52,151 @@ public class StickerContentProvider extends ContentProvider {
 
     private static StickerDatabase dbHelper;
 
-    public static final Uri AUTHORITY_URI = new Uri.Builder()
-            .scheme(ContentResolver.SCHEME_CONTENT)
-            .authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
-            .appendPath(StickerContentProvider.METADATA)
-            .build();
+    public static final Uri AUTHORITY_URI = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(
+            BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(StickerContentProvider.METADATA).build();
 
     @Override
-    public boolean onCreate() {
-        final String authority = getAuthority();
+    public boolean onCreate()
+        {
+            final String authority = getAuthority();
 
-        MATCHER.addURI(authority, METADATA, METADATA_CODE);
-        MATCHER.addURI(authority, METADATA + "/*", METADATA_CODE_FOR_SINGLE_PACK);
-        MATCHER.addURI(authority, STICKERS + "/*", METADATA_CODE_ALL_STICKERS);
-        MATCHER.addURI(authority, STICKERS_ASSET + "/*/*", STICKERS_FILES_CODE);
+            MATCHER.addURI(authority, METADATA, METADATA_CODE);
+            MATCHER.addURI(authority, METADATA + "/*", METADATA_CODE_FOR_SINGLE_PACK);
+            MATCHER.addURI(authority, STICKERS + "/*", METADATA_CODE_ALL_STICKERS);
+            MATCHER.addURI(authority, STICKERS_ASSET + "/*/*", STICKERS_FILES_CODE);
 
-        dbHelper = new StickerDatabase(getContext());
-        SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
+            dbHelper = new StickerDatabase(getContext());
+            SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
 
-        if (isDatabaseEmpty(sqLiteDatabase)) {
-            dbHelper.onCreate(sqLiteDatabase);
-        }
-
-        dbHelper.close();
-        return true;
-    }
-
-    @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        final int code = MATCHER.match(uri);
-
-        Context context = getContext();
-        if (context == null) {
-            throw new ContentProviderException("Contexto do content provider não disponível!");
-        }
-
-        String callingPackage = getCallingPackage();
-        boolean isWhatsApp = "com.whatsapp".equals(callingPackage);
-
-        StickerPackQueryProvider stickerPackQueryProvider = new StickerPackQueryProvider(context);
-        StickerQueryProvider stickerQueryProvider = new StickerQueryProvider(context);
-
-        if (code == METADATA_CODE) {
-            return stickerPackQueryProvider.fetchAllStickerPack(uri, dbHelper);
-        } else if (code == METADATA_CODE_FOR_SINGLE_PACK) {
-            if (isWhatsApp) {
-                return stickerPackQueryProvider.fetchSingleStickerPack(uri, dbHelper, true);
+            if (isDatabaseEmpty(sqLiteDatabase)) {
+                dbHelper.onCreate(sqLiteDatabase);
             }
 
-            return stickerPackQueryProvider.fetchSingleStickerPack(uri, dbHelper, false);
-        } else if (code == METADATA_CODE_ALL_STICKERS) {
-            return stickerQueryProvider.fetchStickerListForPack(uri, dbHelper);
-        } else {
-            throw new ContentProviderException("URI desconhecida: " + uri);
-        }
-    }
-
-    @Override
-    public int delete(@NonNull Uri uri, @Nullable String selection, String[] selectionArgs) {
-        throw new UnsupportedOperationException("Operação não suportada!");
-    }
-
-    @Override
-    public Uri insert(@NonNull Uri uri, ContentValues values) {
-        throw new UnsupportedOperationException("Operação não suportada!");
-    }
-
-    @Override
-    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        throw new UnsupportedOperationException("Operação não suportada!");
-    }
-
-    @Override
-    public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode) {
-        final int code = MATCHER.match(uri);
-
-        Context context = getContext();
-        if (context == null) {
-            throw new ContentProviderException("Contexto do content provider não disponível!");
+            dbHelper.close();
+            return true;
         }
 
-        String callingPackage = getCallingPackage();
-        boolean isWhatsApp = "com.whatsapp".equals(callingPackage);
+    @Override
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, String selection, String[] selectionArgs, String sortOrder)
+        {
+            final int code = MATCHER.match(uri);
 
-        StickerAssetProvider stickerAssetProvider = new StickerAssetProvider(context);
+            Context context = getContext();
+            if (context == null) {
+                throw new ContentProviderException("Contexto do content provider não disponível!");
+            }
 
-        if (code == STICKERS_FILES_CODE || code == STICKER_PACK_TRAY_ICON_CODE) {
-            try {
-                return stickerAssetProvider.fetchStickerAsset(uri, dbHelper, isWhatsApp);
-            } catch (FileNotFoundException fileNotFoundException) {
-                try {
-                    AssetFileDescriptor afd = context.getResources().openRawResourceFd(R.raw.sticker_3rdparty_warning);
-                    if (afd != null) {
-                        return afd;
-                    }
-                } catch (Exception exception) {
-                    throw fileNotFoundException;
+            String callingPackage = getCallingPackage();
+            boolean isWhatsApp = "com.whatsapp".equals(callingPackage);
+
+            StickerPackQueryProvider stickerPackQueryProvider = new StickerPackQueryProvider(context);
+            StickerQueryProvider stickerQueryProvider = new StickerQueryProvider(context);
+
+            if (code == METADATA_CODE) {
+                return stickerPackQueryProvider.fetchAllStickerPack(uri, dbHelper);
+            } else if (code == METADATA_CODE_FOR_SINGLE_PACK) {
+                if (isWhatsApp) {
+                    return stickerPackQueryProvider.fetchSingleStickerPack(uri, dbHelper, true);
                 }
-                throw fileNotFoundException;
+
+                return stickerPackQueryProvider.fetchSingleStickerPack(uri, dbHelper, false);
+            } else if (code == METADATA_CODE_ALL_STICKERS) {
+                return stickerQueryProvider.fetchStickerListForPack(uri, dbHelper);
+            } else {
+                throw new ContentProviderException("URI desconhecida: " + uri);
             }
         }
 
-        return null;
-    }
+    @Override
+    public int delete(@NonNull Uri uri, @Nullable String selection, String[] selectionArgs)
+        {
+            throw new UnsupportedOperationException("Operação não suportada!");
+        }
 
     @Override
-    public String getType(@NonNull Uri uri) {
-        final int code = MATCHER.match(uri);
+    public Uri insert(@NonNull Uri uri, ContentValues values)
+        {
+            throw new UnsupportedOperationException("Operação não suportada!");
+        }
 
-        return switch (code) {
-            case METADATA_CODE -> "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
-            case METADATA_CODE_FOR_SINGLE_PACK -> "vnd.android.cursor.item/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
-            case METADATA_CODE_ALL_STICKERS -> "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + STICKERS;
-            case STICKERS_FILES_CODE -> "image/webp";
-            case STICKER_PACK_TRAY_ICON_CODE -> "image/jpg";
+    @Override
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs)
+        {
+            throw new UnsupportedOperationException("Operação não suportada!");
+        }
 
-            default -> throw new ContentProviderException("URI desconhecida: " + uri);
-        };
-    }
+    @Override
+    public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode)
+        {
+            final int code = MATCHER.match(uri);
+
+            Context context = getContext();
+            if (context == null) {
+                throw new ContentProviderException("Contexto do content provider não disponível!");
+            }
+
+            String callingPackage = getCallingPackage();
+            boolean isWhatsApp = "com.whatsapp".equals(callingPackage);
+
+            if (code == STICKERS_FILES_CODE || code == STICKER_PACK_TRAY_ICON_CODE) {
+                try {
+                    StickerAssetProvider stickerAssetProvider = new StickerAssetProvider(context);
+                    return stickerAssetProvider.fetchStickerAsset(uri, dbHelper, isWhatsApp);
+                } catch (ContentProviderException | FileNotFoundException exception) {
+                    AssetManager assetManager = context.getAssets();
+
+                    try {
+                        return assetManager.openFd("sticker_3rdparty_warning.webp");
+                    } catch (IOException ioException) {
+                        Log.w(TAG_LOG, "Fallback não encontrado em assets", ioException);
+                        try {
+                            throw ioException;
+                        } catch (IOException runtimeException) {
+                            throw new RuntimeException(runtimeException);
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+    @Override
+    public String getType(@NonNull Uri uri)
+        {
+            final int code = MATCHER.match(uri);
+
+            return switch (code) {
+                case METADATA_CODE -> "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
+                case METADATA_CODE_FOR_SINGLE_PACK -> "vnd.android.cursor.item/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
+                case METADATA_CODE_ALL_STICKERS -> "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + STICKERS;
+                case STICKERS_FILES_CODE -> "image/webp";
+                case STICKER_PACK_TRAY_ICON_CODE -> "image/jpg";
+
+                default -> throw new ContentProviderException("URI desconhecida: " + uri);
+            };
+        }
 
     @NonNull
-    private String getAuthority() {
-        final String authority = BuildConfig.CONTENT_PROVIDER_AUTHORITY;
+    private String getAuthority()
+        {
+            final String authority = BuildConfig.CONTENT_PROVIDER_AUTHORITY;
 
-        Context context = getContext();
-        if (context == null) {
-            throw new ContentProviderException("Contexto do content provider não disponível!");
+            Context context = getContext();
+            if (context == null) {
+                throw new ContentProviderException("Contexto do content provider não disponível!");
+            }
+
+            String packageName = getContext().getPackageName();
+            if (packageName == null) {
+                throw new ContentProviderException("Nome do pacote do content provider não disponível!");
+            }
+
+            if (!authority.startsWith(packageName)) {
+                throw new ContentProviderException(
+                        "Sua autoridade (" + authority + ") para o provedor de conteúdo deve começar com o nome do seu pacote: " + getContext().getPackageName());
+            }
+
+            return authority;
         }
-
-        String packageName  = getContext().getPackageName();
-        if (packageName == null) {
-            throw new ContentProviderException("Nome do pacote do content provider não disponível!");
-        }
-
-        if (!authority.startsWith(packageName)) {
-            throw new ContentProviderException(
-                    "Sua autoridade (" + authority + ") para o provedor de conteúdo deve começar com o nome do seu pacote: " + getContext().getPackageName());
-        }
-
-        return authority;
-    }
 }

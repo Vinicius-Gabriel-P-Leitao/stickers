@@ -33,13 +33,13 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import br.arch.sticker.domain.data.database.StickerDatabase;
 import br.arch.sticker.domain.data.database.repository.SelectStickerPackRepo;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
-
-import java.util.ArrayList;
-import java.util.List;
 
 // @formatter:off
 public class StickerPackQueryHelper {
@@ -168,8 +168,7 @@ public class StickerPackQueryHelper {
         builder.add(stickerPack.avoidCache ? 1 : 0);
         builder.add(stickerPack.animatedStickerPack ? 1 : 0);
 
-        cursor.setNotificationUri(context.getContentResolver(),
-                uri);
+        cursor.setNotificationUri(context.getContentResolver(), uri);
         return cursor;
     }
 

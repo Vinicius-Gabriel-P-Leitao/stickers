@@ -32,9 +32,9 @@ import com.bumptech.glide.request.RequestOptions;
 import java.util.ArrayList;
 
 import br.arch.sticker.R;
+import br.arch.sticker.core.util.BuildStickerUri;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
-import br.arch.sticker.domain.service.fetch.FetchStickerAssetService;
 import br.arch.sticker.view.feature.preview.viewholder.InvalidStickerButtonPreviewViewHolder;
 import br.arch.sticker.view.feature.preview.viewholder.StickerPreviewViewHolder;
 import br.arch.sticker.view.core.util.transformation.CropSquareTransformation;
@@ -150,7 +150,7 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             Sticker sticker = stickerPack.getStickers().get(position);
 
             previewViewHolder.stickerPreviewView.setImageResource(errorResource);
-            previewViewHolder.stickerPreviewView.setImageURI(FetchStickerAssetService.buildStickerAssetUri(stickerPack.identifier, sticker.imageFileName));
+            previewViewHolder.stickerPreviewView.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPack.identifier, sticker.imageFileName));
             previewViewHolder.stickerPreviewView.setOnClickListener(view -> expandPreview(position, previewViewHolder.stickerPreviewView));
         }
 
@@ -250,7 +250,7 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             String imageFileName = stickerPack.getStickers().get(position).imageFileName;
 
-            final Uri stickerAssetUri = FetchStickerAssetService.buildStickerAssetUri(stickerPack.identifier, imageFileName);
+            final Uri stickerAssetUri = BuildStickerUri.buildStickerAssetUri(stickerPack.identifier, imageFileName);
             String extension = imageFileName.substring(imageFileName.lastIndexOf(".") + 1);
 
             boolean isAnimatedWebp = false;

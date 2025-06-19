@@ -10,9 +10,7 @@ package br.arch.sticker.domain.service.fetch;
 
 import static br.arch.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
@@ -23,7 +21,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import br.arch.sticker.BuildConfig;
 import br.arch.sticker.core.error.code.FetchErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.FetchStickerException;
 
@@ -55,11 +52,5 @@ public class FetchStickerAssetService {
                 throw new FetchStickerException(
                         "Arquivo de figurinha não encontrado: " + stickerFile.getAbsolutePath(), FetchErrorCode.ERROR_EMPTY_STICKERPACK);
             }
-        }
-
-    public static Uri buildStickerAssetUri(String identifier, String fileName)
-        {
-            return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(
-                    STICKERS_ASSET).appendPath(identifier).appendPath(fileName).build();
         }
 }
