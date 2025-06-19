@@ -145,7 +145,7 @@ public class FetchStickerPackService {
             Context context, String stickerPackIdentifier) throws FetchStickerPackException
         {
 
-            Cursor cursor = context.getContentResolver().query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null, null);
+            final Cursor cursor = context.getContentResolver().query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null, null);
             if (cursor == null || cursor.getCount() == 0) {
                 throw new FetchStickerPackException(
                         "Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY,
@@ -153,7 +153,6 @@ public class FetchStickerPackService {
             }
 
             final StickerPack stickerPack;
-
             final List<Sticker> invalidSticker = new ArrayList<>();
 
             if (cursor.moveToFirst()) {

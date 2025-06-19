@@ -94,4 +94,5 @@
     <string name="throw_delete_stickerpack_service">Error deleting at service layer.</string>
     <string name="throw_delete_stickerpack_util">Error deleting at utility layer.</string>
     <string name="throw_delete_stickerpack_ui">Error deleting at interface layer.</string>
+    <string name="sticker_file_not_exist">The sticker file does not exist.</string>
 </resources>

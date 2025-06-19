@@ -19,7 +19,8 @@ public enum StickerAssetErrorCode implements ErrorCodeProvider{
     ERROR_SIZE_STICKER(R.string.throw_invalid_sticker_size),
     ERROR_STICKER_TYPE(R.string.throw_sticker_not_match_pack),
     ERROR_STICKER_DURATION(R.string.throw_animated_sticker_exceeded),
-    ERROR_FILE_TYPE(R.string.throw_unsuported_file_type);
+    ERROR_FILE_TYPE(R.string.throw_unsuported_file_type),
+    STICKER_FILE_NOT_EXIST(R.string.sticker_file_not_exist);
 
     private final int message;
 

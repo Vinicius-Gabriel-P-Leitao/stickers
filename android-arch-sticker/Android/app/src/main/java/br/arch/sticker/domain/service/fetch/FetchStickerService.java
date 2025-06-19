@@ -18,86 +18,88 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import br.arch.sticker.BuildConfig;
+import br.arch.sticker.core.error.code.StickerAssetErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.FetchStickerException;
 import br.arch.sticker.domain.data.content.StickerContentProvider;
 import br.arch.sticker.domain.data.model.Sticker;
+import br.arch.sticker.domain.service.update.UpdateStickerService;
 
 // @formatter:off
 public class FetchStickerService {
-    private final static String TAG_LOG = FetchStickerService.class.getSimpleName();
-
     @NonNull
-    public static List<Sticker> fetchListStickerForPack(Context context, String stickerPackIdentifier){
-        final List<Sticker> stickers = fetchListStickerFromContentProvider(stickerPackIdentifier, context.getContentResolver());
-        final Iterator<Sticker> iterator = stickers.iterator();
+    public static List<Sticker> fetchListStickerForPack(Context context, String stickerPackIdentifier)
+        {
+            final List<Sticker> stickers = fetchListStickerFromContentProvider(stickerPackIdentifier, context.getContentResolver());
 
-        while (iterator.hasNext()) {
-            Sticker sticker = iterator.next();
-            try {
-                byte[] bytes = FetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, sticker.imageFileName, context);
+            for(Sticker sticker: stickers){
+                try {
+                    byte[] bytes = FetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, sticker.imageFileName, context);
 
-                if (bytes.length == 0) {
-                    iterator.remove();
-                    continue;
+                    if (bytes.length == 0) {
+                        if (!TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.name())) {
+                            UpdateStickerService.updateInvalidSticker(context, stickerPackIdentifier, sticker.imageFileName,
+                                                                  StickerAssetErrorCode.STICKER_FILE_NOT_EXIST);
+                        }
+
+                        continue;
+                    }
+
+                    sticker.setSize(bytes.length);
+                } catch (FetchStickerException exception) {
+                    if (!TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.name())) {
+                        UpdateStickerService.updateInvalidSticker(context, stickerPackIdentifier, sticker.imageFileName,
+                                                                  StickerAssetErrorCode.STICKER_FILE_NOT_EXIST);
+                    }
                 }
-
-                sticker.setSize(bytes.length);
-            } catch (FetchStickerException exception) {
-                iterator.remove();
-                Log.w(TAG_LOG, String.format(
-                              "Removendo figurinha inválida: %s - pacote: %s",
-                              sticker.imageFileName,
-                              stickerPackIdentifier),
-                      exception);
             }
-        }
 
-        return stickers;
-    }
+            return stickers;
+        }
 
     @NonNull
-    public static List<Sticker> fetchListStickerFromContentProvider(String stickerPackIdentifier, ContentResolver contentResolver) {
-        Uri uri = buildStickerUri(stickerPackIdentifier);
+    private static List<Sticker> fetchListStickerFromContentProvider(String stickerPackIdentifier, ContentResolver contentResolver)
+        {
+            Uri uri = buildStickerUri(stickerPackIdentifier);
 
-        final String[] projection = {STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY};
+            final String[] projection = {STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY};
 
-        final Cursor cursor = contentResolver.query(uri, projection, null, null, null);
-        List<Sticker> stickers = new ArrayList<>();
+            final Cursor cursor = contentResolver.query(uri, projection, null, null, null);
+            List<Sticker> stickers = new ArrayList<>();
 
-        if (cursor != null && cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            do {
-                final String name = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_NAME_IN_QUERY));
-                final String emojisConcatenated = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_EMOJI_IN_QUERY));
-                final String stickerIsValid = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_IS_VALID));
-                final String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    final String name = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_NAME_IN_QUERY));
+                    final String emojisConcatenated = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_EMOJI_IN_QUERY));
+                    final String stickerIsValid = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_IS_VALID));
+                    final String accessibilityText = cursor.getString(cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
 
-                String emojis = null;
-                if (!TextUtils.isEmpty(emojisConcatenated)) {
-                    emojis = emojisConcatenated;
-                }
+                    String emojis = null;
+                    if (!TextUtils.isEmpty(emojisConcatenated)) {
+                        emojis = emojisConcatenated;
+                    }
 
-                stickers.add(new Sticker(name, emojis, stickerIsValid, accessibilityText, stickerPackIdentifier));
-            } while (cursor.moveToNext());
+                    stickers.add(new Sticker(name, emojis, stickerIsValid, accessibilityText, stickerPackIdentifier));
+                } while (cursor.moveToNext());
+            }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+
+            return stickers;
         }
-        if (cursor != null) {
-            cursor.close();
+
+    private static Uri buildStickerUri(String stickerPackIdentifier)
+        {
+            return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(
+                    StickerContentProvider.STICKERS).appendPath(stickerPackIdentifier).build();
         }
-
-        return stickers;
-    }
-
-    private static Uri buildStickerUri(String stickerPackIdentifier) {
-        return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
-                .appendPath(StickerContentProvider.STICKERS).appendPath(stickerPackIdentifier).build();
-    }
 }

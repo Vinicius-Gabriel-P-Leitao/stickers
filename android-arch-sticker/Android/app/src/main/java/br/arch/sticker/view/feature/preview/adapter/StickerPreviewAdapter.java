@@ -277,12 +277,14 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 expandedStickerPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 glide.load(stickerAssetUri)
                         .apply(requestOptions)
+                        .error(R.drawable.sticker_3rdparty_warning)
                         .transform(WebpDrawable.class, new WebpDrawableTransformation(commonTransform))
                         .into(expandedStickerPreview);
             } else {
                 glide.asBitmap()
                         .load(stickerAssetUri)
                         .apply(requestOptions)
+                        .error(R.drawable.sticker_3rdparty_warning)
                         .centerCrop()
                         .transform(commonTransform)
                         .into(expandedStickerPreview);

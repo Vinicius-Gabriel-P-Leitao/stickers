@@ -11,7 +11,6 @@ package br.arch.sticker.core.error.throwable.sticker;
 import androidx.annotation.NonNull;
 
 import br.arch.sticker.core.error.ErrorCodeProvider;
-import br.arch.sticker.core.error.code.StickerPackErrorCode;
 import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 
 // @formatter:off

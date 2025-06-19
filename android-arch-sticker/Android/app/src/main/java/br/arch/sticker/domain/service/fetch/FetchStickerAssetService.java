@@ -57,9 +57,9 @@ public class FetchStickerAssetService {
             }
         }
 
-    public static Uri buildStickerAssetUri(String identifier, String stickerName)
+    public static Uri buildStickerAssetUri(String identifier, String fileName)
         {
             return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(
-                    STICKERS_ASSET).appendPath(identifier).appendPath(stickerName).build();
+                    STICKERS_ASSET).appendPath(identifier).appendPath(fileName).build();
         }
 }

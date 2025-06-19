@@ -23,7 +23,10 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.FileNotFoundException;
+
 import br.arch.sticker.BuildConfig;
+import br.arch.sticker.R;
 import br.arch.sticker.core.error.throwable.content.ContentProviderException;
 import br.arch.sticker.domain.data.content.provider.StickerAssetProvider;
 import br.arch.sticker.domain.data.content.provider.StickerPackQueryProvider;
@@ -132,7 +135,19 @@ public class StickerContentProvider extends ContentProvider {
         StickerAssetProvider stickerAssetProvider = new StickerAssetProvider(context);
 
         if (code == STICKERS_FILES_CODE || code == STICKER_PACK_TRAY_ICON_CODE) {
-            return stickerAssetProvider.fetchStickerAsset(uri, dbHelper, isWhatsApp);
+            try {
+                return stickerAssetProvider.fetchStickerAsset(uri, dbHelper, isWhatsApp);
+            } catch (FileNotFoundException fileNotFoundException) {
+                try {
+                    AssetFileDescriptor afd = context.getResources().openRawResourceFd(R.raw.sticker_3rdparty_warning);
+                    if (afd != null) {
+                        return afd;
+                    }
+                } catch (Exception exception) {
+                    throw fileNotFoundException;
+                }
+                throw fileNotFoundException;
+            }
         }
 
         return null;
