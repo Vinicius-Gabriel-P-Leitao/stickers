@@ -143,10 +143,12 @@ public class StickerContentProvider extends ContentProvider {
                     StickerAssetProvider stickerAssetProvider = new StickerAssetProvider(context);
                     return stickerAssetProvider.fetchStickerAsset(uri, dbHelper, isWhatsApp);
                 } catch (ContentProviderException | FileNotFoundException exception) {
-                    AssetManager assetManager = context.getAssets();
-
+                    if (isWhatsApp) {
+                        return null;
+                    }
+                    
                     try {
-                        return assetManager.openFd("sticker_3rdparty_warning.webp");
+                        return context.getAssets().openFd("sticker_3rdparty_warning.webp");
                     } catch (IOException ioException) {
                         Log.w(TAG_LOG, "Fallback não encontrado em assets", ioException);
                         try {
