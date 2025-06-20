@@ -27,7 +27,6 @@ public enum StickerPackErrorCode implements ErrorCodeProvider{
     INVALID_IOS_URL_SITE(R.string.throw_url_ios_stickerpack_invalid),
     INVALID_WEBSITE(R.string.throw_stickerpack_website_invalid),
     INVALID_EMAIL(R.string.throw_stickerpack_email_invalid),
-    INVALID_STICKER_FILENAME(R.string.throw_invalid_sticker_filename),
     INVALID_STICKER_ACCESSIBILITY(R.string.throw_invalid_size_acessibility);
 
     private final int message;

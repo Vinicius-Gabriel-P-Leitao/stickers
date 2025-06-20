@@ -18,7 +18,7 @@ import br.arch.sticker.core.pattern.CallbackResult;
 
 // @formatter:off
 public class StickerPackDirectory {
-    public static CallbackResult<Boolean> createMainDirectory(@NonNull File mainDirectory) {
+    public static CallbackResult<Boolean> createMainDirectory(@NonNull File mainDirectory) throws StickerPackSaveException {
         if (!mainDirectory.exists()) {
             boolean created = mainDirectory.mkdirs();
 
@@ -34,7 +34,7 @@ public class StickerPackDirectory {
         }
     }
 
-    public static CallbackResult<File> createStickerPackDirectory(@NonNull  File mainDirectory,@NonNull String stickerPackIdentifier) {
+    public static CallbackResult<File> createStickerPackDirectory(@NonNull  File mainDirectory,@NonNull String stickerPackIdentifier) throws StickerPackSaveException {
         File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);
 
         if (!stickerPackDirectory.exists()) {

@@ -45,19 +45,31 @@ public class ConvertMediaToStickerFormat {
                     if (MimeTypeValidator.validateUniqueMimeType(mimeType, MimeTypesSupported.IMAGE.getMimeTypes())) {
                         File file = ImageConverter.convertImageToWebPAsyncFuture(context, filePath, outputFileName);
                         future.complete(file);
-                    } else if (MimeTypeValidator.validateUniqueMimeType(mimeType, MimeTypesSupported.ANIMATED.getMimeTypes())) {
-                        return VideoConverter.convertVideoToWebPAsyncFuture(context, inputUri, outputFileName);
-                    } else {
-                        future.completeExceptionally(new IllegalArgumentException("MIME type não suportado: " + mimeType));
+                        return future;
                     }
+
+                    if (MimeTypeValidator.validateUniqueMimeType(mimeType, MimeTypesSupported.ANIMATED.getMimeTypes())) {
+                        return VideoConverter.convertVideoToWebPAsyncFuture(context, filePath, outputFileName);
+                    }
+
+                    future.completeExceptionally(new MediaConversionException(
+                            String.format("MIME type não suportado: %s", mimeType),
+                            MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
                 } catch (MediaConversionException exception) {
                     future.completeExceptionally(new MediaConversionException(
-                            "Error durante conversão de midia.", exception.getCause(),
-                                                                              MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
+                            "Error durante conversão de midia.", exception.getCause(), MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
                 }
             }
 
             return future;
+        }
+
+    public static String ensureWebpExtension(String fileName)
+        {
+            if (!fileName.toLowerCase().endsWith(".webp")) {
+                return fileName.replaceAll("\\.\\w+$", "") + ".webp";
+            }
+            return fileName;
         }
 }
 

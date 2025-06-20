@@ -33,7 +33,8 @@ import br.arch.sticker.view.core.util.convert.ConvertThumbnail;
 
 // @formatter:off
 public class SaveStickerAssetService {
-    public static CallbackResult<Boolean> copyStickerFromCache(@NonNull Context context, @NonNull StickerPack stickerPack, @NonNull File stickerPackDirectory) {
+    public static CallbackResult<Boolean> copyStickerFromCache(@NonNull Context context, @NonNull StickerPack stickerPack,
+                                                               @NonNull File stickerPackDirectory) throws StickerPackSaveException {
         if (!stickerPackDirectory.canWrite()) {
             return CallbackResult.failure(new StickerPackSaveException(
                     "Sem permissão de escrita no diretório destino: " + stickerPackDirectory,

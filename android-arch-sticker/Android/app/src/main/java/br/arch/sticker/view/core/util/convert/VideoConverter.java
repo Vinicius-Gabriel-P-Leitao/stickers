@@ -9,7 +9,6 @@
 package br.arch.sticker.view.core.util.convert;
 
 import android.content.Context;
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
@@ -20,21 +19,21 @@ import java.util.concurrent.CompletableFuture;
 import br.arch.sticker.core.error.code.MediaConversionErrorCode;
 import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 import br.arch.sticker.core.lib.NativeConvertToWebp;
-import br.arch.sticker.view.core.util.resolver.FileDetailsResolver;
 
 // @formatter:off
 public class VideoConverter {
-    public static CompletableFuture<File> convertVideoToWebPAsyncFuture(@NonNull Context context, @NonNull Uri inputPath,
+    public static CompletableFuture<File> convertVideoToWebPAsyncFuture(@NonNull Context context, @NonNull String inputPath,
                                                                         @NonNull String outputFileName) throws MediaConversionException {
         CompletableFuture<File> future = new CompletableFuture<>();
 
-        String finalOutputFileName = ensureWebpExtension(outputFileName);
-        File outputFile = new File(context.getCacheDir(), finalOutputFileName);
+        String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFileName);
+        String outputFile = new File(context.getCacheDir(), finalOutputFileName).getAbsolutePath();
 
         NativeConvertToWebp nativeConvertToWebp = new NativeConvertToWebp();
         nativeConvertToWebp.convertToWebpAsync(
-                FileDetailsResolver.getAbsolutePath(context, inputPath),
-                outputFile.getAbsolutePath(),
+                inputPath,
+                outputFile,
+
                 new NativeConvertToWebp.ConversionCallback() {
                     @Override
                     public void onSuccess(File file) {
@@ -51,13 +50,5 @@ public class VideoConverter {
                 });
 
         return future;
-    }
-
-    private static String ensureWebpExtension(String fileName) {
-        if (!fileName.toLowerCase().endsWith(".webp")) {
-            return fileName.replaceAll("\\.\\w+$", "") + ".webp";
-        }
-
-        return fileName;
     }
 }

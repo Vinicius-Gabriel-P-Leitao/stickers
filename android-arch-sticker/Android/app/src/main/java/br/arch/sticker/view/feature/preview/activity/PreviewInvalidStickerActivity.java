@@ -41,6 +41,7 @@ import br.arch.sticker.domain.dto.StickerPackValidationResult;
 import br.arch.sticker.domain.service.fetch.FetchStickerPackService;
 import br.arch.sticker.view.core.base.BaseActivity;
 import br.arch.sticker.view.feature.preview.adapter.PreviewInvalidStickerAdapter;
+import br.arch.sticker.view.feature.preview.dialog.InvalidStickerDialogController;
 import br.arch.sticker.view.feature.preview.viewholder.InvalidStickerListViewHolder;
 import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerViewModel;
 
@@ -116,6 +117,9 @@ public class PreviewInvalidStickerActivity extends BaseActivity  implements Prev
 
             Toast.makeText(this, "Erro ao carregar pacote de figurinhas inválido!", Toast.LENGTH_SHORT).show();
         }
+
+        InvalidStickerDialogController dialogController = new InvalidStickerDialogController(this, viewModel);
+        viewModel.getFixActionLiveData().observe(this, dialogController::showFixAction);
     }
 
     @Override

@@ -75,7 +75,7 @@ public class SaveStickerPackService {
             });
         }
 
-    public static CallbackResult<StickerPack> persistPackToStorage(@NonNull Context context, @NonNull StickerPack stickerPack)
+    public static CallbackResult<StickerPack> persistPackToStorage(@NonNull Context context, @NonNull StickerPack stickerPack) throws StickerPackSaveException
         {
             File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
 

@@ -27,7 +27,9 @@ public class ImageConverter {
 
     public static File convertImageToWebPAsyncFuture(
             @NonNull Context context, @NonNull String inputPath, @NonNull String outputFileName) throws MediaConversionException {
-        String finalOutputFileName = ensureWebpExtension(outputFileName);
+        String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFileName);
+        File outputFile = new File(context.getCacheDir(), finalOutputFileName);
+
         String cleanedPath = inputPath.startsWith("file://") ? inputPath.substring(7) : inputPath;
         Bitmap bitmap = BitmapFactory.decodeFile(cleanedPath);
 
@@ -38,7 +40,6 @@ public class ImageConverter {
         }
 
         Bitmap squareBitmap = cropImageAndResizeToSquare(bitmap);
-        File outputFile = new File(context.getCacheDir(), finalOutputFileName);
 
         try (FileOutputStream out = new FileOutputStream(outputFile)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -65,12 +66,5 @@ public class ImageConverter {
 
         Bitmap squareBitmap = Bitmap.createBitmap(bitmap, xOffset, yOffset, newEdge, newEdge);
         return Bitmap.createScaledBitmap(squareBitmap, 512, 512, true);
-    }
-
-    private static String ensureWebpExtension(String fileName) {
-        if (!fileName.toLowerCase().endsWith(".webp")) {
-            return fileName.replaceAll("\\.\\w+$", "") + ".webp";
-        }
-        return fileName;
     }
 }

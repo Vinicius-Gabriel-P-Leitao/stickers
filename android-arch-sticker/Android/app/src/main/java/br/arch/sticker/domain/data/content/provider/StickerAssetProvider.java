@@ -108,8 +108,8 @@ public class StickerAssetProvider {
             Log.e(TAG_LOG, "Erro no banco de dados ao buscar se o pacote é animado: " + stickerPackIdentifier, sqlException);
             throw new ContentProviderException(sqlException.getMessage(), sqlException);
         } catch (RuntimeException exception) {
-            Log.e(TAG_LOG, "Erro inesperado ao buscar sticker pack: " + stickerPackIdentifier, exception);
-            throw new ContentProviderException("Erro inesperado ao buscar sticker pack", exception);
+            Log.e(TAG_LOG, "Erro inesperado ao buscar sticker stickerPack: " + stickerPackIdentifier, exception);
+            throw new ContentProviderException("Erro inesperado ao buscar sticker stickerPack", exception);
         }
     }
 

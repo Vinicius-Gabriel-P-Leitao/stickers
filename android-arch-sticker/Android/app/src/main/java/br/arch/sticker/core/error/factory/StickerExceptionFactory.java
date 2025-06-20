@@ -154,8 +154,7 @@ public final class StickerExceptionFactory {
         return new StickerValidatorException(
                 String.format(
                         "Nenhum caminho de figurinha para o figurinha, identificador do pacote de figurinhas: %s",
-                        stickerPackIdentifier),
-                StickerPackErrorCode.INVALID_STICKER_FILENAME);
+                        stickerPackIdentifier), StickerAssetErrorCode.INVALID_STICKER_FILENAME);
     }
 
     public static StickerValidatorException accessibilityTextTooLong(String stickerPackIdentifier, String fileName) {

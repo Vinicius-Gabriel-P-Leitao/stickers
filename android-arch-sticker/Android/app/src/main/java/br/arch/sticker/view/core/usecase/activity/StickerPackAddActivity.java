@@ -55,7 +55,7 @@ public abstract class StickerPackAddActivity extends BaseActivity implements Sti
                     this, stickerPackIdentifier);
 
             if (!stickerPackWhitelistedInWhatsAppConsumer && !stickerPackWhitelistedInWhatsAppSmb) {
-                //ask users which app to add the pack to.
+                //ask users which app to add the stickerPack to.
                 launchIntentToAddPackToChooser(stickerPackIdentifier, stickerPackName);
             } else if (!stickerPackWhitelistedInWhatsAppConsumer) {
                 launchIntentToAddPackToSpecificPackage(

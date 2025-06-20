@@ -9,6 +9,7 @@
 package br.arch.sticker.view.feature.stickerpack.creation.fragment;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -101,7 +102,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
 
             if (selectedUris.size() >= 3) {
                 progressBar.setVisibility(View.VISIBLE);
-                viewModel.startConversions(selectedUris, requireContext());
+                viewModel.startConversions(selectedUris);
             } else {
                 Toast.makeText(getContext(), "Selecione pelo menos 3 itens!", Toast.LENGTH_SHORT).show();
             }
@@ -150,5 +151,18 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
         });
 
         return dialog;
+    }
+
+    @Override
+    public void onCancel(@NonNull DialogInterface dialog) {
+        super.onCancel(dialog);
+        viewModel.setCancelConversions();
+        Toast.makeText(requireActivity(), "Processo cancelado.", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        viewModel.setCancelConversions();
     }
 }
