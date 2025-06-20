@@ -12,13 +12,13 @@ import android.content.Context;
 import android.view.View;
 
 import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
-import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerViewModel;
+import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerPackViewModel;
 
-public class InvalidStickerDialogController {
+public class InvalidStickerPackDialogController {
     private final InvalidStickersDialog dialog;
-    private final PreviewInvalidStickerViewModel viewModel;
+    private final PreviewInvalidStickerPackViewModel viewModel;
 
-    public InvalidStickerDialogController(Context context, PreviewInvalidStickerViewModel viewModel)
+    public InvalidStickerPackDialogController(Context context, PreviewInvalidStickerPackViewModel viewModel)
         {
             dialog = new InvalidStickersDialog(context);
             this.viewModel = viewModel;
@@ -32,10 +32,10 @@ public class InvalidStickerDialogController {
             dialog.setOnIgnoreClick(null);
         }
 
-    public void showFixAction(PreviewInvalidStickerViewModel.FixActionSticker action)
+    public void showFixAction(PreviewInvalidStickerPackViewModel.FixActionStickerPack action)
         {
             resetDialog();
-            if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete delete) {
+            if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.NewThumbnail newThumbnail) {
                 dialog.setTitleText("Nome inválido");
                 dialog.setMessageText("Deseja inserir um novo nome?");
                 dialog.setVisibilityFixButton(View.VISIBLE);

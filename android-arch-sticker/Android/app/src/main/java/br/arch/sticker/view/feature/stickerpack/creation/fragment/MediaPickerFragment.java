@@ -40,10 +40,10 @@ import br.arch.sticker.R;
 import br.arch.sticker.view.core.usecase.component.BottomFadingRecyclerView;
 import br.arch.sticker.view.core.util.resolver.UriDetailsResolver;
 import br.arch.sticker.view.feature.stickerpack.creation.adapter.MediaPickerAdapter;
-import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.MediaPickerViewModel;
+import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.StickerPackCreationViewModel;
 
 public class MediaPickerFragment extends BottomSheetDialogFragment {
-    private MediaPickerViewModel viewModel;
+    private StickerPackCreationViewModel viewModel;
     private MediaPickerAdapter mediaListAdapter;
     private ProgressBar progressBar;
 
@@ -64,7 +64,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.BottomSheetStyle);
 
-        viewModel = new ViewModelProvider(requireActivity()).get(MediaPickerViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(StickerPackCreationViewModel.class);
     }
 
     @Nullable

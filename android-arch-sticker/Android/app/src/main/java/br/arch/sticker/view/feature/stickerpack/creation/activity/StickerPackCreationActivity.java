@@ -45,7 +45,7 @@ public class StickerPackCreationActivity extends StickerPackCreationBaseActivity
                 rotation.setDuration(500);
                 rotation.start();
 
-                mediaPickerViewModel.setFragmentVisibility(true);
+                stickerPackCreationViewModel.setFragmentVisibility(true);
                 createStickerPackFlow();
             });
         }
@@ -55,13 +55,13 @@ public class StickerPackCreationActivity extends StickerPackCreationBaseActivity
         {
             String selectedFormat = getIntent().getStringExtra(EXTRA_STICKER_FORMAT);
 
-            mediaPickerViewModel.setNameStickerPack(namePack);
+            stickerPackCreationViewModel.setNameStickerPack(namePack);
 
             if (selectedFormat != null && selectedFormat.equals(STATIC_STICKER))
             {
                 StickerPackCreationBaseActivity.launchOwnGallery(this);
-                mediaPickerViewModel.setIsAnimatedPack(false);
-                mediaPickerViewModel.setMimeTypesSupported(MimeTypesSupported.IMAGE);
+                stickerPackCreationViewModel.setIsAnimatedPack(false);
+                stickerPackCreationViewModel.setMimeTypesSupported(MimeTypesSupported.IMAGE);
 
                 return;
             }
@@ -69,8 +69,8 @@ public class StickerPackCreationActivity extends StickerPackCreationBaseActivity
             if (selectedFormat != null && selectedFormat.equals(ANIMATED_STICKER))
             {
                 StickerPackCreationBaseActivity.launchOwnGallery(this);
-                mediaPickerViewModel.setIsAnimatedPack(true);
-                mediaPickerViewModel.setMimeTypesSupported(MimeTypesSupported.ANIMATED);
+                stickerPackCreationViewModel.setIsAnimatedPack(true);
+                stickerPackCreationViewModel.setMimeTypesSupported(MimeTypesSupported.ANIMATED);
 
                 return;
             }

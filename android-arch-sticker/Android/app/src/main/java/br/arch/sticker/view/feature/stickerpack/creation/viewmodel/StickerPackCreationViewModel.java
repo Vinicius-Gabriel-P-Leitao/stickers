@@ -40,7 +40,7 @@ import br.arch.sticker.domain.service.save.SaveStickerPackService;
 import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 import br.arch.sticker.view.core.util.convert.ConvertMediaToStickerFormat;
 
-public class MediaPickerViewModel extends AndroidViewModel {
+public class StickerPackCreationViewModel extends AndroidViewModel {
 
     private final List<Future<?>> conversionFutures = Collections.synchronizedList(new ArrayList<>());
     private final List<File> convertedFiles = Collections.synchronizedList(new ArrayList<>());
@@ -64,7 +64,7 @@ public class MediaPickerViewModel extends AndroidViewModel {
         }
     };
 
-    public MediaPickerViewModel(@NonNull Application application)
+    public StickerPackCreationViewModel(@NonNull Application application)
         {
             super(application);
             convertedFilesLiveData.observeForever(convertedStickerPackObserver);
@@ -210,7 +210,7 @@ public class MediaPickerViewModel extends AndroidViewModel {
                     }
                 });
             } catch (StickerPackSaveException exception) {
-                Log.d(MediaPickerViewModel.class.getSimpleName(), "Erro na conversão", exception);
+                Log.d(StickerPackCreationViewModel.class.getSimpleName(), "Erro na conversão", exception);
                 postFailure("Erro na conversão: " + exception.getMessage());
             }
         }

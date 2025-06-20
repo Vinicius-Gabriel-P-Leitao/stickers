@@ -38,7 +38,7 @@ import br.arch.sticker.view.core.base.BaseActivity;
 import br.arch.sticker.view.core.usecase.definition.DefinePermissionsToRequest;
 import br.arch.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
 import br.arch.sticker.view.feature.stickerpack.creation.fragment.MediaPickerFragment;
-import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.MediaPickerViewModel;
+import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.StickerPackCreationViewModel;
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.NameStickerPackViewModel;
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.PermissionRequestViewModel;
 import br.arch.sticker.view.main.EntryActivity;
@@ -51,7 +51,7 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
 
     public PermissionRequestViewModel permissionRequestViewModel;
     public NameStickerPackViewModel nameStickerPackViewModel;
-    public MediaPickerViewModel mediaPickerViewModel;
+    public StickerPackCreationViewModel stickerPackCreationViewModel;
 
     public StickerPreviewAdapter stickerPreviewAdapter;
 
@@ -76,11 +76,11 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
             setContentView(R.layout.activity_create_sticker_pack);
 
             getViewModelStore().clear();
-            mediaPickerViewModel = new ViewModelProvider(this).get(MediaPickerViewModel.class);
+            stickerPackCreationViewModel = new ViewModelProvider(this).get(StickerPackCreationViewModel.class);
             permissionRequestViewModel = new ViewModelProvider(this).get(PermissionRequestViewModel.class);
             nameStickerPackViewModel = new ViewModelProvider(this).get(NameStickerPackViewModel.class);
 
-            mediaPickerViewModel.getStickerPackPreview().observe(this, this::setupStickerPackView);
+            stickerPackCreationViewModel.getStickerPackPreview().observe(this, this::setupStickerPackView);
             setupUI(savedInstanceState);
         }
 
