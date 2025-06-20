@@ -10,6 +10,7 @@ package br.arch.sticker.view.core.usecase.component;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,12 +29,12 @@ public class InvalidStickersDialog extends Dialog {
     private ImageView iconImageView;
 
     public InvalidStickersDialog(@NonNull Context context) {
-        super(context);
+        super(context, R.style.AlterDialogStyle);
         init();
     }
 
     private void init() {
-        setContentView(R.layout.dialog_invalid_stickers);
+        setContentView(R.layout.dialog_alert);
         setCancelable(true);
 
         titleTextView = findViewById(R.id.dialog_title);
