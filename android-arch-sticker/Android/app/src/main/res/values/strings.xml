@@ -9,27 +9,27 @@
     <string name="more_info_button">More info about sticker pack</string>
     <string name="add_to_whatsapp">Add to WhatsApp</string>
     <string name="add_button_content_description">Add sticker pack to WhatsApp</string>
-    <string name="title_activity_sticker_pack_details_multiple_pack">Sticker details</string>
-    <string name="title_activity_sticker_pack_info">Info</string>
+    <string name="title_activity_sticker_pack_details_multiple_stickerpack">Sticker details</string>
+    <string name="title_activity_stickerpack_info">Info</string>
     <string name="view_webpage">View webpage</string>
     <string name="send_email">Send email</string>
     <string name="privacy_policy">Privacy policy</string>
     <string name="license_agreement">License agreement</string>
     <string name="info_screen_tray_icon">Tray icon</string>
-    <string name="details_pack_already_added">Sticker pack added to WhatsApp</string>
-    <string name="info_send_email_to_prompt">Send email with</string>
-    <string name="add_pack_fail_prompt_update_whatsapp">Sticker pack not added. If you\'d like to add it, make sure you update to the latest version of WhatsApp.</string>
-    <string name="add_pack_fail_prompt_update_play_link">Update</string>
+    <string name="details_stickerpack_already_added">Sticker pack added to WhatsApp</string>
+    <string name="dialog_info_send_email_to_prompt">Send email with</string>
+    <string name="dialog_add_stickerpack_fail_prompt_update_whatsapp">Sticker pack not added. If you\'d like to add it, make sure you update to the latest version of WhatsApp.</string>
+    <string name="dialog_add_stickerpack_fail_prompt_update_play_link">Update</string>
     <string name="cannot_find_play_store">Google Play is not installed on the device.</string>
-    <string name="sticker_pack_animation_indicator" tools:ignore="MissingTranslation">Animated sticker pack</string>
-    <string name="sticker_pack_details_tap_to_preview" tools:ignore="MissingTranslation">Tap to preview sticker</string>
+    <string name="sticker_stickerpack_animation_indicator" tools:ignore="MissingTranslation">Animated sticker pack</string>
+    <string name="sticker_stickerpack_details_tap_to_preview" tools:ignore="MissingTranslation">Tap to preview sticker</string>
     <string name="button_create_sticker_package">Create new package</string>
     <string name="menu_option_sticker_static">Static sticker</string>
     <string name="menu_option_stickers_animated">Animated sticker</string>
     <string name="button_select_media_sticker">Select files</string>
     <string name="button_select_medias">Select</string>
-    <string name="list_sticker_add_package">List of stickers to add to the pack</string>
-    <string name="recycle_select_medias">Select media to make the stickers.</string>
+    <string name="description_list_sticker_add_pack">List of stickers to add to the pack</string>
+    <string name="description_recycle_select_medias">Select media to make the stickers.</string>
     <string name="dialog_permission_title">Permission required</string>
     <string name="dialog_message_permission">Gallery access required.</string>
     <string name="dialog_button_permission_accept">Accept</string>
@@ -40,27 +40,26 @@
     <string name="dialog_settings_button_permission_cancel">Cancel</string>
     <string name="title_activity_sticker_creator" tools:ignore="MissingQuantity">Create new package</string>
     <string name="title_activity_pack_creator_first" tools:ignore="MissingQuantity">Create first package</string>
-    <string name="metadata_name_pack_empty">Fill in the package name!</string>
+    <string name="message_name_pack_empty">Fill in the package name!</string>
     <string name="button_open_media_getter">Open package name and gallery tab</string>
     <string name="preview_sticker_description">Sticker Pack Thumbnail</string>
-    <string name="image_thumbnail_description">Image thumbnail in gallery</string>
-    <string name="dialog_metadata_pack">Import media</string>
-    <string name="input_name_pack">Package name</string>
+    <string name="description_image_thumbnail">Image thumbnail in gallery</string>
+    <string name="dialog_metadata_stickerpack">Import media</string>
+    <string name="input_name_stickerpack">Package name</string>
     <string name="button_open_gallery_description">Search for images or videos in the gallery</string>
-    <string name="error_invalid_pack">Invalid pack!</string>
-    <string name="dialog_title_invalid_pack">Invalid sticker pack!</string>
-    <string name="dialog_message_invalid_pack">The sticker pack is invalid, please fix or delete the pack!</string>
-    <string name="dialog_button_delete_pack">Delete</string>
-    <string name="dialog_button_fix_pack">Fix package</string>
-    <string name="dialog_button_ignore_pack">Ignore</string>
+    <string name="message_invalid_pack">Invalid pack!</string>
+    <string name="dialog_title_invalid_stickerpack">Invalid sticker pack!</string>
+    <string name="dialog_message_invalid_stickerpack">The sticker pack is invalid, please fix or delete the pack!</string>
+    <string name="dialog_button_fix_stickerpack">Fix package</string>
+    <string name="dialog_ignore">Ignore</string>
     <string name="dialog_button_fix_stickers">Fix stickers</string>
     <string name="dialog_message_invalid_stickers">The package contains invalid stickers.</string>
     <string name="dialog_button_icon">Alert icon dialog!</string>
     <string name="dialog_title_invalid_stickers">Invalid stickers!</string>
     <string name="title_activity_preview_invalid_sticker">Invalid stickers</string>
-    <string name="sticker_is_valid">The sticker is valid!</string>
-    <string name="button_fix_stickerpack">Fix package</string>
-    <string name="sticker_invalid_description">Error with the sticker!</string>
+    <string name="throw_sticker_is_valid">The sticker is valid!</string>
+    <string name="dialog_fix_stickerpack">Fix package</string>
+    <string name="description_sticker_invalid">Error with the sticker!</string>
     <string name="throw_exceeded_file_size">The file exceeded the allowed KB size.</string>
     <string name="throw_invalid_sticker_size">The sticker size must be 512x512.</string>
     <string name="throw_sticker_not_match_pack">The stickers do not match the package type.</string>
@@ -97,4 +96,5 @@
     <string name="sticker_file_not_exist">The sticker file does not exist.</string>
     <string name="throw_empty_stickerpack">The sticker pack is empty.</string>
     <string name="throw_stickerpack_content_provider">Error fetching from content provider.</string>
+    <string name="dialog_delete">Delete</string>
 </resources>

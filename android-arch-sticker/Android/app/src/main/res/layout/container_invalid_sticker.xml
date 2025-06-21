@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="3"
-            android:text="@string/sticker_invalid_description"
+            android:text="@string/description_sticker_invalid"
             android:textColor="@color/catppuccin_lavender"
             android:textSize="14sp" />
     </LinearLayout>
@@ -41,7 +41,7 @@
         android:layout_height="40dp"
         android:background="@drawable/background_rounded_button_open_gallery"
         android:backgroundTint="@color/catppuccin_surface1"
-        android:contentDescription="@string/button_fix_stickerpack"
+        android:contentDescription="@string/dialog_fix_stickerpack"
         android:padding="4dp"
         android:scaleType="fitXY"
         android:src="@drawable/ic_build_24dp"

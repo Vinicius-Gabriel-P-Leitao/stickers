@@ -148,7 +148,7 @@ public class StickerContentProvider extends ContentProvider {
                     }
 
                     try {
-                        return context.getAssets().openFd("sticker_3rdparty_warning.webp");
+                        return context.getAssets().openFd("sticker_warning.webp");
                     } catch (IOException ioException) {
                         Log.w(TAG_LOG, "Fallback não encontrado em assets", ioException);
                         try {

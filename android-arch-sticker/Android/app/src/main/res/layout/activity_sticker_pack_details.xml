@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
-            android:contentDescription="@string/sticker_pack_animation_indicator"
+            android:contentDescription="@string/sticker_stickerpack_animation_indicator"
             android:src="@drawable/sticker_animated_pack_indicator"
             app:layout_constraintBottom_toBottomOf="@+id/pack_name"
             app:layout_constraintStart_toEndOf="@+id/pack_name"
@@ -132,7 +132,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="@string/details_pack_already_added"
+            android:text="@string/details_stickerpack_already_added"
             android:textColor="#9B9B9B"
             android:textSize="14sp"
             android:visibility="gone"
@@ -178,7 +178,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:text="@string/sticker_pack_details_tap_to_preview" />
+                android:text="@string/sticker_stickerpack_details_tap_to_preview" />
         </LinearLayout>
 
 

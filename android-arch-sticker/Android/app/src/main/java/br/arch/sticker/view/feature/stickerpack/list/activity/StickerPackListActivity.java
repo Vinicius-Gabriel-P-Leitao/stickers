@@ -90,7 +90,7 @@ public class StickerPackListActivity extends StickerPackAddActivity {
             dialog.setTitleText(getString(R.string.dialog_title_invalid_stickers));
             dialog.setMessageText(getString(R.string.dialog_message_invalid_stickers));
 
-            dialog.setTextIgnoreButton(getString(R.string.dialog_button_ignore_pack));
+            dialog.setTextIgnoreButton(getString(R.string.dialog_ignore));
             dialog.setOnIgnoreClick(fragment -> {
                 addStickerPackToWhatsApp(stickerPack.identifier, stickerPack.name);
                 dialog.dismiss();
@@ -128,10 +128,10 @@ public class StickerPackListActivity extends StickerPackAddActivity {
             final String stickerPackIdentifier = stickerPack.identifier;
 
             final InvalidStickersDialog dialog = new InvalidStickersDialog(StickerPackListActivity.this);
-            dialog.setTitleText(getString(R.string.dialog_title_invalid_pack));
-            dialog.setMessageText(getString(R.string.dialog_message_invalid_pack));
+            dialog.setTitleText(getString(R.string.dialog_title_invalid_stickerpack));
+            dialog.setMessageText(getString(R.string.dialog_message_invalid_stickerpack));
 
-            dialog.setTextFixButton(getString(R.string.dialog_button_fix_pack));
+            dialog.setTextFixButton(getString(R.string.dialog_button_fix_stickerpack));
             dialog.setOnFixClick(fragment -> {
                 Intent intent = new Intent(fragment.getContext(), PreviewInvalidStickerActivity.class);
                 intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPackIdentifier);
@@ -140,7 +140,7 @@ public class StickerPackListActivity extends StickerPackAddActivity {
                 dialog.dismiss();
             });
 
-            dialog.setTextIgnoreButton(getString(R.string.dialog_button_delete_pack));
+            dialog.setTextIgnoreButton(getString(R.string.dialog_delete));
             dialog.setOnIgnoreClick(fragment -> {
                 if (stickerPackIdentifier != null) {
                     CallbackResult<Boolean> deletedStickerPack = DeleteStickerPackService.deleteStickerPack(

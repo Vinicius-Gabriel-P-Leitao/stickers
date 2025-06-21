@@ -28,12 +28,12 @@ public class DeleteStickerPackRepo {
 
         StickerPackValidationResult fetchStickerPack = FetchStickerPackService.fetchStickerPackFromContentProvider(context, stickerPackIdentifier);
         if (fetchStickerPack.stickerPack().identifier == null) {
-            throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar.", DeleteErrorCode.ERROR_PACK_DELETE_DB);
+            throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar figurinha.", DeleteErrorCode.ERROR_PACK_DELETE_DB);
         }
 
         return db.delete(
                 StickerDatabase.TABLE_STICKER, StickerDatabase.FK_STICKER_PACK + " = ? AND " + StickerDatabase.STICKER_FILE_NAME_IN_QUERY + " = ?",
-                new String[]{String.valueOf(fetchStickerPack), fileName}
+                new String[]{stickerPackIdentifier, fileName}
         );
     }
 

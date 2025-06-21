@@ -13,7 +13,7 @@
         android:layout_marginTop="2dp"
         android:background="@drawable/background_recyclerview"
         android:clipToPadding="false"
-        android:contentDescription="@string/recycle_select_medias"
+        android:contentDescription="@string/description_recycle_select_medias"
         android:paddingTop="30dp"
         android:paddingBottom="72dp" />
 

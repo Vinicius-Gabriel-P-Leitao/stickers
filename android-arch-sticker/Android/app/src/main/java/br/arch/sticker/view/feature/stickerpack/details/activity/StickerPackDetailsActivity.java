@@ -169,7 +169,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showUpButton);
             getSupportActionBar().setTitle(showUpButton ? getResources().getString(
-                    R.string.title_activity_sticker_pack_details_multiple_pack) : getResources().getQuantityString(
+                    R.string.title_activity_sticker_pack_details_multiple_stickerpack) : getResources().getQuantityString(
                     R.plurals.title_activity_sticker_packs_list, 1));
         }
 

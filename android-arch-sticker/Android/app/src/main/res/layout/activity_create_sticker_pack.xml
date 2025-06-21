@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:contentDescription="@string/list_sticker_add_package"
+            android:contentDescription="@string/description_list_sticker_add_pack"
             android:paddingStart="8dp"
             android:paddingTop="8dp"
             android:paddingEnd="8dp"

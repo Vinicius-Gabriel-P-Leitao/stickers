@@ -75,7 +75,7 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
             textInputEditText.setFocusable(true);
             textInputEditText.setFocusableInTouchMode(true);
 
-            String msgErrorNamePackEmpty = getResources().getString(R.string.metadata_name_pack_empty);
+            String msgErrorNamePackEmpty = getResources().getString(R.string.message_name_pack_empty);
             if (textInputEditText.getText() == null) {
                 viewModel.setErrorNameStickerPack(msgErrorNamePackEmpty);
                 dismiss();

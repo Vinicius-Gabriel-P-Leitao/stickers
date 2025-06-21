@@ -28,41 +28,42 @@ public class ConvertThumbnail {
     public static final String THUMBNAIL_FILE = "thumbnail.jpg";
 
     @NonNull
-    public static CallbackResult<Void> createThumbnail(@NonNull File originalFile, @NonNull File destinationDir) {
-        if (!originalFile.exists()) {
-            return CallbackResult.failure(new StickerPackSaveException(
-                    String.format("Arquivo para thumbnail não encontrado: %s", originalFile.getAbsolutePath()),
-                    SaveErrorCode.ERROR_PACK_SAVE_THUMBNAIL));
-        }
-
-        try {
-            Bitmap bitmap = BitmapFactory.decodeFile(originalFile.getAbsolutePath());
-            if (bitmap == null) {
-                return CallbackResult.warning("Erro ao decodificar o bitmap.");
+    public static CallbackResult<Void> createThumbnail(@NonNull File originalFile, @NonNull File destinationDir)
+        {
+            if (!originalFile.exists()) {
+                return CallbackResult.failure(
+                        new StickerPackSaveException(String.format("Arquivo para thumbnail não encontrado: %s", originalFile.getAbsolutePath()),
+                                SaveErrorCode.ERROR_PACK_SAVE_THUMBNAIL));
             }
 
-            File thumbnailFile = new File(destinationDir, THUMBNAIL_FILE);
-            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            try {
+                Bitmap bitmap = BitmapFactory.decodeFile(originalFile.getAbsolutePath());
+                if (bitmap == null) {
+                    return CallbackResult.warning("Erro ao decodificar o bitmap.");
+                }
 
-            int quality = 100;
-            byte[] compressedBytes;
+                File thumbnailFile = new File(destinationDir, THUMBNAIL_FILE);
+                ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
-            do {
-                outStream.reset();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outStream);
-                compressedBytes = outStream.toByteArray();
-                quality -= 5;
-            } while (compressedBytes.length > 40 * 1024 && quality > 5);
+                int quality = 100;
+                byte[] compressedBytes;
 
-            try (FileOutputStream fileOutputStream = new FileOutputStream(thumbnailFile)) {
-                fileOutputStream.write(compressedBytes);
-                fileOutputStream.flush();
-                fileOutputStream.getFD().sync();
+                do {
+                    outStream.reset();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outStream);
+                    compressedBytes = outStream.toByteArray();
+                    quality -= 5;
+                } while (compressedBytes.length > 40 * 1024 && quality > 5);
+
+                try (FileOutputStream fileOutputStream = new FileOutputStream(thumbnailFile)) {
+                    fileOutputStream.write(compressedBytes);
+                    fileOutputStream.flush();
+                    fileOutputStream.getFD().sync();
+                }
+
+                return CallbackResult.debug(String.format("Thumbnail salva com sucesso: %s", thumbnailFile.getAbsolutePath()));
+            } catch (IOException exception) {
+                return CallbackResult.failure(exception);
             }
-
-            return CallbackResult.debug(String.format("Thumbnail salva com sucesso: %s", thumbnailFile.getAbsolutePath()));
-        } catch (IOException exception) {
-            return CallbackResult.failure(exception);
         }
-    }
 }

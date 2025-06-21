@@ -26,70 +26,42 @@ public class DeleteStickerService {
     public static CallbackResult<Boolean> deleteStickerByPack(
             @NonNull Context context, @NonNull String stickerPackIdentifier, @NonNull String fileName)
         {
-            try
-            {
+            try {
                 int deletedSticker = DeleteStickerPackRepo.deleteSticker(context, stickerPackIdentifier, fileName);
-                CallbackResult<Boolean> deletedStickerFile = DeleteStickerAssetService.deleteStickerAsset(context, stickerPackIdentifier, fileName);
 
-                if (deletedStickerFile.isSuccess())
-                {
-                    if (deletedSticker > 0 && deletedStickerFile.getData())
-                    {
-                        Log.i(TAG_LOG, "Figurinha deletado com sucesso");
-                        return CallbackResult.success(Boolean.TRUE);
-                    } else
-                    {
-                        return CallbackResult.warning("Nenhuma Figurinha deletado para fileName: " + fileName);
-                    }
+                if (deletedSticker > 0) {
+                    Log.i(TAG_LOG, "Figurinha deletado com sucesso");
+                    return CallbackResult.success(Boolean.TRUE);
+                } else {
+                    return CallbackResult.warning("Nenhuma Figurinha deletada para fileName: " + fileName);
                 }
-
-                return CallbackResult.failure(deletedStickerFile.getError() != null
-                                              ? deletedStickerFile.getError()
-                                              : new DeleteStickerException("Erro ao deletar arquivo!", DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
-
-            } catch (SQLException exception)
-            {
+            } catch (SQLException exception) {
                 return CallbackResult.failure(
-                        new DeleteStickerException(
-                                "Erro ao deletar métadados da figurinha no  banco de dados!", exception.getCause(),
+                        new DeleteStickerException("Erro ao deletar métadados da figurinha no  banco de dados!", exception.getCause(),
                                 DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
             }
         }
 
     public static CallbackResult<Boolean> deleteAllStickerByPack(@NonNull Context context, @NonNull String stickerPackIdentifier)
         {
-            try
-            {
-                CallbackResult<Boolean> stickerAssetDeleted = DeleteStickerAssetService.deleteAllStickerAssetsByPack(context, stickerPackIdentifier);
-                if (stickerAssetDeleted.getStatus() == CallbackResult.Status.FAILURE)
-                {
-                    return CallbackResult.failure(stickerAssetDeleted.getError());
-                }
-
+            try {
                 CallbackResult<Integer> stickerDeletedInDb = DeleteStickerPackRepo.deleteAllStickerOfPack(context, stickerPackIdentifier);
-                if (stickerDeletedInDb.getStatus() == CallbackResult.Status.FAILURE)
-                {
+                if (stickerDeletedInDb.getStatus() == CallbackResult.Status.FAILURE) {
                     return CallbackResult.failure(stickerDeletedInDb.getError());
                 }
 
-                boolean assetsDeleted = stickerAssetDeleted.getStatus() == CallbackResult.Status.SUCCESS;
                 boolean dbDeleted = stickerDeletedInDb.getStatus() == CallbackResult.Status.SUCCESS;
 
-                if (!assetsDeleted && !dbDeleted)
-                {
-                    return CallbackResult.warning("Nenhuma figurinha foi deletada: diretório e registros não encontrados.");
-                } else if (!assetsDeleted)
-                {
-                    return CallbackResult.warning("Figurinhas não encontradas no armazenamento, mas registros foram deletados.");
-                } else if (!dbDeleted)
-                {
-                    return CallbackResult.warning("Registros não encontrados no banco de dados, mas arquivos foram deletados.");
+                if (!dbDeleted) {
+                    return CallbackResult.failure(new DeleteStickerException("Nenhuma figurinha foi deletada: registros não encontrados.",
+                            DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
                 }
 
                 return CallbackResult.success(true);
-            } catch (Exception exception)
-            {
-                return CallbackResult.failure(new Exception("Erro ao deletar figurinhas: " + exception.getMessage(), exception));
+            } catch (Exception exception) {
+                return CallbackResult.failure(
+                        new DeleteStickerException(String.format("Erro ao deletar figurinhas: %s", exception.getMessage()), exception,
+                                DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
             }
         }
 }

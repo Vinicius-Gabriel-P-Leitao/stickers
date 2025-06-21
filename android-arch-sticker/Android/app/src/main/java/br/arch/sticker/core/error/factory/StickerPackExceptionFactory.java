@@ -195,13 +195,13 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_THUMBNAIL);
     }
 
-    public static PackValidatorException invalidStickerCount(int count, String identifier) {
+    public static PackValidatorException invalidStickerCount(int count, String stickerPackIdentifier) {
         return new PackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "A quantidade de figurinhas do pacote deve estar entre 3 a 30, atualmente tem %d, identificador do pacote de figurinhas: %s",
                         count,
-                        identifier),
+                        stickerPackIdentifier),
                 StickerPackErrorCode.INVALID_STICKERPACK_SIZE);
     }
 

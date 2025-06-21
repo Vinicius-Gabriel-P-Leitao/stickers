@@ -60,7 +60,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginLeft="4dp"
             android:background="@drawable/background_sticker_animated_pack_indicator"
-            android:contentDescription="@string/sticker_pack_animation_indicator"
+            android:contentDescription="@string/sticker_stickerpack_animation_indicator"
             android:src="@drawable/sticker_animated_pack_indicator"
             app:tint="@color/animated_sticker_indicator"
             tools:ignore="RtlHardcoded" />
@@ -127,7 +127,7 @@
             android:gravity="center"
             android:padding="8dp"
             android:layout_margin="4dp"
-            android:text="@string/error_invalid_pack"
+            android:text="@string/message_invalid_pack"
             android:textColor="@android:color/white"
             android:visibility="gone" />
     </FrameLayout>

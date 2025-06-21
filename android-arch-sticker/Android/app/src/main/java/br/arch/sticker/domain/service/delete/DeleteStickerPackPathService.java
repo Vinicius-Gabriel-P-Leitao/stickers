@@ -26,6 +26,7 @@ public class DeleteStickerPackPathService {
 
     public static CallbackResult<Boolean> deleteStickerPackPath(@NonNull Context context, @NonNull String stickerPackIdentifier)
         {
+            // NOTE: Necessário devido a dar erros de recursividade.
             CallbackResult<Boolean> deleteAllStickerAssets = DeleteStickerAssetService.deleteAllStickerAssetsByPack(context, stickerPackIdentifier);
 
             File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
