@@ -30,7 +30,7 @@ public class FormatStickerPopupWindow {
     }
 
     public static void popUpButtonChooserStickerModel(@NonNull Context context, @NonNull View anchorView, @NonNull OnOptionClickListener listener) {
-        View popupView = LayoutInflater.from(context).inflate(R.layout.dropdown_custom_menu, null);
+        View popupView = LayoutInflater.from(context).inflate(R.layout.dropdown_type_stickerpack, null);
         popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 
         PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);

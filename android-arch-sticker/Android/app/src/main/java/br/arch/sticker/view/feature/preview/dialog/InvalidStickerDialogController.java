@@ -11,6 +11,7 @@ package br.arch.sticker.view.feature.preview.dialog;
 import android.content.Context;
 import android.view.View;
 
+import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
 import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerViewModel;
 
@@ -36,14 +37,21 @@ public class InvalidStickerDialogController {
         {
             resetDialog();
             if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete delete) {
-                dialog.setTitleText("Nome inválido");
-                dialog.setMessageText("Deseja inserir um novo nome?");
-                dialog.setVisibilityFixButton(View.VISIBLE);
-                dialog.setTextFixButton("Renomear");
-                dialog.setVisibilityIgnoreButton(View.VISIBLE);
-                dialog.setTextIgnoreButton("Cancelar");
+                Sticker sticker = delete.sticker();
+                int resourceString = delete.resourceString();
 
-                dialog.setOnFixClick(view -> dialog.dismiss());
+                dialog.setTitleText("Deletar");
+                dialog.setMessageText(dialog.getContext().getString(resourceString));
+                dialog.setVisibilityFixButton(View.VISIBLE);
+                dialog.setVisibilityIgnoreButton(View.VISIBLE);
+
+                dialog.setTextFixButton("Deletar");
+                dialog.setOnFixClick(view -> {
+                    viewModel.onFixActionConfirmed(action, sticker);
+                    dialog.dismiss();
+                });
+
+                dialog.setTextIgnoreButton("Cancelar");
                 dialog.setOnIgnoreClick(view -> dialog.dismiss());
             }
 

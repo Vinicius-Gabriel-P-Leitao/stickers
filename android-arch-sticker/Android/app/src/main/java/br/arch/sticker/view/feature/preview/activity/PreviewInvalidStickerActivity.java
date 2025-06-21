@@ -11,6 +11,7 @@ package br.arch.sticker.view.feature.preview.activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -47,6 +48,7 @@ import br.arch.sticker.view.feature.preview.viewholder.InvalidStickerListViewHol
 import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerPackViewModel;
 import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerViewModel;
 
+// @formatter:off
 public class PreviewInvalidStickerActivity extends BaseActivity implements PreviewInvalidStickerAdapter.OnFixClickListener {
     private final static String TAG_LOG = PreviewInvalidStickerActivity.class.getSimpleName();
 
@@ -73,6 +75,21 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
             setContentView(R.layout.activity_preview_invalid_sticker);
             invalidStickerPackViewModel = new ViewModelProvider(this).get(PreviewInvalidStickerPackViewModel.class);
             invalidStickerViewModel = new ViewModelProvider(this).get(PreviewInvalidStickerViewModel.class);
+
+            invalidStickerPackViewModel.getStickerPackMutableLiveData().observe(
+            this, fixAction -> {
+                InvalidStickerPackDialogController controller = new InvalidStickerPackDialogController(this, invalidStickerPackViewModel);
+                controller.showFixAction(fixAction);
+            });
+
+            invalidStickerViewModel.getStickerMutableLiveData().observe(
+            this, fixAction -> {
+                PreviewInvalidStickerViewModel.FixActionSticker action = fixAction.getContentIfNotHandled();
+                if (action != null) {
+                    InvalidStickerDialogController controller = new InvalidStickerDialogController(this, invalidStickerViewModel);
+                    controller.showFixAction(action);
+                }
+            });
 
             recyclerViewInvalidStickers = findViewById(R.id.recycler_invalid_stickers);
             TextView textInvalidTitle = findViewById(R.id.text_invalid_title);
@@ -108,21 +125,20 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
                     cardViewInvalidPack.setVisibility(View.VISIBLE);
 
                     ErrorCodeProvider errorCode = exception.getErrorCode();
-                    int resId = (errorCode != null)
-                                ? errorCode.getMessageResId()
-                                : R.string.throw_unknown_error;
+                    int resId = (errorCode != null) ? errorCode.getMessageResId() : R.string.throw_unknown_error;
                     textInvalidTitle.setText(getString(resId));
 
-                    buttonFixInvalid.setOnClickListener(view -> {
-                        invalidStickerPackViewModel.handleFixStickerPackClick(recoveredPack, exception.getErrorCode());
-                        invalidStickerPackViewModel.getStickerPackMutableLiveData().observe(
-                                this, fixAction -> {
-                                    InvalidStickerPackDialogController dialogController = new InvalidStickerPackDialogController(
-                                            this,
-                                            invalidStickerPackViewModel);
-                                    dialogController.showFixAction(fixAction);
-                                });
-                        ;
+                    buttonFixInvalid.setOnClickListener(new View.OnClickListener() {
+                        private long lastClickTime = 0;
+
+                        @Override
+                        public void onClick(View view) {
+                            long now = SystemClock.elapsedRealtime();
+                            if (now - lastClickTime < 1000) return;
+                            lastClickTime = now;
+
+                            invalidStickerPackViewModel.handleFixStickerPackClick(recoveredPack, exception.getErrorCode());
+                        }
                     });
 
                     showStickerPackInvalid(recoveredPack);
@@ -137,11 +153,6 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
     public void onFixClick(Sticker sticker)
         {
             invalidStickerViewModel.handleFixStickerClick(sticker);
-            invalidStickerViewModel.getStickerMutableLiveData().observe(
-                    this, fixAction -> {
-                        InvalidStickerDialogController dialogController = new InvalidStickerDialogController(this, invalidStickerViewModel);
-                        dialogController.showFixAction(fixAction);
-                    });
         }
 
     @Override

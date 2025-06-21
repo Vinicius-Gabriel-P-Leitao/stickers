@@ -9,6 +9,7 @@
 package br.arch.sticker.view.feature.preview.viewmodel;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -16,49 +17,66 @@ import androidx.lifecycle.ViewModel;
 
 import br.arch.sticker.core.error.code.StickerAssetErrorCode;
 import br.arch.sticker.domain.data.model.Sticker;
+import br.arch.sticker.view.core.util.event.GenericEvent;
+import br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity;
 
 public class PreviewInvalidStickerViewModel extends ViewModel {
-    private final MutableLiveData<FixActionSticker> stickerMutableLiveData = new MutableLiveData<>();
-    public LiveData<FixActionSticker> getStickerMutableLiveData()
+    private final static String TAG_LOG = PreviewInvalidStickerActivity.class.getSimpleName();
+
+    public sealed interface FixActionSticker permits FixActionSticker.Delete {
+        record Delete(Sticker sticker, int resourceString) implements FixActionSticker {
+        }
+    }
+
+    private final MutableLiveData<GenericEvent<FixActionSticker>> stickerMutableLiveData = new MutableLiveData<>();
+
+    public LiveData<GenericEvent<FixActionSticker>> getStickerMutableLiveData()
         {
             return stickerMutableLiveData;
         }
 
-
     public void handleFixStickerClick(Sticker sticker)
         {
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.name())) {
-                // deletar sticker do banco
-                stickerMutableLiveData.setValue(new FixActionSticker.Delete(sticker));
+                stickerMutableLiveData.setValue(
+                        new GenericEvent<>(new FixActionSticker.Delete(sticker, StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.getMessageResId())));
             }
 
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.INVALID_STICKER_FILENAME.name())) {
-                // Caso o nome do arquivo seja invalido, deletar
+                stickerMutableLiveData.setValue(
+                        new GenericEvent<>(new FixActionSticker.Delete(sticker, StickerAssetErrorCode.INVALID_STICKER_FILENAME.getMessageResId())));
             }
 
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.ERROR_FILE_SIZE.name())) {
-                // Tamanho em kv passou do permitido tentar rodar um script que vai tentar diminuir arquivo
+                stickerMutableLiveData.setValue(
+                        new GenericEvent<>(new FixActionSticker.Delete(sticker, StickerAssetErrorCode.ERROR_FILE_SIZE.getMessageResId())));
             }
 
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.ERROR_SIZE_STICKER.name())) {
-                // chamar método a ser feito que vai tentar fazer um resize forçado para 512x512
+                stickerMutableLiveData.setValue(
+                        new GenericEvent<>(new FixActionSticker.Delete(sticker, StickerAssetErrorCode.ERROR_SIZE_STICKER.getMessageResId())));
             }
 
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.ERROR_STICKER_TYPE.name())) {
-                // deletar sticker provavelmente é um statico em pacote animado
+                stickerMutableLiveData.setValue(
+                        new GenericEvent<>(new FixActionSticker.Delete(sticker, StickerAssetErrorCode.ERROR_STICKER_TYPE.getMessageResId())));
             }
 
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.ERROR_STICKER_DURATION.name())) {
-                // Tempo da animção muito grande, quase impossivel de acontecer porem pode ocorrer
+                stickerMutableLiveData.setValue(
+                        new GenericEvent<>(new FixActionSticker.Delete(sticker, StickerAssetErrorCode.ERROR_STICKER_DURATION.getMessageResId())));
             }
 
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.ERROR_FILE_TYPE.name())) {
-                // O arquivo é diferente de .webp
+                stickerMutableLiveData.setValue(
+                        new GenericEvent<>(new FixActionSticker.Delete(sticker, StickerAssetErrorCode.ERROR_FILE_TYPE.getMessageResId())));
             }
         }
 
-    public sealed interface FixActionSticker permits FixActionSticker.Delete {
-        record Delete(Sticker sticker) implements FixActionSticker {
+    public void onFixActionConfirmed(FixActionSticker action, Sticker sticker)
+        {
+            if (action instanceof FixActionSticker.Delete delete) {
+                Log.w(TAG_LOG, sticker.imageFileName);
+            }
         }
-    }
 }

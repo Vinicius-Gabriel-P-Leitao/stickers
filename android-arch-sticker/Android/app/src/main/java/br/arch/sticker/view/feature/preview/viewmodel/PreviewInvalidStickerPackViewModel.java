@@ -19,6 +19,11 @@ import br.arch.sticker.core.error.code.StickerPackErrorCode;
 import br.arch.sticker.domain.data.model.StickerPack;
 
 public class PreviewInvalidStickerPackViewModel extends ViewModel {
+    public sealed interface FixActionStickerPack permits FixActionStickerPack.NewThumbnail {
+        record NewThumbnail(StickerPack stickerPack) implements FixActionStickerPack {
+        }
+    }
+
     private final MutableLiveData<FixActionStickerPack> stickerPackMutableLiveData = new MutableLiveData<>();
 
     public LiveData<FixActionStickerPack> getStickerPackMutableLiveData()
@@ -88,9 +93,4 @@ public class PreviewInvalidStickerPackViewModel extends ViewModel {
                 // Mesmo caso de INVALID_URL
             }
         }
-
-    public sealed interface FixActionStickerPack permits FixActionStickerPack.NewThumbnail {
-        record NewThumbnail(StickerPack stickerPack) implements FixActionStickerPack {
-        }
-    }
 }

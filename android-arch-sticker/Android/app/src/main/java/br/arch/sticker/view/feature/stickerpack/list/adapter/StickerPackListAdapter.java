@@ -57,7 +57,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
     public StickerPackListViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int viewType) {
         final Context context = viewGroup.getContext();
         final LayoutInflater layoutInflater = LayoutInflater.from(context);
-        final View stickerPackRow = layoutInflater.inflate(R.layout.sticker_packs_list_item, viewGroup, false);
+        final View stickerPackRow = layoutInflater.inflate(R.layout.container_stickerpack, viewGroup, false);
         return new StickerPackListViewHolder(stickerPackRow);
     }
 
@@ -112,7 +112,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         int actualNumberOfStickersToShow = Math.min(maxNumberOfStickersInARow, stickerPack.getStickers().size());
         for (int counter = 0; counter < actualNumberOfStickersToShow; counter++) {
             final ImageView rowImage = (ImageView) LayoutInflater.from(context)
-                    .inflate(R.layout.sticker_packs_list_media_item, viewHolder.imageRowView, false);
+                    .inflate(R.layout.preview_sticker_icon_list, viewHolder.imageRowView, false);
 
             rowImage.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPack.identifier, stickerPack.getStickers().get(counter).imageFileName));
 

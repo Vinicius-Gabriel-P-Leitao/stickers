@@ -35,9 +35,9 @@ import br.arch.sticker.R;
 import br.arch.sticker.core.util.BuildStickerUri;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
+import br.arch.sticker.view.core.util.transformation.CropSquareTransformation;
 import br.arch.sticker.view.feature.preview.viewholder.InvalidStickerButtonPreviewViewHolder;
 import br.arch.sticker.view.feature.preview.viewholder.StickerPreviewViewHolder;
-import br.arch.sticker.view.core.util.transformation.CropSquareTransformation;
 
 // @formatter:off
 public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -120,7 +120,7 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int viewType) {
         if (viewType == VIEW_TYPE_STICKER) {
-            View itemView = layoutInflater.inflate(R.layout.sticker_icon_item_preview, viewGroup, false);
+            View itemView = layoutInflater.inflate(R.layout.preview_sticker_icon_details, viewGroup, false);
             StickerPreviewViewHolder stickerPreviewViewHolder = new StickerPreviewViewHolder(itemView);
 
             ViewGroup.LayoutParams layoutParams = stickerPreviewViewHolder.stickerPreviewView.getLayoutParams();

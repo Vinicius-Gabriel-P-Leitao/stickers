@@ -10,6 +10,7 @@ package br.arch.sticker.view.feature.preview.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,7 +66,7 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
     public InvalidStickerListViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         final Context context = viewGroup.getContext();
         final LayoutInflater layoutInflater = LayoutInflater.from(context);
-        final View stickersRow = layoutInflater.inflate(R.layout.invalid_stickers_list_item, viewGroup, false);
+        final View stickersRow = layoutInflater.inflate(R.layout.container_invalid_sticker, viewGroup, false);
         return new InvalidStickerListViewHolder(stickersRow);
     }
 
@@ -88,9 +89,18 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
             viewHolder.buttonFix.setVisibility(TextUtils.isEmpty(sticker.stickerIsValid) ? View.GONE : View.VISIBLE);
         }
 
-        viewHolder.buttonFix.setOnClickListener(view -> {
-            if (listener != null) {
-                listener.onFixClick(sticker);
+        viewHolder.buttonFix.setOnClickListener(new View.OnClickListener() {
+            private long lastClickTime = 0;
+
+            @Override
+            public void onClick(View view) {
+                long now = SystemClock.elapsedRealtime();
+                if (now - lastClickTime < 1000) return;
+                lastClickTime = now;
+
+                if (listener != null) {
+                    listener.onFixClick(sticker);
+                }
             }
         });
     }
