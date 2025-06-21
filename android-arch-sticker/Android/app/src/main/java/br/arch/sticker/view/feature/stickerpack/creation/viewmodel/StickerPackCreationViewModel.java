@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -32,6 +33,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
@@ -205,7 +207,9 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
                     try {
                         CallbackResult<StickerPack> result = SaveStickerPackService.saveStickerPackAsync(context, animated, files, name).get();
                         stickerPackResult.postValue(result);
-                    } catch (Exception exception) {
+                    } catch (AppCoreStateException appCoreStateException) {
+                        postFailure(appCoreStateException.getErrorCodeName());
+                    } catch (ExecutionException | InterruptedException exception) {
                         postFailure(exception.getMessage());
                     }
                 });

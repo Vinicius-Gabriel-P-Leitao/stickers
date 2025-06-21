@@ -21,8 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import br.arch.sticker.core.error.code.SaveErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
@@ -31,74 +32,74 @@ import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.view.core.util.convert.ConvertThumbnail;
 
-// @formatter:off
 public class SaveStickerAssetService {
-    public static CallbackResult<Boolean> copyStickerFromCache(@NonNull Context context, @NonNull StickerPack stickerPack,
-                                                               @NonNull File stickerPackDirectory) throws StickerPackSaveException {
-        if (!stickerPackDirectory.canWrite()) {
-            return CallbackResult.failure(new StickerPackSaveException(
-                    "Sem permissão de escrita no diretório destino: " + stickerPackDirectory,
-                    SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
-        }
-
-        List<Sticker> stickerList = stickerPack.getStickers();
-        if (stickerList.isEmpty()) {
-            Log.e("copyStickerFromCache", "Lista de stickers vazia!");
-            return CallbackResult.failure(new StickerPackSaveException(
-                    "Lista de stickers vazia no pacote",
-                    SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
-        }
-
-        File thumbnailSticker = new File(context.getCacheDir(), stickerList.get(0).imageFileName);
-        CallbackResult<Void> thumbnail = ConvertThumbnail.createThumbnail(thumbnailSticker, stickerPackDirectory);
-        if (!thumbnail.isDebug() && !thumbnail.isSuccess()) {
-            return CallbackResult.failure(new StickerPackSaveException(
-                    "Falha ao criar thumbnail: " + thumbnail.getError(),
-                    SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
-        }
-
-        for (Sticker sticker : stickerList) {
-            String fileName = sticker.imageFileName;
-            if (fileName == null || fileName.trim().isEmpty()) {
-                return CallbackResult.failure(new StickerPackSaveException(
-                        "Nome do arquivo do sticker é nulo ou vazio",
+    public static CallbackResult<Boolean> saveStickerFromCache(
+            @NonNull Context context, @NonNull StickerPack stickerPack,
+            @NonNull File stickerPackDirectory) throws StickerPackSaveException
+        {
+            if (!stickerPackDirectory.canWrite()) {
+                return CallbackResult.failure(new StickerPackSaveException("Sem permissão de escrita no diretório destino: " + stickerPackDirectory,
                         SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
             }
 
-            File sourceFile = new File(context.getCacheDir(), fileName);
-            if (!sourceFile.exists()) {
-                return CallbackResult.failure(new StickerPackSaveException(
-                        String.format("Arquivo não encontrado: %s", fileName),
-                        SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
+            List<Sticker> stickerList = stickerPack.getStickers();
+            if (stickerList.isEmpty()) {
+                Log.e("copyStickerFromCache", "Lista de stickers vazia!");
+                return CallbackResult.failure(
+                        new StickerPackSaveException("Lista de stickers vazia no pacote", SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
             }
 
-            File destFile = new File(stickerPackDirectory, fileName);
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Path sourcePath = sourceFile.toPath();
-                    Path destPath = destFile.toPath();
+            File thumbnailSticker = new File(context.getCacheDir(), stickerList.get(0).imageFileName);
+            CallbackResult<Void> thumbnail = ConvertThumbnail.createThumbnail(thumbnailSticker, stickerPackDirectory);
+            if (!thumbnail.isDebug() && !thumbnail.isSuccess()) {
+                return CallbackResult.failure(
+                        new StickerPackSaveException("Falha ao criar thumbnail: " + thumbnail.getError(), SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
+            }
 
-                    Files.copy(sourcePath, destPath);
-                } else {
-                    try (InputStream fileInputStream = new FileInputStream(sourceFile);
-                         OutputStream fileOutputStream = new FileOutputStream(destFile)) {
+            Set<String> filesAlreadyCopied = new HashSet<>();
 
-                        byte[] buffer = new byte[8192];
-                        int length;
+            for (Sticker sticker : stickerList) {
+                String fileName = sticker.imageFileName;
 
-                        while ((length = fileInputStream.read(buffer)) > 0) {
-                            fileOutputStream.write(buffer, 0, length);
+                if (fileName == null || fileName.trim().isEmpty()) {
+                    return CallbackResult.failure(
+                            new StickerPackSaveException("Nome do arquivo do sticker é nulo ou vazio", SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
+                }
+
+                if (filesAlreadyCopied.contains(fileName)) {
+                    continue;
+                }
+
+                File sourceFile = new File(context.getCacheDir(), fileName);
+                if (!sourceFile.exists()) {
+                    return CallbackResult.failure(new StickerPackSaveException(String.format("Arquivo não encontrado: %s", fileName),
+                            SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
+                }
+
+                File destFile = new File(stickerPackDirectory, fileName);
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        Files.copy(sourceFile.toPath(), destFile.toPath());
+                    } else {
+                        try (InputStream fileInputStream = new FileInputStream(sourceFile);
+                             OutputStream fileOutputStream = new FileOutputStream(destFile)) {
+
+                            byte[] buffer = new byte[8192];
+                            int length;
+
+                            while ((length = fileInputStream.read(buffer)) > 0) {
+                                fileOutputStream.write(buffer, 0, length);
+                            }
                         }
                     }
-                }
-            } catch (IOException exception) {
-                return CallbackResult.failure(new StickerPackSaveException(
-                        String.format("Erro copiando arquivo: %s", fileName),
-                        exception,
-                        SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
-            }
-        }
 
-        return CallbackResult.success(true);
-    }
+                    filesAlreadyCopied.add(fileName);
+                } catch (IOException exception) {
+                    return CallbackResult.failure(new StickerPackSaveException(String.format("Erro ao copiar arquivo: %s", fileName), exception,
+                            SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
+                }
+            }
+
+            return CallbackResult.success(true);
+        }
 }

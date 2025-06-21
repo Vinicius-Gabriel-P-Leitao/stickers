@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,12 +38,15 @@ import java.util.List;
 import java.util.Set;
 
 import br.arch.sticker.R;
+import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 import br.arch.sticker.view.core.usecase.component.BottomFadingRecyclerView;
 import br.arch.sticker.view.core.util.resolver.UriDetailsResolver;
 import br.arch.sticker.view.feature.stickerpack.creation.adapter.MediaPickerAdapter;
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.StickerPackCreationViewModel;
 
 public class MediaPickerFragment extends BottomSheetDialogFragment {
+    private final static String TAG_LOG = MediaPickerFragment.class.getSimpleName();
+
     private StickerPackCreationViewModel viewModel;
     private MediaPickerAdapter mediaListAdapter;
     private ProgressBar progressBar;
@@ -100,11 +104,11 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
         selectButton.setOnClickListener(listener -> {
             Set<Uri> selectedUris = mediaListAdapter.getSelectedMediaPaths();
 
-            if (selectedUris.size() >= 3) {
+            if (!selectedUris.isEmpty()) {
                 progressBar.setVisibility(View.VISIBLE);
                 viewModel.startConversions(selectedUris);
             } else {
-                Toast.makeText(getContext(), "Selecione pelo menos 3 itens!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Selecione pelo menos 1 item!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -130,7 +134,13 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
                         }
 
                         if (result.isFailure()) {
+                            if (result.getError() instanceof AppCoreStateException appCoreStateException) {
+                                String errorMessage = view.getContext().getString(appCoreStateException.getErrorCode().getMessageResId());
+                                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                            }
+
                             Toast.makeText(getContext(), result.getError().getMessage(), Toast.LENGTH_SHORT).show();
+                            Log.e(TAG_LOG, "Erro: " + result.getError() + " Causa: " + result.getError().getCause());
                             progressBar.setVisibility(View.GONE);
                         }
                     }

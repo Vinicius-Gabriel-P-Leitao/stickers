@@ -63,36 +63,6 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
 
     public Context context;
 
-    public void saveNamePack(String namePack)
-        {
-            this.namePack = namePack;
-        }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
-        {
-            this.context = this;
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_create_sticker_pack);
-
-            getViewModelStore().clear();
-            stickerPackCreationViewModel = new ViewModelProvider(this).get(StickerPackCreationViewModel.class);
-            permissionRequestViewModel = new ViewModelProvider(this).get(PermissionRequestViewModel.class);
-            nameStickerPackViewModel = new ViewModelProvider(this).get(NameStickerPackViewModel.class);
-
-            stickerPackCreationViewModel.getStickerPackPreview().observe(this, this::setupStickerPackView);
-            setupUI(savedInstanceState);
-        }
-
-    public abstract void setupUI(Bundle savedInstanceState);
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState)
-        {
-            super.onSaveInstanceState(outState);
-            outState.putString("namePack", namePack);
-        }
-
     public final RecyclerView.OnScrollListener dividerScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrollStateChanged(@NonNull final RecyclerView recyclerView, final int newState)
@@ -119,6 +89,64 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
             }
     };
 
+    public void setNamePack(String namePack)
+        {
+            this.namePack = namePack;
+        }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+        {
+            this.context = this;
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_create_sticker_pack);
+
+            getViewModelStore().clear();
+            stickerPackCreationViewModel = new ViewModelProvider(this).get(StickerPackCreationViewModel.class);
+            permissionRequestViewModel = new ViewModelProvider(this).get(PermissionRequestViewModel.class);
+            nameStickerPackViewModel = new ViewModelProvider(this).get(NameStickerPackViewModel.class);
+
+            stickerPackCreationViewModel.getStickerPackPreview().observe(this, this::setupStickerPackView);
+            setupUI(savedInstanceState);
+        }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState)
+        {
+            super.onSaveInstanceState(outState);
+            outState.putString("namePack", namePack);
+        }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+        {
+            super.onActivityResult(requestCode, resultCode, data);
+            if (requestCode == 1 && resultCode == RESULT_OK) {
+                Uri selectedUri = data.getData();
+                Log.d(TAG_LOG, "URI selecionada: " + selectedUri);
+            }
+        }
+
+    public final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+        @Override
+        public void onGlobalLayout()
+            {
+                setNumColumns(recyclerView.getWidth() / recyclerView.getContext().getResources().getDimensionPixelSize(
+                        R.dimen.sticker_pack_details_image_size));
+            }
+    };
+
+    @Override
+    public boolean onSupportNavigateUp()
+        {
+            goToEntryActivity();
+            return true;
+        }
+
+    public abstract void setupUI(Bundle savedInstanceState);
+
+    public abstract void openGallery(String namePack);
+
     public static void launchOwnGallery(FragmentActivity activity)
         {
             FragmentManager supportFragmentManager = activity.getSupportFragmentManager();
@@ -144,7 +172,7 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
         {
             nameStickerPackViewModel.getNameStickerPack().observe(
                     this, name -> {
-                        saveNamePack(name);
+                        setNamePack(name);
                         openGallery(name);
                     });
 
@@ -156,27 +184,6 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
 
             NameStickerPackViewModel.launchNameStickerPack(this);
         }
-
-    public abstract void openGallery(String namePack);
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-        {
-            super.onActivityResult(requestCode, resultCode, data);
-            if (requestCode == 1 && resultCode == RESULT_OK) {
-                Uri selectedUri = data.getData();
-                Log.d(TAG_LOG, "URI selecionada: " + selectedUri);
-            }
-        }
-
-    public final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-        @Override
-        public void onGlobalLayout()
-            {
-                setNumColumns(recyclerView.getWidth() / recyclerView.getContext().getResources().getDimensionPixelSize(
-                        R.dimen.sticker_pack_details_image_size));
-            }
-    };
 
     public void createStickerPackFlow()
         {
@@ -223,13 +230,6 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
             startActivity(intent);
             finish();
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-        }
-
-    @Override
-    public boolean onSupportNavigateUp()
-        {
-            goToEntryActivity();
-            return true;
         }
 
     public void setupStickerPackView(StickerPack stickerPack)

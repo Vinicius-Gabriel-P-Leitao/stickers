@@ -8,16 +8,22 @@
 
 package br.arch.sticker.domain.service.save;
 
+import static br.arch.sticker.core.validation.StickerPackValidator.STICKER_SIZE_MIN;
 import static br.arch.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
 import static br.arch.sticker.view.core.util.convert.ConvertThumbnail.THUMBNAIL_FILE;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,9 +46,11 @@ import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.util.StickerPackDirectory;
 
-// @formatter:off
 public class SaveStickerPackService {
     private final static String TAG_LOG = SaveStickerPackService.class.getSimpleName();
+
+    public final static String PLACEHOLDER_ANIMATED = "placeholder_animated.webp"; // FIXME: Trocar arquivo por um valido
+    public final static String PLACEHOLDER_STATIC = "placeholder_static.webp";
 
     public static CompletableFuture<CallbackResult<StickerPack>> saveStickerPackAsync(
             @NonNull Context context, boolean isAnimated, @NonNull List<File> files, @NonNull String name)
@@ -69,14 +77,25 @@ public class SaveStickerPackService {
                     stickerPack.setStickers(stickerList);
                     return persistPackToStorage(context, stickerPack);
                 } catch (Exception exception) {
-                    Log.e("Exception", "ERRO"+ exception);
-                    return CallbackResult.failure(new StickerPackSaveException("Erro ao salvar pacote de figurinhas.", exception, BaseErrorCode.ERROR_UNKNOWN));
+                    Log.e(TAG_LOG, "ERRO: " + exception);
+                    return CallbackResult.failure(
+                            new StickerPackSaveException("Erro ao salvar pacote de figurinhas.", exception, BaseErrorCode.ERROR_UNKNOWN));
                 }
             });
         }
 
-    public static CallbackResult<StickerPack> persistPackToStorage(@NonNull Context context, @NonNull StickerPack stickerPack) throws StickerPackSaveException
+    public static CallbackResult<StickerPack> persistPackToStorage(
+            @NonNull Context context, @NonNull StickerPack stickerPack) throws StickerPackSaveException
         {
+            List<Sticker> stickerList = new ArrayList<>(stickerPack.getStickers());
+
+            while (stickerList.size() < STICKER_SIZE_MIN) {
+                Sticker placeholder = makeStickerPlaceholder(context, stickerPack);
+                stickerList.add(placeholder);
+            }
+
+            stickerPack.setStickers(stickerList);
+
             File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
 
             CallbackResult<Boolean> mainDirectoryCallback = StickerPackDirectory.createMainDirectory(mainDirectory);
@@ -85,22 +104,24 @@ public class SaveStickerPackService {
                 return CallbackResult.failure(mainDirectoryCallback.getError());
             }
 
-            CallbackResult<File> stickerPackDirectoryCallback = StickerPackDirectory.createStickerPackDirectory(mainDirectory, stickerPack.identifier);
+            CallbackResult<File> stickerPackDirectoryCallback = StickerPackDirectory.createStickerPackDirectory(mainDirectory,
+                    stickerPack.identifier);
             if (!stickerPackDirectoryCallback.isSuccess() && !stickerPackDirectoryCallback.isWarning()) {
                 if (stickerPackDirectoryCallback.isDebug()) {
-                    Log.d("StickerPackDirectory", stickerPackDirectoryCallback.getDebugMessage());
+                    Log.d(TAG_LOG, stickerPackDirectoryCallback.getDebugMessage());
                 } else {
                     return CallbackResult.failure(stickerPackDirectoryCallback.getError());
                 }
             }
 
-            if (stickerPackDirectoryCallback.getData()==null) {
+            if (stickerPackDirectoryCallback.getData() == null) {
                 return CallbackResult.failure(
-                        new StickerPackSaveException("O diretório para salvar os pacotes está como nulo.",
-                        SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
+                        new StickerPackSaveException("O diretório para salvar os pacotes está como nulo.", SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
             }
 
-            CallbackResult<Boolean> copyStickerCallback = SaveStickerAssetService.copyStickerFromCache(context, stickerPack, stickerPackDirectoryCallback.getData());
+            // NOTE: Já chama aqui para não ter problemas na viewmodel
+            CallbackResult<Boolean> copyStickerCallback = SaveStickerAssetService.saveStickerFromCache(context, stickerPack,
+                    stickerPackDirectoryCallback.getData());
             if (!copyStickerCallback.isSuccess()) {
                 if (copyStickerCallback.isDebug()) return CallbackResult.debug(copyStickerCallback.getDebugMessage());
                 if (copyStickerCallback.isWarning()) return CallbackResult.warning(copyStickerCallback.getWarningMessage());
@@ -110,20 +131,24 @@ public class SaveStickerPackService {
             try {
                 StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
             } catch (PackValidatorException | StickerValidatorException | InvalidWebsiteUrlException exception) {
-                Log.e(TAG_LOG, exception.getMessage() != null ? exception.getMessage() : "Erro ao validar pacote!");
+                Log.e(TAG_LOG, exception.getMessage() != null
+                               ? exception.getMessage()
+                               : "Erro ao validar pacote!");
             }
 
-            for (Sticker sticker : stickerPack.getStickers()) {
+            for (Sticker sticker : stickerList) {
                 try {
                     StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
-                }  catch (StickerValidatorException | StickerFileException exception) {
-                    if (exception instanceof StickerFileException fileException){
+                } catch (StickerValidatorException | StickerFileException exception) {
+                    if (exception instanceof StickerFileException fileException) {
                         if (Objects.equals(sticker.imageFileName, fileException.getFileName())) {
                             sticker.setStickerIsInvalid(fileException.getErrorCodeName());
                         }
                     }
 
-                    Log.e(TAG_LOG, exception.getMessage() != null ? exception.getMessage() : "Erro ao validar sticker!");
+                    Log.e(TAG_LOG, exception.getMessage() != null
+                                   ? exception.getMessage()
+                                   : "Erro ao validar sticker!");
                 }
             }
 
@@ -137,5 +162,35 @@ public class SaveStickerPackService {
 
             InsertStickerPackRepo insertStickerPackRepo = new InsertStickerPackRepo(writableDatabase);
             return insertStickerPackRepo.insertStickerPack(stickerPack);
+        }
+
+    private static Sticker makeStickerPlaceholder(Context context, StickerPack stickerPack)
+        {
+            String fileName = stickerPack.animatedStickerPack
+                              ? PLACEHOLDER_ANIMATED
+                              : PLACEHOLDER_STATIC;
+
+            String accessibility = stickerPack.animatedStickerPack
+                                   ? "Pacote animado com nome " + stickerPack.name
+                                   : "Pacote estático com nome " + stickerPack.name;
+
+            File cacheFile = new File(context.getCacheDir(), fileName);
+            try (AssetFileDescriptor assetFileDescriptor = context.getAssets().openFd(fileName);
+                 InputStream inputStream = assetFileDescriptor.createInputStream();
+                 OutputStream outputStream = new FileOutputStream(cacheFile)) {
+
+                byte[] buffer = new byte[4096];
+                int length;
+                while ((length = inputStream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, length);
+                }
+
+                outputStream.flush();
+
+                return new Sticker(fileName.trim(), "\uD83D\uDDFF", "", accessibility, stickerPack.identifier);
+            } catch (IOException exception) {
+                throw new StickerPackSaveException("Erro ao criar placeholder para o pacote de figurinhas!", exception,
+                        SaveErrorCode.ERROR_PACK_SAVE_SERVICE);
+            }
         }
 }
