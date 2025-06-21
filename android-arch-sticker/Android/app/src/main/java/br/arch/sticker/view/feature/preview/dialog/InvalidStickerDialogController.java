@@ -11,6 +11,7 @@ package br.arch.sticker.view.feature.preview.dialog;
 import android.content.Context;
 import android.view.View;
 
+import br.arch.sticker.R;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
 import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerViewModel;
@@ -38,20 +39,21 @@ public class InvalidStickerDialogController {
             resetDialog();
             if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete delete) {
                 Sticker sticker = delete.sticker();
-                int resourceString = delete.resourceString();
+                String stickerPackIdentifier = delete.stickerPackIdentifier();
+                int resourceString = delete.codeProvider().getMessageResId();
 
-                dialog.setTitleText("Deletar");
+                dialog.setTitleText(dialog.getContext().getString(R.string.dialog_delete));
                 dialog.setMessageText(dialog.getContext().getString(resourceString));
                 dialog.setVisibilityFixButton(View.VISIBLE);
                 dialog.setVisibilityIgnoreButton(View.VISIBLE);
 
-                dialog.setTextFixButton("Deletar");
+                dialog.setTextFixButton(dialog.getContext().getString(R.string.dialog_delete));
                 dialog.setOnFixClick(view -> {
-                    viewModel.onFixActionConfirmed(action, sticker);
+                    viewModel.onFixActionConfirmed(action, dialog.getContext(), sticker, stickerPackIdentifier);
                     dialog.dismiss();
                 });
 
-                dialog.setTextIgnoreButton("Cancelar");
+                dialog.setTextIgnoreButton(dialog.getContext().getString(R.string.dialog_ignore));
                 dialog.setOnIgnoreClick(view -> dialog.dismiss());
             }
 

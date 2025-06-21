@@ -41,7 +41,7 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
     private int maxNumberOfStickersInARow;
 
     public interface OnFixClickListener {
-        void onFixClick(Sticker sticker);
+        void onFixClick(Sticker sticker, String stickerPackIdentifier);
     }
 
     private final OnFixClickListener listener;
@@ -85,7 +85,7 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
 
         if (stickerPack != null) {
             viewHolder.stickerPreview.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
-            viewHolder.textErrorMessage.setText(TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(R.string.sticker_is_valid) : context.getString(resId));
+            viewHolder.textErrorMessage.setText(TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(R.string.throw_sticker_is_valid) : context.getString(resId));
             viewHolder.buttonFix.setVisibility(TextUtils.isEmpty(sticker.stickerIsValid) ? View.GONE : View.VISIBLE);
         }
 
@@ -99,7 +99,7 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
                 lastClickTime = now;
 
                 if (listener != null) {
-                    listener.onFixClick(sticker);
+                    listener.onFixClick(sticker, stickerPackIdentifier);
                 }
             }
         });
