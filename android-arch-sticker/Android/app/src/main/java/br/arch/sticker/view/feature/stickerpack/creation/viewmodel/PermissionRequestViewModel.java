@@ -8,12 +8,9 @@
 
 package br.arch.sticker.view.feature.stickerpack.creation.viewmodel;
 
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
-import br.arch.sticker.view.feature.stickerpack.creation.fragment.PermissionRequestFragment;
 
 public class PermissionRequestViewModel extends ViewModel {
     private final MutableLiveData<Boolean> permissionGranted = new MutableLiveData<>();
@@ -46,10 +43,5 @@ public class PermissionRequestViewModel extends ViewModel {
 
     public void setPermissions(String[] permissions) {
         permissionsToRequest.setValue(permissions);
-    }
-
-    public static void launchPermissionRequest(FragmentActivity activity) {
-        PermissionRequestFragment permissionRequestFragment = new PermissionRequestFragment();
-        permissionRequestFragment.show(activity.getSupportFragmentManager(), PermissionRequestFragment.class.getSimpleName());
     }
 }

@@ -8,35 +8,36 @@
 
 package br.arch.sticker.view.feature.stickerpack.creation.viewmodel;
 
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import br.arch.sticker.view.feature.stickerpack.creation.fragment.PermissionSettingsFragment;
-
 public class PermissionSettingsViewModel extends ViewModel {
-    private final MutableLiveData<Boolean> permissionGranted = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> openSettingsRequested = new MutableLiveData<>();
     private final MutableLiveData<Boolean> permissionDenied = new MutableLiveData<>();
 
-    public LiveData<Boolean> getPermissionGranted() {
-        return permissionGranted;
-    }
+    public LiveData<Boolean> getOpenSettingsRequested()
+        {
+            return openSettingsRequested;
+        }
 
-    public LiveData<Boolean> getPermissionDenied() {
-        return permissionDenied;
-    }
+    public LiveData<Boolean> getPermissionDenied()
+        {
+            return permissionDenied;
+        }
 
-    public void setPermissionGranted() {
-        permissionGranted.setValue(true);
-    }
+    public void setOpenSettingsRequested()
+        {
+            openSettingsRequested.setValue(true);
+        }
 
-    public void setPermissionDenied() {
-        permissionDenied.setValue(true);
-    }
+    public void resetOpenSettingsRequested()
+        {
+            openSettingsRequested.setValue(false);
+        }
 
-    public static void launchPermissionSettings(FragmentActivity activity) {
-        PermissionSettingsFragment permissionSettingsFragment = new PermissionSettingsFragment();
-        permissionSettingsFragment.show(activity.getSupportFragmentManager(), PermissionSettingsFragment.class.getSimpleName());
-    }
+    public void setPermissionDenied()
+        {
+            permissionDenied.setValue(true);
+        }
 }
