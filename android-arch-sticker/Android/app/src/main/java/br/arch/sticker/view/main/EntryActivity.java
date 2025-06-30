@@ -8,6 +8,9 @@
 
 package br.arch.sticker.view.main;
 
+import static br.arch.sticker.domain.service.save.SaveStickerPackService.PLACEHOLDER_ANIMATED;
+import static br.arch.sticker.domain.service.save.SaveStickerPackService.PLACEHOLDER_STATIC;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,6 +31,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

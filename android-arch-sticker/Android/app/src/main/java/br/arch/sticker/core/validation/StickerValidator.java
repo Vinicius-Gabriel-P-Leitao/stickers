@@ -55,11 +55,7 @@ public class StickerValidator {
                     sticker.imageFileName);
         }
 
-        validateStickerFile(
-                context,
-                stickerPackIdentifier,
-                sticker.imageFileName,
-                animatedStickerPack);
+        validateStickerFile(context, stickerPackIdentifier, sticker.imageFileName, animatedStickerPack);
     }
 
     private static boolean isInvalidAccessibilityText(final @Nullable String accessibilityText, final boolean isAnimatedStickerPack) {
@@ -135,6 +131,7 @@ public class StickerValidator {
                             stickerPackIdentifier,
                             fileName);
                 }
+
             } catch (IllegalArgumentException exception) {
                 throw StickerExceptionFactory.invalidWebP(
                         stickerPackIdentifier,

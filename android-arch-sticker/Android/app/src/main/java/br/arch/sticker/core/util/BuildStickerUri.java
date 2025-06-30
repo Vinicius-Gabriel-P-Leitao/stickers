@@ -18,6 +18,7 @@ public class BuildStickerUri {
 
     public static Uri buildStickerAssetUri(String stickerPackIdentifier, String fileName)
         {
+
             return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(
                     StickerContentProvider.STICKERS_ASSET).appendPath(stickerPackIdentifier).appendPath(fileName).build();
         }
