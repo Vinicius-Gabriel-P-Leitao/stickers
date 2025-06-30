@@ -177,12 +177,11 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
                                 permissionSettingsViewModel.getPermissionDenied().removeObservers(this);
                             });
 
+                            permissionSettingsDialog = new PermissionSettingsDialog(this);
+                            permissionSettingsDialog.showSettingsDialog();
                             if (permissionRequestDialog != null) {
                                 permissionRequestDialog.dismiss();
                             }
-
-                            permissionSettingsDialog = new PermissionSettingsDialog(this);
-                            permissionSettingsDialog.showSettingsDialog();
                         }, 250);
                     } else {
                         permissionRequestViewModel.setPermissionDenied();
@@ -259,7 +258,7 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
             });
 
             nameStickerPackViewModel.getErrorNameStickerPack().observe(this, error -> {
-                Log.e("ERRO", error);
+                Log.e(TAG_LOG, error);
                 Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
             });
 
@@ -273,10 +272,8 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
             if (DefinePermissionsToRequest.areAllPermissionsGranted(permissions, this)) {
                 if (namePack == null || namePack.isEmpty()) {
                     openMetadataGetter();
-                    permissionRequestDialog.dismiss();
                 } else {
                     openGallery(namePack);
-                    permissionRequestDialog.dismiss();
                 }
 
                 return;

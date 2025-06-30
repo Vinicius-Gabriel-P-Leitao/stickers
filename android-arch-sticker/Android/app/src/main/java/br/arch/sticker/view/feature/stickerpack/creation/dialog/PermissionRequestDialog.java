@@ -78,7 +78,7 @@ public class PermissionRequestDialog {
 
     public void dismiss()
         {
-            if (dialog != null && dialog.isShowing()) {
+           if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
             }
         }
