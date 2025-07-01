@@ -8,11 +8,10 @@
  * Modifications by Vinícius, 2025
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
-
 package br.arch.sticker.view.feature.stickerpack.list.adapter;
 
-import static br.arch.sticker.domain.service.save.SaveStickerPackService.PLACEHOLDER_ANIMATED;
-import static br.arch.sticker.domain.service.save.SaveStickerPackService.PLACEHOLDER_STATIC;
+import static br.arch.sticker.domain.util.StickerPackPlaceholder.PLACEHOLDER_ANIMATED;
+import static br.arch.sticker.domain.util.StickerPackPlaceholder.PLACEHOLDER_STATIC;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -41,7 +40,6 @@ import br.arch.sticker.view.core.model.StickerPackListItem;
 import br.arch.sticker.view.feature.stickerpack.list.activity.StickerPackListActivity;
 import br.arch.sticker.view.feature.stickerpack.list.viewholder.StickerPackListViewHolder;
 
-// @formatter:off
 public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackListViewHolder> {
     @NonNull
     private final StickerPackListActivity.OnEventClickedListener onEventClickedListener;
@@ -51,9 +49,13 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
     private int maxNumberOfStickersInARow;
     private int minMarginBetweenImages;
 
+    private final Context context;
+
     public StickerPackListAdapter(
-            @NonNull List<StickerPackListItem> stickerPackListItems, @NonNull StickerPackListActivity.OnEventClickedListener onEventClickedListener)
+            Context context, @NonNull List<StickerPackListItem> stickerPackListItems,
+            @NonNull StickerPackListActivity.OnEventClickedListener onEventClickedListener)
         {
+            this.context = context.getApplicationContext();
             this.stickerPackListItems = stickerPackListItems;
             this.onEventClickedListener = onEventClickedListener;
         }
@@ -72,7 +74,6 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
     public void onBindViewHolder(@NonNull final StickerPackListViewHolder viewHolder, final int index)
         {
             StickerPackListItem stickerPackListItem = stickerPackListItems.get(index);
-            final Context context = viewHolder.publisherView.getContext();
 
             viewHolder.addButton.setVisibility(View.VISIBLE);
             viewHolder.alertMessage.setVisibility(View.GONE);
@@ -80,30 +81,27 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             viewHolder.imageRowView.removeAllViews();
 
             if (stickerPackListItem.status() == StickerPackListItem.Status.INVALID) {
-                bindInvalidStickerPack(context, viewHolder, (StickerPack) stickerPackListItem.stickerPack(), stickerPackListItem.status());
+                bindInvalidStickerPack(viewHolder, (StickerPack) stickerPackListItem.stickerPack(), stickerPackListItem.status());
             }
 
             if (stickerPackListItem.status() == StickerPackListItem.Status.VALID) {
-                bindStickerPack(context, viewHolder, (StickerPack) stickerPackListItem.stickerPack(), null, stickerPackListItem.status());
+                bindStickerPack(viewHolder, (StickerPack) stickerPackListItem.stickerPack(), null, stickerPackListItem.status());
             }
 
             if (stickerPackListItem.status() == StickerPackListItem.Status.WITH_INVALID_STICKER) {
                 StickerPackWithInvalidStickers stickerPackWithInvalidStickers = (StickerPackWithInvalidStickers) stickerPackListItem.stickerPack();
 
                 List<Sticker> placeholders = stickerPackWithInvalidStickers.stickerPack.getStickers();
-                boolean allInvalidArePlaceholders =
-                        !placeholders.isEmpty()
-                        && placeholders.stream()
-                        .allMatch(sticker ->
-                                Objects.equals(sticker.imageFileName, PLACEHOLDER_STATIC)
-                                || Objects.equals(sticker.imageFileName, PLACEHOLDER_ANIMATED)
-                        );
+                boolean allInvalidArePlaceholders = !placeholders.isEmpty() && placeholders.stream().allMatch(
+                        sticker -> Objects.equals(sticker.imageFileName, PLACEHOLDER_STATIC) || Objects.equals(sticker.imageFileName,
+                                PLACEHOLDER_ANIMATED)
 
+                );
                 if (allInvalidArePlaceholders) {
-                    bindInvalidStickerPack(context, viewHolder, stickerPackWithInvalidStickers.getStickerPack(), StickerPackListItem.Status.INVALID);
+                    bindInvalidStickerPack(viewHolder, stickerPackWithInvalidStickers.getStickerPack(), StickerPackListItem.Status.INVALID);
                 } else {
-                    bindStickerPack(context, viewHolder, stickerPackWithInvalidStickers.getStickerPack(),
-                            stickerPackWithInvalidStickers.getInvalidStickers(), stickerPackListItem.status());
+                    bindStickerPack(viewHolder, stickerPackWithInvalidStickers.getStickerPack(), stickerPackWithInvalidStickers.getInvalidStickers(),
+                            stickerPackListItem.status());
                 }
             }
         }
@@ -126,14 +124,12 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         }
 
     private void bindStickerPack(
-            @NonNull Context context, @NonNull StickerPackListViewHolder viewHolder, @NonNull StickerPack stickerPack,
-            @Nullable List<Sticker> stickers, StickerPackListItem.Status status)
+            @NonNull StickerPackListViewHolder viewHolder, @NonNull StickerPack stickerPack, @Nullable List<Sticker> stickers,
+            StickerPackListItem.Status status)
         {
             List<Sticker> filteredStickers = new ArrayList<>(stickerPack.getStickers());
-            filteredStickers.removeIf(sticker ->
-                    Objects.equals(sticker.imageFileName, PLACEHOLDER_STATIC)
-                    || Objects.equals(sticker.imageFileName, PLACEHOLDER_ANIMATED)
-            );
+            filteredStickers.removeIf(sticker -> Objects.equals(sticker.imageFileName, PLACEHOLDER_STATIC) || Objects.equals(sticker.imageFileName,
+                    PLACEHOLDER_ANIMATED));
 
             viewHolder.titleView.setText(stickerPack.name);
             viewHolder.publisherView.setText(stickerPack.publisher);
@@ -143,7 +139,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             });
             viewHolder.imageRowView.removeAllViews();
 
-            int actualNumberOfStickersToShow = Math.min(maxNumberOfStickersInARow,filteredStickers.size());
+            int actualNumberOfStickersToShow = Math.min(maxNumberOfStickersInARow, filteredStickers.size());
             for (int counter = 0; counter < actualNumberOfStickersToShow; counter++) {
                 Sticker sticker = filteredStickers.get(counter);
                 if (sticker == null) continue;
@@ -179,8 +175,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         }
 
     private void bindInvalidStickerPack(
-            @NonNull Context context, @NonNull StickerPackListViewHolder viewHolder, @NonNull StickerPack stickerPack,
-            StickerPackListItem.Status status)
+            @NonNull StickerPackListViewHolder viewHolder, @NonNull StickerPack stickerPack, StickerPackListItem.Status status)
         {
             viewHolder.addButton.setVisibility(View.GONE);
             viewHolder.imageRowView.setVisibility(View.GONE);
@@ -199,8 +194,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         }
 
     private void setAddButtonAppearance(
-            ImageView addButton, StickerPack stickerPack, List<Sticker> stickers, int drawableIcon,
-            StickerPackListItem.Status status)
+            ImageView addButton, StickerPack stickerPack, List<Sticker> stickers, int drawableIcon, StickerPackListItem.Status status)
         {
             if (stickerPack.getIsWhitelisted()) {
                 addButton.setImageResource(R.drawable.sticker_3rdparty_added);
@@ -221,6 +215,26 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
     private void setBackground(View view)
         {
             view.setBackground(null);
+        }
+
+    public void removeStickerPackByIdentifier(String stickerPackIdentifier)
+        {
+            for (int counter = 0; counter < stickerPackListItems.size(); counter++) {
+                StickerPackListItem item = stickerPackListItems.get(counter);
+                String itemIdentifier = null;
+
+                if (item.stickerPack() instanceof StickerPack stickerPack) {
+                    itemIdentifier = stickerPack.identifier;
+                } else if (item.stickerPack() instanceof StickerPackWithInvalidStickers packWithInvalid) {
+                    itemIdentifier = packWithInvalid.getStickerPack().identifier;
+                }
+
+                if (itemIdentifier != null && itemIdentifier.equals(stickerPackIdentifier)) {
+                    stickerPackListItems.remove(counter);
+                    notifyItemRemoved(counter);
+                    break;
+                }
+            }
         }
 
     @SuppressLint("NotifyDataSetChanged")

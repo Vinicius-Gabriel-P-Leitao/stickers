@@ -5,7 +5,6 @@
  * This source code is licensed under the Vinícius Non-Commercial Public License (VNCL),
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
-
 package br.arch.sticker.view.feature.stickerpack.creation.viewmodel;
 
 import android.app.Application;
@@ -44,6 +43,10 @@ import br.arch.sticker.view.core.util.convert.ConvertMediaToStickerFormat;
 
 public class StickerPackCreationViewModel extends AndroidViewModel {
 
+    private final ConvertMediaToStickerFormat convertMediaToStickerFormat;
+    private final SaveStickerPackService saveStickerPackService;
+    private final Context context;
+
     private final List<Future<?>> conversionFutures = Collections.synchronizedList(new ArrayList<>());
     private final List<File> convertedFiles = Collections.synchronizedList(new ArrayList<>());
     private final AtomicInteger completedConversions = new AtomicInteger(0);
@@ -69,7 +72,10 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
     public StickerPackCreationViewModel(@NonNull Application application)
         {
             super(application);
+            this.context = getApplication().getApplicationContext();
             convertedFilesLiveData.observeForever(convertedStickerPackObserver);
+            this.saveStickerPackService = new SaveStickerPackService(this.context);
+            this.convertMediaToStickerFormat = new ConvertMediaToStickerFormat(this.context);
         }
 
     @Override
@@ -77,11 +83,6 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
         {
             super.onCleared();
             convertedFilesLiveData.removeObserver(convertedStickerPackObserver);
-        }
-
-    private Context getAppContext()
-        {
-            return getApplication().getApplicationContext();
         }
 
     public LiveData<CallbackResult<StickerPack>> getStickerPackResult()
@@ -150,7 +151,7 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
 
                         if (uri.getPath() == null) throw new Exception("URI sem caminho válido.");
                         String fileName = new File(uri.getPath()).getName();
-                        convertedFiles.add(ConvertMediaToStickerFormat.convertMediaToWebPAsyncFuture(getAppContext(), uri, fileName).get());
+                        convertedFiles.add(convertMediaToStickerFormat.convertMediaToWebPAsyncFuture(uri, fileName).get());
 
                         int done = completedConversions.incrementAndGet();
                         conversionProgress.postValue(new ProgressState(totalConversions, done, done == totalConversions));
@@ -198,14 +199,13 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
                     throw new IllegalArgumentException("Dados insuficientes para gerar o pacote.");
                 }
 
-                Context context = getAppContext();
                 if (context == null) {
                     throw new IllegalStateException("Contexto inválido para gerar o stickerPack.");
                 }
 
                 Executors.newSingleThreadExecutor().submit(() -> {
                     try {
-                        CallbackResult<StickerPack> result = SaveStickerPackService.saveStickerPackAsync(context, animated, files, name).get();
+                        CallbackResult<StickerPack> result = saveStickerPackService.saveStickerPackAsync(animated, files, name).get();
                         stickerPackResult.postValue(result);
                     } catch (AppCoreStateException appCoreStateException) {
                         postFailure(appCoreStateException.getErrorCodeName());

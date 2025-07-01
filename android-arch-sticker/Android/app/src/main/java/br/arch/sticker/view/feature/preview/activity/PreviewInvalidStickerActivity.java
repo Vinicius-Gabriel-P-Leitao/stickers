@@ -51,13 +51,11 @@ import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerPackV
 import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerViewModel;
 import br.arch.sticker.view.main.EntryActivity;
 
-// @formatter:off
 public class PreviewInvalidStickerActivity extends BaseActivity implements PreviewInvalidStickerAdapter.OnFixClickListener {
     private final static String TAG_LOG = PreviewInvalidStickerActivity.class.getSimpleName();
 
     public static final String EXTRA_INVALID_STICKER_PACK = "invalid_sticker_pack";
     public static final String EXTRA_INVALID_STICKER_LIST = "invalid_sticker_list";
-
     private static final int STICKER_PREVIEW_DISPLAY_LIMIT = 5;
 
     private PreviewInvalidStickerPackViewModel invalidStickerPackViewModel;
@@ -65,8 +63,8 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
 
     private LoadListInvalidStickersAsyncTask loadListInvalidStickersAsyncTask;
     private PreviewInvalidStickerAdapter previewInvalidStickerAdapter;
-    private LinearLayoutManager linearLayoutManager;
     private RecyclerView recyclerViewInvalidStickers;
+    private LinearLayoutManager linearLayoutManager;
 
     private ArrayList<Sticker> stickerArrayList;
     private String stickerPackIdentifier;
@@ -81,14 +79,13 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
                 getSupportActionBar().setTitle(R.string.title_activity_preview_invalid_sticker);
             }
 
-            getOnBackPressedDispatcher().addCallback(
-                    this, new OnBackPressedCallback(true) {
-                        @Override
-                        public void handleOnBackPressed()
-                            {
-                               goToEntryActivity();
-                            }
-                    });
+            getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+                @Override
+                public void handleOnBackPressed()
+                    {
+                        goToEntryActivity();
+                    }
+            });
 
             invalidStickerPackViewModel = new ViewModelProvider(this).get(PreviewInvalidStickerPackViewModel.class);
             invalidStickerViewModel = new ViewModelProvider(this).get(PreviewInvalidStickerViewModel.class);
@@ -110,7 +107,8 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
             }
 
             try {
-                StickerPackValidationResult result = FetchStickerPackService.fetchStickerPackFromContentProvider(this, stickerPackIdentifier);
+                FetchStickerPackService fetchStickerPackService = new FetchStickerPackService(this);
+                StickerPackValidationResult result = fetchStickerPackService.fetchStickerPackFromContentProvider(stickerPackIdentifier);
                 List<Sticker> invalidStickers = result.invalidSticker();
 
                 if (invalidStickers.isEmpty()) {
@@ -126,20 +124,23 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
                     cardViewInvalidPack.setVisibility(View.VISIBLE);
 
                     ErrorCodeProvider errorCode = exception.getErrorCode();
-                    int resId = (errorCode != null) ? errorCode.getMessageResId() : R.string.throw_unknown_error;
+                    int resId = (errorCode != null)
+                                ? errorCode.getMessageResId()
+                                : R.string.throw_unknown_error;
                     textInvalidTitle.setText(getString(resId));
 
                     buttonFixInvalid.setOnClickListener(new View.OnClickListener() {
                         private long lastClickTime = 0;
 
                         @Override
-                        public void onClick(View view) {
-                            long now = SystemClock.elapsedRealtime();
-                            if (now - lastClickTime < 1000) return;
-                            lastClickTime = now;
+                        public void onClick(View view)
+                            {
+                                long now = SystemClock.elapsedRealtime();
+                                if (now - lastClickTime < 1000) return;
+                                lastClickTime = now;
 
-                            invalidStickerPackViewModel.handleFixStickerPackClick(recoveredPack, exception.getErrorCode());
-                        }
+                                invalidStickerPackViewModel.handleFixStickerPackClick(recoveredPack, exception.getErrorCode());
+                            }
                     });
 
                     showStickerPackInvalid(recoveredPack);
@@ -215,38 +216,44 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
             decorateRecyclerView();
         }
 
-    private void observeStickerPackViewModel(){
-        invalidStickerPackViewModel.getStickerPackMutableLiveData().observe(
-                this, fixAction -> {
-                    InvalidStickerPackDialogController controller = new InvalidStickerPackDialogController(this, invalidStickerPackViewModel);
-                    controller.showFixAction(fixAction);
-                });
-    }
+    private void observeStickerPackViewModel()
+        {
+            invalidStickerPackViewModel.getStickerPackMutableLiveData().observe(this, fixAction -> {
+                InvalidStickerPackDialogController controller = new InvalidStickerPackDialogController(this, invalidStickerPackViewModel);
+                controller.showFixAction(fixAction);
+            });
+        }
 
-    private void observeStickerViewModel() {
-        invalidStickerViewModel.getStickerMutableLiveData().observe(
-                this, fixAction -> {
-                    PreviewInvalidStickerViewModel.FixActionSticker action = fixAction.getContentIfNotHandled();
-                    if (action != null) {
-                        InvalidStickerDialogController controller = new InvalidStickerDialogController(this, invalidStickerViewModel);
-                        controller.showFixAction(action);
-                    }
-                });
+    private void observeStickerViewModel()
+        {
+            invalidStickerViewModel.getStickerMutableLiveData().observe(this, fixAction -> {
+                PreviewInvalidStickerViewModel.FixActionSticker action = fixAction.getContentIfNotHandled();
+                if (action != null) {
+                    InvalidStickerDialogController controller = new InvalidStickerDialogController(this, invalidStickerViewModel);
+                    controller.showFixAction(action);
+                }
+            });
 
-        invalidStickerViewModel.getFixCompletedLiveData().observe(this, action -> {
-            if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete delete) {
-                stickerArrayList.remove(delete.sticker());
-                previewInvalidStickerAdapter.updateStickerPackItems(stickerArrayList);
-            }
-        });
-    }
+            invalidStickerViewModel.getFixCompletedLiveData().observe(this, action -> {
+                if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete delete) {
+                    stickerArrayList.remove(delete.sticker());
+                    previewInvalidStickerAdapter.updateStickerPackItems(stickerArrayList);
+                }
+            });
+
+            invalidStickerViewModel.getErrorMessageLiveData().observe(this, message -> {
+                if (message != null) {
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                }
+            });
+        }
 
     private void decorateRecyclerView()
         {
             linearLayoutManager = new LinearLayoutManager(this);
             linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
-            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
-                    recyclerViewInvalidStickers.getContext(), linearLayoutManager.getOrientation());
+            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewInvalidStickers.getContext(),
+                    linearLayoutManager.getOrientation());
 
             recyclerViewInvalidStickers.addItemDecoration(dividerItemDecoration);
             recyclerViewInvalidStickers.setLayoutManager(linearLayoutManager);

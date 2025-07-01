@@ -13,17 +13,12 @@ import static br.arch.sticker.domain.data.content.StickerContentProvider.STICKER
 import static br.arch.sticker.view.core.util.convert.ConvertThumbnail.THUMBNAIL_FILE;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -45,15 +40,25 @@ import br.arch.sticker.domain.data.database.repository.InsertStickerPackRepo;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.util.StickerPackDirectory;
+import br.arch.sticker.domain.util.StickerPackPlaceholder;
 
 public class SaveStickerPackService {
     private final static String TAG_LOG = SaveStickerPackService.class.getSimpleName();
 
-    public final static String PLACEHOLDER_ANIMATED = "placeholder_animated.webp"; // FIXME: Trocar arquivo por um valido
-    public final static String PLACEHOLDER_STATIC = "placeholder_static.webp";
+    private final StickerPackPlaceholder stickerPackPlaceholder;
+    private final StickerPackValidator stickerPackValidator;
+    private final StickerValidator stickerValidator;
+    private final Context context;
 
-    public static CompletableFuture<CallbackResult<StickerPack>> saveStickerPackAsync(
-            @NonNull Context context, boolean isAnimated, @NonNull List<File> files, @NonNull String name)
+    public SaveStickerPackService(Context context)
+        {
+            this.context = context.getApplicationContext();
+            this.stickerValidator = new StickerValidator(this.context);
+            this.stickerPackValidator = new StickerPackValidator(this.context);
+            this.stickerPackPlaceholder = new StickerPackPlaceholder(this.context);
+        }
+
+    public CompletableFuture<CallbackResult<StickerPack>> saveStickerPackAsync(boolean isAnimated, @NonNull List<File> files, @NonNull String name)
         {
             return CompletableFuture.supplyAsync(() -> {
                 try {
@@ -84,13 +89,13 @@ public class SaveStickerPackService {
             });
         }
 
-    public static CallbackResult<StickerPack> persistPackToStorage(
+    public CallbackResult<StickerPack> persistPackToStorage(
             @NonNull Context context, @NonNull StickerPack stickerPack) throws StickerPackSaveException
         {
             List<Sticker> stickerList = new ArrayList<>(stickerPack.getStickers());
 
             while (stickerList.size() < STICKER_SIZE_MIN) {
-                Sticker placeholder = makeStickerPlaceholder(context, stickerPack);
+                Sticker placeholder = stickerPackPlaceholder.makeStickerPlaceholder(context, stickerPack);
                 stickerList.add(placeholder);
             }
 
@@ -129,7 +134,7 @@ public class SaveStickerPackService {
             }
 
             try {
-                StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
+                stickerPackValidator.verifyStickerPackValidity(stickerPack);
             } catch (PackValidatorException | StickerValidatorException | InvalidWebsiteUrlException exception) {
                 Log.e(TAG_LOG, exception.getMessage() != null
                                ? exception.getMessage()
@@ -138,7 +143,7 @@ public class SaveStickerPackService {
 
             for (Sticker sticker : stickerList) {
                 try {
-                    StickerValidator.verifyStickerValidity(context, stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
+                    stickerValidator.verifyStickerValidity(stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
                 } catch (StickerValidatorException | StickerFileException exception) {
                     if (exception instanceof StickerFileException fileException) {
                         if (Objects.equals(sticker.imageFileName, fileException.getFileName())) {
@@ -162,35 +167,5 @@ public class SaveStickerPackService {
 
             InsertStickerPackRepo insertStickerPackRepo = new InsertStickerPackRepo(writableDatabase);
             return insertStickerPackRepo.insertStickerPack(stickerPack);
-        }
-
-    private static Sticker makeStickerPlaceholder(Context context, StickerPack stickerPack)
-        {
-            String fileName = stickerPack.animatedStickerPack
-                              ? PLACEHOLDER_ANIMATED
-                              : PLACEHOLDER_STATIC;
-
-            String accessibility = stickerPack.animatedStickerPack
-                                   ? "Pacote animado com nome " + stickerPack.name
-                                   : "Pacote estático com nome " + stickerPack.name;
-
-            File cacheFile = new File(context.getCacheDir(), fileName);
-            try (AssetFileDescriptor assetFileDescriptor = context.getAssets().openFd(fileName);
-                 InputStream inputStream = assetFileDescriptor.createInputStream();
-                 OutputStream outputStream = new FileOutputStream(cacheFile)) {
-
-                byte[] buffer = new byte[4096];
-                int length;
-                while ((length = inputStream.read(buffer)) > 0) {
-                    outputStream.write(buffer, 0, length);
-                }
-
-                outputStream.flush();
-
-                return new Sticker(fileName.trim(), "\uD83D\uDDFF", "", accessibility, stickerPack.identifier);
-            } catch (IOException exception) {
-                throw new StickerPackSaveException("Erro ao criar placeholder para o pacote de figurinhas!", exception,
-                        SaveErrorCode.ERROR_PACK_SAVE_SERVICE);
-            }
         }
 }

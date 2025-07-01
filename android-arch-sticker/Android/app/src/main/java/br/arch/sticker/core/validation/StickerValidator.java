@@ -35,128 +35,103 @@ public class StickerValidator {
     public static final int ANIMATED_STICKER_FRAME_DURATION_MIN = 8;
     public static final int ANIMATED_STICKER_TOTAL_DURATION_MAX = 10 * 1000; //ms
 
-    public static void verifyStickerValidity(
-            @NonNull Context context, @NonNull final String stickerPackIdentifier, @NonNull final Sticker sticker,
-            final boolean animatedStickerPack
-    ) throws IllegalStateException {
+    private final FetchStickerAssetService fetchStickerAssetService;
 
-        if (!sticker.stickerIsValid.isEmpty()) {
-            throw StickerExceptionFactory.fromStickerValidity(stickerPackIdentifier);
+    public StickerValidator(Context context)
+        {
+            this.fetchStickerAssetService = new FetchStickerAssetService(context.getApplicationContext());
         }
 
-        if (TextUtils.isEmpty(sticker.imageFileName)) {
-            throw StickerExceptionFactory.missingStickerFileName(stickerPackIdentifier);
-        }
+    public void verifyStickerValidity(
+            @NonNull final String stickerPackIdentifier, @NonNull final Sticker sticker,
+            final boolean animatedStickerPack) throws IllegalStateException
+        {
 
-        final String accessibilityText = sticker.accessibilityText;
-        if (isInvalidAccessibilityText(accessibilityText, animatedStickerPack)) {
-            throw StickerExceptionFactory.accessibilityTextTooLong(
-                    stickerPackIdentifier,
-                    sticker.imageFileName);
-        }
-
-        validateStickerFile(context, stickerPackIdentifier, sticker.imageFileName, animatedStickerPack);
-    }
-
-    private static boolean isInvalidAccessibilityText(final @Nullable String accessibilityText, final boolean isAnimatedStickerPack) {
-        if (accessibilityText == null) {
-            return false;
-        }
-
-        final int length = accessibilityText.length();
-        return isAnimatedStickerPack && length > MAX_ANIMATED_STICKER_A11Y_TEXT_CHAR_LIMIT ||
-                !isAnimatedStickerPack && length > MAX_STATIC_STICKER_A11Y_TEXT_CHAR_LIMIT;
-    }
-
-    public static void validateStickerFile(
-            @NonNull Context context, @NonNull String stickerPackIdentifier, @NonNull final String fileName,
-            final boolean animatedStickerPack
-    ) throws IllegalStateException {
-        try {
-            final byte[] stickerInBytes = FetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, fileName, context);
-
-            if (!animatedStickerPack && stickerInBytes.length > STATIC_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
-                throw StickerExceptionFactory.staticFileTooLarge(
-                        stickerPackIdentifier,
-                        fileName,
-                        STATIC_STICKER_FILE_LIMIT_KB,
-                        Math.toIntExact(stickerInBytes.length / KB_IN_BYTES));
+            if (!sticker.stickerIsValid.isEmpty()) {
+                throw StickerExceptionFactory.fromStickerValidity(stickerPackIdentifier);
             }
 
-            if (animatedStickerPack && stickerInBytes.length > ANIMATED_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
-                throw StickerExceptionFactory.animatedFileTooLarge(
-                        stickerPackIdentifier,
-                        fileName,
-                        ANIMATED_STICKER_FILE_LIMIT_KB,
-                        Math.toIntExact(stickerInBytes.length / KB_IN_BYTES));
+            if (TextUtils.isEmpty(sticker.imageFileName)) {
+                throw StickerExceptionFactory.missingStickerFileName(stickerPackIdentifier);
             }
 
+            final String accessibilityText = sticker.accessibilityText;
+            if (isInvalidAccessibilityText(accessibilityText, animatedStickerPack)) {
+                throw StickerExceptionFactory.accessibilityTextTooLong(stickerPackIdentifier, sticker.imageFileName);
+            }
+
+            validateStickerFile(stickerPackIdentifier, sticker.imageFileName, animatedStickerPack);
+        }
+
+    private static boolean isInvalidAccessibilityText(final @Nullable String accessibilityText, final boolean isAnimatedStickerPack)
+        {
+            if (accessibilityText == null) {
+                return false;
+            }
+
+            final int length = accessibilityText.length();
+            return isAnimatedStickerPack && length > MAX_ANIMATED_STICKER_A11Y_TEXT_CHAR_LIMIT || !isAnimatedStickerPack && length > MAX_STATIC_STICKER_A11Y_TEXT_CHAR_LIMIT;
+        }
+
+    public void validateStickerFile(
+            @NonNull String stickerPackIdentifier, @NonNull final String fileName, final boolean animatedStickerPack) throws IllegalStateException
+        {
             try {
-                final WebPImage webPImage = WebPImage.createFromByteArray(stickerInBytes, ImageDecodeOptions.defaults());
+                final byte[] stickerInBytes = fetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, fileName);
 
-                if (webPImage.getHeight() != IMAGE_HEIGHT) {
-                    throw StickerExceptionFactory.invalidHeight(
-                            stickerPackIdentifier,
-                            fileName,
-                            IMAGE_HEIGHT,
-                            webPImage.getHeight());
+                if (!animatedStickerPack && stickerInBytes.length > STATIC_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
+                    throw StickerExceptionFactory.staticFileTooLarge(stickerPackIdentifier, fileName, STATIC_STICKER_FILE_LIMIT_KB,
+                            Math.toIntExact(stickerInBytes.length / KB_IN_BYTES));
                 }
 
-                if (webPImage.getWidth() != IMAGE_WIDTH) {
-                    throw StickerExceptionFactory.invalidWidth(
-                            stickerPackIdentifier,
-                            fileName,
-                            IMAGE_WIDTH,
-                            webPImage.getWidth());
+                if (animatedStickerPack && stickerInBytes.length > ANIMATED_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
+                    throw StickerExceptionFactory.animatedFileTooLarge(stickerPackIdentifier, fileName, ANIMATED_STICKER_FILE_LIMIT_KB,
+                            Math.toIntExact(stickerInBytes.length / KB_IN_BYTES));
                 }
 
-                if (animatedStickerPack) {
-                    if (webPImage.getFrameCount() <= 1) {
-                        throw StickerExceptionFactory.expectedAnimatedButGotStatic(
-                                stickerPackIdentifier,
-                                fileName);
+                try {
+                    final WebPImage webPImage = WebPImage.createFromByteArray(stickerInBytes, ImageDecodeOptions.defaults());
+
+                    if (webPImage.getHeight() != IMAGE_HEIGHT) {
+                        throw StickerExceptionFactory.invalidHeight(stickerPackIdentifier, fileName, IMAGE_HEIGHT, webPImage.getHeight());
                     }
 
-                    checkFrameDurationsForAnimatedSticker(webPImage.getFrameDurations(), stickerPackIdentifier, fileName);
-
-                    if (webPImage.getDuration() > ANIMATED_STICKER_TOTAL_DURATION_MAX) {
-                        throw StickerExceptionFactory.durationExceeded(
-                                stickerPackIdentifier,
-                                fileName,
-                                ANIMATED_STICKER_TOTAL_DURATION_MAX,
-                                webPImage.getDuration());
+                    if (webPImage.getWidth() != IMAGE_WIDTH) {
+                        throw StickerExceptionFactory.invalidWidth(stickerPackIdentifier, fileName, IMAGE_WIDTH, webPImage.getWidth());
                     }
-                } else if (webPImage.getFrameCount() > 1) {
-                    throw StickerExceptionFactory.expectedStaticButGotAnimated(
-                            stickerPackIdentifier,
-                            fileName);
-                }
 
-            } catch (IllegalArgumentException exception) {
-                throw StickerExceptionFactory.invalidWebP(
-                        stickerPackIdentifier,
-                        fileName);
+                    if (animatedStickerPack) {
+                        if (webPImage.getFrameCount() <= 1) {
+                            throw StickerExceptionFactory.expectedAnimatedButGotStatic(stickerPackIdentifier, fileName);
+                        }
+
+                        checkFrameDurationsForAnimatedSticker(webPImage.getFrameDurations(), stickerPackIdentifier, fileName);
+
+                        if (webPImage.getDuration() > ANIMATED_STICKER_TOTAL_DURATION_MAX) {
+                            throw StickerExceptionFactory.durationExceeded(stickerPackIdentifier, fileName, ANIMATED_STICKER_TOTAL_DURATION_MAX,
+                                    webPImage.getDuration());
+                        }
+                    } else if (webPImage.getFrameCount() > 1) {
+                        throw StickerExceptionFactory.expectedStaticButGotAnimated(stickerPackIdentifier, fileName);
+                    }
+
+                } catch (IllegalArgumentException exception) {
+                    throw StickerExceptionFactory.invalidWebP(stickerPackIdentifier, fileName);
+                }
+            } catch (FetchStickerException exception) {
+                throw new InternalAppException(
+                        String.format("Não foi possível abrir o arquivo da figurinha. Identificador do pacote: %s, arquivo: %s",
+                                stickerPackIdentifier, fileName), exception, BaseErrorCode.ERROR_OPERATION_NOT_POSSIBLE);
             }
-        } catch (FetchStickerException exception) {
-            throw new InternalAppException(
-                    String.format(
-                            "Não foi possível abrir o arquivo da figurinha. Identificador do pacote: %s, arquivo: %s",
-                            stickerPackIdentifier,
-                            fileName),
-                    exception,
-                    BaseErrorCode.ERROR_OPERATION_NOT_POSSIBLE);
         }
-    }
 
     private static void checkFrameDurationsForAnimatedSticker(
-            @NonNull final int[] frameDurations, @NonNull final String identifier, @NonNull final String fileName) {
-        for (int frameDuration : frameDurations) {
-            if (frameDuration < ANIMATED_STICKER_FRAME_DURATION_MIN) {
-                throw StickerExceptionFactory.durationExceeded(
-                        identifier,
-                        fileName,
-                        ANIMATED_STICKER_FRAME_DURATION_MIN);
+            @NonNull final int[] frameDurations, @NonNull final String identifier, @NonNull final String fileName)
+        {
+            for (int frameDuration : frameDurations) {
+                if (frameDuration < ANIMATED_STICKER_FRAME_DURATION_MIN) {
+                    throw StickerExceptionFactory.durationExceeded(identifier, fileName, ANIMATED_STICKER_FRAME_DURATION_MIN);
+                }
             }
         }
-    }
 }

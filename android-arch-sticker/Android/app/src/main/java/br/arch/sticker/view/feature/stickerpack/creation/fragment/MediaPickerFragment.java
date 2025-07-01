@@ -53,126 +53,124 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
 
     private MediaPickerAdapter.OnItemClickListener listener;
 
-    public static MediaPickerFragment newInstance(MediaPickerAdapter.OnItemClickListener listener) {
-        MediaPickerFragment fragment = new MediaPickerFragment();
-        fragment.setOnItemClickListener(listener);
-        return fragment;
-    }
-
-    public void setOnItemClickListener(MediaPickerAdapter.OnItemClickListener listener) {
-        this.listener = listener;
-    }
+    public void setOnItemClickListener(MediaPickerAdapter.OnItemClickListener listener)
+        {
+            this.listener = listener;
+        }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.BottomSheetStyle);
+    public void onCreate(Bundle savedInstanceState)
+        {
+            super.onCreate(savedInstanceState);
+            setStyle(DialogFragment.STYLE_NORMAL, R.style.BottomSheetStyle);
 
-        viewModel = new ViewModelProvider(requireActivity()).get(StickerPackCreationViewModel.class);
-    }
+            viewModel = new ViewModelProvider(requireActivity()).get(StickerPackCreationViewModel.class);
+        }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.dialog_fragment_recyclerview_select_media, container, false);
-    }
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+        {
+            return inflater.inflate(R.layout.dialog_fragment_recyclerview_select_media, container, false);
+        }
 
-    // @formatter:off
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
+        {
+            super.onViewCreated(view, savedInstanceState);
 
-        progressBar = view.findViewById(R.id.progress_bar_media);
-        progressBar.setVisibility(View.GONE);
+            progressBar = view.findViewById(R.id.progress_bar_media);
+            progressBar.setVisibility(View.GONE);
 
-        BottomFadingRecyclerView recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setHasFixedSize(true);
+            BottomFadingRecyclerView recyclerView = view.findViewById(R.id.recycler_view);
+            recyclerView.setHasFixedSize(true);
 
-        mediaListAdapter = new MediaPickerAdapter(getContext(), uri -> {
-            if (listener != null) {
-                listener.onItemClick(uri);
-            }
+            mediaListAdapter = new MediaPickerAdapter(getContext(), uri -> {
+                if (listener != null) {
+                    listener.onItemClick(uri);
+                }
 
-            dismiss();
-        });
+                dismiss();
+            });
 
-        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(mediaListAdapter);
+            GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
+            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.setAdapter(mediaListAdapter);
 
-        Button selectButton = view.findViewById(R.id.select_medias_button);
-        selectButton.setOnClickListener(listener -> {
-            Set<Uri> selectedUris = mediaListAdapter.getSelectedMediaPaths();
+            Button selectButton = view.findViewById(R.id.select_medias_button);
+            selectButton.setOnClickListener(listener -> {
+                Set<Uri> selectedUris = mediaListAdapter.getSelectedMediaPaths();
 
-            if (!selectedUris.isEmpty()) {
-                progressBar.setVisibility(View.VISIBLE);
-                viewModel.startConversions(selectedUris);
-            } else {
-                Toast.makeText(getContext(), "Selecione pelo menos 1 item!", Toast.LENGTH_SHORT).show();
-            }
-        });
+                if (!selectedUris.isEmpty()) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    viewModel.startConversions(selectedUris);
+                } else {
+                    Toast.makeText(getContext(), "Selecione pelo menos 1 item!", Toast.LENGTH_SHORT).show();
+                }
+            });
 
-        viewModel.getMimeTypesSupported().observe(
-                getViewLifecycleOwner(), mimeTypesSupported -> {
-                    List<Uri> uris = UriDetailsResolver.fetchMediaUri(requireContext(), mimeTypesSupported.getMimeTypes());
-                    mediaListAdapter.submitList(new ArrayList<>(uris));
-                });
+            viewModel.getMimeTypesSupported().observe(getViewLifecycleOwner(), mimeTypesSupported -> {
+                List<Uri> uris = UriDetailsResolver.fetchMediaUri(requireContext(), mimeTypesSupported.getMimeTypes());
+                mediaListAdapter.submitList(new ArrayList<>(uris));
+            });
 
-        viewModel.getStickerPackResult().observe(
-                getViewLifecycleOwner(), result -> {
-                    if (result != null) {
-                        if (result.isSuccess()) {
-                            viewModel.setStickerPackPreview(result.getData());
-                            progressBar.setVisibility(View.GONE);
+            viewModel.getStickerPackResult().observe(getViewLifecycleOwner(), result -> {
+                if (result != null) {
+                    if (result.isSuccess()) {
+                        viewModel.setStickerPackPreview(result.getData());
+                        progressBar.setVisibility(View.GONE);
 
-                            dismiss();
-                        }
-
-                        if (result.isWarning()) {
-                            Toast.makeText(getContext(), result.getWarningMessage(), Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
-                        }
-
-                        if (result.isFailure()) {
-                            if (result.getError() instanceof AppCoreStateException appCoreStateException) {
-                                String errorMessage = view.getContext().getString(appCoreStateException.getErrorCode().getMessageResId());
-                                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                            }
-
-                            Toast.makeText(getContext(), result.getError().getMessage(), Toast.LENGTH_SHORT).show();
-                            Log.e(TAG_LOG, "Erro: " + result.getError() + " Causa: " + result.getError().getCause());
-                            progressBar.setVisibility(View.GONE);
-                        }
+                        dismiss();
                     }
-                });
-    }
+
+                    if (result.isWarning()) {
+                        Toast.makeText(getContext(), result.getWarningMessage(), Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+                    }
+
+                    if (result.isFailure()) {
+                        if (result.getError() instanceof AppCoreStateException appCoreStateException) {
+                            String errorMessage = view.getContext().getString(appCoreStateException.getErrorCode().getMessageResId());
+                            Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                        }
+
+                        Toast.makeText(getContext(), result.getError().getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG_LOG, "Erro: " + result.getError() + " Causa: " + result.getError().getCause());
+                        progressBar.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
 
     @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
-        dialog.setOnShowListener(dialogInterface -> {
-            BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) dialogInterface;
-            FrameLayout bottomSheet = bottomSheetDialog.findViewById(R.id.design_bottom_sheet);
+    public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
+            dialog.setOnShowListener(dialogInterface -> {
+                BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) dialogInterface;
+                FrameLayout bottomSheet = bottomSheetDialog.findViewById(R.id.design_bottom_sheet);
 
-            if (bottomSheet != null) {
-                bottomSheet.setBackground(new ColorDrawable(Color.TRANSPARENT));
-            }
-        });
+                if (bottomSheet != null) {
+                    bottomSheet.setBackground(new ColorDrawable(Color.TRANSPARENT));
+                }
+            });
 
-        return dialog;
-    }
-
-    @Override
-    public void onCancel(@NonNull DialogInterface dialog) {
-        super.onCancel(dialog);
-        viewModel.setCancelConversions();
-        Toast.makeText(requireActivity(), "Processo cancelado.", Toast.LENGTH_SHORT).show();
-    }
+            return dialog;
+        }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        viewModel.setCancelConversions();
-    }
+    public void onCancel(@NonNull DialogInterface dialog)
+        {
+            super.onCancel(dialog);
+            viewModel.setCancelConversions();
+            Toast.makeText(requireActivity(), "Processo cancelado.", Toast.LENGTH_SHORT).show();
+        }
+
+    @Override
+    public void onDestroyView()
+        {
+            super.onDestroyView();
+            viewModel.setCancelConversions();
+        }
 }

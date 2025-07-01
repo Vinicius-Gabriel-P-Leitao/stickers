@@ -20,58 +20,66 @@ import br.arch.sticker.domain.data.database.StickerDatabase;
 import br.arch.sticker.domain.dto.StickerPackValidationResult;
 import br.arch.sticker.domain.service.fetch.FetchStickerPackService;
 
-// @formatter:off
 public class DeleteStickerPackRepo {
-    public static int deleteSticker(Context context, String stickerPackIdentifier, String fileName) throws SQLException {
-        StickerDatabase dbHelper = StickerDatabase.getInstance(context);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    private final FetchStickerPackService fetchStickerPackService;
+    private final Context context;
 
-        StickerPackValidationResult fetchStickerPack = FetchStickerPackService.fetchStickerPackFromContentProvider(context, stickerPackIdentifier);
-        if (fetchStickerPack.stickerPack().identifier == null) {
-            throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar figurinha.", DeleteErrorCode.ERROR_PACK_DELETE_DB);
+    public DeleteStickerPackRepo(Context context)
+        {
+            this.context = context.getApplicationContext();
+            this.fetchStickerPackService = new FetchStickerPackService(this.context);
         }
 
-        return db.delete(
-                StickerDatabase.TABLE_STICKER, StickerDatabase.FK_STICKER_PACK + " = ? AND " + StickerDatabase.STICKER_FILE_NAME_IN_QUERY + " = ?",
-                new String[]{stickerPackIdentifier, fileName}
-        );
-    }
-
-    public static CallbackResult<Integer> deleteAllStickerOfPack(Context context, String stickerPackIdentifier) {
-        try {
+    public int deleteSticker(String stickerPackIdentifier, String fileName) throws SQLException
+        {
             StickerDatabase dbHelper = StickerDatabase.getInstance(context);
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-            int stickerDeleted = db.delete(
-                    StickerDatabase.TABLE_STICKER, StickerDatabase.FK_STICKER_PACK + " = ?",
-                    new String[]{stickerPackIdentifier});
-
-            if (stickerDeleted == 0) {
-                return CallbackResult.warning("Nenhuma linha foi deletada. Talvez o ID não exista.");
+            StickerPackValidationResult fetchStickerPack = fetchStickerPackService.fetchStickerPackFromContentProvider(stickerPackIdentifier);
+            if (fetchStickerPack.stickerPack().identifier == null) {
+                throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar figurinha.", DeleteErrorCode.ERROR_PACK_DELETE_DB);
             }
 
-            return CallbackResult.success(stickerDeleted);
-        } catch (Exception exception) {
-            return CallbackResult.failure(exception);
+            return db.delete(StickerDatabase.TABLE_STICKER,
+                    StickerDatabase.FK_STICKER_PACK + " = ? AND " + StickerDatabase.STICKER_FILE_NAME_IN_QUERY + " = ?",
+                    new String[]{stickerPackIdentifier, fileName});
         }
-    }
 
-    public static CallbackResult<Integer> deleteStickerPackFromDatabase(Context context, String stickerPackIdentifier) {
-        try {
-            StickerDatabase dbHelper = StickerDatabase.getInstance(context);
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+    public CallbackResult<Integer> deleteAllStickerOfPack(String stickerPackIdentifier)
+        {
+            try {
+                StickerDatabase dbHelper = StickerDatabase.getInstance(context);
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-            int stickerPackDeleted = db.delete(
-                    StickerDatabase.TABLE_STICKER_PACK, StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?",
-                    new String[]{stickerPackIdentifier});
+                int stickerDeleted = db.delete(StickerDatabase.TABLE_STICKER, StickerDatabase.FK_STICKER_PACK + " = ?",
+                        new String[]{stickerPackIdentifier});
 
-            if (stickerPackDeleted == 0) {
-                return CallbackResult.warning("Nenhuma linha foi deletada. Talvez o ID não exista.");
+                if (stickerDeleted == 0) {
+                    return CallbackResult.warning("Nenhuma linha foi deletada. Talvez o ID não exista.");
+                }
+
+                return CallbackResult.success(stickerDeleted);
+            } catch (Exception exception) {
+                return CallbackResult.failure(exception);
             }
-
-            return CallbackResult.success(stickerPackDeleted);
-        } catch (Exception exception) {
-            return CallbackResult.failure(exception);
         }
-    }
+
+    public CallbackResult<Integer> deleteStickerPackFromDatabase(String stickerPackIdentifier)
+        {
+            try {
+                StickerDatabase dbHelper = StickerDatabase.getInstance(context);
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+                int stickerPackDeleted = db.delete(StickerDatabase.TABLE_STICKER_PACK, StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?",
+                        new String[]{stickerPackIdentifier});
+
+                if (stickerPackDeleted == 0) {
+                    return CallbackResult.warning("Nenhuma linha foi deletada. Talvez o ID não exista.");
+                }
+
+                return CallbackResult.success(stickerPackDeleted);
+            } catch (Exception exception) {
+                return CallbackResult.failure(exception);
+            }
+        }
 }

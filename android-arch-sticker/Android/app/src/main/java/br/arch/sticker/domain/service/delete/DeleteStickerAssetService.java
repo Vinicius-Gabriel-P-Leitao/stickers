@@ -5,7 +5,6 @@
  * This source code is licensed under the Vinícius Non-Commercial Public License (VNCL),
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
-
 package br.arch.sticker.domain.service.delete;
 
 import static br.arch.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
@@ -24,8 +23,14 @@ import br.arch.sticker.core.pattern.CallbackResult;
 public class DeleteStickerAssetService {
     private final static String TAG_LOG = DeleteStickerAssetService.class.getSimpleName();
 
-    public static CallbackResult<Boolean> deleteStickerAsset(
-            @NonNull Context context, @NonNull String stickerPackIdentifier, @NonNull String fileName)
+    private final Context context;
+
+    public DeleteStickerAssetService(Context context)
+        {
+            this.context = context.getApplicationContext();
+        }
+
+    public CallbackResult<Boolean> deleteStickerAsset(@NonNull String stickerPackIdentifier, @NonNull String fileName)
         {
             File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
             File stickerDirectory = new File(mainDirectory, stickerPackIdentifier + File.separator + fileName);
@@ -48,7 +53,7 @@ public class DeleteStickerAssetService {
             }
         }
 
-    public static CallbackResult<Boolean> deleteAllStickerAssetsByPack(@NonNull Context context, @NonNull String stickerPackIdentifier)
+    public CallbackResult<Boolean> deleteAllStickerAssetsByPack(@NonNull String stickerPackIdentifier)
         {
             File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
             File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);

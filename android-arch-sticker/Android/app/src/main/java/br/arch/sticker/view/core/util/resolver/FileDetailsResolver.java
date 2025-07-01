@@ -17,26 +17,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FileDetailsResolver {
-    public static Map<String, String> getFileDetailsFromUri(Context context, Uri uri) {
-        Map<String, String> fileDetails = new HashMap<>();
-        String path = getAbsolutePath(context, uri);
-        String mimeType = context.getContentResolver().getType(uri);
-        if (path != null && mimeType != null) {
-            fileDetails.put(path, mimeType);
-        }
-        return fileDetails;
-    }
+    private final Context context;
 
-    public static String getAbsolutePath(Context context, Uri uri) {
-        String[] projection = {MediaStore.Files.FileColumns.DATA};
-        try (Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null)) {
-            if (cursor == null || !cursor.moveToFirst()) {
+    public FileDetailsResolver(Context context)
+        {
+            this.context = context.getApplicationContext();
+        }
+
+    public Map<String, String> getFileDetailsFromUri(Uri uri)
+        {
+            Map<String, String> fileDetails = new HashMap<>();
+            String path = getAbsolutePath(uri);
+            String mimeType = context.getContentResolver().getType(uri);
+            if (path != null && mimeType != null) {
+                fileDetails.put(path, mimeType);
+            }
+            return fileDetails;
+        }
+
+    public String getAbsolutePath(Uri uri)
+        {
+            String[] projection = {MediaStore.Files.FileColumns.DATA};
+            try (Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null)) {
+                if (cursor == null || !cursor.moveToFirst()) {
+                    return uri.getPath();
+                }
+                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                return cursor.getString(columnIndex);
+            } catch (Exception exception) {
                 return uri.getPath();
             }
-            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            return cursor.getString(columnIndex);
-        } catch (Exception e) {
-            return uri.getPath();
         }
-    }
 }

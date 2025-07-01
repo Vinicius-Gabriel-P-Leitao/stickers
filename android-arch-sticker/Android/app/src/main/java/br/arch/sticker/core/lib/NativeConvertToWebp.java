@@ -19,7 +19,9 @@ public class NativeConvertToWebp {
     static {
         System.loadLibrary("sticker");
     }
+
     public native boolean convertToWebp(String inputPath, String outputPath);
+
     public interface ConversionCallback {
         void onSuccess(File file);
 

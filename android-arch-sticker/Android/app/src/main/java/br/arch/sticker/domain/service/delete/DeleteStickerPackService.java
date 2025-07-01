@@ -15,15 +15,22 @@ import androidx.annotation.NonNull;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.database.repository.DeleteStickerPackRepo;
 
-// @formatter:off
 public class DeleteStickerPackService {
-    public static CallbackResult<Boolean> deleteStickerPack(@NonNull Context context, @NonNull String stickerPackIdentifier) {
-        CallbackResult<Integer> stickerPackDeletedInDb = DeleteStickerPackRepo.deleteStickerPackFromDatabase(context, stickerPackIdentifier);
-        return switch (stickerPackDeletedInDb.getStatus()) {
-            case SUCCESS -> CallbackResult.debug("Pacote de figurinhas deletado com sucesso. Status: " + stickerPackDeletedInDb.getData());
-            case WARNING -> CallbackResult.warning(stickerPackDeletedInDb.getWarningMessage());
-            case DEBUG -> CallbackResult.debug(stickerPackDeletedInDb.getDebugMessage());
-            case FAILURE -> CallbackResult.failure(stickerPackDeletedInDb.getError());
-        };
-    }
+    private final DeleteStickerPackRepo deleteStickerPackRepo;
+
+    public DeleteStickerPackService(Context context)
+        {
+            this.deleteStickerPackRepo = new DeleteStickerPackRepo(context);
+        }
+
+    public CallbackResult<Boolean> deleteStickerPack(@NonNull String stickerPackIdentifier)
+        {
+            CallbackResult<Integer> stickerPackDeletedInDb = deleteStickerPackRepo.deleteStickerPackFromDatabase(stickerPackIdentifier);
+            return switch (stickerPackDeletedInDb.getStatus()) {
+                case SUCCESS -> CallbackResult.success(Boolean.TRUE);
+                case WARNING -> CallbackResult.warning(stickerPackDeletedInDb.getWarningMessage());
+                case DEBUG -> CallbackResult.debug(stickerPackDeletedInDb.getDebugMessage());
+                case FAILURE -> CallbackResult.failure(stickerPackDeletedInDb.getError());
+            };
+        }
 }

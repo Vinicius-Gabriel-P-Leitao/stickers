@@ -46,169 +46,148 @@ public class StickerPackValidator {
     public static final String PLAY_STORE_DOMAIN = "play.google.com";
     public static final String APPLE_STORE_DOMAIN = "itunes.apple.com";
 
-    public static void verifyStickerPackValidity(@NonNull Context context, @NonNull StickerPack stickerPack) throws IllegalStateException {
-        if (TextUtils.isEmpty(stickerPack.identifier)) {
-            throw StickerPackExceptionFactory.emptyStickerPackIdentifier();
+    private final FetchStickerAssetService fetchStickerAssetService;
+
+    public StickerPackValidator(Context paramContext)
+        {
+            Context context = paramContext.getApplicationContext();
+            this.fetchStickerAssetService = new FetchStickerAssetService(context);
         }
 
-        if (stickerPack.identifier.length() > CHAR_IDENTIFIER_COUNT_MAX) {
-            throw StickerPackExceptionFactory.invalidSizeStickerPackIdentifier(CHAR_IDENTIFIER_COUNT_MAX);
-        }
-
-        checkStringValidity(stickerPack.identifier);
-
-        if (TextUtils.isEmpty(stickerPack.publisher)) {
-            throw StickerPackExceptionFactory.emptyStickerPackPublisher(stickerPack.identifier);
-        }
-
-        if (stickerPack.publisher.length() > CHAR_PUBLISHER_COUNT_MAX) {
-            throw StickerPackExceptionFactory.invalidSizePublisherStickerPack(
-                    CHAR_PUBLISHER_COUNT_MAX,
-                    stickerPack.identifier);
-        }
-
-        if (TextUtils.isEmpty(stickerPack.name)) {
-            throw StickerPackExceptionFactory.emptyStickerPackName(stickerPack.identifier);
-        }
-
-        if (stickerPack.name.length() > CHAR_NAME_COUNT_MAX) {
-            throw StickerPackExceptionFactory.invalidSizeNameStickerPack(
-                    CHAR_NAME_COUNT_MAX,
-                    stickerPack.identifier);
-        }
-
-        if (TextUtils.isEmpty(stickerPack.trayImageFile)) {
-            throw StickerPackExceptionFactory.emptyTrayImage(stickerPack.identifier);
-        }
-
-        if (!TextUtils.isEmpty(stickerPack.androidPlayStoreLink) && !isValidWebsiteUrl(stickerPack.androidPlayStoreLink)) {
-            throw StickerPackExceptionFactory.invalidAndroidPlayStoreUrl(stickerPack.androidPlayStoreLink);
-        }
-
-        if (!TextUtils.isEmpty(stickerPack.androidPlayStoreLink) && !isURLInCorrectDomain(
-                stickerPack.androidPlayStoreLink,
-                PLAY_STORE_DOMAIN)) {
-            throw StickerPackExceptionFactory.invalidAndroidPlayStoreDomain(PLAY_STORE_DOMAIN);
-        }
-
-        if (!TextUtils.isEmpty(stickerPack.iosAppStoreLink) && !isValidWebsiteUrl(stickerPack.iosAppStoreLink)) {
-            throw StickerPackExceptionFactory.invalidIosAppStoreUrl(stickerPack.iosAppStoreLink);
-        }
-
-        if (!TextUtils.isEmpty(stickerPack.iosAppStoreLink) && !isURLInCorrectDomain(
-                stickerPack.iosAppStoreLink,
-                APPLE_STORE_DOMAIN)) {
-            throw StickerPackExceptionFactory.invalidIosAppStoreDomain(APPLE_STORE_DOMAIN);
-        }
-
-        if (!TextUtils.isEmpty(stickerPack.licenseAgreementWebsite) && !isValidWebsiteUrl(stickerPack.licenseAgreementWebsite)) {
-            throw StickerPackExceptionFactory.invalidLicenseAgreementUrl(stickerPack.licenseAgreementWebsite);
-        }
-
-        if (!TextUtils.isEmpty(stickerPack.privacyPolicyWebsite) && !isValidWebsiteUrl(stickerPack.privacyPolicyWebsite)) {
-            throw StickerPackExceptionFactory.invalidPrivacyPolicyUrl(stickerPack.privacyPolicyWebsite);
-        }
-
-        if (!TextUtils.isEmpty(stickerPack.publisherWebsite) && !isValidWebsiteUrl(stickerPack.publisherWebsite)) {
-            throw StickerPackExceptionFactory.invalidPublisherWebsite(stickerPack.publisherWebsite);
-        }
-
-        if (!TextUtils.isEmpty(stickerPack.publisherEmail) && !Patterns.EMAIL_ADDRESS.matcher(stickerPack.publisherEmail).matches()) {
-            throw StickerPackExceptionFactory.invalidPublisherEmail(stickerPack.publisherEmail);
-        }
-
-        try {
-            final byte[] stickerAssetBytes = FetchStickerAssetService.fetchStickerAsset(
-                    stickerPack.identifier,
-                    stickerPack.trayImageFile,
-                    context);
-
-            if (stickerAssetBytes.length > TRAY_IMAGE_FILE_SIZE_MAX_KB * 1024) {
-                throw StickerPackExceptionFactory.trayImageTooLarge(
-                        stickerPack.trayImageFile,
-                        TRAY_IMAGE_FILE_SIZE_MAX_KB);
+    public void verifyStickerPackValidity(@NonNull StickerPack stickerPack) throws IllegalStateException
+        {
+            if (TextUtils.isEmpty(stickerPack.identifier)) {
+                throw StickerPackExceptionFactory.emptyStickerPackIdentifier();
             }
 
-            Bitmap bitmap = BitmapFactory.decodeByteArray(stickerAssetBytes, 0, stickerAssetBytes.length);
-            if (bitmap.getHeight() > TRAY_IMAGE_DIMENSION_MAX || bitmap.getHeight() < TRAY_IMAGE_DIMENSION_MIN) {
-                throw StickerPackExceptionFactory.invalidTrayImageHeight(
-                        stickerPack.trayImageFile,
-                        bitmap.getHeight(),
-                        TRAY_IMAGE_DIMENSION_MIN,
-                        TRAY_IMAGE_DIMENSION_MAX);
+            if (stickerPack.identifier.length() > CHAR_IDENTIFIER_COUNT_MAX) {
+                throw StickerPackExceptionFactory.invalidSizeStickerPackIdentifier(CHAR_IDENTIFIER_COUNT_MAX);
             }
 
-            if (bitmap.getWidth() > TRAY_IMAGE_DIMENSION_MAX || bitmap.getWidth() < TRAY_IMAGE_DIMENSION_MIN) {
-                throw StickerPackExceptionFactory.invalidTrayImageWidth(
-                        stickerPack.trayImageFile,
-                        bitmap.getWidth(),
-                        TRAY_IMAGE_DIMENSION_MIN,
-                        TRAY_IMAGE_DIMENSION_MAX);
+            checkStringValidity(stickerPack.identifier);
+
+            if (TextUtils.isEmpty(stickerPack.publisher)) {
+                throw StickerPackExceptionFactory.emptyStickerPackPublisher(stickerPack.identifier);
             }
-        } catch (FetchStickerException exception) {
-            throw StickerPackExceptionFactory.cannotOpenTrayImage(
-                    stickerPack.trayImageFile,
-                    exception);
+
+            if (stickerPack.publisher.length() > CHAR_PUBLISHER_COUNT_MAX) {
+                throw StickerPackExceptionFactory.invalidSizePublisherStickerPack(CHAR_PUBLISHER_COUNT_MAX, stickerPack.identifier);
+            }
+
+            if (TextUtils.isEmpty(stickerPack.name)) {
+                throw StickerPackExceptionFactory.emptyStickerPackName(stickerPack.identifier);
+            }
+
+            if (stickerPack.name.length() > CHAR_NAME_COUNT_MAX) {
+                throw StickerPackExceptionFactory.invalidSizeNameStickerPack(CHAR_NAME_COUNT_MAX, stickerPack.identifier);
+            }
+
+            if (TextUtils.isEmpty(stickerPack.trayImageFile)) {
+                throw StickerPackExceptionFactory.emptyTrayImage(stickerPack.identifier);
+            }
+
+            if (!TextUtils.isEmpty(stickerPack.androidPlayStoreLink) && !isValidWebsiteUrl(stickerPack.androidPlayStoreLink)) {
+                throw StickerPackExceptionFactory.invalidAndroidPlayStoreUrl(stickerPack.androidPlayStoreLink);
+            }
+
+            if (!TextUtils.isEmpty(stickerPack.androidPlayStoreLink) && !isURLInCorrectDomain(stickerPack.androidPlayStoreLink, PLAY_STORE_DOMAIN)) {
+                throw StickerPackExceptionFactory.invalidAndroidPlayStoreDomain(PLAY_STORE_DOMAIN);
+            }
+
+            if (!TextUtils.isEmpty(stickerPack.iosAppStoreLink) && !isValidWebsiteUrl(stickerPack.iosAppStoreLink)) {
+                throw StickerPackExceptionFactory.invalidIosAppStoreUrl(stickerPack.iosAppStoreLink);
+            }
+
+            if (!TextUtils.isEmpty(stickerPack.iosAppStoreLink) && !isURLInCorrectDomain(stickerPack.iosAppStoreLink, APPLE_STORE_DOMAIN)) {
+                throw StickerPackExceptionFactory.invalidIosAppStoreDomain(APPLE_STORE_DOMAIN);
+            }
+
+            if (!TextUtils.isEmpty(stickerPack.licenseAgreementWebsite) && !isValidWebsiteUrl(stickerPack.licenseAgreementWebsite)) {
+                throw StickerPackExceptionFactory.invalidLicenseAgreementUrl(stickerPack.licenseAgreementWebsite);
+            }
+
+            if (!TextUtils.isEmpty(stickerPack.privacyPolicyWebsite) && !isValidWebsiteUrl(stickerPack.privacyPolicyWebsite)) {
+                throw StickerPackExceptionFactory.invalidPrivacyPolicyUrl(stickerPack.privacyPolicyWebsite);
+            }
+
+            if (!TextUtils.isEmpty(stickerPack.publisherWebsite) && !isValidWebsiteUrl(stickerPack.publisherWebsite)) {
+                throw StickerPackExceptionFactory.invalidPublisherWebsite(stickerPack.publisherWebsite);
+            }
+
+            if (!TextUtils.isEmpty(stickerPack.publisherEmail) && !Patterns.EMAIL_ADDRESS.matcher(stickerPack.publisherEmail).matches()) {
+                throw StickerPackExceptionFactory.invalidPublisherEmail(stickerPack.publisherEmail);
+            }
+
+            try {
+                final byte[] stickerAssetBytes = fetchStickerAssetService.fetchStickerAsset(stickerPack.identifier, stickerPack.trayImageFile);
+
+                if (stickerAssetBytes.length > TRAY_IMAGE_FILE_SIZE_MAX_KB * 1024) {
+                    throw StickerPackExceptionFactory.trayImageTooLarge(stickerPack.trayImageFile, TRAY_IMAGE_FILE_SIZE_MAX_KB);
+                }
+
+                Bitmap bitmap = BitmapFactory.decodeByteArray(stickerAssetBytes, 0, stickerAssetBytes.length);
+                if (bitmap.getHeight() > TRAY_IMAGE_DIMENSION_MAX || bitmap.getHeight() < TRAY_IMAGE_DIMENSION_MIN) {
+                    throw StickerPackExceptionFactory.invalidTrayImageHeight(stickerPack.trayImageFile, bitmap.getHeight(), TRAY_IMAGE_DIMENSION_MIN,
+                            TRAY_IMAGE_DIMENSION_MAX);
+                }
+
+                if (bitmap.getWidth() > TRAY_IMAGE_DIMENSION_MAX || bitmap.getWidth() < TRAY_IMAGE_DIMENSION_MIN) {
+                    throw StickerPackExceptionFactory.invalidTrayImageWidth(stickerPack.trayImageFile, bitmap.getWidth(), TRAY_IMAGE_DIMENSION_MIN,
+                            TRAY_IMAGE_DIMENSION_MAX);
+                }
+            } catch (FetchStickerException exception) {
+                throw StickerPackExceptionFactory.cannotOpenTrayImage(stickerPack.trayImageFile, exception);
+            }
+
+            final List<Sticker> stickers = stickerPack.getStickers();
+
+            if (stickers.size() < STICKER_SIZE_MIN || stickers.size() > STICKER_SIZE_MAX) {
+                throw StickerPackExceptionFactory.invalidStickerCount(stickers.size(), stickerPack.identifier);
+            }
         }
 
-        final List<Sticker> stickers = stickerPack.getStickers();
+    private static void checkStringValidity(@NonNull String string)
+        {
+            String pattern = "[\\w-.,'\\s]+"; // [a-zA-Z0-9_-.' ]
+            if (!string.matches(pattern)) {
+                throw StickerPackExceptionFactory.invalidStickerPackString(string);
+            }
 
-        if (stickers.size() < STICKER_SIZE_MIN || stickers.size() > STICKER_SIZE_MAX) {
-            throw StickerPackExceptionFactory.invalidStickerCount(
-                    stickers.size(),
-                    stickerPack.identifier);
+            if (string.contains("..")) {
+                throw StickerPackExceptionFactory.stickerPackStringContainsDotDot(string);
+            }
         }
-    }
-
-    private static void checkStringValidity(@NonNull String string) {
-        String pattern = "[\\w-.,'\\s]+"; // [a-zA-Z0-9_-.' ]
-        if (!string.matches(pattern)) {
-            throw StickerPackExceptionFactory.invalidStickerPackString(string);
-        }
-
-        if (string.contains("..")) {
-            throw StickerPackExceptionFactory.stickerPackStringContainsDotDot(string);
-        }
-    }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private static boolean isValidWebsiteUrl(String websiteUrl) throws InvalidWebsiteUrlException {
-        try {
-            new URL(websiteUrl);
-        } catch (MalformedURLException exception) {
-            Log.e("StickerPackValidator", "url: " + websiteUrl + " é malformado");
-            throw new InvalidWebsiteUrlException(
-                    String.format(
-                            "Url: %s está malformada",
-                            websiteUrl),
-                    exception,
-                    InvalidUrlErrorCode.INVALID_URL,
-                    websiteUrl);
-        }
-
-        return URLUtil.isHttpUrl(websiteUrl) || URLUtil.isHttpsUrl(websiteUrl);
-    }
-
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private static boolean isURLInCorrectDomain(String urlString, @NonNull String domain) throws InvalidWebsiteUrlException {
-        try {
-            URL url = new URL(urlString);
-
-            if (domain.equals(url.getHost())) {
-                return true;
+    private static boolean isValidWebsiteUrl(String websiteUrl) throws InvalidWebsiteUrlException
+        {
+            try {
+                new URL(websiteUrl);
+            } catch (MalformedURLException exception) {
+                Log.e("StickerPackValidator", "url: " + websiteUrl + " é malformado");
+                throw new InvalidWebsiteUrlException(String.format("Url: %s está malformada", websiteUrl), exception, InvalidUrlErrorCode.INVALID_URL,
+                        websiteUrl);
             }
 
-        } catch (MalformedURLException exception) {
-            Log.e("StickerPackValidator", "url: " + urlString + " é malformado");
-            throw new InvalidWebsiteUrlException(
-                    String.format(
-                            "Url: %s está malformada",
-                            urlString),
-                    exception.getCause(),
-                    InvalidUrlErrorCode.INVALID_URL,
-                    urlString);
+            return URLUtil.isHttpUrl(websiteUrl) || URLUtil.isHttpsUrl(websiteUrl);
         }
 
-        return false;
-    }
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private static boolean isURLInCorrectDomain(String urlString, @NonNull String domain) throws InvalidWebsiteUrlException
+        {
+            try {
+                URL url = new URL(urlString);
+
+                if (domain.equals(url.getHost())) {
+                    return true;
+                }
+
+            } catch (MalformedURLException exception) {
+                Log.e("StickerPackValidator", "url: " + urlString + " é malformado");
+                throw new InvalidWebsiteUrlException(String.format("Url: %s está malformada", urlString), exception.getCause(),
+                        InvalidUrlErrorCode.INVALID_URL, urlString);
+            }
+
+            return false;
+        }
 }

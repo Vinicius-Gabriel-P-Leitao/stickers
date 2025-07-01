@@ -25,8 +25,14 @@ import br.arch.sticker.core.error.code.FetchErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.FetchStickerException;
 
 public class FetchStickerAssetService {
-    public static byte[] fetchStickerAsset(
-            @NonNull final String stickerPackIdentifier, @NonNull final String fileName, @NonNull Context context) throws FetchStickerException
+    private final Context context;
+
+    public FetchStickerAssetService(Context context)
+        {
+            this.context = context.getApplicationContext();
+        }
+
+    public byte[] fetchStickerAsset(@NonNull final String stickerPackIdentifier, @NonNull final String fileName) throws FetchStickerException
         {
             File stickerFile = new File(new File(new File(context.getFilesDir(), STICKERS_ASSET), stickerPackIdentifier), fileName);
 

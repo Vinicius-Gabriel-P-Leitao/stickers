@@ -5,7 +5,6 @@
  * This source code is licensed under the Vinícius Non-Commercial Public License (VNCL),
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
-
 package br.arch.sticker.view.core.util.convert;
 
 import android.content.Context;
@@ -24,11 +23,24 @@ import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 import br.arch.sticker.view.core.util.resolver.FileDetailsResolver;
 
 public class ConvertMediaToStickerFormat {
-    public static CompletableFuture<File> convertMediaToWebPAsyncFuture(
-            @NonNull Context context, @NonNull Uri inputUri, @NonNull String outputFileName) throws MediaConversionException
+
+    private final FileDetailsResolver fileDetailsResolver;
+    private final ImageConverter imageConverter;
+    private final VideoConverter videoConverter;
+
+    public ConvertMediaToStickerFormat(Context paramContext)
+        {
+            Context context = paramContext.getApplicationContext();
+            this.imageConverter = new ImageConverter(context);
+            this.videoConverter = new VideoConverter(context);
+            this.fileDetailsResolver = new FileDetailsResolver(context);
+        }
+
+    public CompletableFuture<File> convertMediaToWebPAsyncFuture(
+            @NonNull Uri inputUri, @NonNull String outputFileName) throws MediaConversionException
         {
 
-            Map<String, String> fileDetails = FileDetailsResolver.getFileDetailsFromUri(context, inputUri);
+            Map<String, String> fileDetails = fileDetailsResolver.getFileDetailsFromUri(inputUri);
             CompletableFuture<File> future = new CompletableFuture<>();
 
             if (fileDetails.isEmpty()) {
@@ -43,13 +55,13 @@ public class ConvertMediaToStickerFormat {
 
                 try {
                     if (MimeTypeValidator.validateUniqueMimeType(mimeType, MimeTypesSupported.IMAGE.getMimeTypes())) {
-                        File file = ImageConverter.convertImageToWebPAsyncFuture(context, filePath, outputFileName);
+                        File file = imageConverter.convertImageToWebPAsyncFuture(filePath, outputFileName);
                         future.complete(file);
                         return future;
                     }
 
                     if (MimeTypeValidator.validateUniqueMimeType(mimeType, MimeTypesSupported.ANIMATED.getMimeTypes())) {
-                        return VideoConverter.convertVideoToWebPAsyncFuture(context, filePath, outputFileName);
+                        return videoConverter.convertVideoToWebPAsyncFuture(filePath, outputFileName);
                     }
 
                     future.completeExceptionally(new MediaConversionException(

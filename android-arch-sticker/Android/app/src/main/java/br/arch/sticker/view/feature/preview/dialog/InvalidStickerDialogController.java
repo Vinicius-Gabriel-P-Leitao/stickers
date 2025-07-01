@@ -12,7 +12,6 @@ import android.content.Context;
 import android.view.View;
 
 import br.arch.sticker.R;
-import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
 import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerViewModel;
 
@@ -38,8 +37,6 @@ public class InvalidStickerDialogController {
         {
             resetDialog();
             if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete delete) {
-                Sticker sticker = delete.sticker();
-                String stickerPackIdentifier = delete.stickerPackIdentifier();
                 int resourceString = delete.codeProvider().getMessageResId();
 
                 dialog.setTitleText(dialog.getContext().getString(R.string.dialog_delete));
@@ -49,7 +46,7 @@ public class InvalidStickerDialogController {
 
                 dialog.setTextFixButton(dialog.getContext().getString(R.string.dialog_delete));
                 dialog.setOnFixClick(view -> {
-                    viewModel.onFixActionConfirmed(action, dialog.getContext(), sticker, stickerPackIdentifier);
+                    viewModel.onFixActionConfirmed(action, dialog.getContext());
                     dialog.dismiss();
                 });
 

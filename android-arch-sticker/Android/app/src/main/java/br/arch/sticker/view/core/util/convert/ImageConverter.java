@@ -25,46 +25,53 @@ import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 
 public class ImageConverter {
 
-    public static File convertImageToWebPAsyncFuture(
-            @NonNull Context context, @NonNull String inputPath, @NonNull String outputFileName) throws MediaConversionException {
-        String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFileName);
-        File outputFile = new File(context.getCacheDir(), finalOutputFileName);
+    private final Context context;
 
-        String cleanedPath = inputPath.startsWith("file://") ? inputPath.substring(7) : inputPath;
-        Bitmap bitmap = BitmapFactory.decodeFile(cleanedPath);
-
-        if (bitmap == null) {
-            throw new MediaConversionException(
-                    String.format("Falha ao decodificar a imagem do caminho: %s", cleanedPath),
-                    MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
+    public ImageConverter(Context context)
+        {
+            this.context = context.getApplicationContext();
         }
 
-        Bitmap squareBitmap = cropImageAndResizeToSquare(bitmap);
+    public File convertImageToWebPAsyncFuture(@NonNull String inputPath, @NonNull String outputFileName) throws MediaConversionException
+        {
+            String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFileName);
+            File outputFile = new File(context.getCacheDir(), finalOutputFileName);
 
-        try (FileOutputStream out = new FileOutputStream(outputFile)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                squareBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 80, out);
-            } else {
-                squareBitmap.compress(Bitmap.CompressFormat.WEBP, 80, out);
+            String cleanedPath = inputPath.startsWith("file://")
+                                 ? inputPath.substring(7)
+                                 : inputPath;
+            Bitmap bitmap = BitmapFactory.decodeFile(cleanedPath);
+
+            if (bitmap == null) {
+                throw new MediaConversionException(String.format("Falha ao decodificar a imagem do caminho: %s", cleanedPath),
+                        MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
             }
 
-            return outputFile.getAbsoluteFile();
-        } catch (IOException exception) {
-            throw new MediaConversionException(
-                    Objects.toString(exception.getMessage(), "Erro desconhecido ao converter mídia"),
-                    exception.getCause(),
-                    MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
+            Bitmap squareBitmap = cropImageAndResizeToSquare(bitmap);
+
+            try (FileOutputStream out = new FileOutputStream(outputFile)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    squareBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 80, out);
+                } else {
+                    squareBitmap.compress(Bitmap.CompressFormat.WEBP, 80, out);
+                }
+
+                return outputFile.getAbsoluteFile();
+            } catch (IOException exception) {
+                throw new MediaConversionException(Objects.toString(exception.getMessage(), "Erro desconhecido ao converter mídia"),
+                        exception.getCause(), MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
+            }
         }
-    }
 
-    private static Bitmap cropImageAndResizeToSquare(Bitmap bitmap) {
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        int newEdge = Math.min(width, height);
-        int xOffset = (width - newEdge) / 2;
-        int yOffset = (height - newEdge) / 2;
+    private static Bitmap cropImageAndResizeToSquare(Bitmap bitmap)
+        {
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            int newEdge = Math.min(width, height);
+            int xOffset = (width - newEdge) / 2;
+            int yOffset = (height - newEdge) / 2;
 
-        Bitmap squareBitmap = Bitmap.createBitmap(bitmap, xOffset, yOffset, newEdge, newEdge);
-        return Bitmap.createScaledBitmap(squareBitmap, 512, 512, true);
-    }
+            Bitmap squareBitmap = Bitmap.createBitmap(bitmap, xOffset, yOffset, newEdge, newEdge);
+            return Bitmap.createScaledBitmap(squareBitmap, 512, 512, true);
+        }
 }

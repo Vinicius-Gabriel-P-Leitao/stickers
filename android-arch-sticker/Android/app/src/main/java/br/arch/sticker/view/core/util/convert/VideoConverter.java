@@ -20,35 +20,41 @@ import br.arch.sticker.core.error.code.MediaConversionErrorCode;
 import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 import br.arch.sticker.core.lib.NativeConvertToWebp;
 
-// @formatter:off
 public class VideoConverter {
-    public static CompletableFuture<File> convertVideoToWebPAsyncFuture(@NonNull Context context, @NonNull String inputPath,
-                                                                        @NonNull String outputFileName) throws MediaConversionException {
-        CompletableFuture<File> future = new CompletableFuture<>();
+    private final Context context;
 
-        String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFileName);
-        String outputFile = new File(context.getCacheDir(), finalOutputFileName).getAbsolutePath();
+    public VideoConverter(Context context)
+        {
+            this.context = context.getApplicationContext();
+        }
 
-        NativeConvertToWebp nativeConvertToWebp = new NativeConvertToWebp();
-        nativeConvertToWebp.convertToWebpAsync(
-                inputPath,
-                outputFile,
+    public CompletableFuture<File> convertVideoToWebPAsyncFuture(
+            @NonNull String inputPath, @NonNull String outputFileName) throws MediaConversionException
+        {
+            CompletableFuture<File> future = new CompletableFuture<>();
 
-                new NativeConvertToWebp.ConversionCallback() {
-                    @Override
-                    public void onSuccess(File file) {
-                        future.complete(file);
-                    }
+            String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFileName);
+            String outputFile = new File(context.getCacheDir(), finalOutputFileName).getAbsolutePath();
 
-                    @Override
-                    public void onError(Exception exception) {
-                        future.completeExceptionally(new MediaConversionException(
-                                Objects.toString(exception.getMessage(), "Erro desconhecido ao converter mídia"),
-                                exception.getCause(),
-                                MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
-                    }
-                });
+            NativeConvertToWebp nativeConvertToWebp = new NativeConvertToWebp();
+            nativeConvertToWebp.convertToWebpAsync(inputPath, outputFile,
 
-        return future;
-    }
+                    new NativeConvertToWebp.ConversionCallback() {
+                        @Override
+                        public void onSuccess(File file)
+                            {
+                                future.complete(file);
+                            }
+
+                        @Override
+                        public void onError(Exception exception)
+                            {
+                                future.completeExceptionally(
+                                        new MediaConversionException(Objects.toString(exception.getMessage(), "Erro desconhecido ao converter mídia"),
+                                                exception.getCause(), MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
+                            }
+                    });
+
+            return future;
+        }
 }

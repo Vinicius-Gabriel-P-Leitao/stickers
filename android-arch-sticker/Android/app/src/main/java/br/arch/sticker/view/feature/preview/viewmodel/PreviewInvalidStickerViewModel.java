@@ -5,16 +5,16 @@
  * This source code is licensed under the Vinícius Non-Commercial Public License (VNCL),
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
-
 package br.arch.sticker.view.feature.preview.viewmodel;
 
+import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import br.arch.sticker.core.error.ErrorCodeProvider;
 import br.arch.sticker.core.error.code.StickerAssetErrorCode;
@@ -24,14 +24,26 @@ import br.arch.sticker.domain.service.delete.DeleteStickerAssetService;
 import br.arch.sticker.domain.service.delete.DeleteStickerService;
 import br.arch.sticker.view.core.util.event.GenericEvent;
 
-public class PreviewInvalidStickerViewModel extends ViewModel {
+public class PreviewInvalidStickerViewModel extends AndroidViewModel {
     public sealed interface FixActionSticker permits FixActionSticker.Delete {
         record Delete(Sticker sticker, String stickerPackIdentifier, ErrorCodeProvider codeProvider) implements FixActionSticker {
         }
     }
 
+    private final DeleteStickerAssetService deleteStickerAssetService;
+    private final DeleteStickerService deleteStickerService;
+
     private final MutableLiveData<GenericEvent<FixActionSticker>> stickerMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<FixActionSticker> fixCompletedLiveData = new MutableLiveData<>();
+    private final MutableLiveData<String> errorMessageLiveData = new MutableLiveData<>();
+
+    public PreviewInvalidStickerViewModel(@NonNull Application application)
+        {
+            super(application);
+            Context context = application.getApplicationContext();
+            this.deleteStickerService = new DeleteStickerService(context);
+            this.deleteStickerAssetService = new DeleteStickerAssetService(context);
+        }
 
     public LiveData<GenericEvent<FixActionSticker>> getStickerMutableLiveData()
         {
@@ -41,6 +53,11 @@ public class PreviewInvalidStickerViewModel extends ViewModel {
     public LiveData<FixActionSticker> getFixCompletedLiveData()
         {
             return fixCompletedLiveData;
+        }
+
+    public LiveData<String> getErrorMessageLiveData()
+        {
+            return errorMessageLiveData;
         }
 
     public void handleFixStickerClick(Sticker sticker, String stickerPackIdentifier)
@@ -81,38 +98,34 @@ public class PreviewInvalidStickerViewModel extends ViewModel {
             }
         }
 
-    public void onFixActionConfirmed(FixActionSticker action, Context context, Sticker sticker, String stickerPackIdentifier)
+    public void onFixActionConfirmed(FixActionSticker action, Context context)
         {
-            // FIXME: Validar do por que diabos ele deleta o arquivo quando não é STICKER_FILE_NOT_EXIST porem simplesmente não deleta no banco de
-            //  dados!
             if (action instanceof FixActionSticker.Delete delete) {
-                if (delete.codeProvider != StickerAssetErrorCode.STICKER_FILE_NOT_EXIST) {
-                    CallbackResult<Boolean> deletedStickerAsset = DeleteStickerAssetService.deleteStickerAsset(
-                            context, stickerPackIdentifier, sticker.imageFileName);
+                Sticker sticker = delete.sticker();
+                String stickerPackIdentifier = delete.stickerPackIdentifier();
 
-                    switch (deletedStickerAsset.getStatus()) {
-                        case WARNING:
-                            Toast.makeText(context, deletedStickerAsset.getWarningMessage(), Toast.LENGTH_LONG).show();
-                            break;
-                        case FAILURE:
-                            Toast.makeText(context, deletedStickerAsset.getError().getMessage(), Toast.LENGTH_LONG).show();
-                            break;
+                new Thread(() -> {
+                    if (delete.codeProvider() != StickerAssetErrorCode.STICKER_FILE_NOT_EXIST) {
+                        CallbackResult<Boolean> resultAsset = deleteStickerAssetService.deleteStickerAsset(stickerPackIdentifier,
+                                sticker.imageFileName);
+                        if (resultAsset.isFailure()) {
+                            errorMessageLiveData.postValue(resultAsset.getError().getMessage());
+                            return;
+                        } else if (resultAsset.isWarning()) {
+                            errorMessageLiveData.postValue(resultAsset.getWarningMessage());
+                        }
                     }
-                }
 
-                CallbackResult<Boolean> deletedSticker = DeleteStickerService.deleteStickerByPack(
-                        context, stickerPackIdentifier, sticker.imageFileName);
+                    CallbackResult<Boolean> resultDB = deleteStickerService.deleteStickerByPack(stickerPackIdentifier, sticker.imageFileName);
+                    if (resultDB.isFailure()) {
+                        errorMessageLiveData.postValue(resultDB.getError().getMessage());
+                        return;
+                    } else if (resultDB.isWarning()) {
+                        errorMessageLiveData.postValue(resultDB.getWarningMessage());
+                    }
 
-                switch (deletedSticker.getStatus()) {
-                    case WARNING:
-                        Toast.makeText(context, deletedSticker.getWarningMessage(), Toast.LENGTH_LONG).show();
-                        break;
-                    case FAILURE:
-                        Toast.makeText(context, deletedSticker.getError().getMessage(), Toast.LENGTH_LONG).show();
-                        break;
-                }
+                    fixCompletedLiveData.postValue(action);
+                }).start();
             }
-
-            fixCompletedLiveData.setValue(action);
         }
 }

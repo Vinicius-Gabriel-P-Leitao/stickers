@@ -31,16 +31,25 @@ import br.arch.sticker.domain.data.content.StickerContentProvider;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.service.update.UpdateStickerService;
 
-// @formatter:off
 public class FetchStickerService {
-    @NonNull
-    public static List<Sticker> fetchListStickerForPack(Context context, String stickerPackIdentifier)
+
+    private final FetchStickerAssetService fetchStickerAssetService;
+    private final Context context;
+
+    public FetchStickerService(Context context)
         {
-            final List<Sticker> stickers = fetchListStickerFromContentProvider(stickerPackIdentifier, context.getContentResolver());
+            this.context = context.getApplicationContext();
+            this.fetchStickerAssetService = new FetchStickerAssetService(this.context);
+        }
+
+    @NonNull
+    public List<Sticker> fetchListStickerForPack(String stickerPackIdentifier)
+        {
+            final List<Sticker> stickers = fetchListStickerFromContentProvider(stickerPackIdentifier);
 
             for(Sticker sticker: stickers){
                 try {
-                    byte[] bytes = FetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, sticker.imageFileName, context);
+                    byte[] bytes = fetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, sticker.imageFileName);
 
                     if (bytes.length == 0) {
                         if (!TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.name())) {
@@ -64,13 +73,12 @@ public class FetchStickerService {
         }
 
     @NonNull
-    private static List<Sticker> fetchListStickerFromContentProvider(String stickerPackIdentifier, ContentResolver contentResolver)
+    private List<Sticker> fetchListStickerFromContentProvider(String stickerPackIdentifier)
         {
             Uri uri = buildStickerUri(stickerPackIdentifier);
-
             final String[] projection = {STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY};
+            final Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
 
-            final Cursor cursor = contentResolver.query(uri, projection, null, null, null);
             List<Sticker> stickers = new ArrayList<>();
 
             if (cursor != null && cursor.getCount() > 0) {

@@ -291,8 +291,11 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
         private final ExecutorService executor = Executors.newSingleThreadExecutor();
         private final Handler handler = new Handler(Looper.getMainLooper());
 
+        private final WhatsappWhitelistValidator whatsappWhitelistValidator;
+
         WhiteListCheckAsyncTask(StickerPackDetailsActivity stickerPackListActivity) {
             this.stickerPackDetailsActivityWeakReference = new WeakReference<>(stickerPackListActivity);
+            this.whatsappWhitelistValidator = new WhatsappWhitelistValidator(stickerPackListActivity);
         }
 
         public void execute(StickerPack stickerPack) {
@@ -309,7 +312,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
                 handler.post(() -> {
                     StickerPackDetailsActivity uiActivity = stickerPackDetailsActivityWeakReference.get();
                     if (uiActivity != null) {
-                        uiActivity.updateAddUI(WhatsappWhitelistValidator.isWhitelisted(currentActivity, stickerPack.identifier));
+                        uiActivity.updateAddUI(whatsappWhitelistValidator.isWhitelisted(stickerPack.identifier));
                     }
                 });
             });

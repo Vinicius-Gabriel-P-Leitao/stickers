@@ -23,11 +23,18 @@ import br.arch.sticker.domain.data.database.repository.DeleteStickerPackRepo;
 public class DeleteStickerService {
     private final static String TAG_LOG = DeleteStickerService.class.getSimpleName();
 
-    public static CallbackResult<Boolean> deleteStickerByPack(
-            @NonNull Context context, @NonNull String stickerPackIdentifier, @NonNull String fileName)
+    private final DeleteStickerPackRepo deleteStickerPackRepo;
+
+    public DeleteStickerService(Context paramContext)
+        {
+            Context context = paramContext.getApplicationContext();
+            this.deleteStickerPackRepo = new DeleteStickerPackRepo(context);
+        }
+
+    public CallbackResult<Boolean> deleteStickerByPack(@NonNull String stickerPackIdentifier, @NonNull String fileName)
         {
             try {
-                int deletedSticker = DeleteStickerPackRepo.deleteSticker(context, stickerPackIdentifier, fileName);
+                int deletedSticker = deleteStickerPackRepo.deleteSticker(stickerPackIdentifier, fileName);
 
                 if (deletedSticker > 0) {
                     Log.i(TAG_LOG, "Figurinha deletado com sucesso");
@@ -42,10 +49,10 @@ public class DeleteStickerService {
             }
         }
 
-    public static CallbackResult<Boolean> deleteAllStickerByPack(@NonNull Context context, @NonNull String stickerPackIdentifier)
+    public CallbackResult<Boolean> deleteAllStickerByPack(@NonNull String stickerPackIdentifier)
         {
             try {
-                CallbackResult<Integer> stickerDeletedInDb = DeleteStickerPackRepo.deleteAllStickerOfPack(context, stickerPackIdentifier);
+                CallbackResult<Integer> stickerDeletedInDb = deleteStickerPackRepo.deleteAllStickerOfPack(stickerPackIdentifier);
                 if (stickerDeletedInDb.getStatus() == CallbackResult.Status.FAILURE) {
                     return CallbackResult.failure(stickerDeletedInDb.getError());
                 }
