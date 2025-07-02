@@ -9,14 +9,32 @@
 package br.arch.sticker.core.error.throwable.sticker;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import br.arch.sticker.core.error.ErrorCodeProvider;
 import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 
-// @formatter:off
 public class StickerValidatorException extends AppCoreStateException {
+    private final String stickerPackIdentifier;
+    @Nullable
+    private final String fileName;
 
-    public StickerValidatorException(@NonNull String message, ErrorCodeProvider errorCode) {
-        super(message, errorCode);
-    }
+    public StickerValidatorException(
+            @NonNull String message, @NonNull ErrorCodeProvider errorCode, @Nullable String stickerPackIdentifier, @Nullable String fileName)
+        {
+            super(message, errorCode);
+            this.stickerPackIdentifier = stickerPackIdentifier;
+            this.fileName = fileName;
+        }
+
+    public String getStickerPackIdentifier()
+        {
+            return stickerPackIdentifier;
+        }
+
+    @Nullable
+    public String getFileName()
+        {
+            return fileName;
+        }
 }

@@ -11,20 +11,20 @@ package br.arch.sticker.core.error.factory;
 import java.util.Locale;
 
 import br.arch.sticker.core.error.code.StickerPackErrorCode;
-import br.arch.sticker.core.error.throwable.sticker.PackValidatorException;
+import br.arch.sticker.core.error.throwable.sticker.StickerPackValidatorException;
 
 public class StickerPackExceptionFactory {
     private StickerPackExceptionFactory() {
     }
 
-    public static PackValidatorException emptyStickerPackIdentifier() {
-        return new PackValidatorException(
+    public static StickerPackValidatorException emptyStickerPackIdentifier() {
+        return new StickerPackValidatorException(
                 "O identificador do pacote de figurinhas está vazio!",
                 StickerPackErrorCode.INVALID_IDENTIFIER);
     }
 
-    public static PackValidatorException invalidSizeStickerPackIdentifier(int charMax) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidSizeStickerPackIdentifier(int charMax) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "O identificador do pacote de figurinhas não pode exceder %d caracteres",
@@ -32,8 +32,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_IDENTIFIER);
     }
 
-    public static PackValidatorException emptyStickerPackPublisher(String stickerPackIdentifier) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException emptyStickerPackPublisher(String stickerPackIdentifier) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "O publisher do pacote de figurinhas está vazio, identificador do pacote de figurinhas: %s",
@@ -41,8 +41,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_PUBLISHER);
     }
 
-    public static PackValidatorException invalidSizePublisherStickerPack(int charMax, String stickerPackIdentifier) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidSizePublisherStickerPack(int charMax, String stickerPackIdentifier) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "O publisher do pacote de figurinhas não pode exceder %d caracteres, identificador do pacote de figurinhas: %s",
@@ -51,8 +51,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_PUBLISHER);
     }
 
-    public static PackValidatorException emptyStickerPackName(String stickerPackIdentifier) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException emptyStickerPackName(String stickerPackIdentifier) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "Nome do pacote de figurinhas está vazio, identificador do pacote de figurinhas: %s",
@@ -60,8 +60,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_STICKERPACK_NAME);
     }
 
-    public static PackValidatorException invalidSizeNameStickerPack(int charMax, String stickerPackIdentifier) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidSizeNameStickerPack(int charMax, String stickerPackIdentifier) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "O nome do pacote de figurinhas não pode exceder %d caracteres, identificador do pacote de figurinhas: %s",
@@ -70,8 +70,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_PUBLISHER);
     }
 
-    public static PackValidatorException emptyTrayImage(String stickerPackIdentifier) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException emptyTrayImage(String stickerPackIdentifier) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "A thumbnail do pacote de figurinhas está vazia, identificador do pacote de figurinhas: %s",
@@ -79,8 +79,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_THUMBNAIL);
     }
 
-    public static PackValidatorException invalidAndroidPlayStoreUrl(String url) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidAndroidPlayStoreUrl(String url) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "Certifique-se de incluir http ou https nas URL, o link da Android Play Store não é uma URL válida: %s",
@@ -88,8 +88,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_ANDROID_URL_SITE);
     }
 
-    public static PackValidatorException invalidAndroidPlayStoreDomain(String domain) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidAndroidPlayStoreDomain(String domain) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "O link da Android Play Store deve usar o domínio da Play Store: %s",
@@ -97,8 +97,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_ANDROID_URL_SITE);
     }
 
-    public static PackValidatorException invalidIosAppStoreUrl(String url) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidIosAppStoreUrl(String url) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "Certifique-se de incluir http ou https nos links de URL, o link da loja de aplicativos iOS não é uma URL válida: %s",
@@ -106,8 +106,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_IOS_URL_SITE);
     }
 
-    public static PackValidatorException invalidIosAppStoreDomain(String domain) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidIosAppStoreDomain(String domain) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "O link da loja de aplicativos iOS deve usar o domínio da loja de aplicativos: %s",
@@ -115,8 +115,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_IOS_URL_SITE);
     }
 
-    public static PackValidatorException invalidLicenseAgreementUrl(String url) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidLicenseAgreementUrl(String url) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "Certifique-se de incluir http ou https nos links de URL, o link do contrato de licença não é uma URL válida: %s",
@@ -124,8 +124,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_WEBSITE);
     }
 
-    public static PackValidatorException invalidPrivacyPolicyUrl(String url) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidPrivacyPolicyUrl(String url) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "Certifique-se de incluir http ou https nos links de URL, o link da política de privacidade não é uma URL válida: %s",
@@ -133,8 +133,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_WEBSITE);
     }
 
-    public static PackValidatorException invalidPublisherWebsite(String url) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidPublisherWebsite(String url) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "Certifique-se de incluir http ou https nos links de URL, o link do site do editor não é uma URL válida: %s",
@@ -142,8 +142,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_WEBSITE);
     }
 
-    public static PackValidatorException invalidPublisherEmail(String email) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidPublisherEmail(String email) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "O e-mail do publisher não parece válido, o e-mail é: %s",
@@ -151,8 +151,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_EMAIL);
     }
 
-    public static PackValidatorException trayImageTooLarge(String fileName, int maxKb) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException trayImageTooLarge(String fileName, int maxKb) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "A imagem da thumbnail deve ter menos de %d KB, arquivo de thumbnail: %s",
@@ -161,8 +161,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_THUMBNAIL);
     }
 
-    public static PackValidatorException invalidTrayImageHeight(String fileName, int height, int min, int max) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidTrayImageHeight(String fileName, int height, int min, int max) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "A altura da thumbnail deve estar entre %d e %d pixels, a altura atual da imagem da bandeja é %d, arquivo: %s",
@@ -173,8 +173,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_THUMBNAIL);
     }
 
-    public static PackValidatorException invalidTrayImageWidth(String fileName, int width, int min, int max) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidTrayImageWidth(String fileName, int width, int min, int max) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "A largura da thumbnail deve estar entre %d e %d pixels, a largura atual da imagem da bandeja é %d, arquivo: %s",
@@ -185,8 +185,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_THUMBNAIL);
     }
 
-    public static PackValidatorException cannotOpenTrayImage(String fileName, Throwable cause) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException cannotOpenTrayImage(String fileName, Throwable cause) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "Não é possível abrir a thumbnail: %s",
@@ -195,8 +195,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_THUMBNAIL);
     }
 
-    public static PackValidatorException invalidStickerCount(int count, String stickerPackIdentifier) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidStickerCount(int count, String stickerPackIdentifier) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "A quantidade de figurinhas do pacote deve estar entre 3 a 30, atualmente tem %d, identificador do pacote de figurinhas: %s",
@@ -205,8 +205,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_STICKERPACK_SIZE);
     }
 
-    public static PackValidatorException invalidStickerPackString(String offendingString) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException invalidStickerPackString(String offendingString) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "%s contém caracteres inválidos, os caracteres permitidos são de a a z, A a Z, _, ' - . e caractere de espaço",
@@ -214,8 +214,8 @@ public class StickerPackExceptionFactory {
                 StickerPackErrorCode.INVALID_STICKERPACK_NAME);
     }
 
-    public static PackValidatorException stickerPackStringContainsDotDot(String offendingString) {
-        return new PackValidatorException(
+    public static StickerPackValidatorException stickerPackStringContainsDotDot(String offendingString) {
+        return new StickerPackValidatorException(
                 String.format(
                         Locale.ROOT,
                         "%s não pode conter ..",

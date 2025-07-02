@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import br.arch.sticker.core.error.code.BaseErrorCode;
 import br.arch.sticker.core.error.code.SaveErrorCode;
 import br.arch.sticker.core.error.throwable.content.InvalidWebsiteUrlException;
-import br.arch.sticker.core.error.throwable.sticker.PackValidatorException;
+import br.arch.sticker.core.error.throwable.sticker.StickerPackValidatorException;
 import br.arch.sticker.core.error.throwable.sticker.StickerFileException;
 import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.error.throwable.sticker.StickerValidatorException;
@@ -135,7 +135,7 @@ public class SaveStickerPackService {
 
             try {
                 stickerPackValidator.verifyStickerPackValidity(stickerPack);
-            } catch (PackValidatorException | StickerValidatorException | InvalidWebsiteUrlException exception) {
+            } catch (StickerPackValidatorException | StickerValidatorException | InvalidWebsiteUrlException exception) {
                 Log.e(TAG_LOG, exception.getMessage() != null
                                ? exception.getMessage()
                                : "Erro ao validar pacote!");

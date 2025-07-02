@@ -39,15 +39,16 @@ import java.util.HashSet;
 import java.util.List;
 
 import br.arch.sticker.BuildConfig;
+import br.arch.sticker.core.error.ErrorCodeProvider;
 import br.arch.sticker.core.error.code.FetchErrorCode;
 import br.arch.sticker.core.error.code.SaveErrorCode;
 import br.arch.sticker.core.error.code.StickerPackErrorCode;
 import br.arch.sticker.core.error.throwable.content.InvalidWebsiteUrlException;
 import br.arch.sticker.core.error.throwable.sticker.FetchStickerException;
 import br.arch.sticker.core.error.throwable.sticker.FetchStickerPackException;
-import br.arch.sticker.core.error.throwable.sticker.PackValidatorException;
 import br.arch.sticker.core.error.throwable.sticker.StickerFileException;
 import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
+import br.arch.sticker.core.error.throwable.sticker.StickerPackValidatorException;
 import br.arch.sticker.core.error.throwable.sticker.StickerValidatorException;
 import br.arch.sticker.core.validation.StickerPackValidator;
 import br.arch.sticker.core.validation.StickerValidator;
@@ -55,12 +56,14 @@ import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.ListStickerPackValidationResult;
 import br.arch.sticker.domain.dto.StickerPackValidationResult;
+import br.arch.sticker.domain.service.update.UpdateStickerService;
 import br.arch.sticker.domain.util.StickerPackPlaceholder;
 
 public class FetchStickerPackService {
 
     private final StickerPackPlaceholder stickerPackPlaceholder;
     private final StickerPackValidator stickerPackValidator;
+    private final UpdateStickerService updateStickerService;
     private final FetchStickerService fetchStickerService;
     private final StickerValidator stickerValidator;
     private final Context context;
@@ -71,6 +74,7 @@ public class FetchStickerPackService {
             this.stickerValidator = new StickerValidator(this.context);
             this.fetchStickerService = new FetchStickerService(this.context);
             this.stickerPackValidator = new StickerPackValidator(this.context);
+            this.updateStickerService = new UpdateStickerService(this.context);
             this.stickerPackPlaceholder = new StickerPackPlaceholder(this.context);
         }
 
@@ -79,7 +83,8 @@ public class FetchStickerPackService {
         {
             final Cursor cursor = context.getContentResolver().query(AUTHORITY_URI, null, null, null, null);
             if (cursor == null) {
-                throw new FetchStickerPackException("Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY,
+                throw new FetchStickerPackException(
+                        "Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY,
                         FetchErrorCode.ERROR_CONTENT_PROVIDER);
             }
 
@@ -92,19 +97,22 @@ public class FetchStickerPackService {
                 allStickerPacks = new ArrayList<>(this.buildListStickerPack(cursor));
             } else {
                 cursor.close();
-                throw new FetchStickerPackException("Nenhum pacote de figurinhas encontrado no content provider",
+                throw new FetchStickerPackException(
+                        "Nenhum pacote de figurinhas encontrado no content provider",
                         FetchErrorCode.ERROR_CONTENT_PROVIDER);
             }
 
             if (allStickerPacks.isEmpty()) {
-                throw new FetchStickerPackException("Deve haver pelo menos um pacote de adesivos no aplicativo",
+                throw new FetchStickerPackException(
+                        "Deve haver pelo menos um pacote de adesivos no aplicativo",
                         FetchErrorCode.ERROR_EMPTY_STICKERPACK);
             }
 
             for (StickerPack stickerPack : allStickerPacks) {
                 if (!stickerPackIdentifierSet.add(stickerPack.identifier)) {
-                    throw new StickerValidatorException(
-                            String.format("Os identificadores dos pacotes de figurinhas devem ser únicos, há mais de um pacote com identificador: %s",
+                    throw new StickerPackValidatorException(
+                            String.format(
+                                    "Os identificadores dos pacotes de figurinhas devem ser únicos, há mais de um pacote com identificador: %s",
                                     stickerPack.identifier), StickerPackErrorCode.DUPLICATE_IDENTIFIER);
                 }
             }
@@ -125,7 +133,25 @@ public class FetchStickerPackService {
                         try {
                             stickerValidator.verifyStickerValidity(stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
                             return false;
-                        } catch (StickerFileException | StickerValidatorException stickerFileException) {
+                        } catch (StickerFileException | StickerValidatorException exception) {
+                            String packId, fileName, errorCodeName;
+                            ErrorCodeProvider errorCode;
+
+                            if (exception instanceof StickerFileException stickerFileException) {
+                                packId = stickerFileException.getStickerPackIdentifier();
+                                fileName = stickerFileException.getFileName();
+                                errorCode = stickerFileException.getErrorCode();
+                                errorCodeName = stickerFileException.getErrorCodeName();
+                            } else {
+                                StickerValidatorException StickerValidatorException = (StickerValidatorException) exception;
+                                packId = StickerValidatorException.getStickerPackIdentifier();
+                                fileName = StickerValidatorException.getFileName();
+                                errorCode = StickerValidatorException.getErrorCode();
+                                errorCodeName = StickerValidatorException.getErrorCodeName();
+                            }
+
+                            updateStickerService.updateInvalidSticker(packId, fileName, errorCode);
+                            sticker.setStickerIsInvalid(errorCodeName);
                             invalidStickers.add(sticker);
                             return true;
                         }
@@ -142,7 +168,7 @@ public class FetchStickerPackService {
                     }
 
                     return false;
-                } catch (PackValidatorException | InvalidWebsiteUrlException appCoreStateException) {
+                } catch (StickerPackValidatorException | InvalidWebsiteUrlException appCoreStateException) {
                     invalidPacks.add(stickerPack);
                     return true;
                 }
@@ -167,10 +193,12 @@ public class FetchStickerPackService {
 
     public StickerPackValidationResult fetchStickerPackFromContentProvider(String stickerPackIdentifier) throws FetchStickerPackException
         {
-            final Cursor cursor = context.getContentResolver().query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null,
+            final Cursor cursor = context.getContentResolver().query(
+                    Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null,
                     null);
             if (cursor == null || cursor.getCount() == 0) {
-                throw new FetchStickerPackException("Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY,
+                throw new FetchStickerPackException(
+                        "Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY,
                         FetchErrorCode.ERROR_CONTENT_PROVIDER);
             }
 
@@ -179,7 +207,8 @@ public class FetchStickerPackService {
                 stickerPack = writeCursorToStickerPack(cursor);
             } else {
                 cursor.close();
-                throw new FetchStickerPackException("Nenhum pacote de figurinhas encontrado no content provider",
+                throw new FetchStickerPackException(
+                        "Nenhum pacote de figurinhas encontrado no content provider",
                         FetchErrorCode.ERROR_EMPTY_STICKERPACK);
             }
 
@@ -199,21 +228,29 @@ public class FetchStickerPackService {
                         return false;
                     } catch (StickerFileException | StickerValidatorException exception) {
                         invalidStickers.add(sticker);
+
+                        if (exception instanceof StickerFileException stickerFileException) {
+                            updateStickerService.updateInvalidSticker(
+                                    stickerFileException.getStickerPackIdentifier(),
+                                    stickerFileException.getFileName(), stickerFileException.getErrorCode());
+                        }
+
                         return true;
                     }
                 });
 
                 if (stickerPack.getStickers().isEmpty()) {
-                    throw new FetchStickerPackException("Pacote de figurinhas inválido: não restaram stickers após a validação.",
+                    throw new FetchStickerPackException(
+                            "Pacote de figurinhas inválido: não restaram stickers após a validação.",
                             FetchErrorCode.ERROR_EMPTY_STICKERPACK, new Object[]{stickerPack});
                 }
 
                 return new StickerPackValidationResult(stickerPack, invalidStickers);
-            } catch (PackValidatorException | InvalidWebsiteUrlException exception) {
-                throw new FetchStickerPackException(exception.getMessage() != null
-                                                    ? exception.getMessage()
-                                                    : "Pacote de figurinhas invalido", exception.getCause(), exception.getErrorCode(),
-                        new Object[]{stickerPack});
+            } catch (StickerPackValidatorException | InvalidWebsiteUrlException exception) {
+                throw new FetchStickerPackException(
+                        exception.getMessage() != null
+                        ? exception.getMessage()
+                        : "Pacote de figurinhas invalido", exception.getCause(), exception.getErrorCode(), new Object[]{stickerPack});
             }
         }
 
@@ -234,7 +271,8 @@ public class FetchStickerPackService {
             final boolean avoidCache = cursor.getShort(cursor.getColumnIndexOrThrow(AVOID_CACHE)) > 0;
             final boolean animatedStickerPack = cursor.getShort(cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) > 0;
 
-            final StickerPack stickerPack = new StickerPack(identifier, name, publisher, trayImage, publisherEmail, publisherWebsite,
+            final StickerPack stickerPack = new StickerPack(
+                    identifier, name, publisher, trayImage, publisherEmail, publisherWebsite,
                     privacyPolicyWebsite, licenseAgreementWebsite, imageDataVersion, avoidCache, animatedStickerPack);
 
             List<Sticker> stickers = fetchStickerService.fetchListStickerForPack(identifier);

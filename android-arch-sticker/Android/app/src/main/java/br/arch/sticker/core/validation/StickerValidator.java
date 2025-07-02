@@ -52,7 +52,7 @@ public class StickerValidator {
             }
 
             if (TextUtils.isEmpty(sticker.imageFileName)) {
-                throw StickerExceptionFactory.missingStickerFileName(stickerPackIdentifier);
+                throw StickerExceptionFactory.missingStickerFileName(stickerPackIdentifier, null);
             }
 
             final String accessibilityText = sticker.accessibilityText;
