@@ -95,7 +95,7 @@ public class SaveStickerPackService {
             List<Sticker> stickerList = new ArrayList<>(stickerPack.getStickers());
 
             while (stickerList.size() < STICKER_SIZE_MIN) {
-                Sticker placeholder = stickerPackPlaceholder.makeStickerPlaceholder(context, stickerPack);
+                Sticker placeholder = stickerPackPlaceholder.makeStickerPlaceholder(stickerPack, context.getFilesDir());
                 stickerList.add(placeholder);
             }
 

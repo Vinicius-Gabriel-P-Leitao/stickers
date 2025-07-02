@@ -53,7 +53,10 @@ public class StickerPackPlaceholder {
             isCreatingPlaceholder = true;
 
             try {
-                Sticker stickerPlaceholder = this.makeStickerPlaceholder(context, stickerPack);
+                File stickerDir = new File(context.getFilesDir(), "stickers_asset/" + stickerPack.identifier);
+                if (!stickerDir.exists()) stickerDir.mkdirs();
+
+                Sticker stickerPlaceholder = this.makeStickerPlaceholder(stickerPack, stickerDir);
                 CallbackResult<Sticker> insertedSticker = insertStickerPackRepo.insertSticker(stickerPlaceholder, stickerPack.identifier);
 
                 return insertedSticker.getData();
@@ -62,7 +65,7 @@ public class StickerPackPlaceholder {
             }
         }
 
-    public Sticker makeStickerPlaceholder(Context context, StickerPack stickerPack)
+    public Sticker makeStickerPlaceholder(StickerPack stickerPack, File outputFile)
         {
             String fileName = stickerPack.animatedStickerPack
                               ? PLACEHOLDER_ANIMATED
@@ -72,10 +75,10 @@ public class StickerPackPlaceholder {
                                    ? "Pacote animado com nome " + stickerPack.name
                                    : "Pacote estático com nome " + stickerPack.name;
 
-            File cacheFile = new File(context.getCacheDir(), fileName);
+            File destFile = new File(outputFile, fileName);
             try (AssetFileDescriptor assetFileDescriptor = context.getAssets().openFd(fileName);
                  InputStream inputStream = assetFileDescriptor.createInputStream();
-                 OutputStream outputStream = new FileOutputStream(cacheFile)) {
+                 OutputStream outputStream = new FileOutputStream(destFile)) {
 
                 byte[] buffer = new byte[4096];
                 int length;
