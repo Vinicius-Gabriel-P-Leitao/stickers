@@ -20,7 +20,7 @@ public class NativeProcessWebp {
         System.loadLibrary("sticker");
     }
 
-    public native boolean convertToWebp(String inputPath, String outputPath);
+    public native boolean convertToWebp(String inputPath, String outputPath, float quality, boolean lossless);
 
     public interface ConversionCallback {
         void onSuccess(File file);
@@ -30,10 +30,12 @@ public class NativeProcessWebp {
 
     private static final ExecutorService nativeExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-    public void processWebpAsync(String inputPath, String outputPath, ConversionCallback callback) throws MediaConversionException {
+    public void processWebpAsync(
+            String inputPath, String outputPath, float quality, boolean lossless, ConversionCallback callback) throws MediaConversionException
+        {
         nativeExecutor.submit(() -> {
             try {
-                boolean success = convertToWebp(inputPath, outputPath);
+                boolean success = convertToWebp(inputPath, outputPath, quality, lossless);
                 File outputFile = new File(outputPath);
 
                 if (success && outputFile.exists()) {

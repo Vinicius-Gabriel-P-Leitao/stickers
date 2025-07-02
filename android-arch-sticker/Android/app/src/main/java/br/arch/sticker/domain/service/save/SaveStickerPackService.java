@@ -28,9 +28,9 @@ import java.util.concurrent.CompletableFuture;
 import br.arch.sticker.core.error.code.BaseErrorCode;
 import br.arch.sticker.core.error.code.SaveErrorCode;
 import br.arch.sticker.core.error.throwable.content.InvalidWebsiteUrlException;
-import br.arch.sticker.core.error.throwable.sticker.StickerPackValidatorException;
 import br.arch.sticker.core.error.throwable.sticker.StickerFileException;
 import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
+import br.arch.sticker.core.error.throwable.sticker.StickerPackValidatorException;
 import br.arch.sticker.core.error.throwable.sticker.StickerValidatorException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.core.validation.StickerPackValidator;
@@ -45,6 +45,7 @@ import br.arch.sticker.domain.util.StickerPackPlaceholder;
 public class SaveStickerPackService {
     private final static String TAG_LOG = SaveStickerPackService.class.getSimpleName();
 
+    private final SaveStickerAssetService saveStickerAssetService;
     private final StickerPackPlaceholder stickerPackPlaceholder;
     private final StickerPackValidator stickerPackValidator;
     private final StickerValidator stickerValidator;
@@ -56,6 +57,7 @@ public class SaveStickerPackService {
             this.stickerValidator = new StickerValidator(this.context);
             this.stickerPackValidator = new StickerPackValidator(this.context);
             this.stickerPackPlaceholder = new StickerPackPlaceholder(this.context);
+            this.saveStickerAssetService = new SaveStickerAssetService(this.context);
         }
 
     public CompletableFuture<CallbackResult<StickerPack>> saveStickerPackAsync(boolean isAnimated, @NonNull List<File> files, @NonNull String name)
@@ -92,45 +94,41 @@ public class SaveStickerPackService {
     public CallbackResult<StickerPack> persistPackToStorage(
             @NonNull Context context, @NonNull StickerPack stickerPack) throws StickerPackSaveException
         {
-            List<Sticker> stickerList = new ArrayList<>(stickerPack.getStickers());
-
-            while (stickerList.size() < STICKER_SIZE_MIN) {
-                Sticker placeholder = stickerPackPlaceholder.makeStickerPlaceholder(stickerPack, context.getFilesDir());
-                stickerList.add(placeholder);
-            }
-
-            stickerPack.setStickers(stickerList);
-
             File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
+            CallbackResult<Boolean> createdMainDirectory, copyStickerPack;
 
-            CallbackResult<Boolean> mainDirectoryCallback = StickerPackDirectory.createMainDirectory(mainDirectory);
-            if (!mainDirectoryCallback.isSuccess() && !mainDirectoryCallback.isDebug()) {
-                if (mainDirectoryCallback.isWarning()) return CallbackResult.warning(mainDirectoryCallback.getWarningMessage());
-                return CallbackResult.failure(mainDirectoryCallback.getError());
+            createdMainDirectory = StickerPackDirectory.createMainDirectory(mainDirectory);
+            if (!createdMainDirectory.isSuccess() && !createdMainDirectory.isDebug()) {
+                if (createdMainDirectory.isWarning()) return CallbackResult.warning(createdMainDirectory.getWarningMessage());
+                return CallbackResult.failure(createdMainDirectory.getError());
             }
 
-            CallbackResult<File> stickerPackDirectoryCallback = StickerPackDirectory.createStickerPackDirectory(mainDirectory,
-                    stickerPack.identifier);
-            if (!stickerPackDirectoryCallback.isSuccess() && !stickerPackDirectoryCallback.isWarning()) {
-                if (stickerPackDirectoryCallback.isDebug()) {
-                    Log.d(TAG_LOG, stickerPackDirectoryCallback.getDebugMessage());
+            CallbackResult<File> createdStickerPackDirectory = StickerPackDirectory.createStickerPackDirectory(mainDirectory, stickerPack.identifier);
+            if (!createdStickerPackDirectory.isSuccess() && !createdStickerPackDirectory.isWarning()) {
+                if (createdStickerPackDirectory.isDebug()) {
+                    Log.d(TAG_LOG, createdStickerPackDirectory.getDebugMessage());
                 } else {
-                    return CallbackResult.failure(stickerPackDirectoryCallback.getError());
+                    return CallbackResult.failure(createdStickerPackDirectory.getError());
                 }
             }
 
-            if (stickerPackDirectoryCallback.getData() == null) {
+            if (createdStickerPackDirectory.getData() == null) {
                 return CallbackResult.failure(
                         new StickerPackSaveException("O diretório para salvar os pacotes está como nulo.", SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
             }
 
-            // NOTE: Já chama aqui para não ter problemas na viewmodel
-            CallbackResult<Boolean> copyStickerCallback = SaveStickerAssetService.saveStickerFromCache(context, stickerPack,
-                    stickerPackDirectoryCallback.getData());
-            if (!copyStickerCallback.isSuccess()) {
-                if (copyStickerCallback.isDebug()) return CallbackResult.debug(copyStickerCallback.getDebugMessage());
-                if (copyStickerCallback.isWarning()) return CallbackResult.warning(copyStickerCallback.getWarningMessage());
-                return CallbackResult.failure(copyStickerCallback.getError());
+            List<Sticker> stickerList = new ArrayList<>(stickerPack.getStickers());
+            while (stickerList.size() < STICKER_SIZE_MIN) {
+                Sticker placeholder = stickerPackPlaceholder.makeStickerPlaceholder(stickerPack, createdStickerPackDirectory.getData());
+                stickerList.add(placeholder);
+            }
+            stickerPack.setStickers(stickerList);
+
+            copyStickerPack = saveStickerAssetService.saveStickerFromCache(stickerPack, createdStickerPackDirectory.getData());
+            if (!copyStickerPack.isSuccess()) {
+                if (copyStickerPack.isDebug()) return CallbackResult.debug(copyStickerPack.getDebugMessage());
+                if (copyStickerPack.isWarning()) return CallbackResult.warning(copyStickerPack.getWarningMessage());
+                return CallbackResult.failure(copyStickerPack.getError());
             }
 
             try {
@@ -138,7 +136,8 @@ public class SaveStickerPackService {
             } catch (StickerPackValidatorException | StickerValidatorException | InvalidWebsiteUrlException exception) {
                 Log.e(TAG_LOG, exception.getMessage() != null
                                ? exception.getMessage()
-                               : "Erro ao validar pacote!");
+                               : "Erro ao validar pacote!"
+                );
             }
 
             for (Sticker sticker : stickerList) {
@@ -153,14 +152,15 @@ public class SaveStickerPackService {
 
                     Log.e(TAG_LOG, exception.getMessage() != null
                                    ? exception.getMessage()
-                                   : "Erro ao validar sticker!");
+                                   : "Erro ao validar sticker!"
+                    );
                 }
             }
 
-            return insertStickerPack(context, stickerPack);
+            return insertStickerPack(stickerPack);
         }
 
-    private static CallbackResult<StickerPack> insertStickerPack(Context context, StickerPack stickerPack)
+    private CallbackResult<StickerPack> insertStickerPack(StickerPack stickerPack)
         {
             StickerDatabase instance = StickerDatabase.getInstance(context);
             SQLiteDatabase writableDatabase = instance.getWritableDatabase();

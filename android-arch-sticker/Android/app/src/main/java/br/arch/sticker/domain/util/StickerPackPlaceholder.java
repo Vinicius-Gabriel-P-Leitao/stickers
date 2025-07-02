@@ -92,7 +92,8 @@ public class StickerPackPlaceholder {
 
                 return new Sticker(fileName.trim(), "\uD83D\uDDFF", "", accessibility, stickerPack.identifier);
             } catch (IOException exception) {
-                throw new StickerPackSaveException("Erro ao criar placeholder para o pacote de figurinhas!", exception,
+                throw new StickerPackSaveException(
+                        "Erro ao criar placeholder para o pacote de figurinhas!", exception,
                         SaveErrorCode.ERROR_PACK_SAVE_SERVICE);
             }
         }

@@ -8,7 +8,7 @@
 
 
 #ifndef ANDROID_WEBPANIMATIONCONVERTER_H
-#define ANDROID_WEBPANIMATIONCONVERTER  _H
+#define ANDROID_WEBPANIMATIONCONVERTER_H
 
 #include <string>
 #include <jni.h>
@@ -18,12 +18,8 @@
 
 class WebpAnimationConverter {
 public:
-    static int convertToWebp(JNIEnv *env,
-                             const char *outputPath,
-                             std::vector<FrameWithBuffer> &frames,
-                             int width,
-                             int height,
-                             int durationMs);
+    static int convertToWebp(JNIEnv *env, const char *outputPath, std::vector<FrameWithBuffer> &frames,
+                             int width, int height, int durationMs, float quality, int lossless);
 
 private:
 };

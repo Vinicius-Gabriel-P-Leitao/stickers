@@ -44,7 +44,10 @@ extern "C" {
 #define LOG_TAG_FFMPEG "NativeFFmpeg"
 
 #define LOGIF(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_FFMPEG, __VA_ARGS__)
-#define  LOGDF(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG_FFMPEG, __VA_ARGS__)
+#define LOGDF(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG_FFMPEG, __VA_ARGS__)
+
+#define DURATION_MS  100
+#define OUTPUT_SIZE  512
 
 struct JniString {
     JNIEnv *env;
@@ -67,18 +70,16 @@ struct JniString {
 };
 
 extern "C"
-JNIEXPORT jboolean JNICALL
-Java_br_arch_sticker_core_lib_NativeProcessWebp_convertToWebp(JNIEnv *env,
-                                                              jobject /* this */,
-                                                              jstring inputPath,
-                                                              jstring outputPath) {
+JNIEXPORT jboolean JNICALL Java_br_arch_sticker_core_lib_NativeProcessWebp_convertToWebp(
+        JNIEnv *env, jobject /* this */, jstring inputPath, jstring outputPath, jfloat quality, jboolean lossless) {
+
     jclass nativeMediaException = env->FindClass("br/arch/sticker/core/error/throwable/media/NativeConversionException");
 
     JniString inPath(env, inputPath);
     JniString outPath(env, outputPath);
+    int lossless_flag = (lossless == JNI_TRUE) ? 1 : 0;
 
     bool isWebP = false;
-    int outputSize = 512;
 
     {
         FILE *file = fopen(inPath.get(), "rb");
@@ -95,7 +96,7 @@ Java_br_arch_sticker_core_lib_NativeProcessWebp_convertToWebp(JNIEnv *env,
     if (isWebP) {
         std::vector<FrameWithBuffer> vFramesWithBuffer;
 
-        if (!ProcessWebpToAvFrames::decodeWebPAsAVFrames(env, inPath.get(), vFramesWithBuffer, outputSize, outputSize)) {
+        if (!ProcessWebpToAvFrames::decodeWebPAsAVFrames(env, inPath.get(), vFramesWithBuffer, OUTPUT_SIZE, OUTPUT_SIZE)) {
             HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Erro ao processar arquivo WebP");
             return JNI_FALSE;
         }
@@ -105,8 +106,8 @@ Java_br_arch_sticker_core_lib_NativeProcessWebp_convertToWebp(JNIEnv *env,
             return JNI_FALSE;
         }
 
-        int durationMs = 100;
-        int result = WebpAnimationConverter::convertToWebp(env, outPath.get(), vFramesWithBuffer, outputSize, outputSize, durationMs);
+        int result = WebpAnimationConverter::convertToWebp(env, outPath.get(), vFramesWithBuffer,
+                                                           OUTPUT_SIZE, OUTPUT_SIZE, DURATION_MS, quality, lossless_flag);
         return result ? JNI_TRUE : JNI_FALSE;
     }
 
@@ -226,7 +227,7 @@ Java_br_arch_sticker_core_lib_NativeProcessWebp_convertToWebp(JNIEnv *env,
     while (av_read_frame(formatContext.get(), packet) >= 0) {
         if (packet->stream_index == videoStreamIndex) {
 
-            // Pega os primeiros 5 segundos de vídeo
+            // NOTE: Pega os primeiros 5 segundos de vídeo
             if (packet->pts != AV_NOPTS_VALUE) {
                 double seconds = static_cast<double>(packet->pts) * av_q2d(videoStream->time_base);
 
@@ -270,7 +271,7 @@ Java_br_arch_sticker_core_lib_NativeProcessWebp_convertToWebp(JNIEnv *env,
                 }
 
                 if (frameCount % frameInterval == 0) {
-                    ProcessFramesToFormat::processFrame(env, nativeMediaException, rgbFrame, outputSize, outputSize, vFramesWithBuffer);
+                    ProcessFramesToFormat::processFrame(env, nativeMediaException, rgbFrame, OUTPUT_SIZE, OUTPUT_SIZE, vFramesWithBuffer);
                 }
 
                 frameCount++;
@@ -281,7 +282,6 @@ Java_br_arch_sticker_core_lib_NativeProcessWebp_convertToWebp(JNIEnv *env,
     }
 
     if (!vFramesWithBuffer.empty()) {
-        int durationMs = 100;
         LOGDF("Gerando animação com %zu vFrameBuffer...", vFramesWithBuffer.size());
 
         if (vFramesWithBuffer.size() < 2) {
@@ -289,7 +289,8 @@ Java_br_arch_sticker_core_lib_NativeProcessWebp_convertToWebp(JNIEnv *env,
                   vFramesWithBuffer.size());
         }
 
-        int result = WebpAnimationConverter::convertToWebp(env, outPath.get(), vFramesWithBuffer, outputSize, outputSize, durationMs);
+        int result = WebpAnimationConverter::convertToWebp(env, outPath.get(), vFramesWithBuffer,
+                                                           OUTPUT_SIZE, OUTPUT_SIZE, DURATION_MS, quality, lossless_flag);
 
         if (!result) {
             std::string msgError = fmt::format("Falha ao criar a animação WebP");

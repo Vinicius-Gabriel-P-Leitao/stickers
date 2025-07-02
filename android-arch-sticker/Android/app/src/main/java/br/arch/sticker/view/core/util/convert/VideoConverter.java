@@ -37,7 +37,8 @@ public class VideoConverter {
             String outputFile = new File(context.getCacheDir(), finalOutputFileName).getAbsolutePath();
 
             NativeProcessWebp nativeProcessWebp = new NativeProcessWebp();
-            nativeProcessWebp.processWebpAsync(inputPath, outputFile,
+            nativeProcessWebp.processWebpAsync(
+                    inputPath, outputFile, 20f, false,
 
                     new NativeProcessWebp.ConversionCallback() {
                         @Override

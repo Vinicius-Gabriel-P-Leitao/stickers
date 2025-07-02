@@ -33,13 +33,15 @@ extern "C" {
 #define LOGDF(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG_SERVICE, __VA_ARGS__)
 #define LOGINF(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_SERVICE, __VA_ARGS__)
 
-int
-WebpAnimationConverter::convertToWebp(JNIEnv *env,
-                                      const char *outputPath,
-                                      std::vector<FrameWithBuffer> &frames,
-                                      int width,
-                                      int height,
-                                      int durationMs) {
+#define DEFAULT_QUALITY 20.0f
+
+int WebpAnimationConverter::convertToWebp(
+        JNIEnv *env, const char *outputPath, std::vector<FrameWithBuffer> &frames,
+        int width, int height, int durationMs, float quality, int lossless) {
+    
+    LOGDF("[WEBP-CONVERT] Quality recebido: %.2f", quality);
+    LOGDF("[WEBP-CONVERT] Lossless recebido: %d", lossless);
+
     jclass nativeMediaException = env->FindClass("br/arch/sticker/core/error/throwable/media/NativeConversionException");
 
     WebPAnimEncoderOptions encOptions;
@@ -62,8 +64,8 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
         return 0;
     }
 
-    webPConfig.lossless = 0;
-    webPConfig.quality = 20.0f;
+    webPConfig.lossless = lossless ? lossless : 0;
+    webPConfig.quality = (quality >= 0.0f && quality <= 100.0f) ? quality : DEFAULT_QUALITY;
     webPConfig.method = 2;
     webPConfig.filter_strength = 70;
     webPConfig.preprocessing = 2;

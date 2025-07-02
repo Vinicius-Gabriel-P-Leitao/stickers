@@ -8,6 +8,9 @@
 
 package br.arch.sticker.domain.service.save;
 
+import static br.arch.sticker.domain.util.StickerPackPlaceholder.PLACEHOLDER_ANIMATED;
+import static br.arch.sticker.domain.util.StickerPackPlaceholder.PLACEHOLDER_STATIC;
+
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -33,12 +36,20 @@ import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.view.core.util.convert.ConvertThumbnail;
 
 public class SaveStickerAssetService {
-    public static CallbackResult<Boolean> saveStickerFromCache(
-            @NonNull Context context, @NonNull StickerPack stickerPack,
+    private final Context context;
+
+    public SaveStickerAssetService(Context context)
+        {
+            this.context = context.getApplicationContext();
+        }
+
+    public CallbackResult<Boolean> saveStickerFromCache(
+            @NonNull StickerPack stickerPack,
             @NonNull File stickerPackDirectory) throws StickerPackSaveException
         {
             if (!stickerPackDirectory.canWrite()) {
-                return CallbackResult.failure(new StickerPackSaveException("Sem permissão de escrita no diretório destino: " + stickerPackDirectory,
+                return CallbackResult.failure(new StickerPackSaveException(
+                        "Sem permissão de escrita no diretório destino: " + stickerPackDirectory,
                         SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
             }
 
@@ -66,13 +77,18 @@ public class SaveStickerAssetService {
                             new StickerPackSaveException("Nome do arquivo do sticker é nulo ou vazio", SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
                 }
 
+                if (PLACEHOLDER_ANIMATED.equals(fileName) || PLACEHOLDER_STATIC.equals(fileName)) {
+                    filesAlreadyCopied.add(fileName);
+                }
+
                 if (filesAlreadyCopied.contains(fileName)) {
                     continue;
                 }
 
                 File sourceFile = new File(context.getCacheDir(), fileName);
                 if (!sourceFile.exists()) {
-                    return CallbackResult.failure(new StickerPackSaveException(String.format("Arquivo não encontrado: %s", fileName),
+                    return CallbackResult.failure(new StickerPackSaveException(
+                            String.format("Arquivo não encontrado: %s", fileName),
                             SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
                 }
 
@@ -95,7 +111,8 @@ public class SaveStickerAssetService {
 
                     filesAlreadyCopied.add(fileName);
                 } catch (IOException exception) {
-                    return CallbackResult.failure(new StickerPackSaveException(String.format("Erro ao copiar arquivo: %s", fileName), exception,
+                    return CallbackResult.failure(new StickerPackSaveException(
+                            String.format("Erro ao copiar arquivo: %s", fileName), exception,
                             SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
                 }
             }

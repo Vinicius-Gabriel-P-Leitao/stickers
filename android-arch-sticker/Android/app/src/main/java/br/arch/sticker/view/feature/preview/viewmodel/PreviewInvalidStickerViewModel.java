@@ -157,13 +157,18 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
                     File filesDir = new File(new File(context.getFilesDir(), STICKERS_ASSET), stickerPackIdentifier);
 
                     String inputFile = new File(filesDir, sticker.imageFileName).getAbsolutePath();
-                    String outputFile = new File(filesDir, "resize-" + sticker.imageFileName).getAbsolutePath();
 
+                    String cleanName = sticker.imageFileName;
+                    if (cleanName.startsWith("resize-")) {
+                        cleanName = cleanName.substring("resize-".length());
+                    }
+
+                    String outputFile = new File(filesDir, "resize-" + cleanName).getAbsolutePath();
                     String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFile);
 
                     NativeProcessWebp nativeProcessWebp = new NativeProcessWebp();
-                    nativeProcessWebp.processWebpAsync(inputFile, finalOutputFileName,
-
+                    nativeProcessWebp.processWebpAsync(
+                            inputFile, finalOutputFileName, 10f, false,
                             new NativeProcessWebp.ConversionCallback() {
                                 @Override
                                 public void onSuccess(File file)

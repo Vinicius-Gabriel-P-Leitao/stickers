@@ -28,8 +28,8 @@ extern "C" {
 
 #define LOGIRCF(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_RESIZE_CROP, __VA_ARGS__)
 
-AVFramePtr ProcessFramesToFormat::createAvFrame(JNIEnv *env, jclass exClass, int width, int height,
-                                                AVPixelFormat format) {
+AVFramePtr ProcessFramesToFormat::createAvFrame(
+        JNIEnv *env, jclass exClass, int width, int height, AVPixelFormat format) {
     AVFramePtr frame(av_frame_alloc());
     if (!frame) {
         std::string msgError = fmt::format("Falha ao alocar AVFramePtr");
