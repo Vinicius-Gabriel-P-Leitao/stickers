@@ -6,23 +6,21 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
+#ifndef ANDROID_AVBUFFERDESTROYER_HPP
+#define ANDROID_AVBUFFERDESTROYER_HPP
 
-#ifndef ANDROID_AVFRAMEDELETER_HPP
-#define ANDROID_AVFRAMEDELETER_HPP
-
-#include <memory>
+#include <string>
 
 extern "C" {
-#include "libavutil/frame.h"
+#include "libavutil/avutil.h"
 }
 
-class AVFrameDeleter {
-public:
-    void operator()(AVFrame *frame) const {
-        av_frame_free(&frame);
+struct AVBufferDestroyer {
+    void operator()(uint8_t *ptr) const {
+        av_free(ptr);
     }
 };
 
-using AVFramePtr = std::unique_ptr<AVFrame, AVFrameDeleter>;
+using AVBufferPtr = std::unique_ptr<uint8_t, AVBufferDestroyer>;
 
-#endif //ANDROID_AVFRAMEDELETER_HPP
+#endif //ANDROID_AVBUFFERDESTROYER_HPP

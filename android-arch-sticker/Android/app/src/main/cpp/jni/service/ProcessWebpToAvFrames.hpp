@@ -10,8 +10,10 @@
 
 #include <jni.h>
 
-#include "../raii/AVFrameDeleter.hpp"
-#include "../raii/AVBufferDeleter.hpp"
+#include "../raii/AVFrameDestroyer.hpp"
+#include "../raii/AVBufferDestroyer.hpp"
+#include "../raii/WebpDemuxerPtr.hpp"
+#include "../raii/WebpIteratorPtr.hpp"
 #include "../service/ProcessFramesToFormat.hpp"
 
 class ProcessWebpToAvFrames {

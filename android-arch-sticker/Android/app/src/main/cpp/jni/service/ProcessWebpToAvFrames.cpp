@@ -16,8 +16,10 @@
 
 #include "../exception/HandlerJavaException.hpp"
 
-#include "../raii/AVFrameDeleter.hpp"
-#include "../raii/AVBufferDeleter.hpp"
+#include "../raii/AVFrameDestroyer.hpp"
+#include "../raii/AVBufferDestroyer.hpp"
+#include "../raii/WebpDemuxerPtr.hpp"
+#include "../raii/WebpIteratorPtr.hpp"
 
 extern "C" {
 #include "demux.h"
@@ -37,8 +39,10 @@ std::vector<uint8_t> ProcessWebpToAvFrames::loadFileToMemory(const std::string &
     size_t fileSize = file.tellg();
     file.seekg(0);
 
+    std::streamsize safeSize = static_cast<std::streamsize>(std::min(fileSize, static_cast<size_t>(std::numeric_limits<std::streamsize>::max())));
+
     std::vector<uint8_t> data(fileSize);
-    file.read(reinterpret_cast<char *>(data.data()), fileSize);
+    file.read(reinterpret_cast<char *>(data.data()), safeSize);
     return data;
 }
 
@@ -46,29 +50,28 @@ bool ProcessWebpToAvFrames::decodeWebPAsAVFrames(
         JNIEnv *env, const std::string &inputPath, std::vector<FrameWithBuffer> &frames, int targetWidth, int targetHeight) {
     jclass nativeMediaException = env->FindClass("br/arch/sticker/core/error/throwable/media/NativeConversionException");
 
-    std::vector<uint8_t> data = loadFileToMemory(inputPath);
-    if (data.empty()) {
-        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao ler o arquivo WebP");
+    std::vector<uint8_t> fileInMemory = loadFileToMemory(inputPath);
+    if (fileInMemory.empty()) {
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao ler o arquivo WebP.");
         return false;
     }
 
     WebPData webpData;
-    webpData.bytes = data.data();
-    webpData.size = data.size();
+    webpData.bytes = fileInMemory.data();
+    webpData.size = fileInMemory.size();
 
-    WebPDemuxer *pWebPDemuxer = WebPDemux(&webpData);
+    WebpDemuxerPtr pWebPDemuxer(WebPDemux(&webpData));
     if (!pWebPDemuxer) {
-        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "WebPDemux falhou");
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "WebPDemux falhou.");
         return false;
     }
 
-    uint32_t flags = WebPDemuxGetI(pWebPDemuxer, WEBP_FF_FORMAT_FLAGS);
+    uint32_t flags = WebPDemuxGetI(pWebPDemuxer.getPDemuxer(), WEBP_FF_FORMAT_FLAGS);
     bool isAnimated = (flags & ANIMATION_FLAG) != 0;
 
-    WebPIterator iterator;
-    if (!WebPDemuxGetFrame(pWebPDemuxer, 1, &iterator)) {
-        WebPDemuxDelete(pWebPDemuxer);
-        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Nenhum frame encontrado no WebP");
+    WebpIteratorPtr iterator;
+    if (!iterator.init(pWebPDemuxer.getPDemuxer(), 1)) {
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Nenhum frame encontrado no WebP.");
         return false;
     }
 
@@ -76,25 +79,19 @@ bool ProcessWebpToAvFrames::decodeWebPAsAVFrames(
     do {
         WebPDecoderConfig config;
         if (!WebPInitDecoderConfig(&config)) {
-            WebPDemuxReleaseIterator(&iterator);
-            WebPDemuxDelete(pWebPDemuxer);
-            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao inicializar WebPDecoderConfig");
+            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao inicializar WebPDecoderConfig.");
             return false;
         }
 
-        if (WebPGetFeatures(iterator.fragment.bytes, iterator.fragment.size, &config.input) != VP8_STATUS_OK) {
-            WebPDemuxReleaseIterator(&iterator);
-            WebPDemuxDelete(pWebPDemuxer);
-            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Erro ao obter características do WebP");
+        if (WebPGetFeatures(iterator->fragment.bytes, iterator->fragment.size, &config.input) != VP8_STATUS_OK) {
+            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Erro ao obter características do WebP.");
             return false;
         }
 
         config.output.colorspace = MODE_RGB;
-        uint8_t *decodedData = WebPDecodeRGB(iterator.fragment.bytes, iterator.fragment.size, &config.output.width, &config.output.height);
-        if (!decodedData) {
-            WebPDemuxReleaseIterator(&iterator);
-            WebPDemuxDelete(pWebPDemuxer);
-            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao decodificar frame WebP");
+        uint8_t *webPDecodeRgb = WebPDecodeRGB(iterator->fragment.bytes, iterator->fragment.size, &config.output.width, &config.output.height);
+        if (!webPDecodeRgb) {
+            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao decodificar frame WebP.");
             return false;
         }
 
@@ -107,10 +104,8 @@ bool ProcessWebpToAvFrames::decodeWebPAsAVFrames(
         AVBufferPtr buffer(reinterpret_cast<uint8_t *>(av_malloc(bufferSize)));
 
         if (!frame || !buffer) {
-            WebPFree(decodedData);
-            WebPDemuxReleaseIterator(&iterator);
-            WebPDemuxDelete(pWebPDemuxer);
-            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao alocar AVFrame ou buffer");
+            WebPFree(webPDecodeRgb);
+            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao alocar AVFrame ou buffer.");
             return false;
         }
 
@@ -119,16 +114,13 @@ bool ProcessWebpToAvFrames::decodeWebPAsAVFrames(
         frame->height = height;
 
         av_image_fill_arrays(frame->data, frame->linesize, buffer.get(), AV_PIX_FMT_RGB24, width, height, 1);
-        memcpy(frame->data[0], decodedData, bufferSize);
-        WebPFree(decodedData);
+        memcpy(frame->data[0], webPDecodeRgb, bufferSize);
+        WebPFree(webPDecodeRgb);
 
         ProcessFramesToFormat::processFrame(env, nativeMediaException, frame, targetWidth, targetHeight, frames);
-        LOGDW("Frame %d decodificado e redimensionado", ++frameIndex);
+        LOGDW("Frame %d decodificado e redimensionado.", ++frameIndex);
 
-    } while (isAnimated && WebPDemuxNextFrame(&iterator));
-
-    WebPDemuxReleaseIterator(&iterator);
-    WebPDemuxDelete(pWebPDemuxer);
+    } while (isAnimated && iterator.next());
 
     return true;
 }

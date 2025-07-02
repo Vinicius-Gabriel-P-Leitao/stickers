@@ -14,9 +14,9 @@
 
 #include "../exception/HandlerJavaException.hpp"
 
-#include "../raii/AVFrameDeleter.hpp"
-#include "../raii/AVBufferDeleter.hpp"
-#include "../raii/SwsContextDeleter.hpp"
+#include "../raii/AVFrameDestroyer.hpp"
+#include "../raii/AVBufferDestroyer.hpp"
+#include "../raii/SwsContextDestroyer.hpp"
 
 extern "C" {
 #include <libavutil/frame.h>

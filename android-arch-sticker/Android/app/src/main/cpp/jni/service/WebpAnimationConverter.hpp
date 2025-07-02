@@ -14,7 +14,7 @@
 #include <jni.h>
 #include "ProcessFramesToFormat.hpp"
 
-#include "../raii/AVFrameDeleter.hpp"
+#include "../raii/AVFrameDestroyer.hpp"
 
 class WebpAnimationConverter {
 public:

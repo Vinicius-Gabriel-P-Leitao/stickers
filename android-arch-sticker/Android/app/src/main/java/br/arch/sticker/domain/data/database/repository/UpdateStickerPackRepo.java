@@ -25,6 +25,7 @@ public class UpdateStickerPackRepo {
             try {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(STICKER_FILE_NAME_IN_QUERY, newFileName);
+                contentValues.put(STICKER_IS_VALID, ""); // NOTE: Retirar o erro
 
                 String whereClause = FK_STICKER_PACK + " = ? AND " + STICKER_FILE_NAME_IN_QUERY + " = ?";
                 String[] whereArgs = {stickerPackIdentifier, oldFileName};

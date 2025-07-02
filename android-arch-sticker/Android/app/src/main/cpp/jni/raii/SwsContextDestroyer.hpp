@@ -7,8 +7,8 @@
  */
 
 
-#ifndef ANDROID_SWSCONTEXTDELETER_HPP
-#define ANDROID_SWSCONTEXTDELETER_HPP
+#ifndef ANDROID_SWSCONTEXTDESTROYER_HPP
+#define ANDROID_SWSCONTEXTDESTROYER_HPP
 
 #include <memory>
 
@@ -16,12 +16,12 @@ extern "C" {
 #include "libswscale/swscale.h"
 }
 
-struct SwsContextDeleter {
+struct SwsContextDestroyer {
     void operator()(SwsContext *swsContext) const {
         sws_freeContext(swsContext);
     }
 };
 
-using SwsContextPtr = std::unique_ptr<SwsContext, SwsContextDeleter>;
+using SwsContextPtr = std::unique_ptr<SwsContext, SwsContextDestroyer>;
 
-#endif //ANDROID_SWSCONTEXTDELETER_HPP
+#endif //ANDROID_SWSCONTEXTDESTROYER_HPP

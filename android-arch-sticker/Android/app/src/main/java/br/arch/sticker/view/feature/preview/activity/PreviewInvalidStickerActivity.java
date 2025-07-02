@@ -242,6 +242,8 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
 
                 if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile resizeFileAction) {
                     Sticker stickerResized = resizeFileAction.sticker();
+                    previewInvalidStickerAdapter.removeSticker(stickerResized);
+                    stickerArrayList.remove(stickerResized);
                 }
             });
 

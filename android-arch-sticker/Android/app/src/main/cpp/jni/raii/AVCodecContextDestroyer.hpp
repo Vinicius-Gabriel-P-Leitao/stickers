@@ -7,8 +7,8 @@
  */
 
 
-#ifndef ANDROID_AVCODECCONTEXTDELETER_HPP
-#define ANDROID_AVCODECCONTEXTDELETER_HPP
+#ifndef ANDROID_AVCODECCONTEXTDESTROYER_HPP
+#define ANDROID_AVCODECCONTEXTDESTROYER_HPP
 
 #include <memory>
 
@@ -16,12 +16,12 @@ extern "C" {
 #include "libavcodec/avcodec.h"
 }
 
-struct AVCodecContextDeleter {
+struct AVCodecContextDestroyer {
     void operator()(AVCodecContext *ctx) const {
         avcodec_free_context(&ctx);
     }
 };
 
-using AVCodecContextPtr = std::unique_ptr<AVCodecContext, AVCodecContextDeleter>;
+using AVCodecContextPtr = std::unique_ptr<AVCodecContext, AVCodecContextDestroyer>;
 
-#endif //ANDROID_AVCODECCONTEXTDELETER_HPP
+#endif //ANDROID_AVCODECCONTEXTDESTROYER_HPP

@@ -12,8 +12,8 @@
 
 #include <jni.h>
 
-#include "../raii/AVFrameDeleter.hpp"
-#include "../raii/AVBufferDeleter.hpp"
+#include "../raii/AVFrameDestroyer.hpp"
+#include "../raii/AVBufferDestroyer.hpp"
 
 struct FrameWithBuffer {
     AVFramePtr frame;

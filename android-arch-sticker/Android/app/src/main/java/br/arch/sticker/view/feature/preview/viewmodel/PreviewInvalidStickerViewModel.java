@@ -157,7 +157,7 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
                     File filesDir = new File(new File(context.getFilesDir(), STICKERS_ASSET), stickerPackIdentifier);
 
                     String inputFile = new File(filesDir, sticker.imageFileName).getAbsolutePath();
-                    String outputFile = new File(filesDir, sticker.imageFileName + "-resize").getAbsolutePath();
+                    String outputFile = new File(filesDir, "resize-" + sticker.imageFileName).getAbsolutePath();
 
                     String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFile);
 

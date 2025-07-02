@@ -17,10 +17,10 @@
 
 #include "../exception/HandlerJavaException.hpp"
 
-#include "../raii/AVFrameDeleter.hpp"
-#include "../raii/WebPDataDeleter.hpp"
-#include "../raii/AVBufferDeleter.hpp"
-#include "../raii/WebPAnimEncoderDeleter.hpp"
+#include "../raii/AVFrameDestroyer.hpp"
+#include "../raii/WebpDataDestroyer.hpp"
+#include "../raii/AVBufferDestroyer.hpp"
+#include "../raii/WebpAnimEncoderDestroyer.hpp"
 
 extern "C" {
 #include "mux.h"

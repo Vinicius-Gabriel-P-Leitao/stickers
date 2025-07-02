@@ -7,8 +7,8 @@
  */
 
 
-#ifndef ANDROID_AVFORMATCONTEXTDELETER_HPP
-#define ANDROID_AVFORMATCONTEXTDELETER_HPP
+#ifndef ANDROID_AVFORMATCONTEXTDESTROYER_HPP
+#define ANDROID_AVFORMATCONTEXTDESTROYER_HPP
 
 #include <memory>
 
@@ -16,12 +16,12 @@ extern "C" {
 #include "libavformat/avformat.h"
 }
 
-struct AVFormatContextDeleter {
+struct AVFormatContextDestroyer {
     void operator()(AVFormatContext* ctx) const {
         avformat_close_input(&ctx);
     }
 };
 
-using AVFormatContextPtr = std::unique_ptr<AVFormatContext, AVFormatContextDeleter>;
+using AVFormatContextPtr = std::unique_ptr<AVFormatContext, AVFormatContextDestroyer>;
 
-#endif //ANDROID_AVFORMATCONTEXTDELETER_HPP
+#endif //ANDROID_AVFORMATCONTEXTDESTROYER_HPP

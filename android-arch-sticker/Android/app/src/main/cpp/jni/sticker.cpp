@@ -21,11 +21,11 @@
 #include "service/ProcessFramesToFormat.hpp"
 #include "service/ProcessWebpToAvFrames.hpp."
 
-#include "raii/AVFrameDeleter.hpp"
-#include "raii/AVBufferDeleter.hpp"
-#include "raii/SwsContextDeleter.hpp"
-#include "raii/AVCodecContextDeleter.hpp"
-#include "raii/AVFormatContextDeleter.hpp"
+#include "raii/AVFrameDestroyer.hpp"
+#include "raii/AVBufferDestroyer.hpp"
+#include "raii/SwsContextDestroyer.hpp"
+#include "raii/AVCodecContextDestroyer.hpp"
+#include "raii/AVFormatContextDestroyer.hpp"
 
 extern "C" {
 #include "mux.h"
