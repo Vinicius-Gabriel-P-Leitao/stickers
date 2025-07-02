@@ -41,7 +41,7 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
     private int maxNumberOfStickersInARow;
 
     public interface OnFixClickListener {
-        void onFixClick(Sticker sticker, String stickerPackIdentifier);
+        void onStickerFixClick(Sticker sticker, String stickerPackIdentifier);
     }
 
     private final OnFixClickListener listener;
@@ -72,7 +72,7 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
 
     @Override
     public void onBindViewHolder(@NonNull InvalidStickerListViewHolder viewHolder, int position) {
-        Context context = viewHolder.itemView.getContext();
+        final Context context = viewHolder.itemView.getContext();
         final Sticker sticker = stickerList.get(position);
 
         StickerAssetErrorCode code = StickerAssetErrorCode.fromName(sticker.stickerIsValid);
@@ -90,7 +90,7 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
         }
 
         viewHolder.buttonFix.setOnClickListener(new View.OnClickListener() {
-            private long lastClickTime = 0;
+                private long lastClickTime = 0;
 
             @Override
             public void onClick(View view) {
@@ -99,7 +99,7 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
                 lastClickTime = now;
 
                 if (listener != null) {
-                    listener.onFixClick(sticker, stickerPackIdentifier);
+                    listener.onStickerFixClick(sticker, stickerPackIdentifier);
                 }
             }
         });
@@ -117,6 +117,22 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
             notifyDataSetChanged();
         }
     }
+
+    public void removeSticker(Sticker sticker)
+        {
+            int indexToRemove = -1;
+            for (int counter = 0; counter < stickerList.size(); counter++) {
+                if (TextUtils.equals(stickerList.get(counter).imageFileName, sticker.imageFileName)) {
+                    indexToRemove = counter;
+                    break;
+                }
+            }
+
+            if (indexToRemove != -1) {
+                stickerList.remove(indexToRemove);
+                notifyItemRemoved(indexToRemove);
+            }
+        }
 
     @SuppressLint("NotifyDataSetChanged")
     public void updateStickerPackItems(List<Sticker> newItems) {

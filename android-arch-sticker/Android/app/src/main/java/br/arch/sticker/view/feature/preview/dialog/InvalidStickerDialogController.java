@@ -46,7 +46,7 @@ public class InvalidStickerDialogController {
 
                 dialog.setTextFixButton(dialog.getContext().getString(R.string.dialog_delete));
                 dialog.setOnFixClick(view -> {
-                    viewModel.onFixActionConfirmed(action, dialog.getContext());
+                    viewModel.onFixActionConfirmed(action);
                     dialog.dismiss();
                 });
 

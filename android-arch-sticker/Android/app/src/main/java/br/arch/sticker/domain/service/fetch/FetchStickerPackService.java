@@ -167,7 +167,6 @@ public class FetchStickerPackService {
 
     public StickerPackValidationResult fetchStickerPackFromContentProvider(String stickerPackIdentifier) throws FetchStickerPackException
         {
-
             final Cursor cursor = context.getContentResolver().query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null,
                     null);
             if (cursor == null || cursor.getCount() == 0) {

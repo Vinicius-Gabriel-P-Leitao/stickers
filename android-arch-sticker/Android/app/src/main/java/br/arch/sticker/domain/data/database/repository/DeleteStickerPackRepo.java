@@ -17,17 +17,13 @@ import br.arch.sticker.core.error.code.DeleteErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.DeleteStickerException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.database.StickerDatabase;
-import br.arch.sticker.domain.dto.StickerPackValidationResult;
-import br.arch.sticker.domain.service.fetch.FetchStickerPackService;
 
 public class DeleteStickerPackRepo {
-    private final FetchStickerPackService fetchStickerPackService;
     private final Context context;
 
     public DeleteStickerPackRepo(Context context)
         {
             this.context = context.getApplicationContext();
-            this.fetchStickerPackService = new FetchStickerPackService(this.context);
         }
 
     public int deleteSticker(String stickerPackIdentifier, String fileName) throws SQLException
@@ -35,8 +31,7 @@ public class DeleteStickerPackRepo {
             StickerDatabase dbHelper = StickerDatabase.getInstance(context);
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-            StickerPackValidationResult fetchStickerPack = fetchStickerPackService.fetchStickerPackFromContentProvider(stickerPackIdentifier);
-            if (fetchStickerPack.stickerPack().identifier == null) {
+            if (stickerPackIdentifier == null) {
                 throw new DeleteStickerException("Erro ao encontrar o id do pacote para deletar figurinha.", DeleteErrorCode.ERROR_PACK_DELETE_DB);
             }
 

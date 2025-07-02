@@ -152,8 +152,9 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
         }
 
     @Override
-    public void onFixClick(Sticker sticker, String stickerPackIdentifier)
+    public void onStickerFixClick(Sticker sticker, String stickerPackIdentifier)
         {
+            previewInvalidStickerAdapter.removeSticker(sticker);
             invalidStickerViewModel.handleFixStickerClick(sticker, stickerPackIdentifier);
         }
 
