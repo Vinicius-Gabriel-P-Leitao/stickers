@@ -154,7 +154,6 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
     @Override
     public void onStickerFixClick(Sticker sticker, String stickerPackIdentifier)
         {
-            previewInvalidStickerAdapter.removeSticker(sticker);
             invalidStickerViewModel.handleFixStickerClick(sticker, stickerPackIdentifier);
         }
 
@@ -236,9 +235,10 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
             });
 
             invalidStickerViewModel.getFixCompletedLiveData().observe(this, action -> {
-                if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete delete) {
-                    stickerArrayList.remove(delete.sticker());
-                    previewInvalidStickerAdapter.updateStickerPackItems(stickerArrayList);
+                if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete deleteAction) {
+                    Sticker stickerToRemove = deleteAction.sticker();
+                    previewInvalidStickerAdapter.removeSticker(stickerToRemove);
+                    stickerArrayList.remove(stickerToRemove);
                 }
             });
 

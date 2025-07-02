@@ -98,33 +98,38 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
             }
         }
 
-    public void onFixActionConfirmed(FixActionSticker action, Context context)
+    public void onFixActionConfirmed(FixActionSticker action)
         {
             if (action instanceof FixActionSticker.Delete delete) {
                 Sticker sticker = delete.sticker();
                 String stickerPackIdentifier = delete.stickerPackIdentifier();
 
                 new Thread(() -> {
-                    if (delete.codeProvider() != StickerAssetErrorCode.STICKER_FILE_NOT_EXIST) {
-                        CallbackResult<Boolean> resultAsset = deleteStickerAssetService.deleteStickerAsset(stickerPackIdentifier,
-                                sticker.imageFileName);
-                        if (resultAsset.isFailure()) {
-                            errorMessageLiveData.postValue(resultAsset.getError().getMessage());
-                            return;
-                        } else if (resultAsset.isWarning()) {
-                            errorMessageLiveData.postValue(resultAsset.getWarningMessage());
+                    try {
+                        if (delete.codeProvider() != StickerAssetErrorCode.STICKER_FILE_NOT_EXIST) {
+                            CallbackResult<Boolean> resultAsset = deleteStickerAssetService.deleteStickerAsset(stickerPackIdentifier,
+                                    sticker.imageFileName);
+                            if (resultAsset.isFailure()) {
+                                errorMessageLiveData.postValue(resultAsset.getError().getMessage());
+                                return;
+                            } else if (resultAsset.isWarning()) {
+                                errorMessageLiveData.postValue(resultAsset.getWarningMessage());
+                            }
                         }
-                    }
 
-                    CallbackResult<Boolean> resultDB = deleteStickerService.deleteStickerByPack(stickerPackIdentifier, sticker.imageFileName);
-                    if (resultDB.isFailure()) {
-                        errorMessageLiveData.postValue(resultDB.getError().getMessage());
-                        return;
-                    } else if (resultDB.isWarning()) {
-                        errorMessageLiveData.postValue(resultDB.getWarningMessage());
-                    }
+                        CallbackResult<Boolean> resultDB = deleteStickerService.deleteStickerByPack(stickerPackIdentifier, sticker.imageFileName);
+                        if (resultDB.isFailure()) {
+                            errorMessageLiveData.postValue(resultDB.getError().getMessage());
+                            return;
+                        } else if (resultDB.isWarning()) {
+                            errorMessageLiveData.postValue(resultDB.getWarningMessage());
+                        }
 
-                    fixCompletedLiveData.postValue(action);
+                        fixCompletedLiveData.postValue(action);
+                    } catch (Exception exception) {
+                        errorMessageLiveData.postValue("Erro inesperado: " + exception.getMessage());
+                        exception.printStackTrace();
+                    }
                 }).start();
             }
         }
