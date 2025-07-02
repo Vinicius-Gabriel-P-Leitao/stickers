@@ -14,12 +14,27 @@ import android.util.Log;
 import br.arch.sticker.core.error.ErrorCodeProvider;
 import br.arch.sticker.domain.data.database.StickerDatabase;
 import br.arch.sticker.domain.data.database.repository.UpdateStickerPackRepo;
-import br.arch.sticker.domain.service.fetch.FetchStickerService;
 
 public class UpdateStickerService {
-    private final static String TAG_LOG = FetchStickerService.class.getSimpleName();
+    private final static String TAG_LOG = UpdateStickerService.class.getSimpleName();
 
-    public static void updateInvalidSticker(Context context, String stickerPackIdentifier, String fileName, ErrorCodeProvider errorCode)
+    private final Context context;
+
+    public UpdateStickerService(Context context)
+        {
+            this.context = context;
+        }
+
+    public void updateStickerFileName(String stickerPackIdentifier, String newFileName, String oldFileName)
+        {
+            StickerDatabase instance = StickerDatabase.getInstance(context);
+
+            Log.d(TAG_LOG, String.format("Realizando upgrade no arquivo do sticker identificador: %S,file: %s", stickerPackIdentifier, newFileName));
+
+            UpdateStickerPackRepo.updateStickerFileName(instance, stickerPackIdentifier, newFileName, oldFileName);
+        }
+
+    public void updateInvalidSticker(String stickerPackIdentifier, String fileName, ErrorCodeProvider errorCode)
         {
             StickerDatabase instance = StickerDatabase.getInstance(context);
 

@@ -8,6 +8,8 @@
 
 package br.arch.sticker.domain.util;
 
+import static br.arch.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
+
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.database.sqlite.SQLiteDatabase;
@@ -53,7 +55,7 @@ public class StickerPackPlaceholder {
             isCreatingPlaceholder = true;
 
             try {
-                File stickerDir = new File(context.getFilesDir(), "stickers_asset/" + stickerPack.identifier);
+                File stickerDir = new File(context.getFilesDir(), new File(STICKERS_ASSET, stickerPack.identifier).toString());
                 if (!stickerDir.exists()) stickerDir.mkdirs();
 
                 Sticker stickerPlaceholder = this.makeStickerPlaceholder(stickerPack, stickerDir);

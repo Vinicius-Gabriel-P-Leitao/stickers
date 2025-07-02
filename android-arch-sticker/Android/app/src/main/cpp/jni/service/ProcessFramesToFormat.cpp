@@ -5,18 +5,18 @@
  * This source code is licensed under the Vinícius Non-Commercial Public License (VNCL),
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
+#include "ProcessFramesToFormat.hpp"
 
 #include <memory>
 #include <vector>
 #include <format.h>
 #include <android/log.h>
-#include "ProcessFramesToFormat.h"
 
-#include "../exception/HandlerJavaException.h"
+#include "../exception/HandlerJavaException.hpp"
 
-#include "../raii/AVFrameDeleter.h"
-#include "../raii/AVBufferDeleter.h"
-#include "../raii/SwsContextDeleter.h"
+#include "../raii/AVFrameDeleter.hpp"
+#include "../raii/AVBufferDeleter.hpp"
+#include "../raii/SwsContextDeleter.hpp"
 
 extern "C" {
 #include <libavutil/frame.h>

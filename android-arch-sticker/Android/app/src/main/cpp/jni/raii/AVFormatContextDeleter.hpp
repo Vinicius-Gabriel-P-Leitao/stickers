@@ -7,8 +7,8 @@
  */
 
 
-#ifndef ANDROID_AVFORMATCONTEXTDELETER_H
-#define ANDROID_AVFORMATCONTEXTDELETER_H
+#ifndef ANDROID_AVFORMATCONTEXTDELETER_HPP
+#define ANDROID_AVFORMATCONTEXTDELETER_HPP
 
 #include <memory>
 
@@ -24,4 +24,4 @@ struct AVFormatContextDeleter {
 
 using AVFormatContextPtr = std::unique_ptr<AVFormatContext, AVFormatContextDeleter>;
 
-#endif //ANDROID_AVFORMATCONTEXTDELETER_H
+#endif //ANDROID_AVFORMATCONTEXTDELETER_HPP

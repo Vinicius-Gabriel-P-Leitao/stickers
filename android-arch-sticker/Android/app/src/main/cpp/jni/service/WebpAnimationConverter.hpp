@@ -12,9 +12,9 @@
 
 #include <string>
 #include <jni.h>
-#include "ProcessFramesToFormat.h"
+#include "ProcessFramesToFormat.hpp"
 
-#include "../raii/AVFrameDeleter.h"
+#include "../raii/AVFrameDeleter.hpp"
 
 class WebpAnimationConverter {
 public:

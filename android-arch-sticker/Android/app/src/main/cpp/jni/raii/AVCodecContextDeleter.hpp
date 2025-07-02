@@ -7,8 +7,8 @@
  */
 
 
-#ifndef ANDROID_AVCODECCONTEXTDELETER_H
-#define ANDROID_AVCODECCONTEXTDELETER_H
+#ifndef ANDROID_AVCODECCONTEXTDELETER_HPP
+#define ANDROID_AVCODECCONTEXTDELETER_HPP
 
 #include <memory>
 
@@ -24,4 +24,4 @@ struct AVCodecContextDeleter {
 
 using AVCodecContextPtr = std::unique_ptr<AVCodecContext, AVCodecContextDeleter>;
 
-#endif //ANDROID_AVCODECCONTEXTDELETER_H
+#endif //ANDROID_AVCODECCONTEXTDELETER_HPP

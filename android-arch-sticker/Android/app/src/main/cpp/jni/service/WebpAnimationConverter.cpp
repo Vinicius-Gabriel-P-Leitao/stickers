@@ -5,23 +5,22 @@
  * This source code is licensed under the Vinícius Non-Commercial Public License (VNCL),
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
-
-#include "format.h"
-#include "WebpAnimationConverter.h"
+#include "WebpAnimationConverter.hpp"
 
 #include <jni.h>
 #include <vector>
 #include <memory>
 #include <string>
+#include "format.h"
 #include <iostream>
 #include <android/log.h>
 
-#include "../exception/HandlerJavaException.h"
+#include "../exception/HandlerJavaException.hpp"
 
-#include "../raii/AVFrameDeleter.h"
-#include "../raii/WebPDataDeleter.h"
-#include "../raii/AVBufferDeleter.h"
-#include "../raii/WebPAnimEncoderDeleter.h"
+#include "../raii/AVFrameDeleter.hpp"
+#include "../raii/WebPDataDeleter.hpp"
+#include "../raii/AVBufferDeleter.hpp"
+#include "../raii/WebPAnimEncoderDeleter.hpp"
 
 extern "C" {
 #include "mux.h"
@@ -133,16 +132,16 @@ WebpAnimationConverter::convertToWebp(JNIEnv *env,
         return 0;
     }
 
-    FILE *outputFopenFile = fopen(outputPath, "wb");
-    if (!outputFopenFile) {
+    FILE *outputOpenFile = fopen(outputPath, "wb");
+    if (!outputOpenFile) {
         std::string msgError = fmt::format("Erro ao abrir arquivo de saída: %s", outputPath);
         HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return 0;
     }
 
-    fwrite(webpData.bytes, 1, webpData.size, outputFopenFile);
-    fclose(outputFopenFile);
+    fwrite(webpData.bytes, 1, webpData.size, outputOpenFile);
+    fclose(outputOpenFile);
 
     LOGINF("Arquivo WebP salvo com sucesso em: %s (%zu bytes)", outputPath, webpData.size);
     return 1;

@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 
 import br.arch.sticker.core.error.code.MediaConversionErrorCode;
 import br.arch.sticker.core.error.throwable.media.MediaConversionException;
-import br.arch.sticker.core.lib.NativeConvertToWebp;
+import br.arch.sticker.core.lib.NativeProcessWebp;
 
 public class VideoConverter {
     private final Context context;
@@ -36,10 +36,10 @@ public class VideoConverter {
             String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFileName);
             String outputFile = new File(context.getCacheDir(), finalOutputFileName).getAbsolutePath();
 
-            NativeConvertToWebp nativeConvertToWebp = new NativeConvertToWebp();
-            nativeConvertToWebp.convertToWebpAsync(inputPath, outputFile,
+            NativeProcessWebp nativeProcessWebp = new NativeProcessWebp();
+            nativeProcessWebp.processWebpAsync(inputPath, outputFile,
 
-                    new NativeConvertToWebp.ConversionCallback() {
+                    new NativeProcessWebp.ConversionCallback() {
                         @Override
                         public void onSuccess(File file)
                             {

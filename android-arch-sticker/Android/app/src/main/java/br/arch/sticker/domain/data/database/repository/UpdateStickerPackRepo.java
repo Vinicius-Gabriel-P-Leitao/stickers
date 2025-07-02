@@ -18,18 +18,40 @@ import android.database.sqlite.SQLiteDatabase;
 
 import br.arch.sticker.domain.data.database.StickerDatabase;
 
-// @formatter:off
 public class UpdateStickerPackRepo {
+    public static void updateStickerFileName(StickerDatabase dbHelper, String stickerPackIdentifier, String newFileName, String oldFileName)
+        {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            try {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(STICKER_FILE_NAME_IN_QUERY, newFileName);
+
+                String whereClause = FK_STICKER_PACK + " = ? AND " + STICKER_FILE_NAME_IN_QUERY + " = ?";
+                String[] whereArgs = {stickerPackIdentifier, oldFileName};
+
+                db.update(TABLE_STICKER, contentValues, whereClause, whereArgs);
+            } finally {
+                if (db != null && db.isOpen()) {
+                    db.close();
+                }
+            }
+        }
+
     public static void updateInvalidSticker(StickerDatabase dbHelper, String stickerPackIdentifier, String fileName, String errorMessage) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(STICKER_IS_VALID, errorMessage);
+        try {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(STICKER_IS_VALID, errorMessage);
 
-        String whereClause = FK_STICKER_PACK + " = ? AND " + STICKER_FILE_NAME_IN_QUERY + " = ?";
-        String[] whereArgs = { stickerPackIdentifier, fileName };
+            String whereClause = FK_STICKER_PACK + " = ? AND " + STICKER_FILE_NAME_IN_QUERY + " = ?";
+            String[] whereArgs = {stickerPackIdentifier, fileName};
 
-        db.update(TABLE_STICKER, contentValues, whereClause, whereArgs);
-        db.close();
+            db.update(TABLE_STICKER, contentValues, whereClause, whereArgs);
+        } finally {
+            if (db != null && db.isOpen()) {
+                db.close();
+            }
+        }
     }
 }

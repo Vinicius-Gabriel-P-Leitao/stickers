@@ -16,15 +16,16 @@
 #include <format.h>
 #include <android/log.h>
 
-#include "exception/HandlerJavaException.h"
-#include "service/WebpAnimationConverter.h"
-#include "service/ProcessFramesToFormat.h"
+#include "exception/HandlerJavaException.hpp"
+#include "service/WebpAnimationConverter.hpp"
+#include "service/ProcessFramesToFormat.hpp"
+#include "service/ProcessWebpToAvFrames.hpp."
 
-#include "raii/AVFrameDeleter.h"
-#include "raii/AVBufferDeleter.h"
-#include "raii/SwsContextDeleter.h"
-#include "raii/AVCodecContextDeleter.h"
-#include "raii/AVFormatContextDeleter.h"
+#include "raii/AVFrameDeleter.hpp"
+#include "raii/AVBufferDeleter.hpp"
+#include "raii/SwsContextDeleter.hpp"
+#include "raii/AVCodecContextDeleter.hpp"
+#include "raii/AVFormatContextDeleter.hpp"
 
 extern "C" {
 #include "mux.h"
@@ -67,16 +68,47 @@ struct JniString {
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_br_arch_sticker_core_lib_NativeConvertToWebp_convertToWebp(JNIEnv *env,
-                                                                        jobject /* this */,
-                                                                        jstring inputPath,
-                                                                        jstring outputPath) {
+Java_br_arch_sticker_core_lib_NativeProcessWebp_convertToWebp(JNIEnv *env,
+                                                              jobject /* this */,
+                                                              jstring inputPath,
+                                                              jstring outputPath) {
+    jclass nativeMediaException = env->FindClass("br/arch/sticker/core/error/throwable/media/NativeConversionException");
+
     JniString inPath(env, inputPath);
     JniString outPath(env, outputPath);
 
+    bool isWebP = false;
     int outputSize = 512;
 
-    jclass nativeMediaException = env->FindClass("br/arch/sticker/core/error/throwable/media/NativeConversionException");
+    {
+        FILE *file = fopen(inPath.get(), "rb");
+        if (file) {
+            uint8_t header[12];
+            fread(header, 1, 12, file);
+            fclose(file);
+            if (memcmp(header, "RIFF", 4) == 0 && memcmp(header + 8, "WEBP", 4) == 0) {
+                isWebP = true;
+            }
+        }
+    }
+
+    if (isWebP) {
+        std::vector<FrameWithBuffer> vFramesWithBuffer;
+
+        if (!ProcessWebpToAvFrames::decodeWebPAsAVFrames(env, inPath.get(), vFramesWithBuffer, outputSize, outputSize)) {
+            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Erro ao processar arquivo WebP");
+            return JNI_FALSE;
+        }
+
+        if (vFramesWithBuffer.empty()) {
+            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Nenhum frame extraído do WebP");
+            return JNI_FALSE;
+        }
+
+        int durationMs = 100;
+        int result = WebpAnimationConverter::convertToWebp(env, outPath.get(), vFramesWithBuffer, outputSize, outputSize, durationMs);
+        return result ? JNI_TRUE : JNI_FALSE;
+    }
 
     if (!inPath.get() || !outPath.get()) {
         std::string msgError = fmt::format("Caminhos de entrada ou saída inválidos");

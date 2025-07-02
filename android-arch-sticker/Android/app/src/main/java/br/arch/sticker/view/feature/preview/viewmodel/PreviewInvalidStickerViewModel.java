@@ -7,31 +7,46 @@
  */
 package br.arch.sticker.view.feature.preview.viewmodel;
 
+import static br.arch.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
+
 import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import java.io.File;
+
 import br.arch.sticker.core.error.ErrorCodeProvider;
 import br.arch.sticker.core.error.code.StickerAssetErrorCode;
+import br.arch.sticker.core.lib.NativeProcessWebp;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.service.delete.DeleteStickerAssetService;
 import br.arch.sticker.domain.service.delete.DeleteStickerService;
+import br.arch.sticker.domain.service.update.UpdateStickerService;
+import br.arch.sticker.view.core.util.convert.ConvertMediaToStickerFormat;
 import br.arch.sticker.view.core.util.event.GenericEvent;
 
 public class PreviewInvalidStickerViewModel extends AndroidViewModel {
-    public sealed interface FixActionSticker permits FixActionSticker.Delete {
+    private final static String TAG_LOG = PreviewInvalidStickerViewModel.class.getSimpleName();
+
+    public sealed interface FixActionSticker permits FixActionSticker.Delete, FixActionSticker.ResizeFile {
         record Delete(Sticker sticker, String stickerPackIdentifier, ErrorCodeProvider codeProvider) implements FixActionSticker {
+        }
+
+        record ResizeFile(Sticker sticker, String stickerPackIdentifier, ErrorCodeProvider codeProvider) implements FixActionSticker {
         }
     }
 
     private final DeleteStickerAssetService deleteStickerAssetService;
     private final DeleteStickerService deleteStickerService;
+    private final UpdateStickerService updateStickerService;
+    private final Context context;
 
     private final MutableLiveData<GenericEvent<FixActionSticker>> stickerMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<FixActionSticker> fixCompletedLiveData = new MutableLiveData<>();
@@ -40,9 +55,10 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
     public PreviewInvalidStickerViewModel(@NonNull Application application)
         {
             super(application);
-            Context context = application.getApplicationContext();
-            this.deleteStickerService = new DeleteStickerService(context);
-            this.deleteStickerAssetService = new DeleteStickerAssetService(context);
+            this.context = application.getApplicationContext();
+            this.deleteStickerService = new DeleteStickerService(this.context);
+            this.updateStickerService = new UpdateStickerService(this.context);
+            this.deleteStickerAssetService = new DeleteStickerAssetService(this.context);
         }
 
     public LiveData<GenericEvent<FixActionSticker>> getStickerMutableLiveData()
@@ -67,19 +83,19 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
                         new FixActionSticker.Delete(sticker, stickerPackIdentifier, StickerAssetErrorCode.STICKER_FILE_NOT_EXIST)));
             }
 
-            if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.INVALID_STICKER_FILENAME.name())) {
+            if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.INVALID_STICKER_PATH.name())) {
                 stickerMutableLiveData.setValue(new GenericEvent<>(
-                        new FixActionSticker.Delete(sticker, stickerPackIdentifier, StickerAssetErrorCode.INVALID_STICKER_FILENAME)));
+                        new FixActionSticker.Delete(sticker, stickerPackIdentifier, StickerAssetErrorCode.INVALID_STICKER_PATH)));
             }
 
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.ERROR_FILE_SIZE.name())) {
                 stickerMutableLiveData.setValue(
-                        new GenericEvent<>(new FixActionSticker.Delete(sticker, stickerPackIdentifier, StickerAssetErrorCode.ERROR_FILE_SIZE)));
+                        new GenericEvent<>(new FixActionSticker.ResizeFile(sticker, stickerPackIdentifier, StickerAssetErrorCode.ERROR_FILE_SIZE)));
             }
 
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.ERROR_SIZE_STICKER.name())) {
                 stickerMutableLiveData.setValue(
-                        new GenericEvent<>(new FixActionSticker.Delete(sticker, stickerPackIdentifier, StickerAssetErrorCode.ERROR_SIZE_STICKER)));
+                        new GenericEvent<>(new FixActionSticker.ResizeFile(sticker, stickerPackIdentifier, StickerAssetErrorCode.ERROR_FILE_SIZE)));
             }
 
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.ERROR_STICKER_TYPE.name())) {
@@ -127,9 +143,41 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
 
                         fixCompletedLiveData.postValue(action);
                     } catch (Exception exception) {
+                        Log.e(TAG_LOG, "Exception: " + exception);
                         errorMessageLiveData.postValue("Erro inesperado: " + exception.getMessage());
-                        exception.printStackTrace();
                     }
+                }).start();
+            }
+
+            if (action instanceof FixActionSticker.ResizeFile resizeFile) {
+                Sticker sticker = resizeFile.sticker();
+                String stickerPackIdentifier = resizeFile.stickerPackIdentifier();
+
+                new Thread(() -> {
+                    File filesDir = new File(new File(context.getFilesDir(), STICKERS_ASSET), stickerPackIdentifier);
+
+                    String inputFile = new File(filesDir, sticker.imageFileName).getAbsolutePath();
+                    String outputFile = new File(filesDir, sticker.imageFileName + "-resize").getAbsolutePath();
+
+                    String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFile);
+
+                    NativeProcessWebp nativeProcessWebp = new NativeProcessWebp();
+                    nativeProcessWebp.processWebpAsync(inputFile, finalOutputFileName,
+
+                            new NativeProcessWebp.ConversionCallback() {
+                                @Override
+                                public void onSuccess(File file)
+                                    {
+                                        updateStickerService.updateStickerFileName(stickerPackIdentifier, file.getName(), sticker.imageFileName);
+                                        fixCompletedLiveData.postValue(resizeFile);
+                                    }
+
+                                @Override
+                                public void onError(Exception exception)
+                                    {
+                                        errorMessageLiveData.postValue(exception.getMessage());
+                                    }
+                            });
                 }).start();
             }
         }

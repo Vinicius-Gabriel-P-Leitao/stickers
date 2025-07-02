@@ -7,13 +7,13 @@
  */
 
 
-#ifndef ANDROID_PROCESSFRAMESTOFORMAT_H
-#define ANDROID_PROCESSFRAMESTOFORMAT_H
+#ifndef ANDROID_PROCESSFRAMESTOFORMAT_HPP
+#define ANDROID_PROCESSFRAMESTOFORMAT_HPP
 
 #include <jni.h>
 
-#include "../raii/AVFrameDeleter.h"
-#include "../raii/AVBufferDeleter.h"
+#include "../raii/AVFrameDeleter.hpp"
+#include "../raii/AVBufferDeleter.hpp"
 
 struct FrameWithBuffer {
     AVFramePtr frame;
@@ -34,4 +34,4 @@ private:
 };
 
 
-#endif //ANDROID_PROCESSFRAMESTOFORMAT_H
+#endif //ANDROID_PROCESSFRAMESTOFORMAT_HPP

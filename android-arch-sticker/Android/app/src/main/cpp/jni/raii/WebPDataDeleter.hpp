@@ -5,24 +5,22 @@
  * This source code is licensed under the Vinícius Non-Commercial Public License (VNCL),
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
-
-
-#ifndef ANDROID_AVFRAMEDELETER_H
-#define ANDROID_AVFRAMEDELETER_H
+#ifndef ANDROID_WEBPDATADELETER_HPP
+#define ANDROID_WEBPDATADELETER_HPP
 
 #include <memory>
 
 extern "C" {
-#include "libavutil/frame.h"
+#include <mux.h>
+#include "libswscale/swscale.h"
 }
 
-class AVFrameDeleter {
-public:
-    void operator()(AVFrame *frame) const {
-        av_frame_free(&frame);
+struct WebPDataDeleter {
+    void operator()(WebPData *data) const {
+        WebPDataClear(data);
     }
 };
 
-using AVFramePtr = std::unique_ptr<AVFrame, AVFrameDeleter>;
+using WebPDataPtr = std::unique_ptr<WebPData, WebPDataDeleter>;
 
-#endif //ANDROID_AVFRAMEDELETER_H
+#endif //ANDROID_WEBPDATADELETER_HPP

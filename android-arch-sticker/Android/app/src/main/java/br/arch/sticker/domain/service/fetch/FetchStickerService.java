@@ -34,11 +34,13 @@ import br.arch.sticker.domain.service.update.UpdateStickerService;
 public class FetchStickerService {
 
     private final FetchStickerAssetService fetchStickerAssetService;
+    private final UpdateStickerService updateStickerService;
     private final Context context;
 
     public FetchStickerService(Context context)
         {
             this.context = context.getApplicationContext();
+            this.updateStickerService = new UpdateStickerService(this.context);
             this.fetchStickerAssetService = new FetchStickerAssetService(this.context);
         }
 
@@ -53,7 +55,7 @@ public class FetchStickerService {
 
                     if (bytes.length == 0) {
                         if (!TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.name())) {
-                            UpdateStickerService.updateInvalidSticker(context, stickerPackIdentifier, sticker.imageFileName,
+                            updateStickerService.updateInvalidSticker(stickerPackIdentifier, sticker.imageFileName,
                                                                   StickerAssetErrorCode.STICKER_FILE_NOT_EXIST);
                         }
 
@@ -63,7 +65,7 @@ public class FetchStickerService {
                     sticker.setSize(bytes.length);
                 } catch (FetchStickerException exception) {
                     if (!TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.name())) {
-                        UpdateStickerService.updateInvalidSticker(context, stickerPackIdentifier, sticker.imageFileName,
+                        updateStickerService.updateInvalidSticker(stickerPackIdentifier, sticker.imageFileName,
                                                                   StickerAssetErrorCode.STICKER_FILE_NOT_EXIST);
                     }
                 }

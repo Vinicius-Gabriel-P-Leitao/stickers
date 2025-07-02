@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 import br.arch.sticker.core.error.code.MediaConversionErrorCode;
 import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 
-public class NativeConvertToWebp {
+public class NativeProcessWebp {
     static {
         System.loadLibrary("sticker");
     }
@@ -30,7 +30,7 @@ public class NativeConvertToWebp {
 
     private static final ExecutorService nativeExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-    public void convertToWebpAsync(String inputPath, String outputPath, ConversionCallback callback) throws MediaConversionException {
+    public void processWebpAsync(String inputPath, String outputPath, ConversionCallback callback) throws MediaConversionException {
         nativeExecutor.submit(() -> {
             try {
                 boolean success = convertToWebp(inputPath, outputPath);

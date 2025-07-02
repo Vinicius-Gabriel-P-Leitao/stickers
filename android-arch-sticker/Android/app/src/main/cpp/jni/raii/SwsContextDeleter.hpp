@@ -7,8 +7,8 @@
  */
 
 
-#ifndef ANDROID_SWSCONTEXTDELETER_H
-#define ANDROID_SWSCONTEXTDELETER_H
+#ifndef ANDROID_SWSCONTEXTDELETER_HPP
+#define ANDROID_SWSCONTEXTDELETER_HPP
 
 #include <memory>
 
@@ -24,4 +24,4 @@ struct SwsContextDeleter {
 
 using SwsContextPtr = std::unique_ptr<SwsContext, SwsContextDeleter>;
 
-#endif //ANDROID_SWSCONTEXTDELETER_H
+#endif //ANDROID_SWSCONTEXTDELETER_HPP

@@ -6,8 +6,8 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-#ifndef ANDROID_AVBUFFERDELETER_H
-#define ANDROID_AVBUFFERDELETER_H
+#ifndef ANDROID_AVBUFFERDELETER_HPP
+#define ANDROID_AVBUFFERDELETER_HPP
 
 #include <string>
 
@@ -23,4 +23,4 @@ struct AVBufferDeleter {
 
 using AVBufferPtr = std::unique_ptr<uint8_t, AVBufferDeleter>;
 
-#endif //ANDROID_AVBUFFERDELETER_H
+#endif //ANDROID_AVBUFFERDELETER_HPP

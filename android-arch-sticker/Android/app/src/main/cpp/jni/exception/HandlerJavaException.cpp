@@ -10,7 +10,7 @@
 #include <string>
 #include <android/log.h>
 
-#include "HandlerJavaException.h"
+#include "HandlerJavaException.hpp"
 
 #define LOG_TAG_HANDLER "HandlerJavaException"
 #define LOGEH(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG_HANDLER, __VA_ARGS__)

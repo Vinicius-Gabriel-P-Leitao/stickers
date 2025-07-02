@@ -7,22 +7,22 @@
  */
 
 
-#ifndef ANDROID_WEBPDATADELETER_H
-#define ANDROID_WEBPDATADELETER_H
+#ifndef ANDROID_AVFRAMEDELETER_HPP
+#define ANDROID_AVFRAMEDELETER_HPP
 
 #include <memory>
 
 extern "C" {
-#include <mux.h>
-#include "libswscale/swscale.h"
+#include "libavutil/frame.h"
 }
 
-struct WebPDataDeleter {
-    void operator()(WebPData *data) const {
-        WebPDataClear(data);
+class AVFrameDeleter {
+public:
+    void operator()(AVFrame *frame) const {
+        av_frame_free(&frame);
     }
 };
 
-using WebPDataPtr = std::unique_ptr<WebPData, WebPDataDeleter>;
+using AVFramePtr = std::unique_ptr<AVFrame, AVFrameDeleter>;
 
-#endif //ANDROID_WEBPDATADELETER_H
+#endif //ANDROID_AVFRAMEDELETER_HPP

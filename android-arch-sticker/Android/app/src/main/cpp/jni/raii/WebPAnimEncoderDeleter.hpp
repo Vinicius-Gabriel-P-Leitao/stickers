@@ -7,8 +7,8 @@
  */
 
 
-#ifndef ANDROID_WEBPANIMENCODERDELETER_H
-#define ANDROID_WEBPANIMENCODERDELETER_H
+#ifndef ANDROID_WEBPANIMENCODERDELETER_HPP
+#define ANDROID_WEBPANIMENCODERDELETER_HPP
 
 #include <memory>
 
@@ -25,4 +25,4 @@ struct WebPAnimEncoderDeleter {
 
 using WebPAnimEncoderPtr = std::unique_ptr<WebPAnimEncoder, WebPAnimEncoderDeleter>;
 
-#endif //ANDROID_WEBPANIMENCODERDELETER_H
+#endif //ANDROID_WEBPANIMENCODERDELETER_HPP

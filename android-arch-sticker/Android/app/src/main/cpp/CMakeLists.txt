@@ -4,7 +4,11 @@ project("sticker")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 
 file(GLOB_RECURSE SOURCES
-        "jni/*.cpp"
+        jni/sticker.cpp
+        jni/service/WebpAnimationConverter.cpp
+        jni/service/ProcessWebpToAvFrames.cpp
+        jni/service/ProcessFramesToFormat.cpp
+        jni/exception/HandlerJavaException.cpp
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/../include/ffmpeg/)

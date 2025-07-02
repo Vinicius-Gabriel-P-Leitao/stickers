@@ -46,7 +46,25 @@ public class InvalidStickerDialogController {
 
                 dialog.setTextFixButton(dialog.getContext().getString(R.string.dialog_delete));
                 dialog.setOnFixClick(view -> {
-                    viewModel.onFixActionConfirmed(action);
+                    viewModel.onFixActionConfirmed(delete);
+                    dialog.dismiss();
+                });
+
+                dialog.setTextIgnoreButton(dialog.getContext().getString(R.string.dialog_ignore));
+                dialog.setOnIgnoreClick(view -> dialog.dismiss());
+            }
+
+            if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile resizeFile) {
+                int resourceString = resizeFile.codeProvider().getMessageResId();
+
+                dialog.setTitleText(dialog.getContext().getString(R.string.dialog_delete));
+                dialog.setMessageText(dialog.getContext().getString(resourceString));
+                dialog.setVisibilityFixButton(View.VISIBLE);
+                dialog.setVisibilityIgnoreButton(View.VISIBLE);
+
+                dialog.setTextFixButton("Refatorar");
+                dialog.setOnFixClick(view -> {
+                    viewModel.onFixActionConfirmed(resizeFile);
                     dialog.dismiss();
                 });
 
