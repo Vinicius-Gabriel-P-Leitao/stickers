@@ -19,21 +19,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.arch.sticker.R;
-import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
+import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.PermissionRequestViewModel;
 
 public class PermissionRequestDialog {
     private final PermissionRequestViewModel permissionRequestViewModel;
 
     private final ActivityResultLauncher<String[]> permissionLauncher;
-    private final InvalidStickersDialog dialog;
+    private final AlertStickerDialog dialog;
     private final AppCompatActivity activity;
 
     public PermissionRequestDialog(AppCompatActivity activity, ActivityResultLauncher<String[]> permissionLauncher)
         {
             this.activity = activity;
             this.permissionLauncher = permissionLauncher;
-            this.dialog = new InvalidStickersDialog(activity);
+            this.dialog = new AlertStickerDialog(activity);
             this.permissionRequestViewModel = new ViewModelProvider(activity).get(PermissionRequestViewModel.class);
 
         }

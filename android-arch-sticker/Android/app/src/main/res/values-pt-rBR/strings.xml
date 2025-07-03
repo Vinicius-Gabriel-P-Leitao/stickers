@@ -40,7 +40,7 @@
     <string name="dialog_settings_button_permission_cancel">Recusar</string>
     <string name="title_activity_sticker_creator" tools:ignore="MissingQuantity">Criar pacote</string>
     <string name="title_activity_pack_creator_first" tools:ignore="MissingQuantity">Criar primeiro pacote</string>
-    <string name="message_name_pack_empty">Preecha o nome do pacote!</string>
+    <string name="error_message_name_pack_empty">Preecha o nome do pacote!</string>
     <string name="preview_sticker_description">Thumbnail do pacote de figurinhas</string>
     <string name="button_open_media_getter">Abrir aba de nome do pacote e galeria</string>
     <string name="description_image_thumbnail">Thumbnail da imagem na galeria</string>
@@ -97,4 +97,10 @@
     <string name="throw_empty_stickerpack">O pacote de figurinha está vazio.</string>
     <string name="throw_stickerpack_content_provider">Erro ao buscar no provedor de conteúdo.</string>
     <string name="dialog_delete">Excluir</string>
+    <string name="dialog_refactor">Refatorar</string>
+    <string name="error_message_name_stickerpack_length">O nome do pacote não deve ter no máximo 20 caracteres.</string>
+    <string name="input_refactor_quality_sticker">Qualidade: 1 a 20.</string>
+    <string name="error_message_quality_sticker_empty">A qualidade está vazio, preencha.</string>
+    <string name="error_message_quality_sticker_length">Valor deve estar entre 1 e 20.</string>
+    <string name="error_message_quality_invalid_number">Digite um número válido.</string>
 </resources>

@@ -48,7 +48,7 @@ import br.arch.sticker.domain.dto.StickerPackWithInvalidStickers;
 import br.arch.sticker.view.core.model.StickerPackListItem;
 import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
-import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
+import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
 import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
@@ -88,7 +88,7 @@ public class StickerPackListActivity extends StickerPackAddActivity {
                     return;
                 }
 
-                InvalidStickersDialog dialog = new InvalidStickersDialog(StickerPackListActivity.this);
+                AlertStickerDialog dialog = new AlertStickerDialog(StickerPackListActivity.this);
                 dialog.setTitleText(getString(R.string.dialog_title_invalid_stickers));
                 dialog.setMessageText(getString(R.string.dialog_message_invalid_stickers));
 
@@ -130,7 +130,7 @@ public class StickerPackListActivity extends StickerPackAddActivity {
 
                 final String stickerPackIdentifier = stickerPack.identifier;
 
-                final InvalidStickersDialog dialog = new InvalidStickersDialog(StickerPackListActivity.this);
+                final AlertStickerDialog dialog = new AlertStickerDialog(StickerPackListActivity.this);
                 dialog.setTitleText(getString(R.string.dialog_title_invalid_stickerpack));
                 dialog.setMessageText(getString(R.string.dialog_message_invalid_stickerpack));
 

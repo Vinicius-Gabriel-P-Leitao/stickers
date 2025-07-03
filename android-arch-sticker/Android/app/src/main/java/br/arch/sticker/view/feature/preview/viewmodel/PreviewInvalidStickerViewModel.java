@@ -35,11 +35,15 @@ import br.arch.sticker.view.core.util.event.GenericEvent;
 public class PreviewInvalidStickerViewModel extends AndroidViewModel {
     private final static String TAG_LOG = PreviewInvalidStickerViewModel.class.getSimpleName();
 
+    // @formatter:off
     public sealed interface FixActionSticker permits FixActionSticker.Delete, FixActionSticker.ResizeFile {
         record Delete(Sticker sticker, String stickerPackIdentifier, ErrorCodeProvider codeProvider) implements FixActionSticker {
         }
 
-        record ResizeFile(Sticker sticker, String stickerPackIdentifier, ErrorCodeProvider codeProvider) implements FixActionSticker {
+        record ResizeFile(Sticker sticker, String stickerPackIdentifier, Integer quality, ErrorCodeProvider codeProvider) implements FixActionSticker {
+            public ResizeFile withQuality(Integer newQuality) {
+                return new ResizeFile(sticker, stickerPackIdentifier, newQuality, codeProvider);
+            }
         }
     }
 
@@ -89,13 +93,13 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
             }
 
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.ERROR_FILE_SIZE.name())) {
-                stickerMutableLiveData.setValue(
-                        new GenericEvent<>(new FixActionSticker.ResizeFile(sticker, stickerPackIdentifier, StickerAssetErrorCode.ERROR_FILE_SIZE)));
+                stickerMutableLiveData.setValue(new GenericEvent<>(
+                        new FixActionSticker.ResizeFile(sticker, stickerPackIdentifier, null, StickerAssetErrorCode.ERROR_FILE_SIZE)));
             }
 
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.ERROR_SIZE_STICKER.name())) {
-                stickerMutableLiveData.setValue(
-                        new GenericEvent<>(new FixActionSticker.ResizeFile(sticker, stickerPackIdentifier, StickerAssetErrorCode.ERROR_FILE_SIZE)));
+                stickerMutableLiveData.setValue(new GenericEvent<>(
+                        new FixActionSticker.ResizeFile(sticker, stickerPackIdentifier, null, StickerAssetErrorCode.ERROR_FILE_SIZE)));
             }
 
             if (TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.ERROR_STICKER_TYPE.name())) {
@@ -168,7 +172,7 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
 
                     NativeProcessWebp nativeProcessWebp = new NativeProcessWebp();
                     nativeProcessWebp.processWebpAsync(
-                            inputFile, finalOutputFileName, 10f, false,
+                            inputFile, finalOutputFileName, resizeFile.quality.floatValue(), false,
                             new NativeProcessWebp.ConversionCallback() {
                                 @Override
                                 public void onSuccess(File file)

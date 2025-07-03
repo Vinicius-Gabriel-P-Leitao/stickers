@@ -75,17 +75,21 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
             textInputEditText.setFocusable(true);
             textInputEditText.setFocusableInTouchMode(true);
 
-            String msgErrorNamePackEmpty = getResources().getString(R.string.message_name_pack_empty);
+            String msgErrorNamePackEmpty = getResources().getString(R.string.error_message_name_pack_empty);
             if (textInputEditText.getText() == null) {
-                viewModel.setErrorNameStickerPack(msgErrorNamePackEmpty);
-                dismiss();
+                textInputEditText.setError(msgErrorNamePackEmpty);
                 return;
             }
 
             String inputText = textInputEditText.getText().toString().trim();
+
             if (inputText.isEmpty()) {
-                viewModel.setErrorNameStickerPack(msgErrorNamePackEmpty);
-                dismiss();
+                textInputEditText.setError(msgErrorNamePackEmpty);
+                return;
+            }
+
+            if (inputText.length() < CHAR_NAME_COUNT_MAX) {
+                textInputEditText.setError(getString(R.string.error_message_name_stickerpack_length));
                 return;
             }
 

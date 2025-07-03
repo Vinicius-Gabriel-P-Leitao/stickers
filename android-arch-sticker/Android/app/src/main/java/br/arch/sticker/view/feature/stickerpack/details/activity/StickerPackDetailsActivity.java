@@ -49,7 +49,7 @@ import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
-import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
+import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity;
 import br.arch.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
@@ -120,7 +120,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
                     stickers != null ? stickers : new ArrayList<>(),
                     expandedStickerView,
                     ()-> {
-                        InvalidStickersDialog dialog = new InvalidStickersDialog(this);
+                        AlertStickerDialog dialog = new AlertStickerDialog(this);
                         dialog.setTitleText(this.getString(R.string.dialog_title_invalid_stickers));
                         dialog.setMessageText(this.getString(R.string.dialog_message_invalid_stickers));
 

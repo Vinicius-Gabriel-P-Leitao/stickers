@@ -258,11 +258,6 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
                 openGallery(name);
             });
 
-            nameStickerPackViewModel.getErrorNameStickerPack().observe(this, error -> {
-                Log.e(TAG_LOG, error);
-                Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
-            });
-
             NameStickerPackViewModel.launchNameStickerPack(this);
         }
 

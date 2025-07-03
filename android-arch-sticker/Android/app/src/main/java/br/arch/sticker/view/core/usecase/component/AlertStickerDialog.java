@@ -10,7 +10,6 @@ package br.arch.sticker.view.core.usecase.component;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -20,7 +19,7 @@ import androidx.annotation.NonNull;
 
 import br.arch.sticker.R;
 
-public class InvalidStickersDialog extends Dialog {
+public class AlertStickerDialog extends Dialog {
 
     private TextView titleTextView;
     private TextView messageTextView;
@@ -28,7 +27,7 @@ public class InvalidStickersDialog extends Dialog {
     private Button fixButton;
     private ImageView iconImageView;
 
-    public InvalidStickersDialog(@NonNull Context context) {
+    public AlertStickerDialog(@NonNull Context context) {
         super(context, R.style.AlterDialogStyle);
         init();
     }

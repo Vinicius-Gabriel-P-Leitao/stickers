@@ -27,7 +27,7 @@ import br.arch.sticker.BuildConfig;
 import br.arch.sticker.R;
 import br.arch.sticker.core.validation.WhatsappWhitelistValidator;
 import br.arch.sticker.view.core.base.BaseActivity;
-import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
+import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.core.usecase.definition.StickerPackHandler;
 import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
 
@@ -131,7 +131,7 @@ public abstract class StickerPackAddActivity extends BaseActivity implements Sti
                             Log.e(TAG_LOG, "Validation failed:" + validationError);
                         }
                     } else {
-                        InvalidStickersDialog dialog = new InvalidStickersDialog(this);
+                        AlertStickerDialog dialog = new AlertStickerDialog(this);
                         dialog.setMessageText(getString(R.string.dialog_add_stickerpack_fail_prompt_update_whatsapp));
 
                         dialog.setTextFixButton(getString(R.string.dialog_add_stickerpack_fail_prompt_update_play_link));

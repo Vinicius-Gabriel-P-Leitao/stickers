@@ -11,16 +11,16 @@ package br.arch.sticker.view.feature.preview.dialog;
 import android.content.Context;
 import android.view.View;
 
-import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
+import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerPackViewModel;
 
 public class InvalidStickerPackDialogController {
-    private final InvalidStickersDialog dialog;
+    private final AlertStickerDialog dialog;
     private final PreviewInvalidStickerPackViewModel viewModel;
 
     public InvalidStickerPackDialogController(Context context, PreviewInvalidStickerPackViewModel viewModel)
         {
-            dialog = new InvalidStickersDialog(context);
+            dialog = new AlertStickerDialog(context);
             this.viewModel = viewModel;
         }
 

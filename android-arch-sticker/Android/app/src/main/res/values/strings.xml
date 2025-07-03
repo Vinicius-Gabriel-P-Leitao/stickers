@@ -40,7 +40,7 @@
     <string name="dialog_settings_button_permission_cancel">Cancel</string>
     <string name="title_activity_sticker_creator" tools:ignore="MissingQuantity">Create new package</string>
     <string name="title_activity_pack_creator_first" tools:ignore="MissingQuantity">Create first package</string>
-    <string name="message_name_pack_empty">Fill in the package name!</string>
+    <string name="error_message_name_pack_empty">Fill in the package name!</string>
     <string name="button_open_media_getter">Open package name and gallery tab</string>
     <string name="preview_sticker_description">Sticker Pack Thumbnail</string>
     <string name="description_image_thumbnail">Image thumbnail in gallery</string>
@@ -97,4 +97,10 @@
     <string name="throw_empty_stickerpack">The sticker pack is empty.</string>
     <string name="throw_stickerpack_content_provider">Error fetching from content provider.</string>
     <string name="dialog_delete">Delete</string>
+    <string name="dialog_refactor">Refactor</string>
+    <string name="error_message_name_stickerpack_length">The package name must be no longer than 20 characters.</string>
+    <string name="input_refactor_quality_sticker">Quality: 1 to 20.</string>
+    <string name="error_message_quality_sticker_empty">Quality is empty, please fill it in.</string>
+    <string name="error_message_quality_sticker_length">Value must be between 1 and 20.</string>
+    <string name="error_message_quality_invalid_number">Please enter a valid number.</string>
 </resources>

@@ -12,18 +12,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import br.arch.sticker.R;
-import br.arch.sticker.view.core.usecase.component.InvalidStickersDialog;
+import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.PermissionSettingsViewModel;
 
 public class PermissionSettingsDialog {
     private final PermissionSettingsViewModel permissionSettingsViewModel;
-    private final InvalidStickersDialog dialog;
+    private final AlertStickerDialog dialog;
     private final AppCompatActivity activity;
 
     public PermissionSettingsDialog(AppCompatActivity activity)
         {
             this.activity = activity;
-            this.dialog = new InvalidStickersDialog(activity);
+            this.dialog = new AlertStickerDialog(activity);
             this.permissionSettingsViewModel = new ViewModelProvider(activity).get(PermissionSettingsViewModel.class);
 
         }

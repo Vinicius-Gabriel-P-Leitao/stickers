@@ -13,27 +13,17 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import br.arch.sticker.view.core.util.event.SingleLiveEvent;
 import br.arch.sticker.view.feature.stickerpack.creation.fragment.NameStickerPackFragment;
 
 public class NameStickerPackViewModel extends ViewModel {
     private final MutableLiveData<String> nameStickerPack = new MutableLiveData<>();
-    private final SingleLiveEvent<String> errorNameStickerPack = new SingleLiveEvent<>();
 
     public LiveData<String> getNameStickerPack() {
         return nameStickerPack;
     }
 
-    public MutableLiveData<String> getErrorNameStickerPack() {
-        return errorNameStickerPack;
-    }
-
     public void setNameStickerPack(String name) {
         nameStickerPack.setValue(name);
-    }
-
-    public void setErrorNameStickerPack(String error) {
-        errorNameStickerPack.setValue(error);
     }
 
     public static void launchNameStickerPack(FragmentActivity activity) {
