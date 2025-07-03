@@ -8,7 +8,7 @@
 
 package br.arch.sticker.view.feature.stickerpack.creation.fragment;
 
-import static br.arch.sticker.domain.data.database.StickerDatabase.CHAR_NAME_COUNT_MAX;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.CHAR_NAME_COUNT_MAX;
 
 import android.app.Dialog;
 import android.graphics.Color;
@@ -88,7 +88,7 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
                 return;
             }
 
-            if (inputText.length() < CHAR_NAME_COUNT_MAX) {
+            if (inputText.length() > CHAR_NAME_COUNT_MAX) {
                 textInputEditText.setError(getString(R.string.error_message_name_stickerpack_length));
                 return;
             }

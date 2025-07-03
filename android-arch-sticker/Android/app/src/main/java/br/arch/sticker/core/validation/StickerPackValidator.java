@@ -11,9 +11,9 @@
 
 package br.arch.sticker.core.validation;
 
-import static br.arch.sticker.domain.data.database.StickerDatabase.CHAR_IDENTIFIER_COUNT_MAX;
-import static br.arch.sticker.domain.data.database.StickerDatabase.CHAR_NAME_COUNT_MAX;
-import static br.arch.sticker.domain.data.database.StickerDatabase.CHAR_PUBLISHER_COUNT_MAX;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.CHAR_IDENTIFIER_COUNT_MAX;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.CHAR_NAME_COUNT_MAX;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.CHAR_PUBLISHER_COUNT_MAX;
 
 import android.content.Context;
 import android.graphics.Bitmap;

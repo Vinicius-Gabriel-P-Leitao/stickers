@@ -8,51 +8,69 @@
 
 package br.arch.sticker.domain.data.database.repository;
 
-import static br.arch.sticker.domain.data.database.StickerDatabase.FK_STICKER_PACK;
-import static br.arch.sticker.domain.data.database.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
-import static br.arch.sticker.domain.data.database.StickerDatabase.STICKER_IS_VALID;
-import static br.arch.sticker.domain.data.database.StickerDatabase.TABLE_STICKER;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.FK_STICKER_PACK;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.STICKER_FILE_NAME_IN_QUERY;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.STICKER_IS_VALID;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.TABLE_STICKER;
 
 import android.content.ContentValues;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-
-import br.arch.sticker.domain.data.database.StickerDatabase;
+import android.util.Log;
 
 public class UpdateStickerPackRepo {
-    public static void updateStickerFileName(StickerDatabase dbHelper, String stickerPackIdentifier, String newFileName, String oldFileName)
-        {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            try {
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(STICKER_FILE_NAME_IN_QUERY, newFileName);
-                contentValues.put(STICKER_IS_VALID, ""); // NOTE: Retirar o erro
+    private final static String TAG_LOG = UpdateStickerPackRepo.class.getSimpleName();
 
-                String whereClause = FK_STICKER_PACK + " = ? AND " + STICKER_FILE_NAME_IN_QUERY + " = ?";
-                String[] whereArgs = {stickerPackIdentifier, oldFileName};
+    private final SQLiteDatabase database;
 
-                db.update(TABLE_STICKER, contentValues, whereClause, whereArgs);
-            } finally {
-                if (db != null && db.isOpen()) {
-                    db.close();
-                }
-            }
-        }
+    public UpdateStickerPackRepo(SQLiteDatabase database) {
+        this.database = database;
+    }
 
-    public static void updateInvalidSticker(StickerDatabase dbHelper, String stickerPackIdentifier, String fileName, String errorMessage) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    public boolean updateStickerFileName(String stickerPackIdentifier, String newFileName, String oldFileName) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(STICKER_FILE_NAME_IN_QUERY, newFileName);
+        contentValues.put(STICKER_IS_VALID, ""); // NOTE: Retirar o erro
+
+        String whereClause = FK_STICKER_PACK + " = ? AND " + STICKER_FILE_NAME_IN_QUERY + " = ?";
+        String[] whereArgs = {stickerPackIdentifier, oldFileName};
+
 
         try {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(STICKER_IS_VALID, errorMessage);
+            int rowsUpdated = database.update(TABLE_STICKER, contentValues, whereClause, whereArgs);
 
-            String whereClause = FK_STICKER_PACK + " = ? AND " + STICKER_FILE_NAME_IN_QUERY + " = ?";
-            String[] whereArgs = {stickerPackIdentifier, fileName};
-
-            db.update(TABLE_STICKER, contentValues, whereClause, whereArgs);
-        } finally {
-            if (db != null && db.isOpen()) {
-                db.close();
+            if (rowsUpdated == 0) {
+                Log.w(TAG_LOG, "Nenhum registro atualizado ao renomear figurinha.");
             }
+
+            return rowsUpdated > 0;
+        } catch (SQLException | IllegalStateException exception) {
+            Log.e(TAG_LOG, "Erro ao atualizar nome da figurinha: " + exception.getMessage(),
+                    exception);
+            return false;
+        }
+    }
+
+    public boolean updateInvalidSticker(String stickerPackIdentifier, String fileName, String errorMessage) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(STICKER_IS_VALID, errorMessage);
+
+        String whereClause = FK_STICKER_PACK + " = ? AND " + STICKER_FILE_NAME_IN_QUERY + " = ?";
+        String[] whereArgs = {stickerPackIdentifier, fileName};
+
+        try {
+            int rowsUpdated = database.update(TABLE_STICKER, contentValues, whereClause, whereArgs);
+
+            if (rowsUpdated == 0) {
+                Log.w(TAG_LOG,
+                        "Nenhum registro marcado como inválido. Verifique o identificador e nome do arquivo.");
+            }
+
+            return rowsUpdated > 0;
+        } catch (SQLException | IllegalStateException exception) {
+            Log.e(TAG_LOG, "Erro ao marcar figurinha como inválida: " + exception.getMessage(),
+                    exception);
+            return false;
         }
     }
 }

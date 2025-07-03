@@ -23,7 +23,7 @@ import java.io.OutputStream;
 import br.arch.sticker.core.error.code.SaveErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
-import br.arch.sticker.domain.data.database.StickerDatabase;
+import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
 import br.arch.sticker.domain.data.database.repository.InsertStickerPackRepo;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
@@ -37,64 +37,59 @@ public class StickerPackPlaceholder {
     private final InsertStickerPackRepo insertStickerPackRepo;
     private final Context context;
 
-    public StickerPackPlaceholder(Context context)
-        {
-            StickerDatabase instance = StickerDatabase.getInstance(context);
-            SQLiteDatabase writableDatabase = instance.getWritableDatabase();
+    public StickerPackPlaceholder(Context context) {
+        this.context = context;
+        SQLiteDatabase database = StickerDatabaseHelper.getInstance(
+                this.context).getWritableDatabase();
+        this.insertStickerPackRepo = new InsertStickerPackRepo(database);
+    }
 
-            this.context = context;
-            this.insertStickerPackRepo = new InsertStickerPackRepo(writableDatabase);
+    public Sticker makeAndSaveStickerPlaceholder(StickerPack stickerPack) {
+        if (isCreatingPlaceholder) {
+            return null;
         }
 
-    public Sticker makeAndSaveStickerPlaceholder(StickerPack stickerPack)
-        {
-            if (isCreatingPlaceholder) {
-                return null;
-            }
+        isCreatingPlaceholder = true;
 
-            isCreatingPlaceholder = true;
+        try {
+            File stickerDir = new File(context.getFilesDir(),
+                    new File(STICKERS_ASSET, stickerPack.identifier).toString());
+            if (!stickerDir.exists()) stickerDir.mkdirs();
 
-            try {
-                File stickerDir = new File(context.getFilesDir(), new File(STICKERS_ASSET, stickerPack.identifier).toString());
-                if (!stickerDir.exists()) stickerDir.mkdirs();
+            Sticker stickerPlaceholder = this.makeStickerPlaceholder(stickerPack, stickerDir);
+            CallbackResult<Sticker> insertedSticker = insertStickerPackRepo.insertSticker(
+                    stickerPlaceholder, stickerPack.identifier);
 
-                Sticker stickerPlaceholder = this.makeStickerPlaceholder(stickerPack, stickerDir);
-                CallbackResult<Sticker> insertedSticker = insertStickerPackRepo.insertSticker(stickerPlaceholder, stickerPack.identifier);
-
-                return insertedSticker.getData();
-            } finally {
-                isCreatingPlaceholder = false;
-            }
+            return insertedSticker.getData();
+        } finally {
+            isCreatingPlaceholder = false;
         }
+    }
 
-    public Sticker makeStickerPlaceholder(StickerPack stickerPack, File outputFile)
-        {
-            String fileName = stickerPack.animatedStickerPack
-                              ? PLACEHOLDER_ANIMATED
-                              : PLACEHOLDER_STATIC;
+    public Sticker makeStickerPlaceholder(StickerPack stickerPack, File outputFile) {
+        String fileName = stickerPack.animatedStickerPack ? PLACEHOLDER_ANIMATED : PLACEHOLDER_STATIC;
 
-            String accessibility = stickerPack.animatedStickerPack
-                                   ? "Pacote animado com nome " + stickerPack.name
-                                   : "Pacote estático com nome " + stickerPack.name;
+        String accessibility = stickerPack.animatedStickerPack ? "Pacote animado com nome " + stickerPack.name : "Pacote estático com nome " + stickerPack.name;
 
-            File destFile = new File(outputFile, fileName);
-            try (AssetFileDescriptor assetFileDescriptor = context.getAssets().openFd(fileName);
-                 InputStream inputStream = assetFileDescriptor.createInputStream();
-                 OutputStream outputStream = new FileOutputStream(destFile)) {
+        File destFile = new File(outputFile, fileName);
+        try (AssetFileDescriptor assetFileDescriptor = context.getAssets().openFd(
+                fileName); InputStream inputStream = assetFileDescriptor.createInputStream(); OutputStream outputStream = new FileOutputStream(
+                destFile)) {
 
-                byte[] buffer = new byte[4096];
-                int length;
-                while ((length = inputStream.read(buffer)) > 0) {
-                    outputStream.write(buffer, 0, length);
-                }
-
-                outputStream.flush();
-
-                return new Sticker(fileName.trim(), "\uD83D\uDDFF", "", accessibility, stickerPack.identifier);
-            } catch (IOException exception) {
-                throw new StickerPackSaveException(
-                        "Erro ao criar placeholder para o pacote de figurinhas!", exception,
-                        SaveErrorCode.ERROR_PACK_SAVE_SERVICE);
+            byte[] buffer = new byte[4096];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
             }
+
+            outputStream.flush();
+
+            return new Sticker(fileName.trim(), "\uD83D\uDDFF", "", accessibility,
+                    stickerPack.identifier);
+        } catch (IOException exception) {
+            throw new StickerPackSaveException(
+                    "Erro ao criar placeholder para o pacote de figurinhas!", exception,
+                    SaveErrorCode.ERROR_PACK_SAVE_SERVICE);
         }
+    }
 }

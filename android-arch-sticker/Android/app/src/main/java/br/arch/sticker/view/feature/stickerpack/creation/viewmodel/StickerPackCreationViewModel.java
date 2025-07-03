@@ -42,6 +42,7 @@ import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 import br.arch.sticker.view.core.util.convert.ConvertMediaToStickerFormat;
 
 public class StickerPackCreationViewModel extends AndroidViewModel {
+    private ExecutorService generateStickerPack;
 
     private final ConvertMediaToStickerFormat convertMediaToStickerFormat;
     private final SaveStickerPackService saveStickerPackService;
@@ -51,6 +52,13 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
     private final List<File> convertedFiles = Collections.synchronizedList(new ArrayList<>());
     private final AtomicInteger completedConversions = new AtomicInteger(0);
     private boolean conversionsCancelled = false;
+    public StickerPackCreationViewModel(@NonNull Application application) {
+        super(application);
+        this.context = getApplication().getApplicationContext();
+        convertedFilesLiveData.observeForever(convertedStickerPackObserver);
+        this.saveStickerPackService = new SaveStickerPackService(this.context);
+        this.convertMediaToStickerFormat = new ConvertMediaToStickerFormat(this.context);
+    }
     private ExecutorService conversionExecutor;
     private int totalConversions = 0;
 
@@ -69,160 +77,159 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
         }
     };
 
-    public StickerPackCreationViewModel(@NonNull Application application)
-        {
-            super(application);
-            this.context = getApplication().getApplicationContext();
-            convertedFilesLiveData.observeForever(convertedStickerPackObserver);
-            this.saveStickerPackService = new SaveStickerPackService(this.context);
-            this.convertMediaToStickerFormat = new ConvertMediaToStickerFormat(this.context);
+    public LiveData<CallbackResult<StickerPack>> getStickerPackResult() {
+        return stickerPackResult;
+    }
+
+    public LiveData<StickerPack> getStickerPackPreview() {
+        return getPackPreview();
+    }
+
+    public void setStickerPackPreview(StickerPack stickerPack) {
+        stickerPackPreview.setValue(stickerPack);
+    }
+
+    private MutableLiveData<StickerPack> getPackPreview() {
+        return stickerPackPreview;
+    }
+
+    public LiveData<MimeTypesSupported> getMimeTypesSupported() {
+        return mimeTypesSupported;
+    }
+
+    public void setMimeTypesSupported(MimeTypesSupported mimeTypes) {
+        mimeTypesSupported.setValue(mimeTypes);
+    }
+
+    public void setFragmentVisibility(Boolean visibility) {
+        fragmentVisibility.setValue(visibility);
+    }
+
+    public void setIsAnimatedPack(Boolean animated) {
+        isAnimatedPack.setValue(animated);
+    }
+
+    public void setNameStickerPack(String name) {
+        nameStickerPack.setValue(name);
+    }
+
+    public void startConversions(Set<Uri> uris) {
+        if (uris == null || uris.isEmpty()) {
+            postFailure("A lista de URIs está vazia ou nula.");
+            return;
         }
+
+        int cores = Runtime.getRuntime().availableProcessors();
+        int maxThreads = Math.min(30, cores * 2);
+        conversionExecutor = new ThreadPoolExecutor(cores, maxThreads, 1L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>());
+
+        totalConversions = uris.size();
+        completedConversions.set(0);
+        convertedFiles.clear();
+        conversionFutures.clear();
+        conversionsCancelled = false;
+
+        for (Uri uri : uris) {
+            Future<?> future = conversionExecutor.submit(() -> {
+                try {
+                    if (conversionsCancelled) {
+                        return;
+                    }
+
+                    if (uri.getPath() == null) throw new Exception("URI sem caminho válido.");
+                    String fileName = new File(uri.getPath()).getName();
+                    convertedFiles.add(
+                            convertMediaToStickerFormat.convertMediaToWebPAsyncFuture(uri,
+                                    fileName).get());
+
+                    int done = completedConversions.incrementAndGet();
+                    conversionProgress.postValue(
+                            new ProgressState(totalConversions, done, done == totalConversions));
+
+                    if (done == totalConversions) {
+                        convertedFilesLiveData.postValue(new ArrayList<>(convertedFiles));
+                    }
+                } catch (MediaConversionException mediaConversionException) {
+                    postFailure(mediaConversionException.getMessage());
+                } catch (InterruptedException interruptedException) {
+                    Log.e(getClass().getSimpleName(), "Erro de interrupção do processo: " + uri,
+                            interruptedException);
+                } catch (Exception exception) {
+                    Log.e(getClass().getSimpleName(), "Erro ao converter URI: " + uri, exception);
+                    postFailure("Erro na conversão: " + exception.getMessage());
+                }
+            });
+
+            conversionFutures.add(future);
+        }
+    }
+
+    public void setCancelConversions() {
+        conversionsCancelled = true;
+        synchronized (conversionFutures) {
+            for (Future<?> future : conversionFutures) {
+                future.cancel(true);
+            }
+            conversionFutures.clear();
+        }
+
+        if (conversionExecutor != null) {
+            conversionExecutor.shutdownNow();
+            conversionExecutor = null;
+        }
+    }
+
+    private void generateStickerPack(List<File> files) {
+        generateStickerPack = Executors.newSingleThreadExecutor();
+
+        try {
+            Boolean animated = isAnimatedPack.getValue();
+            String name = nameStickerPack.getValue();
+
+            if (animated == null || name == null || name.isBlank()) {
+                throw new IllegalArgumentException("Dados insuficientes para gerar o pacote.");
+            }
+
+            if (context == null) {
+                throw new IllegalStateException("Contexto inválido para gerar o stickerPack.");
+            }
+
+            generateStickerPack.submit(() -> {
+                try {
+                    CallbackResult<StickerPack> result = saveStickerPackService.saveStickerPackAsync(
+                            animated, files, name).get();
+                    stickerPackResult.postValue(result);
+                } catch (AppCoreStateException appCoreStateException) {
+                    postFailure(appCoreStateException.getErrorCodeName());
+                } catch (ExecutionException | InterruptedException exception) {
+                    postFailure(exception.getMessage());
+                }
+            });
+        } catch (StickerPackSaveException exception) {
+            Log.d(StickerPackCreationViewModel.class.getSimpleName(), "Erro na conversão",
+                    exception);
+            postFailure("Erro na conversão: " + exception.getMessage());
+        }
+    }
+
+    private void postFailure(String message) {
+        stickerPackResult.postValue(CallbackResult.failure(new Exception(message)));
+    }
 
     @Override
-    protected void onCleared()
-        {
-            super.onCleared();
-            convertedFilesLiveData.removeObserver(convertedStickerPackObserver);
+    protected void onCleared() {
+        super.onCleared();
+        convertedFilesLiveData.removeObserver(convertedStickerPackObserver);
+
+        if (generateStickerPack != null && !generateStickerPack.isShutdown()) {
+            generateStickerPack.shutdownNow();
         }
 
-    public LiveData<CallbackResult<StickerPack>> getStickerPackResult()
-        {
-            return stickerPackResult;
+        if (conversionExecutor != null && !conversionExecutor.isShutdown()) {
+            conversionExecutor.shutdownNow();
         }
-
-    public LiveData<StickerPack> getStickerPackPreview()
-        {
-            return stickerPackPreview;
-        }
-
-    public LiveData<MimeTypesSupported> getMimeTypesSupported()
-        {
-            return mimeTypesSupported;
-        }
-
-    public void setStickerPackPreview(StickerPack stickerPack)
-        {
-            stickerPackPreview.setValue(stickerPack);
-        }
-
-    public void setFragmentVisibility(Boolean visibility)
-        {
-            fragmentVisibility.setValue(visibility);
-        }
-
-    public void setIsAnimatedPack(Boolean animated)
-        {
-            isAnimatedPack.setValue(animated);
-        }
-
-    public void setNameStickerPack(String name)
-        {
-            nameStickerPack.setValue(name);
-        }
-
-    public void setMimeTypesSupported(MimeTypesSupported mimeTypes)
-        {
-            mimeTypesSupported.setValue(mimeTypes);
-        }
-
-    public void startConversions(Set<Uri> uris)
-        {
-            if (uris == null || uris.isEmpty()) {
-                postFailure("A lista de URIs está vazia ou nula.");
-                return;
-            }
-
-            int cores = Runtime.getRuntime().availableProcessors();
-            int maxThreads = Math.min(30, cores * 2);
-            conversionExecutor = new ThreadPoolExecutor(cores, maxThreads, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
-
-            totalConversions = uris.size();
-            completedConversions.set(0);
-            convertedFiles.clear();
-            conversionFutures.clear();
-            conversionsCancelled = false;
-
-            for (Uri uri : uris) {
-                Future<?> future = conversionExecutor.submit(() -> {
-                    try {
-                        if (conversionsCancelled) {
-                            return;
-                        }
-
-                        if (uri.getPath() == null) throw new Exception("URI sem caminho válido.");
-                        String fileName = new File(uri.getPath()).getName();
-                        convertedFiles.add(convertMediaToStickerFormat.convertMediaToWebPAsyncFuture(uri, fileName).get());
-
-                        int done = completedConversions.incrementAndGet();
-                        conversionProgress.postValue(new ProgressState(totalConversions, done, done == totalConversions));
-
-                        if (done == totalConversions) {
-                            convertedFilesLiveData.postValue(new ArrayList<>(convertedFiles));
-                        }
-                    } catch (MediaConversionException mediaConversionException) {
-                        postFailure(mediaConversionException.getMessage());
-                    } catch (InterruptedException interruptedException) {
-                        Log.e(getClass().getSimpleName(), "Erro de interrupção do processo: " + uri, interruptedException);
-                    } catch (Exception exception) {
-                        Log.e(getClass().getSimpleName(), "Erro ao converter URI: " + uri, exception);
-                        postFailure("Erro na conversão: " + exception.getMessage());
-                    }
-                });
-
-                conversionFutures.add(future);
-            }
-        }
-
-    public void setCancelConversions()
-        {
-            conversionsCancelled = true;
-            synchronized (conversionFutures) {
-                for (Future<?> future : conversionFutures) {
-                    future.cancel(true);
-                }
-                conversionFutures.clear();
-            }
-
-            if (conversionExecutor != null) {
-                conversionExecutor.shutdownNow();
-                conversionExecutor = null;
-            }
-        }
-
-    private void generateStickerPack(List<File> files)
-        {
-            try {
-                Boolean animated = isAnimatedPack.getValue();
-                String name = nameStickerPack.getValue();
-
-                if (animated == null || name == null || name.isBlank()) {
-                    throw new IllegalArgumentException("Dados insuficientes para gerar o pacote.");
-                }
-
-                if (context == null) {
-                    throw new IllegalStateException("Contexto inválido para gerar o stickerPack.");
-                }
-
-                Executors.newSingleThreadExecutor().submit(() -> {
-                    try {
-                        CallbackResult<StickerPack> result = saveStickerPackService.saveStickerPackAsync(animated, files, name).get();
-                        stickerPackResult.postValue(result);
-                    } catch (AppCoreStateException appCoreStateException) {
-                        postFailure(appCoreStateException.getErrorCodeName());
-                    } catch (ExecutionException | InterruptedException exception) {
-                        postFailure(exception.getMessage());
-                    }
-                });
-            } catch (StickerPackSaveException exception) {
-                Log.d(StickerPackCreationViewModel.class.getSimpleName(), "Erro na conversão", exception);
-                postFailure("Erro na conversão: " + exception.getMessage());
-            }
-        }
-
-    private void postFailure(String message)
-        {
-            stickerPackResult.postValue(CallbackResult.failure(new Exception(message)));
-        }
+    }
 
     public record ProgressState(int total, int completed, boolean done) {
     }

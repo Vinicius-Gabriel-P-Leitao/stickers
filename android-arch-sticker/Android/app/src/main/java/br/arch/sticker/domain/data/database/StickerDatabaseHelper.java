@@ -9,14 +9,11 @@
 package br.arch.sticker.domain.data.database;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 // @formatter:off
-public class StickerDatabase extends SQLiteOpenHelper {
-    private static StickerDatabase instance;
-
+public class StickerDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "stickers.db";
     private static final int DATABASE_VERSION = 1;
 
@@ -57,7 +54,10 @@ public class StickerDatabase extends SQLiteOpenHelper {
     public static final int CHAR_NAME_COUNT_MAX = 35;
     public static final int CHAR_PUBLISHER_COUNT_MAX = 40;
 
-    public StickerDatabase(Context context) {
+    private static volatile StickerDatabaseHelper  instance;
+
+
+    public StickerDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -136,23 +136,11 @@ public class StickerDatabase extends SQLiteOpenHelper {
         db.setForeignKeyConstraintsEnabled(true);
     }
 
-    public static synchronized StickerDatabase getInstance(Context context) {
+    public static synchronized StickerDatabaseHelper getInstance(Context context) {
         if (instance == null) {
-            instance = new StickerDatabase(context.getApplicationContext());
+            instance = new StickerDatabaseHelper(context.getApplicationContext());
         }
 
         return instance;
-    }
-
-    public static boolean isDatabaseEmpty(SQLiteDatabase database) {
-        Cursor cursor = database.rawQuery("SELECT COUNT(*) FROM " + TABLE_STICKER_PACKS, null);
-        boolean empty = true;
-
-        if (cursor.moveToFirst()) {
-            empty = cursor.getInt(0) == 0;
-        }
-
-        cursor.close();
-        return empty;
     }
 }

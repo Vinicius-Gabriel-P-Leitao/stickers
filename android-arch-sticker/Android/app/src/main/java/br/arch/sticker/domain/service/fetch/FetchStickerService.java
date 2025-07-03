@@ -8,10 +8,10 @@
 
 package br.arch.sticker.domain.service.fetch;
 
-import static br.arch.sticker.domain.data.database.StickerDatabase.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
-import static br.arch.sticker.domain.data.database.StickerDatabase.STICKER_FILE_EMOJI_IN_QUERY;
-import static br.arch.sticker.domain.data.database.StickerDatabase.STICKER_FILE_NAME_IN_QUERY;
-import static br.arch.sticker.domain.data.database.StickerDatabase.STICKER_IS_VALID;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.STICKER_FILE_EMOJI_IN_QUERY;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.STICKER_FILE_NAME_IN_QUERY;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.STICKER_IS_VALID;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -32,57 +32,66 @@ import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.service.update.UpdateStickerService;
 
 public class FetchStickerService {
-
     private final FetchStickerAssetService fetchStickerAssetService;
     private final UpdateStickerService updateStickerService;
     private final Context context;
 
-    public FetchStickerService(Context context)
-        {
-            this.context = context.getApplicationContext();
-            this.updateStickerService = new UpdateStickerService(this.context);
-            this.fetchStickerAssetService = new FetchStickerAssetService(this.context);
-        }
+    public FetchStickerService(Context context) {
+        this.context = context.getApplicationContext();
+        this.updateStickerService = new UpdateStickerService(this.context);
+        this.fetchStickerAssetService = new FetchStickerAssetService(this.context);
+    }
+
+    private static Uri buildStickerUri(String stickerPackIdentifier) {
+        return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(
+                BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(
+                StickerContentProvider.STICKERS).appendPath(stickerPackIdentifier).build();
+    }
 
     @NonNull
-    public List<Sticker> fetchListStickerForPack(String stickerPackIdentifier)
-        {
-            final List<Sticker> stickers = fetchListStickerFromContentProvider(stickerPackIdentifier);
+    public List<Sticker> fetchListStickerForPack(String stickerPackIdentifier) {
+        final List<Sticker> stickers = fetchListStickerFromContentProvider(stickerPackIdentifier);
 
-            for(Sticker sticker: stickers){
-                try {
-                    byte[] bytes = fetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, sticker.imageFileName);
+        for (Sticker sticker : stickers) {
+            try {
+                byte[] bytes = fetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier,
+                        sticker.imageFileName);
 
-                    if (bytes.length == 0) {
-                        if (!TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.name())) {
-                            updateStickerService.updateInvalidSticker(stickerPackIdentifier, sticker.imageFileName,
-                                                                  StickerAssetErrorCode.STICKER_FILE_NOT_EXIST);
-                        }
-
-                        continue;
+                if (bytes.length == 0) {
+                    if (!TextUtils.equals(sticker.stickerIsValid,
+                            StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.name())) {
+                        boolean updated = updateStickerService.updateInvalidSticker(
+                                stickerPackIdentifier,
+                                sticker.imageFileName,
+                                StickerAssetErrorCode.STICKER_FILE_NOT_EXIST);
                     }
 
-                    sticker.setSize(bytes.length);
-                } catch (FetchStickerException exception) {
-                    if (!TextUtils.equals(sticker.stickerIsValid, StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.name())) {
-                        updateStickerService.updateInvalidSticker(stickerPackIdentifier, sticker.imageFileName,
-                                                                  StickerAssetErrorCode.STICKER_FILE_NOT_EXIST);
-                    }
+                    continue;
+                }
+
+                sticker.setSize(bytes.length);
+            } catch (FetchStickerException exception) {
+                if (!TextUtils.equals(sticker.stickerIsValid,
+                        StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.name())) {
+                    updateStickerService.updateInvalidSticker(stickerPackIdentifier,
+                            sticker.imageFileName, StickerAssetErrorCode.STICKER_FILE_NOT_EXIST);
                 }
             }
-
-            return stickers;
         }
 
+        return stickers;
+    }
+
     @NonNull
-    private List<Sticker> fetchListStickerFromContentProvider(String stickerPackIdentifier)
-        {
-            Uri uri = buildStickerUri(stickerPackIdentifier);
-            final String[] projection = {STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY};
-            final Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
+    private List<Sticker> fetchListStickerFromContentProvider(String stickerPackIdentifier) {
+        Uri uri = buildStickerUri(stickerPackIdentifier);
+        final String[] projection = {STICKER_FILE_NAME_IN_QUERY, STICKER_FILE_EMOJI_IN_QUERY, STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY};
 
-            List<Sticker> stickers = new ArrayList<>();
+        List<Sticker> stickers = new ArrayList<>();
 
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(uri, projection, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
@@ -99,17 +108,12 @@ public class FetchStickerService {
                     stickers.add(new Sticker(name, emojis, stickerIsValid, accessibilityText, stickerPackIdentifier));
                 } while (cursor.moveToNext());
             }
-
+        } finally {
             if (cursor != null) {
                 cursor.close();
             }
-
-            return stickers;
         }
 
-    private static Uri buildStickerUri(String stickerPackIdentifier)
-        {
-            return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(
-                    StickerContentProvider.STICKERS).appendPath(stickerPackIdentifier).build();
-        }
+        return stickers;
+    }
 }

@@ -239,8 +239,8 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
             }
 
             MediaPickerFragment fragment = new MediaPickerFragment();
-            fragment.setOnItemClickListener(imagePath -> {
-                Uri selectedImageUri = Uri.fromFile(new File(imagePath));
+            fragment.setOnItemClickListener(filePath -> {
+                Uri selectedImageUri = Uri.fromFile(new File(filePath));
                 Intent resultIntent = new Intent();
                 resultIntent.setData(selectedImageUri);
 

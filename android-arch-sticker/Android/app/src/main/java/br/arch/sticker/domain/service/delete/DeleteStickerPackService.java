@@ -9,28 +9,30 @@
 package br.arch.sticker.domain.service.delete;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import androidx.annotation.NonNull;
 
 import br.arch.sticker.core.pattern.CallbackResult;
+import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
 import br.arch.sticker.domain.data.database.repository.DeleteStickerPackRepo;
 
 public class DeleteStickerPackService {
     private final DeleteStickerPackRepo deleteStickerPackRepo;
 
-    public DeleteStickerPackService(Context context)
-        {
-            this.deleteStickerPackRepo = new DeleteStickerPackRepo(context);
-        }
+    public DeleteStickerPackService(Context context) {
+        SQLiteDatabase database = StickerDatabaseHelper.getInstance(context).getWritableDatabase();
+        this.deleteStickerPackRepo = new DeleteStickerPackRepo(database);
+    }
 
-    public CallbackResult<Boolean> deleteStickerPack(@NonNull String stickerPackIdentifier)
-        {
-            CallbackResult<Integer> stickerPackDeletedInDb = deleteStickerPackRepo.deleteStickerPackFromDatabase(stickerPackIdentifier);
-            return switch (stickerPackDeletedInDb.getStatus()) {
-                case SUCCESS -> CallbackResult.success(Boolean.TRUE);
-                case WARNING -> CallbackResult.warning(stickerPackDeletedInDb.getWarningMessage());
-                case DEBUG -> CallbackResult.debug(stickerPackDeletedInDb.getDebugMessage());
-                case FAILURE -> CallbackResult.failure(stickerPackDeletedInDb.getError());
-            };
-        }
+    public CallbackResult<Boolean> deleteStickerPack(@NonNull String stickerPackIdentifier) {
+        CallbackResult<Integer> stickerPackDeletedInDb = deleteStickerPackRepo.deleteStickerPackFromDatabase(
+                stickerPackIdentifier);
+        return switch (stickerPackDeletedInDb.getStatus()) {
+            case SUCCESS -> CallbackResult.success(Boolean.TRUE);
+            case WARNING -> CallbackResult.warning(stickerPackDeletedInDb.getWarningMessage());
+            case DEBUG -> CallbackResult.debug(stickerPackDeletedInDb.getDebugMessage());
+            case FAILURE -> CallbackResult.failure(stickerPackDeletedInDb.getError());
+        };
+    }
 }

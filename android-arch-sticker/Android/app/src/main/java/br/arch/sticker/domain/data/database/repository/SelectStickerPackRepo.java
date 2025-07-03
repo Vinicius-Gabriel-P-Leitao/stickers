@@ -8,110 +8,131 @@
 
 package br.arch.sticker.domain.data.database.repository;
 
-import static br.arch.sticker.domain.data.database.StickerDatabase.ANIMATED_STICKER_PACK;
-import static br.arch.sticker.domain.data.database.StickerDatabase.STICKER_IS_VALID;
-import static br.arch.sticker.domain.data.database.StickerDatabase.TABLE_STICKER;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.ANIMATED_STICKER_PACK;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.STICKER_IS_VALID;
+import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.TABLE_STICKER;
 
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
-import br.arch.sticker.domain.data.database.StickerDatabase;
+import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
 
 // @formatter:off
 public class SelectStickerPackRepo {
-    public static Cursor getAllStickerPacks(StickerDatabase dbHelper) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+    private final static String TAG_LOG = SelectStickerPackRepo.class.getSimpleName();
 
-        String query =
-                "SELECT DISTINCT " +
-                        StickerDatabase.TABLE_STICKER_PACKS + ".*, " + StickerDatabase.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".* " +
-                "FROM " +
-                        StickerDatabase.TABLE_STICKER_PACKS + " " +
-                "INNER JOIN " +
-                        StickerDatabase.TABLE_STICKER_PACK +
-                " ON " +
-                        StickerDatabase.TABLE_STICKER_PACKS + "." + StickerDatabase.ID_STICKER_PACKS + " = " + StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.FK_STICKER_PACKS + " " +
-                "INNER JOIN " +
-                        TABLE_STICKER +
-                " ON " +
-                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + TABLE_STICKER + "." + StickerDatabase.FK_STICKER_PACK;
+    private final SQLiteDatabase database;
 
-        return db.rawQuery(query, null);
-    }
+    public SelectStickerPackRepo(SQLiteDatabase database)
+        {
+            this.database = database;
+        }
 
-    public static Cursor getStickerPackByIdentifier(StickerDatabase dbHelper, String stickerPackIdentifier) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        String query =
-                "SELECT DISTINCT " +
-                        StickerDatabase.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".* " +
-                "FROM " +
-                        StickerDatabase.TABLE_STICKER_PACK + " " +
-                "INNER JOIN " +
-                        TABLE_STICKER +
-                " ON " +
-                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + TABLE_STICKER + "." + StickerDatabase.FK_STICKER_PACK + " " +
-                "WHERE " +
-                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?";
-
-        return db.rawQuery(query, new String[]{stickerPackIdentifier});
-    }
-
-    public static Cursor getFilteredStickerPackByIdentifier(StickerDatabase dbHelper, String stickerPackIdentifier) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        String query =
-                "SELECT DISTINCT " +
-                        StickerDatabase.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".*" +
-                    " FROM " +
-                        StickerDatabase.TABLE_STICKER_PACK +
-                    " INNER JOIN " +
-                        TABLE_STICKER +
+    public Cursor getAllStickerPacks() {
+        try{
+            String query =
+                    "SELECT DISTINCT " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACKS + ".*, " + StickerDatabaseHelper.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".* " +
+                    "FROM " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACKS + " " +
+                    "INNER JOIN " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK +
                     " ON " +
-                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + TABLE_STICKER + "." + StickerDatabase.FK_STICKER_PACK  +
-                    " WHERE " +
-                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?" +
-                    " AND (" +
-                            TABLE_STICKER + "." + STICKER_IS_VALID + " IS NULL OR " +
-                            TABLE_STICKER + "." + STICKER_IS_VALID + " = ''" +
-                        ");";
+                            StickerDatabaseHelper.TABLE_STICKER_PACKS + "." + StickerDatabaseHelper.ID_STICKER_PACKS + " = " + StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.FK_STICKER_PACKS + " " +
+                    "INNER JOIN " +
+                            TABLE_STICKER +
+                    " ON " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + TABLE_STICKER + "." + StickerDatabaseHelper.FK_STICKER_PACK;
 
-
-        return db.rawQuery(query, new String[]{stickerPackIdentifier});
+            return database.rawQuery(query, null);
+        } catch (SQLException | IllegalStateException exception) {
+            Log.e(TAG_LOG, "Erro ao executar getAllStickerPacks: " + exception.getMessage(), exception);
+            return null;
+        }
     }
 
-    public static Cursor getStickerPackIsAnimated(StickerDatabase dbHelper, String stickerPackIdentifier) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+    public  Cursor getStickerPackByIdentifier( String stickerPackIdentifier) {
+        try {
+            String query =
+                "SELECT DISTINCT " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".* " +
+                "FROM " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + " " +
+                "INNER JOIN " +
+                        TABLE_STICKER +
+                " ON " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + TABLE_STICKER + "." + StickerDatabaseHelper.FK_STICKER_PACK + " " +
+                "WHERE " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?";
 
+             return database.rawQuery(query, new String[]{stickerPackIdentifier});
+        } catch (SQLException | IllegalStateException exception) {
+            Log.e(TAG_LOG, "Erro ao executar getFilteredStickerPackByIdentifier: " + exception.getMessage(), exception);
+            return null;
+        }
+    }
+
+    public  Cursor getFilteredStickerPackByIdentifier( String stickerPackIdentifier) {
+        try {
+            String query =
+                    "SELECT DISTINCT " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".*" +
+                        " FROM " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK +
+                        " INNER JOIN " +
+                            TABLE_STICKER +
+                        " ON " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + TABLE_STICKER + "." + StickerDatabaseHelper.FK_STICKER_PACK  +
+                        " WHERE " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?" +
+                        " AND (" +
+                                TABLE_STICKER + "." + STICKER_IS_VALID + " IS NULL OR " +
+                                TABLE_STICKER + "." + STICKER_IS_VALID + " = ''" +
+                            ");";
+
+
+            return database.rawQuery(query, new String[]{stickerPackIdentifier});
+        } catch (SQLException | IllegalStateException exception) {
+            Log.e(TAG_LOG, "Erro ao executar getStickerPackIsAnimated: " + exception.getMessage(), exception);
+            return null;
+        }
+    }
+
+    public  Cursor getStickerPackIsAnimated( String stickerPackIdentifier) {
         String query =
                 "SELECT DISTINCT " +
-                        StickerDatabase.TABLE_STICKER_PACK + "." + ANIMATED_STICKER_PACK +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + ANIMATED_STICKER_PACK +
                     " FROM " +
-                        StickerDatabase.TABLE_STICKER_PACK +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK +
                     " WHERE " +
-                        StickerDatabase.TABLE_STICKER_PACK + "." + StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ? " + ";";
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ? " + ";";
 
 
-        return db.rawQuery(query, new String[]{stickerPackIdentifier});
+        return database.rawQuery(query, new String[]{stickerPackIdentifier});
     }
 
-    public static Cursor getStickerByStickerPackIdentifier(StickerDatabase dbHelper, String stickerPackIdentifier) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+    public  Cursor getStickerByStickerPackIdentifier( String stickerPackIdentifier) {
+        try {
+            String query =
+                    "SELECT * FROM " +
+                            TABLE_STICKER +
+                    " WHERE " +
+                            StickerDatabaseHelper.FK_STICKER_PACK + " = " +
+                            "(" +
+                                "SELECT " +
+                                    StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY +
+                                " FROM " +
+                                    StickerDatabaseHelper.TABLE_STICKER_PACK +
+                                " WHERE " +
+                                    StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?" +
+                            ")";
 
-        String query =
-                "SELECT * FROM " +
-                        TABLE_STICKER +
-                " WHERE " +
-                        StickerDatabase.FK_STICKER_PACK + " = " +
-                        "(" +
-                            "SELECT " +
-                                StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY +
-                            " FROM " +
-                                StickerDatabase.TABLE_STICKER_PACK +
-                            " WHERE " +
-                                StickerDatabase.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?" +
-                        ")";
-
-        return db.rawQuery(query, new String[]{stickerPackIdentifier});
+            return database.rawQuery(query, new String[]{stickerPackIdentifier});
+        } catch (SQLException | IllegalStateException e) {
+            Log.e(TAG_LOG, "Erro ao executar getStickerByStickerPackIdentifier: " + e.getMessage(), e);
+            return null;
+        }
     }
 }

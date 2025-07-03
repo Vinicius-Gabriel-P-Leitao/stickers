@@ -50,106 +50,100 @@ public class EntryActivity extends BaseActivity {
     private LoadListAsyncTask loadListAsyncTask;
     private View progressBar;
 
-    private final ActivityResultLauncher<Intent> createPackLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-            result -> {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_entry);
+
+        overridePendingTransition(0, 0);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
+        progressBar = findViewById(R.id.entry_activity_progress);
+    }    private final ActivityResultLauncher<Intent> createPackLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK) {
                     loadStickerPacks();
                 }
             });
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState)
-        {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_entry);
+    private void showStickerPack(ArrayList<StickerPack> validPacks, ArrayList<StickerPack> invalidPacks, HashMap<StickerPack, List<Sticker>> validPacksWithInvalidStickers) {
+        progressBar.setVisibility(View.GONE);
 
-            overridePendingTransition(0, 0);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().hide();
-            }
+        boolean hasValid = validPacks != null && !validPacks.isEmpty();
+        boolean hasInvalid = invalidPacks != null && !invalidPacks.isEmpty();
+        boolean hasValidWithInvalidStickers = validPacksWithInvalidStickers != null && !validPacksWithInvalidStickers.isEmpty();
 
-            progressBar = findViewById(R.id.entry_activity_progress);
+        if (!hasValid && !hasInvalid && !hasValidWithInvalidStickers) {
+            showErrorMessage("Nenhum pacote de figurinhas encontrado.");
+            return;
         }
 
-    private void showStickerPack(
-            ArrayList<StickerPack> validPacks, ArrayList<StickerPack> invalidPacks, HashMap<StickerPack, List<Sticker>> validPacksWithInvalidStickers)
-        {
-            progressBar.setVisibility(View.GONE);
-
-            boolean hasValid = validPacks != null && !validPacks.isEmpty();
-            boolean hasInvalid = invalidPacks != null && !invalidPacks.isEmpty();
-            boolean hasValidWithInvalidStickers = validPacksWithInvalidStickers != null && !validPacksWithInvalidStickers.isEmpty();
-
-            if (!hasValid && !hasInvalid && !hasValidWithInvalidStickers) {
-                showErrorMessage("Nenhum pacote de figurinhas encontrado.");
-                return;
-            }
-
-            if (hasValid && validPacks.size() == 1 && !hasInvalid && !hasValidWithInvalidStickers) {
-                Intent intent = new Intent(this, StickerPackDetailsActivity.class);
-                intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, false);
-                intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, validPacks.get(0));
-
-                startActivity(intent);
-                finish();
-                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-
-                return;
-            }
-
-            final Intent intent = new Intent(this, StickerPackListActivity.class);
-
-            Map<StickerPack, List<Sticker>> safeMap = validPacksWithInvalidStickers != null
-                                                      ? validPacksWithInvalidStickers
-                                                      : Collections.emptyMap();
-
-            ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers = new ArrayList<>();
-            if (validPacksWithInvalidStickers != null) {
-                for (Map.Entry<StickerPack, List<Sticker>> entry : validPacksWithInvalidStickers.entrySet()) {
-                    stickerPackWithInvalidStickers.add(new StickerPackWithInvalidStickers(entry.getKey(), new ArrayList<>(entry.getValue())));
-                }
-            }
-
-            intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA, validPacks);
-            intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_PACK_LIST_DATA, invalidPacks);
-            intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_MAP_DATA, stickerPackWithInvalidStickers);
+        if (hasValid && validPacks.size() == 1 && !hasInvalid && !hasValidWithInvalidStickers) {
+            Intent intent = new Intent(this, StickerPackDetailsActivity.class);
+            intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, false);
+            intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, validPacks.get(0));
 
             startActivity(intent);
             finish();
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+
+            return;
         }
 
-    private void showErrorMessage(String errorMessage)
-        {
-            progressBar.setVisibility(View.GONE);
-            Log.e(TAG_LOG, "Erro ao buscar pacote de figurinhas, " + errorMessage);
-            final TextView errorMessageTV = findViewById(R.id.error_message);
-            errorMessageTV.setText(getString(R.string.error_message, errorMessage));
-        }
+        final Intent intent = new Intent(this, StickerPackListActivity.class);
 
-    @Override
-    protected void onDestroy()
-        {
-            super.onDestroy();
-            if (loadListAsyncTask != null) {
-                loadListAsyncTask.shutdown();
+        Map<StickerPack, List<Sticker>> safeMap = validPacksWithInvalidStickers != null ? validPacksWithInvalidStickers : Collections.emptyMap();
+
+        ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers = new ArrayList<>();
+        if (validPacksWithInvalidStickers != null) {
+            for (Map.Entry<StickerPack, List<Sticker>> entry : validPacksWithInvalidStickers.entrySet()) {
+                stickerPackWithInvalidStickers.add(
+                        new StickerPackWithInvalidStickers(entry.getKey(),
+                                new ArrayList<>(entry.getValue())));
             }
         }
 
+        intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA,
+                validPacks);
+        intent.putParcelableArrayListExtra(
+                StickerPackListActivity.EXTRA_INVALID_STICKER_PACK_LIST_DATA, invalidPacks);
+        intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_MAP_DATA,
+                stickerPackWithInvalidStickers);
+
+        startActivity(intent);
+        finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
+
+    private void showErrorMessage(String errorMessage) {
+        progressBar.setVisibility(View.GONE);
+        Log.e(TAG_LOG, "Erro ao buscar pacote de figurinhas, " + errorMessage);
+        final TextView errorMessageTV = findViewById(R.id.error_message);
+        errorMessageTV.setText(getString(R.string.error_message, errorMessage));
+    }
+
     @Override
-    protected void onResume()
-        {
-            super.onResume();
-            loadStickerPacks();
+    protected void onDestroy() {
+        super.onDestroy();
+        if (loadListAsyncTask != null) {
+            loadListAsyncTask.shutdown();
         }
+    }
 
-    private void loadStickerPacks()
-        {
-            progressBar.setVisibility(View.VISIBLE);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadStickerPacks();
+    }
 
-            loadListAsyncTask = new LoadListAsyncTask(this);
-            loadListAsyncTask.execute(createPackLauncher);
-        }
+    private void loadStickerPacks() {
+        progressBar.setVisibility(View.VISIBLE);
+
+        loadListAsyncTask = new LoadListAsyncTask(this);
+        loadListAsyncTask.execute(createPackLauncher);
+    }
 
     static class LoadListAsyncTask {
         private final WeakReference<EntryActivity> contextWeakReference;
@@ -159,57 +153,61 @@ public class EntryActivity extends BaseActivity {
 
         private final FetchStickerPackService fetchStickerPackService;
 
-        private LoadListAsyncTask(EntryActivity activity)
-            {
-                this.contextWeakReference = new WeakReference<>(activity);
-                this.fetchStickerPackService = new FetchStickerPackService(activity);
-            }
+        private LoadListAsyncTask(EntryActivity activity) {
+            this.contextWeakReference = new WeakReference<>(activity);
+            this.fetchStickerPackService = new FetchStickerPackService(activity);
+        }
 
-        public void execute(ActivityResultLauncher<Intent> createPackLauncher)
-            {
-                executor.execute(() -> {
-                    new Pair<>(null, null);
-                    Pair<String, ListStickerPackValidationResult> result;
-                    final Context context = contextWeakReference.get();
+        public void execute(ActivityResultLauncher<Intent> createPackLauncher) {
+            executor.execute(() -> {
+                new Pair<>(null, null);
+                Pair<String, ListStickerPackValidationResult> result;
+                final Context context = contextWeakReference.get();
 
-                    if (context != null) {
-                        try {
-                            result = new Pair<>(null, fetchStickerPackService.fetchStickerPackListFromContentProvider());
-                        } catch (FetchStickerPackException | FetchStickerException exception) {
-                            Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio", exception);
+                if (context != null) {
+                    try {
+                        result = new Pair<>(null,
+                                fetchStickerPackService.fetchStickerPackListFromContentProvider());
+                    } catch (FetchStickerPackException | FetchStickerException exception) {
+                        Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio",
+                                exception);
 
-                            Intent intent = new Intent(context, InitialStickerPackCreationActivity.class);
-                            intent.putExtra("database_empty", true);
-                            intent.putExtra(InitialStickerPackCreationActivity.EXTRA_SHOW_UP_BUTTON, false);
+                        Intent intent = new Intent(context,
+                                InitialStickerPackCreationActivity.class);
+                        intent.putExtra("database_empty", true);
+                        intent.putExtra(InitialStickerPackCreationActivity.EXTRA_SHOW_UP_BUTTON,
+                                false);
 
-                            createPackLauncher.launch(intent);
-                            return;
-                        } catch (Exception exception) {
-                            Log.e(TAG_LOG, "Erro ao obter pacotes de figurinhas", exception);
-                            result = new Pair<>(exception.getMessage(), null);
-                        }
-                    } else {
-                        result = new Pair<>("Erro ao obter contexto da aplicação!", null);
+                        createPackLauncher.launch(intent);
+                        return;
+                    } catch (Exception exception) {
+                        Log.e(TAG_LOG, "Erro ao obter pacotes de figurinhas", exception);
+                        result = new Pair<>(exception.getMessage(), null);
                     }
+                } else {
+                    result = new Pair<>("Erro ao obter contexto da aplicação!", null);
+                }
 
-                    Pair<String, ListStickerPackValidationResult> finalResult = result;
-                    handler.post(() -> {
-                        EntryActivity entryActivity = contextWeakReference.get();
-                        if (entryActivity != null) {
-                            if (finalResult.first != null) {
-                                entryActivity.showErrorMessage(finalResult.first);
-                            } else {
-                                entryActivity.showStickerPack(finalResult.second.validPacks(), finalResult.second.invalidPacks(),
-                                        finalResult.second.validPacksWithInvalidStickers());
-                            }
+                Pair<String, ListStickerPackValidationResult> finalResult = result;
+                handler.post(() -> {
+                    EntryActivity entryActivity = contextWeakReference.get();
+                    if (entryActivity != null) {
+                        if (finalResult.first != null) {
+                            entryActivity.showErrorMessage(finalResult.first);
+                        } else {
+                            entryActivity.showStickerPack(finalResult.second.validPacks(),
+                                    finalResult.second.invalidPacks(),
+                                    finalResult.second.validPacksWithInvalidStickers());
                         }
-                    });
+                    }
                 });
-            }
+            });
+        }
 
-        public void shutdown()
-            {
-                executor.shutdown();
-            }
+        public void shutdown() {
+            executor.shutdown();
+        }
     }
+
+
 }

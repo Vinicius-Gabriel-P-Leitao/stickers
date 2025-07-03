@@ -16,38 +16,37 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import br.arch.sticker.domain.data.content.helper.StickerQueryHelper;
-import br.arch.sticker.domain.data.database.StickerDatabase;
-import br.arch.sticker.domain.data.model.Sticker;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import br.arch.sticker.domain.data.content.helper.StickerQueryHelper;
+import br.arch.sticker.domain.data.model.Sticker;
 
 public class StickerQueryProvider {
     private final static String TAG_LOG = StickerQueryProvider.class.getSimpleName();
 
-    @NonNull
-    private final Context context;
+    private final StickerQueryHelper stickerQueryHelper;
 
-    public StickerQueryProvider(@NonNull Context context) {
-        this.context = context;
+    public StickerQueryProvider(Context context) {
+        this.stickerQueryHelper = new StickerQueryHelper(context);
     }
 
     @NonNull
-    public Cursor fetchStickerListForPack(@NonNull Uri uri, @NonNull StickerDatabase dbHelper) {
+    public Cursor fetchStickerListForPack(@NonNull Uri uri) {
         final String stickerPackIdentifier = uri.getLastPathSegment();
 
-        if (TextUtils.isEmpty(stickerPackIdentifier)) {
-            Log.e(TAG_LOG, "Identificador de pacote de adesivos inválido na Uri: " + uri);
-            return StickerQueryHelper.fetchStickerData(context, uri, new ArrayList<>());
-        }
-
         try {
-            List<Sticker> stickerPack = StickerQueryHelper.fetchStickerListFromDatabase(dbHelper, stickerPackIdentifier);
-            return StickerQueryHelper.fetchStickerData(context, uri, stickerPack);
+            if (TextUtils.isEmpty(stickerPackIdentifier)) {
+                Log.e(TAG_LOG, "Identificador de pacote de adesivos inválido na Uri: " + uri);
+                return stickerQueryHelper.fetchStickerData(uri, new ArrayList<>());
+            }
+
+            List<Sticker> stickerPack = stickerQueryHelper.fetchStickerListFromDatabase(
+                    stickerPackIdentifier);
+            return stickerQueryHelper.fetchStickerData(uri, stickerPack);
         } catch (RuntimeException exception) {
             Log.e(TAG_LOG, "Erro ao buscar pacote de figurinhas: " + stickerPackIdentifier, exception);
-            return StickerQueryHelper.fetchStickerData(context, uri, new ArrayList<>());
+            return stickerQueryHelper.fetchStickerData(uri, new ArrayList<>());
         }
     }
 }

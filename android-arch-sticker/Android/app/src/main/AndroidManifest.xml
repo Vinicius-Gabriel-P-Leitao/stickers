@@ -63,6 +63,12 @@
                 android:value=".view.feature.preview.activity.PreviewInvalidStickerActivity" />
         </activity>
 
+        <activity android:name=".view.feature.editor.activity.StickerEditorActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.feature.editor.activity.StickerEditorActivity" />
+        </activity>
+
         <provider
             android:name=".domain.data.content.StickerContentProvider"
             android:authorities="${contentProviderAuthority}"

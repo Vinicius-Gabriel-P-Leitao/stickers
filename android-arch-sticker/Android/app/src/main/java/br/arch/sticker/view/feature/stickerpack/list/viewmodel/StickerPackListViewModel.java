@@ -16,6 +16,9 @@ import androidx.core.util.Pair;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.service.delete.DeleteStickerPackPathService;
 import br.arch.sticker.domain.service.delete.DeleteStickerPackService;
@@ -23,6 +26,8 @@ import br.arch.sticker.domain.service.delete.DeleteStickerPackService;
 public class StickerPackListViewModel extends AndroidViewModel {
     private final DeleteStickerPackPathService deleteStickerPackPathService;
     private final DeleteStickerPackService deleteStickerPackService;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final MutableLiveData<Pair<Boolean, String>> deletedStickerPack = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessageLiveData = new MutableLiveData<>();
@@ -47,7 +52,7 @@ public class StickerPackListViewModel extends AndroidViewModel {
 
     public void startDeleted(String stickerPackIdentifier)
         {
-            new Thread(() -> {
+            executor.submit(() -> {
                 CallbackResult<Boolean> resultAsset = deleteStickerPackService.deleteStickerPack(stickerPackIdentifier);
                 if (resultAsset.isFailure()) {
                     errorMessageLiveData.postValue(resultAsset.getError().getMessage());
@@ -71,6 +76,12 @@ public class StickerPackListViewModel extends AndroidViewModel {
                 }
 
                 deletedStickerPack.postValue(new Pair<>((resultDB.getData() && resultAsset.getData()), stickerPackIdentifier));
-            }).start();
+            });
+        }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        executor.shutdownNow();
         }
 }

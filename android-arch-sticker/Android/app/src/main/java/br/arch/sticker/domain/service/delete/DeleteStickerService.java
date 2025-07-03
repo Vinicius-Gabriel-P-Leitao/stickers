@@ -9,15 +9,14 @@
 package br.arch.sticker.domain.service.delete;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import java.sql.SQLException;
-
-import br.arch.sticker.core.error.code.DeleteErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.DeleteStickerException;
 import br.arch.sticker.core.pattern.CallbackResult;
+import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
 import br.arch.sticker.domain.data.database.repository.DeleteStickerPackRepo;
 
 public class DeleteStickerService {
@@ -25,50 +24,26 @@ public class DeleteStickerService {
 
     private final DeleteStickerPackRepo deleteStickerPackRepo;
 
-    public DeleteStickerService(Context paramContext)
-        {
-            Context context = paramContext.getApplicationContext();
-            this.deleteStickerPackRepo = new DeleteStickerPackRepo(context);
-        }
+    public DeleteStickerService(Context paramContext) {
+        Context context = paramContext.getApplicationContext();
+        SQLiteDatabase database = StickerDatabaseHelper.getInstance(context).getWritableDatabase();
+        this.deleteStickerPackRepo = new DeleteStickerPackRepo(database);
+    }
 
-    public CallbackResult<Boolean> deleteStickerByPack(@NonNull String stickerPackIdentifier, @NonNull String fileName)
-        {
-            try {
-                int deletedSticker = deleteStickerPackRepo.deleteSticker(stickerPackIdentifier, fileName);
+    public CallbackResult<Boolean> deleteStickerByPack(@NonNull String stickerPackIdentifier, @NonNull String fileName) {
+        try {
+            int deletedSticker = deleteStickerPackRepo.deleteSticker(stickerPackIdentifier,
+                    fileName);
 
-                if (deletedSticker > 0) {
-                    Log.i(TAG_LOG, "Figurinha deletado com sucesso");
-                    return CallbackResult.success(Boolean.TRUE);
-                } else {
-                    return CallbackResult.warning("Nenhuma Figurinha deletada para fileName: " + fileName);
-                }
-            } catch (SQLException exception) {
-                return CallbackResult.failure(
-                        new DeleteStickerException("Erro ao deletar métadados da figurinha no  banco de dados!", exception.getCause(),
-                                DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
+            if (deletedSticker > 0) {
+                Log.i(TAG_LOG, "Figurinha deletado com sucesso");
+                return CallbackResult.success(Boolean.TRUE);
+            } else {
+                return CallbackResult.warning(
+                        "Nenhuma Figurinha deletada para fileName: " + fileName);
             }
+        } catch (DeleteStickerException exception) {
+            return CallbackResult.failure(exception);
         }
-
-    public CallbackResult<Boolean> deleteAllStickerByPack(@NonNull String stickerPackIdentifier)
-        {
-            try {
-                CallbackResult<Integer> stickerDeletedInDb = deleteStickerPackRepo.deleteAllStickerOfPack(stickerPackIdentifier);
-                if (stickerDeletedInDb.getStatus() == CallbackResult.Status.FAILURE) {
-                    return CallbackResult.failure(stickerDeletedInDb.getError());
-                }
-
-                boolean dbDeleted = stickerDeletedInDb.getStatus() == CallbackResult.Status.SUCCESS;
-
-                if (!dbDeleted) {
-                    return CallbackResult.failure(new DeleteStickerException("Nenhuma figurinha foi deletada: registros não encontrados.",
-                            DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
-                }
-
-                return CallbackResult.success(true);
-            } catch (Exception exception) {
-                return CallbackResult.failure(
-                        new DeleteStickerException(String.format("Erro ao deletar figurinhas: %s", exception.getMessage()), exception,
-                                DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
-            }
-        }
+    }
 }
