@@ -69,7 +69,8 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.dialog_fragment_recyclerview_select_media, container,
+        return inflater.inflate(
+                R.layout.dialog_fragment_recyclerview_select_media, container,
                 false);
     }
 
@@ -104,14 +105,16 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
                 progressBar.setVisibility(View.VISIBLE);
                 viewModel.startConversions(selectedUris);
             } else {
-                Toast.makeText(getContext(), "Selecione pelo menos 1 item!",
+                Toast.makeText(
+                        getContext(), "Selecione pelo menos 1 item!",
                         Toast.LENGTH_SHORT).show();
             }
         });
 
         viewModel.getMimeTypesSupported().observe(
                 getViewLifecycleOwner(), mimeTypesSupported -> {
-                    List<Uri> uris = UriDetailsResolver.fetchMediaUri(requireContext(),
+                    List<Uri> uris = UriDetailsResolver.fetchMediaUri(
+                            requireContext(),
                             mimeTypesSupported.getMimeTypes());
                     mediaListAdapter.submitList(new ArrayList<>(uris));
                 });
@@ -127,7 +130,8 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
                         }
 
                         if (result.isWarning()) {
-                            Toast.makeText(getContext(), result.getWarningMessage(),
+                            Toast.makeText(
+                                    getContext(), result.getWarningMessage(),
                                     Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
                         }
@@ -136,13 +140,16 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
                             if (result.getError() instanceof AppCoreStateException appCoreStateException) {
                                 String errorMessage = view.getContext().getString(
                                         appCoreStateException.getErrorCode().getMessageResId());
-                                Toast.makeText(getContext(), errorMessage,
+                                Toast.makeText(
+                                        getContext(), errorMessage,
                                         Toast.LENGTH_SHORT).show();
                             }
 
-                            Toast.makeText(getContext(), result.getError().getMessage(),
+                            Toast.makeText(
+                                    getContext(), result.getError().getMessage(),
                                     Toast.LENGTH_SHORT).show();
-                            Log.e(TAG_LOG,
+                            Log.e(
+                                    TAG_LOG,
                                     "Erro: " + result.getError() + " Causa: " + result.getError().getCause());
                             progressBar.setVisibility(View.GONE);
                         }

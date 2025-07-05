@@ -231,7 +231,7 @@ public class FetchStickerPackService {
                     invalidStickers.add(sticker);
 
                     if (exception instanceof StickerFileException stickerFileException) {
-                        updateStickerService.updateInvalidSticker(
+                        boolean updated = updateStickerService.updateInvalidSticker(
                                 stickerFileException.getStickerPackIdentifier(),
                                 stickerFileException.getFileName(),
                                 stickerFileException.getErrorCode());

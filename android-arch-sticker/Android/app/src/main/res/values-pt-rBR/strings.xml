@@ -99,8 +99,10 @@
     <string name="dialog_delete">Excluir</string>
     <string name="dialog_refactor">Refatorar</string>
     <string name="error_message_name_stickerpack_length">O nome do pacote não deve ter no máximo 20 caracteres.</string>
-    <string name="input_refactor_quality_sticker">Qualidade: 1 a 20.</string>
+    <string name="input_refactor_quality_sticker">Qualidade da imagem: 1 a 20.</string>
     <string name="error_message_quality_sticker_empty">A qualidade está vazio, preencha.</string>
     <string name="error_message_quality_sticker_length">Valor deve estar entre 1 e 20.</string>
     <string name="error_message_quality_invalid_number">Digite um número válido.</string>
+    <string name="error_message_unable_to_implement_update_sticker">Não foi possível implementar modificação na figurinha.</string>
+    <string name="error_message_sticker_file_does_not_reach_allowed_size">O arquivo da figurinha não atingiu o tamanho permitido.</string>
 </resources>

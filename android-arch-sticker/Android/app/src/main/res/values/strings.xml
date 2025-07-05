@@ -99,8 +99,10 @@
     <string name="dialog_delete">Delete</string>
     <string name="dialog_refactor">Refactor</string>
     <string name="error_message_name_stickerpack_length">The package name must be no longer than 20 characters.</string>
-    <string name="input_refactor_quality_sticker">Quality: 1 to 20.</string>
+    <string name="input_refactor_quality_sticker">Quality image: 1 to 20.</string>
     <string name="error_message_quality_sticker_empty">Quality is empty, please fill it in.</string>
     <string name="error_message_quality_sticker_length">Value must be between 1 and 20.</string>
     <string name="error_message_quality_invalid_number">Please enter a valid number.</string>
+    <string name="error_message_unable_to_implement_update_sticker">Unable to implement sticker modification.</string>
+    <string name="error_message_sticker_file_does_not_reach_allowed_size">The sticker file does not reach the allowed size.</string>
 </resources>

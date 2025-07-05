@@ -20,8 +20,11 @@ public class Sticker implements Parcelable {
     public String stickerIsValid;
     public final String accessibilityText;
     public final String uuidPack;
-
     long size;
+
+    public String getUuidPack() {
+        return uuidPack;
+    }
 
     public void setSize(long size) {
         this.size = size;

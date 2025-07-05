@@ -108,7 +108,8 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
                         lastClickTime = now;
 
                         if (listener != null) {
-                            listener.onStickerFixClick(sticker, stickerPackIdentifier);
+                            listener.onStickerFixClick(
+                                    sticker, stickerPackIdentifier);
                         }
                     }
             });
