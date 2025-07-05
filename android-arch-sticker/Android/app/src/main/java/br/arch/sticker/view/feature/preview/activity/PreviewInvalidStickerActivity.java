@@ -199,6 +199,15 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
     }
 
     private void observeStickerPackViewModel() {
+        invalidStickerPackViewModel.getProgressLiveData().observe(
+                this, isLoading -> {
+                    if (Boolean.TRUE.equals(isLoading)) {
+                        progressBar.setVisibility(View.VISIBLE);
+                    } else {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+
         invalidStickerPackViewModel.getStickerPackMutableLiveData().observe(
                 this, fixAction -> {
                     InvalidStickerPackDialogController controller = new InvalidStickerPackDialogController(this, invalidStickerPackViewModel);

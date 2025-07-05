@@ -42,6 +42,7 @@ import br.arch.sticker.view.core.util.event.GenericEvent;
 
 public class PreviewInvalidStickerViewModel extends AndroidViewModel {
     private static final String TAG_LOG = PreviewInvalidStickerViewModel.class.getSimpleName();
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final DeleteStickerAssetService deleteStickerAssetService;
@@ -100,7 +101,6 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
             };
 
             stickerMutableLiveData.setValue(new GenericEvent<>(action));
-
         } catch (IllegalArgumentException argumentException) {
             Log.w(TAG_LOG, "Código de erro desconhecido: " + sticker.stickerIsValid, argumentException);
             errorMessageLiveData.postValue("Código de erro desconhecido: " + sticker.stickerIsValid);

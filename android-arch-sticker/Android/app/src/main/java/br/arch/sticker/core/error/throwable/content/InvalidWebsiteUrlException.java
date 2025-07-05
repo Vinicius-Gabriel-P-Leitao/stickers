@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import br.arch.sticker.core.error.ErrorCodeProvider;
-import br.arch.sticker.core.error.code.InvalidUrlErrorCode;
 import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 
 // @formatter:off

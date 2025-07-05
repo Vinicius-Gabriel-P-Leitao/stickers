@@ -31,8 +31,7 @@ public class NativeProcessWebp {
     private static final ExecutorService nativeExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public void processWebpAsync(
-            String inputPath, String outputPath, float quality, boolean lossless, ConversionCallback callback) throws MediaConversionException
-        {
+            String inputPath, String outputPath, float quality, boolean lossless, ConversionCallback callback) throws MediaConversionException {
         nativeExecutor.submit(() -> {
             try {
                 boolean success = convertToWebp(inputPath, outputPath, quality, lossless);

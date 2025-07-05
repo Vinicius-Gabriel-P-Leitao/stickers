@@ -11,42 +11,73 @@ package br.arch.sticker.view.feature.preview.dialog;
 import android.content.Context;
 import android.view.View;
 
+import br.arch.sticker.view.core.usecase.component.AlertInputStickerDialog;
 import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerPackViewModel;
 
 public class InvalidStickerPackDialogController {
-    private final AlertStickerDialog dialog;
     private final PreviewInvalidStickerPackViewModel viewModel;
 
-    public InvalidStickerPackDialogController(Context context, PreviewInvalidStickerPackViewModel viewModel)
-        {
-            dialog = new AlertStickerDialog(context);
-            this.viewModel = viewModel;
+    private final AlertStickerDialog alertStickerDialog;
+    private final AlertInputStickerDialog alertInputStickerDialog;
+
+    public InvalidStickerPackDialogController(Context context, PreviewInvalidStickerPackViewModel viewModel) {
+        this.viewModel = viewModel; alertStickerDialog = new AlertStickerDialog(context);
+        this.alertInputStickerDialog = new AlertInputStickerDialog(context);
+    }
+
+    private void resetDialogs() {
+        alertStickerDialog.setVisibilityIgnoreButton(View.GONE);
+        alertStickerDialog.setVisibilityFixButton(View.GONE);
+        alertStickerDialog.setOnIgnoreClick(null); alertStickerDialog.setOnFixClick(null);
+
+        alertInputStickerDialog.setVisibilityIgnoreButton(View.GONE);
+        alertInputStickerDialog.setVisibilityFixButton(View.GONE);
+        alertInputStickerDialog.setOnFixClick(null); alertInputStickerDialog.setTextInput(null);
+    }
+
+    public void showFixAction(PreviewInvalidStickerPackViewModel.FixActionStickerPack action) {
+        resetDialogs();
+
+        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.Delete delete) {
+
         }
 
-    private void resetDialog()
-        {
-            dialog.setVisibilityFixButton(View.GONE);
-            dialog.setVisibilityIgnoreButton(View.GONE);
-            dialog.setOnFixClick(null);
-            dialog.setOnIgnoreClick(null);
+        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.NewThumbnail newThumbnail) {
+            alertStickerDialog.setTitleText("Nome inválido");
+            alertStickerDialog.setMessageText("Deseja inserir um novo nome?");
+            alertStickerDialog.setVisibilityFixButton(View.VISIBLE);
+            alertStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
+
+            alertStickerDialog.setTextFixButton("Renomear");
+            alertStickerDialog.setOnFixClick(view -> {
+                viewModel.onFixActionConfirmed(newThumbnail);
+                alertStickerDialog.dismiss();
+            });
+
+            alertStickerDialog.setTextIgnoreButton("Cancelar");
+            alertStickerDialog.setOnIgnoreClick(view -> alertStickerDialog.dismiss());
+
+            alertStickerDialog.show();
         }
 
-    public void showFixAction(PreviewInvalidStickerPackViewModel.FixActionStickerPack action)
-        {
-            resetDialog();
-            if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.NewThumbnail newThumbnail) {
-                dialog.setTitleText("Nome inválido");
-                dialog.setMessageText("Deseja inserir um novo nome?");
-                dialog.setVisibilityFixButton(View.VISIBLE);
-                dialog.setTextFixButton("Renomear");
-                dialog.setVisibilityIgnoreButton(View.VISIBLE);
-                dialog.setTextIgnoreButton("Cancelar");
+        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.RenameStickerPack renameStickerPack) {
 
-                dialog.setOnFixClick(view -> dialog.dismiss());
-                dialog.setOnIgnoreClick(view -> dialog.dismiss());
-            }
-
-            dialog.show();
         }
+
+
+        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.ResizeStickerPack resizeStickerPack) {
+
+        }
+
+
+        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.CleanUpUrl cleanUpUrl) {
+
+        }
+
+
+        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.RefactorUrl refactorUrl) {
+
+        }
+    }
 }

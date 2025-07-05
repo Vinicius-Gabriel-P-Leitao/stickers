@@ -8,9 +8,16 @@
 
 package br.arch.sticker.view.feature.preview.viewmodel;
 
+import android.app.Application;
+import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import br.arch.sticker.core.error.ErrorCodeProvider;
 import br.arch.sticker.core.error.code.FetchErrorCode;
@@ -18,79 +25,87 @@ import br.arch.sticker.core.error.code.InvalidUrlErrorCode;
 import br.arch.sticker.core.error.code.StickerPackErrorCode;
 import br.arch.sticker.domain.data.model.StickerPack;
 
-public class PreviewInvalidStickerPackViewModel extends ViewModel {
-    public sealed interface FixActionStickerPack permits FixActionStickerPack.NewThumbnail {
-        record NewThumbnail(StickerPack stickerPack) implements FixActionStickerPack {
+public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
+    private static final String TAG_LOG = PreviewInvalidStickerPackViewModel.class.getSimpleName();
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    private final MutableLiveData<FixActionStickerPack> stickerPackMutableLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> progressLiveData = new MutableLiveData<>();
+
+    public LiveData<Boolean> getProgressLiveData() {
+        return progressLiveData;
+    }
+
+    public PreviewInvalidStickerPackViewModel(@NonNull Application application) {
+        super(application);
+    }
+
+    public LiveData<FixActionStickerPack> getStickerPackMutableLiveData() {
+        return stickerPackMutableLiveData;
+    }
+
+    public void handleFixStickerPackClick(StickerPack stickerPack, ErrorCodeProvider errorCode) {
+        if (TextUtils.isEmpty(stickerPack.identifier)) return;
+
+        FixActionStickerPack action = null;
+
+        if (errorCode instanceof FetchErrorCode fetchError) {
+            action = switch (fetchError) {
+                case ERROR_EMPTY_STICKERPACK, ERROR_CONTENT_PROVIDER ->
+                        new FixActionStickerPack.NewThumbnail(stickerPack);
+            };
+        }
+
+        if (errorCode instanceof InvalidUrlErrorCode urlError) {
+            action = switch (urlError) {
+                case INVALID_URL -> new FixActionStickerPack.RefactorUrl(stickerPack);
+            };
+        }
+
+        if (errorCode instanceof StickerPackErrorCode packError) {
+            action = switch (packError) {
+                case INVALID_THUMBNAIL -> new FixActionStickerPack.NewThumbnail(stickerPack);
+                case INVALID_STICKERPACK_NAME ->
+                        new FixActionStickerPack.RenameStickerPack(stickerPack);
+                case INVALID_STICKERPACK_SIZE ->
+                        new FixActionStickerPack.ResizeStickerPack(stickerPack);
+                case INVALID_IDENTIFIER, DUPLICATE_IDENTIFIER ->
+                        new FixActionStickerPack.Delete(stickerPack);
+                case INVALID_PUBLISHER, INVALID_IOS_URL_SITE, INVALID_ANDROID_URL_SITE,
+                     INVALID_WEBSITE, INVALID_EMAIL, INVALID_STICKER_ACCESSIBILITY ->
+                        new FixActionStickerPack.CleanUpUrl(stickerPack);
+            };
+        }
+
+        if (action != null) {
+            stickerPackMutableLiveData.setValue(action);
         }
     }
 
-    private final MutableLiveData<FixActionStickerPack> stickerPackMutableLiveData = new MutableLiveData<>();
+    public void onFixActionConfirmed(FixActionStickerPack action) {
+        progressLiveData.setValue(true);
 
-    public LiveData<FixActionStickerPack> getStickerPackMutableLiveData()
-        {
-            return stickerPackMutableLiveData;
-        }
+    }
 
-    public void handleFixStickerPackClick(StickerPack stickerPack, ErrorCodeProvider errorCode)
-        {
-            String stickerPackIdentifier = stickerPack.identifier;
+    @Override
+    protected void onCleared() {
+        super.onCleared(); executor.shutdownNow();
+    }
 
-            if (errorCode.equals(FetchErrorCode.ERROR_EMPTY_STICKERPACK)) {
-                // O pacote é vazio, deletar ele
-            }
+    public sealed interface FixActionStickerPack permits FixActionStickerPack.Delete,
+            FixActionStickerPack.NewThumbnail, FixActionStickerPack.RenameStickerPack,
+            FixActionStickerPack.ResizeStickerPack, FixActionStickerPack.CleanUpUrl, FixActionStickerPack.RefactorUrl {
+        record Delete(StickerPack stickerPack) implements FixActionStickerPack {}
 
-            if (errorCode.equals(FetchErrorCode.ERROR_CONTENT_PROVIDER)) {
-                // Erro bem geral pode lançar vários tipos de erro, validar quais podem ser tratados se não dar opção de deletar
-            }
+        record NewThumbnail(StickerPack stickerPack) implements FixActionStickerPack {}
 
-            if (errorCode.equals(InvalidUrlErrorCode.INVALID_URL)) {
-                // URL do pacote invalida, colocar uma vázia no lugar, impossivel de ocorrer mas a ser tratada
-            }
+        record RenameStickerPack(StickerPack stickerPack) implements FixActionStickerPack {}
 
-            if (errorCode.equals(StickerPackErrorCode.INVALID_IDENTIFIER)) {
-                // Erro de identificador do stickerpack bem dificil de ocorrer por ser um uuid gen4, mas dar suporte a gerar outro
-            }
+        record ResizeStickerPack(StickerPack stickerPack) implements FixActionStickerPack {}
 
-            if (errorCode.equals(StickerPackErrorCode.DUPLICATE_IDENTIFIER)) {
-                // Mesma coisa do de cima, porem talvez nem chegue aqui
-            }
+        record CleanUpUrl(StickerPack stickerPack) implements FixActionStickerPack {}
 
-            if (errorCode.equals(StickerPackErrorCode.INVALID_PUBLISHER)) {
-                // Mesmo caso de INVALID_URL
-            }
-
-            if (errorCode.equals(StickerPackErrorCode.INVALID_STICKERPACK_NAME)) {
-                // Pedir o usuário para inserir um novo nome
-            }
-
-            if (errorCode.equals(StickerPackErrorCode.INVALID_STICKERPACK_SIZE)) {
-                // O pacote tem mais figurinhas no banco do que nos arquivos, provavelmente erro de validação, fazer validação novamente e dar o
-                // erro correto, caso não tenha pedir para deletar stickers sobressalentes
-            }
-
-            if (errorCode.equals(StickerPackErrorCode.INVALID_THUMBNAIL)) {
-                // Gerar nova thumbnail apartir dos arquivos do pacote, o nome da thumbainail é padrão então pode ser com qualquer arquivo valido
-                stickerPackMutableLiveData.setValue(new FixActionStickerPack.NewThumbnail(stickerPack));
-            }
-
-            if (errorCode.equals(StickerPackErrorCode.INVALID_ANDROID_URL_SITE)) {
-                // Mesmo caso de INVALID_URL
-            }
-
-            if (errorCode.equals(StickerPackErrorCode.INVALID_IOS_URL_SITE)) {
-                // Mesmo caso de INVALID_URL
-            }
-
-            if (errorCode.equals(StickerPackErrorCode.INVALID_WEBSITE)) {
-                // Mesmo caso de INVALID_URL
-            }
-
-            if (errorCode.equals(StickerPackErrorCode.INVALID_EMAIL)) {
-                // Mesmo caso de INVALID_URL
-            }
-
-            if (errorCode.equals(StickerPackErrorCode.INVALID_STICKER_ACCESSIBILITY)) {
-                // Mesmo caso de INVALID_URL
-            }
-        }
+        record RefactorUrl(StickerPack stickerPack) implements FixActionStickerPack {}
+    }
 }
