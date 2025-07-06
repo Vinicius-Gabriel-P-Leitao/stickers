@@ -24,25 +24,36 @@ import br.arch.sticker.core.error.code.FetchErrorCode;
 import br.arch.sticker.core.error.code.InvalidUrlErrorCode;
 import br.arch.sticker.core.error.code.StickerPackErrorCode;
 import br.arch.sticker.domain.data.model.StickerPack;
+import br.arch.sticker.view.core.util.event.GenericEvent;
 
 public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
     private static final String TAG_LOG = PreviewInvalidStickerPackViewModel.class.getSimpleName();
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private final MutableLiveData<FixActionStickerPack> stickerPackMutableLiveData = new MutableLiveData<>();
+    private final MutableLiveData<GenericEvent<FixActionStickerPack>> stickerpackMutableLiveData = new MutableLiveData<>();
+    private final MutableLiveData<FixActionStickerPack> fixCompletedLiveData = new MutableLiveData<>();
+    private final MutableLiveData<String> errorMessageLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> progressLiveData = new MutableLiveData<>();
+
+    public LiveData<GenericEvent<FixActionStickerPack>> getStickerMutableLiveData() {
+        return stickerpackMutableLiveData;
+    }
 
     public LiveData<Boolean> getProgressLiveData() {
         return progressLiveData;
+    }
+
+    public LiveData<String> getErrorMessageLiveData() {
+        return errorMessageLiveData;
     }
 
     public PreviewInvalidStickerPackViewModel(@NonNull Application application) {
         super(application);
     }
 
-    public LiveData<FixActionStickerPack> getStickerPackMutableLiveData() {
-        return stickerPackMutableLiveData;
+    public LiveData<FixActionStickerPack> getFixCompletedLiveData() {
+        return fixCompletedLiveData;
     }
 
     public void handleFixStickerPackClick(StickerPack stickerPack, ErrorCodeProvider errorCode) {
@@ -79,13 +90,14 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         }
 
         if (action != null) {
-            stickerPackMutableLiveData.setValue(action);
+            stickerpackMutableLiveData.setValue(new GenericEvent<>(action));
         }
     }
 
     public void onFixActionConfirmed(FixActionStickerPack action) {
         progressLiveData.setValue(true);
 
+        // TODO: Implementar métodos.
     }
 
     @Override
@@ -93,9 +105,7 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         super.onCleared(); executor.shutdownNow();
     }
 
-    public sealed interface FixActionStickerPack permits FixActionStickerPack.Delete,
-            FixActionStickerPack.NewThumbnail, FixActionStickerPack.RenameStickerPack,
-            FixActionStickerPack.ResizeStickerPack, FixActionStickerPack.CleanUpUrl, FixActionStickerPack.RefactorUrl {
+    public sealed interface FixActionStickerPack permits FixActionStickerPack.Delete, FixActionStickerPack.NewThumbnail, FixActionStickerPack.RenameStickerPack, FixActionStickerPack.ResizeStickerPack, FixActionStickerPack.CleanUpUrl, FixActionStickerPack.RefactorUrl {
         record Delete(StickerPack stickerPack) implements FixActionStickerPack {}
 
         record NewThumbnail(StickerPack stickerPack) implements FixActionStickerPack {}

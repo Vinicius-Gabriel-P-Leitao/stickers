@@ -21,6 +21,7 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -90,7 +91,7 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
         invalidStickerPackViewModel = new ViewModelProvider(this).get(PreviewInvalidStickerPackViewModel.class);
         invalidStickerViewModel = new ViewModelProvider(this).get(PreviewInvalidStickerViewModel.class);
 
-        observeStickerPackViewModel(); observeStickerViewModel();
+        observeInvalidStickerPackViewModel(); observeInvalidStickerViewModel();
 
         recyclerViewInvalidStickers = findViewById(R.id.recycler_invalid_stickers);
         progressBar = findViewById(R.id.progress_bar_invalid);
@@ -198,32 +199,28 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
         decorateRecyclerView();
     }
 
-    private void observeStickerPackViewModel() {
-        invalidStickerPackViewModel.getProgressLiveData().observe(
-                this, isLoading -> {
-                    if (Boolean.TRUE.equals(isLoading)) {
-                        progressBar.setVisibility(View.VISIBLE);
-                    } else {
-                        progressBar.setVisibility(View.GONE);
+    private void observeInvalidStickerPackViewModel() {
+        observeProgressBar(invalidStickerPackViewModel.getProgressLiveData());
+        observeErrorMessage(invalidStickerPackViewModel.getErrorMessageLiveData());
+
+        invalidStickerPackViewModel.getStickerMutableLiveData().observe(
+                this, fixAction -> {
+                    PreviewInvalidStickerPackViewModel.FixActionStickerPack action = fixAction.getContentIfNotHandled();
+                    if (action != null) {
+                        InvalidStickerPackDialogController controller = new InvalidStickerPackDialogController(this, invalidStickerPackViewModel);
+                        controller.showFixAction(action);
                     }
                 });
 
-        invalidStickerPackViewModel.getStickerPackMutableLiveData().observe(
+        invalidStickerPackViewModel.getFixCompletedLiveData().observe(
                 this, fixAction -> {
-                    InvalidStickerPackDialogController controller = new InvalidStickerPackDialogController(this, invalidStickerPackViewModel);
-                    controller.showFixAction(fixAction);
+                    // TODO: Implementar lógica de removção
                 });
     }
 
-    private void observeStickerViewModel() {
-        invalidStickerViewModel.getProgressLiveData().observe(
-                this, isLoading -> {
-                    if (Boolean.TRUE.equals(isLoading)) {
-                        progressBar.setVisibility(View.VISIBLE);
-                    } else {
-                        progressBar.setVisibility(View.GONE);
-                    }
-                });
+    private void observeInvalidStickerViewModel() {
+        observeProgressBar(invalidStickerViewModel.getProgressLiveData());
+        observeErrorMessage(invalidStickerViewModel.getErrorMessageLiveData());
 
         invalidStickerViewModel.getStickerMutableLiveData().observe(
                 this, fixAction -> {
@@ -235,22 +232,30 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
                 });
 
         invalidStickerViewModel.getFixCompletedLiveData().observe(
-                this, action -> {
-                    if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete deleteAction) {
-                        Sticker stickerToRemove = deleteAction.sticker();
-                        previewInvalidStickerAdapter.removeSticker(stickerToRemove);
-                        stickerArrayList.remove(stickerToRemove);
+                this, fixAction -> {
+                    if (fixAction instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete deleteAction) {
+                        Sticker stickerDeleted = deleteAction.sticker();
+                        previewInvalidStickerAdapter.removeSticker(stickerDeleted);
+                        stickerArrayList.remove(stickerDeleted);
                     }
 
-                    if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile resizeFileAction) {
+                    if (fixAction instanceof PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile resizeFileAction) {
                         Sticker stickerResized = resizeFileAction.sticker();
                         previewInvalidStickerAdapter.removeSticker(stickerResized);
                         stickerArrayList.remove(stickerResized);
                     }
                 });
+    }
 
+    private void observeProgressBar(LiveData<Boolean> liveData) {
+        liveData.observe(
+                this, isLoading -> {
+                    progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+                });
+    }
 
-        invalidStickerViewModel.getErrorMessageLiveData().observe(
+    private void observeErrorMessage(LiveData<String> liveData) {
+        liveData.observe(
                 this, message -> {
                     if (message != null) {
                         Toast.makeText(this, message, Toast.LENGTH_LONG).show();

@@ -39,6 +39,10 @@ public class InvalidStickerPackDialogController {
     public void showFixAction(PreviewInvalidStickerPackViewModel.FixActionStickerPack action) {
         resetDialogs();
 
+        Context alertStickerContext = alertStickerDialog.getContext();
+        Context alertInputStickerContext = alertInputStickerDialog.getContext();
+
+
         if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.Delete delete) {
 
         }
@@ -62,7 +66,19 @@ public class InvalidStickerPackDialogController {
         }
 
         if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.RenameStickerPack renameStickerPack) {
+            alertInputStickerDialog.setTitleText("Nome inválido");
+            alertInputStickerDialog.setMessageText("Deseja inserir um novo nome?");
+            alertInputStickerDialog.setVisibilityFixButton(View.VISIBLE);
+            alertInputStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
 
+            alertInputStickerDialog.setTextInput("Renomear");
+            alertInputStickerDialog.setTextFixButton("Renomear");
+            alertInputStickerDialog.setOnFixClick(view -> {
+                viewModel.onFixActionConfirmed(renameStickerPack);
+                alertInputStickerDialog.dismiss();
+            });
+
+            alertInputStickerDialog.show();
         }
 
 
