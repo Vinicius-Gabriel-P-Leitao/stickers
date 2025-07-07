@@ -22,18 +22,21 @@ public class InvalidStickerPackDialogController {
     private final AlertInputStickerDialog alertInputStickerDialog;
 
     public InvalidStickerPackDialogController(Context context, PreviewInvalidStickerPackViewModel viewModel) {
-        this.viewModel = viewModel; alertStickerDialog = new AlertStickerDialog(context);
+        this.viewModel = viewModel;
+        alertStickerDialog = new AlertStickerDialog(context);
         this.alertInputStickerDialog = new AlertInputStickerDialog(context);
     }
 
     private void resetDialogs() {
         alertStickerDialog.setVisibilityIgnoreButton(View.GONE);
         alertStickerDialog.setVisibilityFixButton(View.GONE);
-        alertStickerDialog.setOnIgnoreClick(null); alertStickerDialog.setOnFixClick(null);
+        alertStickerDialog.setOnIgnoreClick(null);
+        alertStickerDialog.setOnFixClick(null);
 
         alertInputStickerDialog.setVisibilityIgnoreButton(View.GONE);
         alertInputStickerDialog.setVisibilityFixButton(View.GONE);
-        alertInputStickerDialog.setOnFixClick(null); alertInputStickerDialog.setTextInput(null);
+        alertInputStickerDialog.setOnFixClick(null);
+        alertInputStickerDialog.setTextInput(null);
     }
 
     public void showFixAction(PreviewInvalidStickerPackViewModel.FixActionStickerPack action) {
@@ -42,18 +45,31 @@ public class InvalidStickerPackDialogController {
         Context alertStickerContext = alertStickerDialog.getContext();
         Context alertInputStickerContext = alertInputStickerDialog.getContext();
 
-
         if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.Delete delete) {
-
-        }
-
-        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.NewThumbnail newThumbnail) {
-            alertStickerDialog.setTitleText("Nome inválido");
-            alertStickerDialog.setMessageText("Deseja inserir um novo nome?");
+            alertStickerDialog.setTitleText("Pacote invalido!");
+            alertStickerDialog.setMessageText("Deletar pacote.");
             alertStickerDialog.setVisibilityFixButton(View.VISIBLE);
             alertStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
 
-            alertStickerDialog.setTextFixButton("Renomear");
+            alertStickerDialog.setTextFixButton("Deletar");
+            alertStickerDialog.setOnFixClick(view -> {
+                viewModel.onFixActionConfirmed(delete);
+                alertStickerDialog.dismiss();
+            });
+
+            alertStickerDialog.setTextIgnoreButton("Cancelar");
+            alertStickerDialog.setOnIgnoreClick(view -> alertStickerDialog.dismiss());
+
+            alertStickerDialog.show();
+        }
+
+        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.NewThumbnail newThumbnail) {
+            alertStickerDialog.setTitleText("Thumbnail invalida!");
+            alertStickerDialog.setMessageText("Criar nova thumbnail para o pacote.");
+            alertStickerDialog.setVisibilityFixButton(View.VISIBLE);
+            alertStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
+
+            alertStickerDialog.setTextFixButton("Gerar nova");
             alertStickerDialog.setOnFixClick(view -> {
                 viewModel.onFixActionConfirmed(newThumbnail);
                 alertStickerDialog.dismiss();

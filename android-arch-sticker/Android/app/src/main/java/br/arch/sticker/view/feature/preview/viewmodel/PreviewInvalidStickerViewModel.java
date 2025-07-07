@@ -53,7 +53,8 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
     private final Context context;
 
     public PreviewInvalidStickerViewModel(@NonNull Application application) {
-        super(application); this.context = application.getApplicationContext();
+        super(application);
+        this.context = application.getApplicationContext();
         this.stickerValidator = new StickerValidator(this.context);
         this.deleteStickerService = new DeleteStickerService(this.context);
         this.updateStickerService = new UpdateStickerService(this.context);
@@ -130,7 +131,8 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
 
                     CallbackResult<Boolean> resultDB = deleteStickerService.deleteStickerByPack(stickerPackIdentifier, sticker.imageFileName);
                     if (resultDB.isFailure()) {
-                        errorMessageLiveData.postValue(resultDB.getError().getMessage()); return;
+                        errorMessageLiveData.postValue(resultDB.getError().getMessage());
+                        return;
                     } else if (resultDB.isWarning()) {
                         errorMessageLiveData.postValue(resultDB.getWarningMessage());
                     }
@@ -138,7 +140,7 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
                     fixCompletedLiveData.postValue(action);
                 } catch (Exception exception) {
                     Log.e(TAG_LOG, "Exception: " + exception);
-                    errorMessageLiveData.postValue("Erro inesperado: " + exception.getMessage());
+                    errorMessageLiveData.postValue(context.getString(R.string.throw_unknown_error) + exception.getMessage());
                 } finally {
                     progressLiveData.postValue(false);
                 }
@@ -154,7 +156,8 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
 
                 String inputFile = new File(filesDir, sticker.imageFileName).getAbsolutePath();
 
-                String cleanName = sticker.imageFileName; if (cleanName.startsWith("resize-")) {
+                String cleanName = sticker.imageFileName;
+                if (cleanName.startsWith("resize-")) {
                     cleanName = cleanName.substring("resize-".length());
                 }
 
@@ -170,14 +173,16 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
 
                                 if (!updated) {
                                     errorMessageLiveData.postValue(context.getString(R.string.error_message_unable_to_implement_update_sticker));
-                                    progressLiveData.postValue(false); return;
+                                    progressLiveData.postValue(false);
+                                    return;
                                 }
 
                                 try {
                                     stickerValidator.validateStickerFile(stickerPackIdentifier, file.getName(), resizeFile.animatedStickerPack);
                                 } catch (StickerFileException exceptionFactory) {
                                     errorMessageLiveData.postValue(context.getString(exceptionFactory.getErrorCode().getMessageResId()));
-                                    progressLiveData.postValue(false); return;
+                                    progressLiveData.postValue(false);
+                                    return;
                                 }
 
                                 fixCompletedLiveData.postValue(resizeFile);
@@ -196,12 +201,14 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
 
     @Override
     protected void onCleared() {
-        super.onCleared(); executor.shutdownNow();
+        super.onCleared();
+        executor.shutdownNow();
     }
 
     public sealed interface FixActionSticker permits FixActionSticker.Delete, FixActionSticker.ResizeFile {
         record Delete(Sticker sticker, String stickerPackIdentifier,
-                      ErrorCodeProvider codeProvider) implements FixActionSticker {}
+                      ErrorCodeProvider codeProvider) implements FixActionSticker {
+        }
 
         record ResizeFile(Sticker sticker, String stickerPackIdentifier,
                           boolean animatedStickerPack, Integer quality,

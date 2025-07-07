@@ -105,4 +105,10 @@
     <string name="error_message_quality_invalid_number">Digite um número válido.</string>
     <string name="error_message_unable_to_implement_update_sticker">Não foi possível implementar modificação na figurinha.</string>
     <string name="error_message_sticker_file_does_not_reach_allowed_size">O arquivo da figurinha não atingiu o tamanho permitido.</string>
+    <string name="error_message_invalid_sticker_list_empty">\"Lista de stickers inválidos está vazia ou nula.\"</string>
+    <string name="error_message_sticker_list_empty">stickerArrayList está nula ou vazia. Nada para validar.</string>
+    <string name="error_message_loading_sticker_pack">Erro ao carregar pacote de figurinhas inválido!</string>
+    <string name="error_message_invalid_not_found">Nenhum sticker inválido encontrado.</string>
+    <string name="error_message_main_path_not_found">A pasta principal de figurinhas não foi encontrada, ou não é uma pasta.</string>
+    <string name="error_message_unable_delete_stickerpack_folder">Não foi possível deletar a pasta de arquivos do pacote.</string>
 </resources>

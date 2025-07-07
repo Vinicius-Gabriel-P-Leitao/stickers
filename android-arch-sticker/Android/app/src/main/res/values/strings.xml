@@ -105,4 +105,10 @@
     <string name="error_message_quality_invalid_number">Please enter a valid number.</string>
     <string name="error_message_unable_to_implement_update_sticker">Unable to implement sticker modification.</string>
     <string name="error_message_sticker_file_does_not_reach_allowed_size">The sticker file does not reach the allowed size.</string>
+    <string name="error_message_invalid_sticker_list_empty">Invalid sticker list is empty or null.</string>
+    <string name="error_message_sticker_list_empty">Sticker list is null or empty. Nothing to validate.</string>
+    <string name="error_message_loading_sticker_pack">Error loading invalid sticker pack!</string>
+    <string name="error_message_invalid_not_found">No invalid stickers found.</string>
+    <string name="error_message_main_path_not_found">The main stickers folder was not found, or is not a folder.</string>
+    <string name="error_message_unable_delete_stickerpack_folder">Unable to delete package files folder.</string>
 </resources>

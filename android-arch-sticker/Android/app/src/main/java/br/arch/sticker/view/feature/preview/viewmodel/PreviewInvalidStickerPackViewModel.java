@@ -8,28 +8,52 @@
 
 package br.arch.sticker.view.feature.preview.viewmodel;
 
+import static br.arch.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
+import static br.arch.sticker.domain.util.StickerPackPlaceholder.PLACEHOLDER_ANIMATED;
+import static br.arch.sticker.domain.util.StickerPackPlaceholder.PLACEHOLDER_STATIC;
+
 import android.app.Application;
+import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import java.io.File;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import br.arch.sticker.R;
 import br.arch.sticker.core.error.ErrorCodeProvider;
 import br.arch.sticker.core.error.code.FetchErrorCode;
 import br.arch.sticker.core.error.code.InvalidUrlErrorCode;
 import br.arch.sticker.core.error.code.StickerPackErrorCode;
+import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.model.StickerPack;
+import br.arch.sticker.domain.service.delete.DeleteStickerAssetService;
+import br.arch.sticker.domain.service.delete.DeleteStickerPackService;
+import br.arch.sticker.view.core.util.convert.ConvertThumbnail;
 import br.arch.sticker.view.core.util.event.GenericEvent;
 
 public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
     private static final String TAG_LOG = PreviewInvalidStickerPackViewModel.class.getSimpleName();
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    private final DeleteStickerAssetService deleteStickerAssetService;
+    private final DeleteStickerPackService deleteStickerByPack;
+    private final Context context;
+
+    public PreviewInvalidStickerPackViewModel(@NonNull Application application) {
+        super(application);
+        this.context = application.getApplicationContext();
+        this.deleteStickerByPack = new DeleteStickerPackService(this.context);
+        this.deleteStickerAssetService = new DeleteStickerAssetService(this.context);
+    }
 
     private final MutableLiveData<GenericEvent<FixActionStickerPack>> stickerpackMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<FixActionStickerPack> fixCompletedLiveData = new MutableLiveData<>();
@@ -48,9 +72,6 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         return errorMessageLiveData;
     }
 
-    public PreviewInvalidStickerPackViewModel(@NonNull Application application) {
-        super(application);
-    }
 
     public LiveData<FixActionStickerPack> getFixCompletedLiveData() {
         return fixCompletedLiveData;
@@ -97,25 +118,112 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
     public void onFixActionConfirmed(FixActionStickerPack action) {
         progressLiveData.setValue(true);
 
-        // TODO: Implementar métodos.
+        if (action instanceof FixActionStickerPack.Delete delete) {
+            executor.submit(() -> {
+                String stickerPackIdentifier = delete.stickerPack.identifier;
+                File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
+                File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);
+
+                CallbackResult<Boolean> resultAsset = deleteStickerAssetService.deleteAllStickerAssetsByPack(stickerPackIdentifier);
+                if (resultAsset.isFailure()) {
+                    errorMessageLiveData.postValue(resultAsset.getError().getMessage());
+                    progressLiveData.postValue(false);
+                    return;
+                } else if (resultAsset.isWarning()) {
+                    errorMessageLiveData.postValue(resultAsset.getWarningMessage());
+                }
+
+                if (!mainDirectory.exists() &&
+                        !(stickerPackDirectory.exists() && stickerPackDirectory.isDirectory())) {
+                    errorMessageLiveData.postValue(context.getString(R.string.error_message_main_path_not_found));
+                    progressLiveData.postValue(false);
+                    return;
+                }
+
+                if (!stickerPackDirectory.delete()) {
+                    errorMessageLiveData.postValue(context.getString(R.string.error_message_unable_delete_stickerpack_folder));
+                    progressLiveData.postValue(false);
+                    return;
+                }
+
+                CallbackResult<Boolean> resultDB = deleteStickerByPack.deleteStickerPack(stickerPackIdentifier);
+                if (resultDB.isFailure()) {
+                    errorMessageLiveData.postValue(resultDB.getError().getMessage());
+                    progressLiveData.postValue(false);
+                    return;
+                } else if (resultDB.isWarning()) {
+                    errorMessageLiveData.postValue(resultDB.getWarningMessage());
+                }
+
+                fixCompletedLiveData.postValue(delete);
+                progressLiveData.postValue(false);
+            });
+        }
+
+        if (action instanceof FixActionStickerPack.NewThumbnail newThumbnail) {
+            executor.submit(() -> {
+                Optional<String> stickerFileName = newThumbnail.stickerPack.getStickers().stream()
+                        .map(sticker -> sticker.imageFileName)
+                        .filter(name ->
+                                !PLACEHOLDER_ANIMATED.equals(name) &&
+                                        !PLACEHOLDER_STATIC.equals(name) &&
+                                        !name.isBlank()
+                        ).findFirst();
+
+                stickerFileName.ifPresentOrElse(name -> {
+                    File filesDir = new File(new File(context.getFilesDir(), STICKERS_ASSET), newThumbnail.stickerPack.identifier);
+                    File thumbnailSticker = new File(filesDir, name);
+
+                    CallbackResult<Boolean> thumbnail = ConvertThumbnail.createThumbnail(thumbnailSticker, filesDir);
+
+                    if (thumbnail.isFailure()) {
+                        Log.e(TAG_LOG, "Error: " + thumbnail.getError());
+                        errorMessageLiveData.postValue(thumbnail.getError().getMessage());
+                        progressLiveData.postValue(false);
+                        return;
+                    }
+
+                    if (thumbnail.isWarning()) {
+                        Log.e(TAG_LOG, "Warning: " + thumbnail.getWarningMessage());
+                        errorMessageLiveData.postValue(thumbnail.getWarningMessage());
+                        progressLiveData.postValue(false);
+                        return;
+                    }
+
+                    Log.e(TAG_LOG, "Success: " + thumbnail.getData());
+                    fixCompletedLiveData.postValue(newThumbnail);
+                    progressLiveData.postValue(false);
+                }, () -> {
+                    errorMessageLiveData.postValue("O arquivo para fazer nova thumbnail não existe.");
+                    progressLiveData.postValue(false);
+                });
+            });
+        }
     }
 
     @Override
     protected void onCleared() {
-        super.onCleared(); executor.shutdownNow();
+        super.onCleared();
+        executor.shutdownNow();
     }
 
     public sealed interface FixActionStickerPack permits FixActionStickerPack.Delete, FixActionStickerPack.NewThumbnail, FixActionStickerPack.RenameStickerPack, FixActionStickerPack.ResizeStickerPack, FixActionStickerPack.CleanUpUrl, FixActionStickerPack.RefactorUrl {
-        record Delete(StickerPack stickerPack) implements FixActionStickerPack {}
+        record Delete(StickerPack stickerPack) implements FixActionStickerPack {
+        }
 
-        record NewThumbnail(StickerPack stickerPack) implements FixActionStickerPack {}
+        record NewThumbnail(StickerPack stickerPack) implements FixActionStickerPack {
+        }
 
-        record RenameStickerPack(StickerPack stickerPack) implements FixActionStickerPack {}
+        record RenameStickerPack(StickerPack stickerPack) implements FixActionStickerPack {
+        }
 
-        record ResizeStickerPack(StickerPack stickerPack) implements FixActionStickerPack {}
+        record ResizeStickerPack(StickerPack stickerPack) implements FixActionStickerPack {
+        }
 
-        record CleanUpUrl(StickerPack stickerPack) implements FixActionStickerPack {}
+        record CleanUpUrl(StickerPack stickerPack) implements FixActionStickerPack {
+        }
 
-        record RefactorUrl(StickerPack stickerPack) implements FixActionStickerPack {}
+        record RefactorUrl(StickerPack stickerPack) implements FixActionStickerPack {
+        }
     }
 }

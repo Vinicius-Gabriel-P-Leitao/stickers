@@ -25,56 +25,47 @@ public class DeleteStickerAssetService {
 
     private final Context context;
 
-    public DeleteStickerAssetService(Context context)
-        {
-            this.context = context.getApplicationContext();
-        }
+    public DeleteStickerAssetService(Context context) {
+        this.context = context.getApplicationContext();
+    }
 
-    public CallbackResult<Boolean> deleteStickerAsset(@NonNull String stickerPackIdentifier, @NonNull String fileName)
-        {
-            File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
-            File stickerDirectory = new File(mainDirectory, stickerPackIdentifier + File.separator + fileName);
+    public CallbackResult<Boolean> deleteStickerAsset(@NonNull String stickerPackIdentifier, @NonNull String fileName) {
+        File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
+        File stickerDirectory = new File(mainDirectory, stickerPackIdentifier + File.separator + fileName);
 
-            if (stickerDirectory.exists() && mainDirectory.exists()) {
-                boolean deleted = stickerDirectory.delete();
+        if (stickerDirectory.exists() && mainDirectory.exists()) {
+            boolean deleted = stickerDirectory.delete();
 
-                if (deleted) {
-                    Log.i(TAG_LOG, "Arquivo deletado: " + stickerDirectory.getAbsolutePath());
-                    return CallbackResult.success(Boolean.TRUE);
-                } else {
-                    return CallbackResult.failure(
-                            new DeleteStickerException(String.format("Falha ao deletar arquivo: %s", stickerDirectory.getAbsolutePath()),
-                                    DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
-                }
+            if (deleted) {
+                Log.i(TAG_LOG, "Arquivo deletado: " + stickerDirectory.getAbsolutePath());
+                return CallbackResult.success(Boolean.TRUE);
             } else {
-                return CallbackResult.failure(
-                        new DeleteStickerException(String.format("Arquivo não encontrado para deletar: %s", stickerDirectory.getAbsolutePath()),
-                                DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
+                return CallbackResult.failure(new DeleteStickerException(String.format("Falha ao deletar arquivo: %s", stickerDirectory.getAbsolutePath()), DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
             }
+        } else {
+            return CallbackResult.failure(new DeleteStickerException(String.format("Arquivo não encontrado para deletar: %s", stickerDirectory.getAbsolutePath()), DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
         }
+    }
 
-    public CallbackResult<Boolean> deleteAllStickerAssetsByPack(@NonNull String stickerPackIdentifier)
-        {
-            File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
-            File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);
+    public CallbackResult<Boolean> deleteAllStickerAssetsByPack(@NonNull String stickerPackIdentifier) {
+        File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
+        File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);
 
-            if (stickerPackDirectory.exists() && stickerPackDirectory.isDirectory()) {
-                File[] files = stickerPackDirectory.listFiles();
+        if (stickerPackDirectory.exists() && stickerPackDirectory.isDirectory()) {
+            File[] files = stickerPackDirectory.listFiles();
 
-                if (files != null) {
-                    for (File file : files) {
-                        if (!file.delete()) {
-                            return CallbackResult.failure(
-                                    new DeleteStickerException(String.format("Falha ao deletar o arquivo: %s", file.getAbsolutePath()),
-                                            DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
-                        }
-
+            if (files != null) {
+                for (File file : files) {
+                    if (!file.delete()) {
+                        return CallbackResult.failure(new DeleteStickerException(String.format("Falha ao deletar o arquivo: %s", file.getAbsolutePath()), DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
                     }
-                }
 
-                return CallbackResult.success(true);
-            } else {
-                return CallbackResult.warning("Diretório não encontrado: " + stickerPackDirectory.getAbsolutePath());
+                }
             }
+
+            return CallbackResult.success(true);
+        } else {
+            return CallbackResult.warning("Diretório não encontrado: " + stickerPackDirectory.getAbsolutePath());
         }
+    }
 }
