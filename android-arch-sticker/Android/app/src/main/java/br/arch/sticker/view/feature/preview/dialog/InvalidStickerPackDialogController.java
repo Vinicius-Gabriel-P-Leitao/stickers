@@ -99,7 +99,21 @@ public class InvalidStickerPackDialogController {
 
 
         if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.ResizeStickerPack resizeStickerPack) {
+            alertStickerDialog.setTitleText("Corrigir tamanho do pacote!");
+            alertStickerDialog.setMessageText("Apagar figurinhas sobressalentes.");
+            alertStickerDialog.setVisibilityFixButton(View.VISIBLE);
+            alertStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
 
+            alertStickerDialog.setTextFixButton("Corrigir");
+            alertStickerDialog.setOnFixClick(view -> {
+                viewModel.onFixActionConfirmed(resizeStickerPack);
+                alertStickerDialog.dismiss();
+            });
+
+            alertStickerDialog.setTextIgnoreButton("Cancelar");
+            alertStickerDialog.setOnIgnoreClick(view -> alertStickerDialog.dismiss());
+
+            alertStickerDialog.show();
         }
 
 

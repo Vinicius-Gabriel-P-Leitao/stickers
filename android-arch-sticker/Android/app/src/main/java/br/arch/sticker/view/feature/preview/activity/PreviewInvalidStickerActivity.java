@@ -113,7 +113,8 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
             List<Sticker> invalidStickers = result.invalidSticker();
 
             if (invalidStickers.isEmpty()) {
-                Toast.makeText(this, getString(R.string.error_message_invalid_not_found), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.error_message_invalid_not_found), Toast.LENGTH_SHORT)
+                        .show();
                 return;
             }
 
@@ -121,11 +122,13 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
             showInvalidStickerList(stickerArrayList);
         } catch (FetchStickerPackException exception) {
             Object[] details = exception.getDetails();
-            if (details != null && details.length > 0 && details[0] instanceof StickerPack recoveredPack) {
+            if (details != null && details.length > 0 &&
+                    details[0] instanceof StickerPack recoveredPack) {
                 cardViewInvalidPack.setVisibility(View.VISIBLE);
 
                 ErrorCodeProvider errorCode = exception.getErrorCode();
-                int resId = (errorCode != null) ? errorCode.getMessageResId() : R.string.throw_unknown_error;
+                int resId = (errorCode !=
+                        null) ? errorCode.getMessageResId() : R.string.throw_unknown_error;
                 textInvalidTitle.setText(getString(resId));
 
                 buttonFixInvalid.setOnClickListener(new View.OnClickListener() {
@@ -145,7 +148,8 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
                 return;
             }
 
-            Toast.makeText(this, getString(R.string.error_message_loading_sticker_pack), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_message_loading_sticker_pack), Toast.LENGTH_SHORT)
+                    .show();
         }
     }
 
@@ -190,7 +194,8 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
 
     private void showInvalidStickerList(List<Sticker> stickerList) {
         if (stickerList == null || stickerList.isEmpty()) {
-            Toast.makeText(this, getString(R.string.error_message_invalid_sticker_list_empty), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.error_message_invalid_sticker_list_empty), Toast.LENGTH_LONG)
+                    .show();
             Log.w(TAG_LOG, getString(R.string.error_message_invalid_sticker_list_empty));
             return;
         }
@@ -219,13 +224,8 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
         });
 
         invalidStickerPackViewModel.getFixCompletedLiveData().observe(this, fixAction -> {
-            if (fixAction instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.Delete deleteAction) {
-                goToEntryActivity();
-            }
-
-            if (fixAction instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.NewThumbnail newThumbnail) {
-                goToEntryActivity();
-            }
+            // NOTE: Caso queira tratamento especial para um erro é só fazer instanceof
+            goToEntryActivity();
         });
     }
 
@@ -277,7 +277,8 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
 
         recyclerViewInvalidStickers.addItemDecoration(dividerItemDecoration);
         recyclerViewInvalidStickers.setLayoutManager(linearLayoutManager);
-        recyclerViewInvalidStickers.getViewTreeObserver().addOnGlobalLayoutListener(this::recalculateColumnCount);
+        recyclerViewInvalidStickers.getViewTreeObserver()
+                .addOnGlobalLayoutListener(this::recalculateColumnCount);
     }
 
     private void recalculateColumnCount() {
@@ -294,7 +295,8 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
 
             int minMarginBetweenImages = 0;
             if (maxNumberOfImagesInARow > 1) {
-                minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) / (maxNumberOfImagesInARow - 1);
+                minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) /
+                        (maxNumberOfImagesInARow - 1);
             }
             previewInvalidStickerAdapter.setImageRowSpec(maxNumberOfImagesInARow, minMarginBetweenImages);
         }

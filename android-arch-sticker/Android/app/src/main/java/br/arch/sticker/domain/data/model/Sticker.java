@@ -22,8 +22,8 @@ public class Sticker implements Parcelable {
     public final String uuidPack;
     long size;
 
-    public String getUuidPack() {
-        return uuidPack;
+    public String getImageFileName() {
+        return imageFileName;
     }
 
     public void setSize(long size) {
