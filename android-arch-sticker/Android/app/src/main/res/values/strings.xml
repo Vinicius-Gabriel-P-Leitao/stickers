@@ -111,4 +111,10 @@
     <string name="error_message_invalid_not_found">No invalid stickers found.</string>
     <string name="error_message_main_path_not_found">The main stickers folder was not found, or is not a folder.</string>
     <string name="error_message_unable_delete_stickerpack_folder">Unable to delete package files folder.</string>
+    <string name="error_message_file_quality_must_be_entered">File quality must be entered.</string>
+    <string name="error_message_stickerpack_name_must_be_entered">The new name for the package must be entered.</string>
+    <string name="throw_delete_list_sticker_in_db">Error deleting sticker list from database.</string>
+    <string name="error_message_list_sticker_in_pack_invalid_size">The stickers in the pack are empty or smaller than the maximum size.</string>
+    <string name="error_message_unable_to_update_stickerpack_name">Unable to update sticker name.</string>
+    <string name="error_message_file_to_make_thumbnail_not_exist">The file to make a new thumbnail does not exist.</string>
 </resources>

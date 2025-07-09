@@ -16,6 +16,7 @@ import br.arch.sticker.core.error.ErrorCodeProvider;
 // @formatter:off
 public enum DeleteErrorCode implements ErrorCodeProvider {
     ERROR_PACK_DELETE_DB(R.string.throw_delete_stickerpack_in_db),
+    ERROR_STICKER_DELETE_DB(R.string.throw_delete_list_sticker_in_db),
     ERROR_PACK_DELETE_SERVICE(R.string.throw_delete_stickerpack_service),
     ERROR_PACK_DELETE_UTIL(R.string.throw_delete_stickerpack_util),
     ERROR_PACK_DELETE_UI(R.string.throw_delete_stickerpack_ui);
