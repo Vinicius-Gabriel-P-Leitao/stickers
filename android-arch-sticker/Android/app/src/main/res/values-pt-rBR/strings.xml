@@ -128,4 +128,9 @@
     <string name="dialog_message_remove_extra_stickers">Apagar figurinhas sobressalentes.</string>
     <string name="dialog_title_cleanup_urls">Limpar urls do pacote.</string>
     <string name="dialog_message_cleanup_urls">As urls estão invalidas, limpar.</string>
+    <string name="error_message_process_canceled">Processo cancelado.</string>
+    <string name="error_message_select_least_media">Selecione pelo menos 1 media!</string>
+    <string name="error_message_max_media_selected">Numero máximo de itens selecionados!</string>
+    <string name="error_message_unsuported_media_type_in_gallery">Nenhum formato suportado foi encontrado para galeria.</string>
+    <string name="error_message_could_not_extract_path_media">Não foi possível extrair caminho do arquivo selecionado %1$s.</string>
 </resources>
