@@ -100,7 +100,7 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
 
         if (errorCode instanceof InvalidUrlErrorCode urlError) {
             action = switch (urlError) {
-                case INVALID_URL -> new FixActionStickerPack.RefactorUrl(stickerPack);
+                case INVALID_URL -> new FixActionStickerPack.CleanUpUrl(stickerPack);
             };
         }
 
@@ -268,12 +268,13 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         }
 
         if (action instanceof FixActionStickerPack.CleanUpUrl cleanUpUrl) {
+
             executor.submit(() -> {
-//                if (updateStickerPackService.cleanStickerPackUrl(renameStickerPack.stickerPack.identifier, newNameStickerPack)) {
-//                    fixCompletedLiveData.postValue(renameStickerPack);
-//                    progressLiveData.postValue(false);
-//                    return;
-//                }
+                if (updateStickerPackService.cleanStickerPackUrl(cleanUpUrl.stickerPack.identifier)) {
+                    fixCompletedLiveData.postValue(cleanUpUrl);
+                    progressLiveData.postValue(false);
+                    return;
+                }
 
                 errorMessageLiveData.postValue(context.getString(R.string.error_message_unable_to_update_stickerpack_name));
                 progressLiveData.postValue(false);
@@ -291,8 +292,7 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
                                                          FixActionStickerPack.NewThumbnail,
                                                          FixActionStickerPack.RenameStickerPack,
                                                          FixActionStickerPack.ResizeStickerPack,
-                                                         FixActionStickerPack.CleanUpUrl,
-                                                         FixActionStickerPack.RefactorUrl {
+                                                         FixActionStickerPack.CleanUpUrl {
         record Delete(StickerPack stickerPack) implements FixActionStickerPack {
         }
 
@@ -310,9 +310,6 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         }
 
         record CleanUpUrl(StickerPack stickerPack) implements FixActionStickerPack {
-        }
-
-        record RefactorUrl(StickerPack stickerPack) implements FixActionStickerPack {
         }
     }
 }

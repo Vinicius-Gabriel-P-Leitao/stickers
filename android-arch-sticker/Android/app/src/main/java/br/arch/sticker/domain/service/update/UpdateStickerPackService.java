@@ -37,13 +37,13 @@ public class UpdateStickerPackService {
         throw new UpdateStickerException(message, UpdateErrorCode.ERROR_EMPTY_STICKERPACK);
     }
 
-    public boolean cleanStickerPackUrl(String stickerPackIdentifier, String newName) throws UpdateStickerException {
-        if (stickerPackIdentifier.isEmpty() || newName.isEmpty()) {
-            Log.w(TAG_LOG, "Parâmetros inválidos para renomear pacote de figurinha. Algum campo está vazio.");
+    public boolean cleanStickerPackUrl(String stickerPackIdentifier) throws UpdateStickerException {
+        if (stickerPackIdentifier.isEmpty()) {
+            Log.w(TAG_LOG, "Parâmetros inválidos para limpar urls do pacote de figurinha. O campo de stickerPackIdentifier.");
             return false;
         }
 
-        Log.d(TAG_LOG, String.format("Atualizando nome do pacote de figurinhas: pack='%s', new='%s'", stickerPackIdentifier, newName));
+        Log.d(TAG_LOG, String.format("Atualizando nome do pacote de figurinhas: pack='%s'", stickerPackIdentifier));
 
         if (updateStickerPackRepo.cleanStickerPackUrl(stickerPackIdentifier)) {
             return true;
