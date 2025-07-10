@@ -266,6 +266,19 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
                 }
             });
         }
+
+        if (action instanceof FixActionStickerPack.CleanUpUrl cleanUpUrl) {
+            executor.submit(() -> {
+//                if (updateStickerPackService.cleanStickerPackUrl(renameStickerPack.stickerPack.identifier, newNameStickerPack)) {
+//                    fixCompletedLiveData.postValue(renameStickerPack);
+//                    progressLiveData.postValue(false);
+//                    return;
+//                }
+
+                errorMessageLiveData.postValue(context.getString(R.string.error_message_unable_to_update_stickerpack_name));
+                progressLiveData.postValue(false);
+            });
+        }
     }
 
     @Override
@@ -274,15 +287,20 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         executor.shutdownNow();
     }
 
-    public sealed interface FixActionStickerPack permits FixActionStickerPack.Delete, FixActionStickerPack.NewThumbnail, FixActionStickerPack.RenameStickerPack, FixActionStickerPack.ResizeStickerPack, FixActionStickerPack.CleanUpUrl, FixActionStickerPack.RefactorUrl {
+    public sealed interface FixActionStickerPack permits FixActionStickerPack.Delete,
+                                                         FixActionStickerPack.NewThumbnail,
+                                                         FixActionStickerPack.RenameStickerPack,
+                                                         FixActionStickerPack.ResizeStickerPack,
+                                                         FixActionStickerPack.CleanUpUrl,
+                                                         FixActionStickerPack.RefactorUrl {
         record Delete(StickerPack stickerPack) implements FixActionStickerPack {
         }
 
         record NewThumbnail(StickerPack stickerPack) implements FixActionStickerPack {
         }
 
-        record RenameStickerPack(StickerPack stickerPack,
-                                 String newName) implements FixActionStickerPack {
+        record RenameStickerPack(StickerPack stickerPack, String newName) implements
+                                                                          FixActionStickerPack {
             public RenameStickerPack withNewName(@Nullable String newName) {
                 return new RenameStickerPack(stickerPack, newName);
             }

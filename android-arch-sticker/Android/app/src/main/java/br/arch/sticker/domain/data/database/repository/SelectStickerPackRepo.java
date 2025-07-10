@@ -34,14 +34,10 @@ public class SelectStickerPackRepo {
         try{
             String query =
                     "SELECT DISTINCT " +
-                            StickerDatabaseHelper.TABLE_STICKER_PACKS + ".*, " + StickerDatabaseHelper.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".* " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".* " +
                     "FROM " +
-                            StickerDatabaseHelper.TABLE_STICKER_PACKS + " " +
-                    "INNER JOIN " +
                             StickerDatabaseHelper.TABLE_STICKER_PACK +
-                    " ON " +
-                            StickerDatabaseHelper.TABLE_STICKER_PACKS + "." + StickerDatabaseHelper.ID_STICKER_PACKS + " = " + StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.FK_STICKER_PACKS + " " +
-                    "INNER JOIN " +
+                    " INNER JOIN " +
                             TABLE_STICKER +
                     " ON " +
                             StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + TABLE_STICKER + "." + StickerDatabaseHelper.FK_STICKER_PACK;
@@ -53,7 +49,7 @@ public class SelectStickerPackRepo {
         }
     }
 
-    public  Cursor getStickerPackByIdentifier( String stickerPackIdentifier) {
+    public  Cursor getStickerPackByIdentifier(String stickerPackIdentifier) {
         try {
             String query =
                 "SELECT DISTINCT " +
@@ -74,7 +70,7 @@ public class SelectStickerPackRepo {
         }
     }
 
-    public  Cursor getFilteredStickerPackByIdentifier( String stickerPackIdentifier) {
+    public  Cursor getFilteredStickerPackByIdentifier(String stickerPackIdentifier) {
         try {
             String query =
                     "SELECT DISTINCT " +
@@ -100,7 +96,7 @@ public class SelectStickerPackRepo {
         }
     }
 
-    public  Cursor getStickerPackIsAnimated( String stickerPackIdentifier) {
+    public  Cursor getStickerPackIsAnimated(String stickerPackIdentifier) {
         String query =
                 "SELECT DISTINCT " +
                         StickerDatabaseHelper.TABLE_STICKER_PACK + "." + ANIMATED_STICKER_PACK +
@@ -113,7 +109,7 @@ public class SelectStickerPackRepo {
         return database.rawQuery(query, new String[]{stickerPackIdentifier});
     }
 
-    public  Cursor getStickerByStickerPackIdentifier( String stickerPackIdentifier) {
+    public  Cursor getStickerByStickerPackIdentifier(String stickerPackIdentifier) {
         try {
             String query =
                     "SELECT * FROM " +
@@ -130,8 +126,8 @@ public class SelectStickerPackRepo {
                             ")";
 
             return database.rawQuery(query, new String[]{stickerPackIdentifier});
-        } catch (SQLException | IllegalStateException e) {
-            Log.e(TAG_LOG, "Erro ao executar getStickerByStickerPackIdentifier: " + e.getMessage(), e);
+        } catch (SQLException | IllegalStateException exception) {
+            Log.e(TAG_LOG, "Erro ao executar getStickerByStickerPackIdentifier: " + exception.getMessage(), exception);
             return null;
         }
     }

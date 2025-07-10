@@ -82,7 +82,8 @@ public class FetchStickerPackService {
                 null);
         if (cursor == null) {
             throw new FetchStickerPackException(
-                    "Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY,
+                    "Não foi possível buscar no content provider, " +
+                            BuildConfig.CONTENT_PROVIDER_AUTHORITY,
                     FetchErrorCode.ERROR_CONTENT_PROVIDER);
         }
 
@@ -257,7 +258,8 @@ public class FetchStickerPackService {
             return new StickerPackValidationResult(stickerPack, invalidStickers);
         } catch (StickerPackValidatorException | InvalidWebsiteUrlException exception) {
             throw new FetchStickerPackException(
-                    exception.getMessage() != null ? exception.getMessage() : "Pacote de figurinhas invalido",
+                    exception.getMessage() !=
+                            null ? exception.getMessage() : "Pacote de figurinhas invalido",
                     exception.getCause(), exception.getErrorCode(), new Object[]{stickerPack});
         }
     }

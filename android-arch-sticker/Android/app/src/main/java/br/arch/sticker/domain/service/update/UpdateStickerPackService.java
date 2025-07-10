@@ -36,4 +36,21 @@ public class UpdateStickerPackService {
         Log.w(TAG_LOG, message);
         throw new UpdateStickerException(message, UpdateErrorCode.ERROR_EMPTY_STICKERPACK);
     }
+
+    public boolean cleanStickerPackUrl(String stickerPackIdentifier, String newName) throws UpdateStickerException {
+        if (stickerPackIdentifier.isEmpty() || newName.isEmpty()) {
+            Log.w(TAG_LOG, "Parâmetros inválidos para renomear pacote de figurinha. Algum campo está vazio.");
+            return false;
+        }
+
+        Log.d(TAG_LOG, String.format("Atualizando nome do pacote de figurinhas: pack='%s', new='%s'", stickerPackIdentifier, newName));
+
+        if (updateStickerPackRepo.cleanStickerPackUrl(stickerPackIdentifier)) {
+            return true;
+        }
+
+        String message = "Falha ao atualizar o nome do pacote de figurinhas.";
+        Log.w(TAG_LOG, message);
+        throw new UpdateStickerException(message, UpdateErrorCode.ERROR_EMPTY_STICKERPACK);
+    }
 }

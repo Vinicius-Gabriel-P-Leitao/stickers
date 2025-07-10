@@ -177,37 +177,36 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
                 String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFile);
 
                 NativeProcessWebp nativeProcessWebp = new NativeProcessWebp();
-                nativeProcessWebp.processWebpAsync(
-                        inputFile, finalOutputFileName, fileQuality, false, new NativeProcessWebp.ConversionCallback() {
-                            @Override
-                            public void onSuccess(File file) {
-                                boolean updated = updateStickerService.updateStickerFileName(stickerPackIdentifier, file.getName(), sticker.imageFileName);
+                nativeProcessWebp.processWebpAsync(inputFile, finalOutputFileName, fileQuality, false, new NativeProcessWebp.ConversionCallback() {
+                    @Override
+                    public void onSuccess(File file) {
+                        boolean updated = updateStickerService.updateStickerFileName(stickerPackIdentifier, file.getName(), sticker.imageFileName);
 
-                                if (!updated) {
-                                    errorMessageLiveData.postValue(context.getString(R.string.error_message_unable_to_implement_update_sticker));
-                                    progressLiveData.postValue(false);
-                                    return;
-                                }
+                        if (!updated) {
+                            errorMessageLiveData.postValue(context.getString(R.string.error_message_unable_to_implement_update_sticker));
+                            progressLiveData.postValue(false);
+                            return;
+                        }
 
-                                try {
-                                    stickerValidator.validateStickerFile(stickerPackIdentifier, file.getName(), resizeFile.animatedStickerPack);
-                                } catch (StickerFileException exceptionFactory) {
-                                    errorMessageLiveData.postValue(context.getString(exceptionFactory.getErrorCode()
-                                            .getMessageResId()));
-                                    progressLiveData.postValue(false);
-                                    return;
-                                }
+                        try {
+                            stickerValidator.validateStickerFile(stickerPackIdentifier, file.getName(), resizeFile.animatedStickerPack);
+                        } catch (StickerFileException exceptionFactory) {
+                            errorMessageLiveData.postValue(context.getString(exceptionFactory.getErrorCode()
+                                    .getMessageResId()));
+                            progressLiveData.postValue(false);
+                            return;
+                        }
 
-                                fixCompletedLiveData.postValue(resizeFile);
-                                progressLiveData.postValue(false);
-                            }
+                        fixCompletedLiveData.postValue(resizeFile);
+                        progressLiveData.postValue(false);
+                    }
 
-                            @Override
-                            public void onError(Exception exception) {
-                                errorMessageLiveData.postValue(exception.getMessage());
-                                progressLiveData.postValue(false);
-                            }
-                        });
+                    @Override
+                    public void onError(Exception exception) {
+                        errorMessageLiveData.postValue(exception.getMessage());
+                        progressLiveData.postValue(false);
+                    }
+                });
             });
         }
     }
@@ -218,7 +217,8 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
         executor.shutdownNow();
     }
 
-    public sealed interface FixActionSticker permits FixActionSticker.Delete, FixActionSticker.ResizeFile {
+    public sealed interface FixActionSticker permits FixActionSticker.Delete,
+                                                     FixActionSticker.ResizeFile {
         record Delete(Sticker sticker, String stickerPackIdentifier,
                       ErrorCodeProvider codeProvider) implements FixActionSticker {
         }
