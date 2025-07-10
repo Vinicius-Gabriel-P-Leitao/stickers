@@ -10,7 +10,7 @@ package br.arch.sticker.view.core.usecase.definition;
 
 // @formatter:off
 public enum MimeTypesSupported {
-    IMAGE(new String[]{"image/jpeg", "image/png"}),
+    IMAGE(new String[]{"image/jpeg", "image/jpg","image/png"}),
     ANIMATED(new String[]{"video/mp4", "image/gif"});
 
     private final String[] mimeTypes;
