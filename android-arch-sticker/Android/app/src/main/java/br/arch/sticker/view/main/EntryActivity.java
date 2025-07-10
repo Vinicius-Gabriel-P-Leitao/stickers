@@ -61,19 +61,21 @@ public class EntryActivity extends BaseActivity {
         }
 
         progressBar = findViewById(R.id.entry_activity_progress);
-    }    private final ActivityResultLauncher<Intent> createPackLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    loadStickerPacks();
-                }
-            });
+    }
+
+    private final ActivityResultLauncher<Intent> createPackLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK) {
+            loadStickerPacks();
+        }
+    });
 
     private void showStickerPack(ArrayList<StickerPack> validPacks, ArrayList<StickerPack> invalidPacks, HashMap<StickerPack, List<Sticker>> validPacksWithInvalidStickers) {
         progressBar.setVisibility(View.GONE);
 
         boolean hasValid = validPacks != null && !validPacks.isEmpty();
         boolean hasInvalid = invalidPacks != null && !invalidPacks.isEmpty();
-        boolean hasValidWithInvalidStickers = validPacksWithInvalidStickers != null && !validPacksWithInvalidStickers.isEmpty();
+        boolean hasValidWithInvalidStickers =
+                validPacksWithInvalidStickers != null && !validPacksWithInvalidStickers.isEmpty();
 
         if (!hasValid && !hasInvalid && !hasValidWithInvalidStickers) {
             showErrorMessage("Nenhum pacote de figurinhas encontrado.");
@@ -94,23 +96,19 @@ public class EntryActivity extends BaseActivity {
 
         final Intent intent = new Intent(this, StickerPackListActivity.class);
 
-        Map<StickerPack, List<Sticker>> safeMap = validPacksWithInvalidStickers != null ? validPacksWithInvalidStickers : Collections.emptyMap();
+        Map<StickerPack, List<Sticker>> safeMap = validPacksWithInvalidStickers !=
+                null ? validPacksWithInvalidStickers : Collections.emptyMap();
 
         ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers = new ArrayList<>();
         if (validPacksWithInvalidStickers != null) {
             for (Map.Entry<StickerPack, List<Sticker>> entry : validPacksWithInvalidStickers.entrySet()) {
-                stickerPackWithInvalidStickers.add(
-                        new StickerPackWithInvalidStickers(entry.getKey(),
-                                new ArrayList<>(entry.getValue())));
+                stickerPackWithInvalidStickers.add(new StickerPackWithInvalidStickers(entry.getKey(), new ArrayList<>(entry.getValue())));
             }
         }
 
-        intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA,
-                validPacks);
-        intent.putParcelableArrayListExtra(
-                StickerPackListActivity.EXTRA_INVALID_STICKER_PACK_LIST_DATA, invalidPacks);
-        intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_MAP_DATA,
-                stickerPackWithInvalidStickers);
+        intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA, validPacks);
+        intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_PACK_LIST_DATA, invalidPacks);
+        intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_MAP_DATA, stickerPackWithInvalidStickers);
 
         startActivity(intent);
         finish();
@@ -166,17 +164,13 @@ public class EntryActivity extends BaseActivity {
 
                 if (context != null) {
                     try {
-                        result = new Pair<>(null,
-                                fetchStickerPackService.fetchStickerPackListFromContentProvider());
+                        result = new Pair<>(null, fetchStickerPackService.fetchStickerPackListFromContentProvider());
                     } catch (FetchStickerPackException | FetchStickerException exception) {
-                        Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio",
-                                exception);
+                        Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio", exception);
 
-                        Intent intent = new Intent(context,
-                                InitialStickerPackCreationActivity.class);
+                        Intent intent = new Intent(context, InitialStickerPackCreationActivity.class);
                         intent.putExtra("database_empty", true);
-                        intent.putExtra(InitialStickerPackCreationActivity.EXTRA_SHOW_UP_BUTTON,
-                                false);
+                        intent.putExtra(InitialStickerPackCreationActivity.EXTRA_SHOW_UP_BUTTON, false);
 
                         createPackLauncher.launch(intent);
                         return;
@@ -195,9 +189,7 @@ public class EntryActivity extends BaseActivity {
                         if (finalResult.first != null) {
                             entryActivity.showErrorMessage(finalResult.first);
                         } else {
-                            entryActivity.showStickerPack(finalResult.second.validPacks(),
-                                    finalResult.second.invalidPacks(),
-                                    finalResult.second.validPacksWithInvalidStickers());
+                            entryActivity.showStickerPack(finalResult.second.validPacks(), finalResult.second.invalidPacks(), finalResult.second.validPacksWithInvalidStickers());
                         }
                     }
                 });
@@ -208,6 +200,5 @@ public class EntryActivity extends BaseActivity {
             executor.shutdown();
         }
     }
-
 
 }

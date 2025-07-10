@@ -37,7 +37,7 @@
     <string name="dialog_settings_permission_title">Permição manual</string>
     <string name="dialog_settings_message_permission">Permisão foi negada, necessário permitir manualmente</string>
     <string name="dialog_settings_button_permission_accept">Abrir configurações</string>
-    <string name="dialog_settings_button_permission_cancel">Recusar</string>
+    <string name="dialog_cancel">Cancelar</string>
     <string name="title_activity_sticker_creator" tools:ignore="MissingQuantity">Criar pacote</string>
     <string name="title_activity_pack_creator_first" tools:ignore="MissingQuantity">Criar primeiro pacote</string>
     <string name="error_message_name_pack_empty">Preecha o nome do pacote!</string>
@@ -105,7 +105,7 @@
     <string name="error_message_quality_invalid_number">Digite um número válido.</string>
     <string name="error_message_unable_to_implement_update_sticker">Não foi possível implementar modificação na figurinha.</string>
     <string name="error_message_sticker_file_does_not_reach_allowed_size">O arquivo da figurinha não atingiu o tamanho permitido.</string>
-    <string name="error_message_invalid_sticker_list_empty">\"Lista de stickers inválidos está vazia ou nula.\"</string>
+    <string name="error_message_invalid_sticker_list_empty">Lista de stickers inválidos está vazia ou nula.</string>
     <string name="error_message_sticker_list_empty">stickerArrayList está nula ou vazia. Nada para validar.</string>
     <string name="error_message_loading_sticker_pack">Erro ao carregar pacote de figurinhas inválido!</string>
     <string name="error_message_invalid_not_found">Nenhum sticker inválido encontrado.</string>
@@ -117,4 +117,15 @@
     <string name="error_message_list_sticker_in_pack_invalid_size">As figurinhas do pacote estão vazias ou são menores que o tamanho máximo.</string>
     <string name="error_message_unable_to_update_stickerpack_name">Não foi possível realizar update de nome do sticker.</string>
     <string name="error_message_file_to_make_thumbnail_not_exist">O arquivo para fazer nova thumbnail não existe.</string>
+    <string name="dialog_rename">Renomear</string>
+    <string name="dialog_title_invalid_pack">Pacote invalido!</string>
+    <string name="dialog_message_delete_pack">Deletar pacote.</string>
+    <string name="dialog_title_invalid_thumbnail">Thumbnail invalida!</string>
+    <string name="dialog_message_create_thumbnail">Criar nova thumbnail para o pacote.</string>
+    <string name="dialog_title_invalid_name">Nome inválido</string>
+    <string name="dialog_message_insert_new_name">Deseja inserir um novo nome?</string>
+    <string name="dialog_title_fix_pack_size">Corrigir tamanho do pacote!</string>
+    <string name="dialog_message_remove_extra_stickers">Apagar figurinhas sobressalentes.</string>
+    <string name="dialog_title_cleanup_urls">Limpar urls do pacote.</string>
+    <string name="dialog_message_cleanup_urls">As urls estão invalidas, limpar.</string>
 </resources>

@@ -37,7 +37,7 @@
     <string name="dialog_settings_permission_title">Manual permission</string>
     <string name="dialog_settings_message_permission">Gallery access required.</string>
     <string name="dialog_settings_button_permission_accept">Settings</string>
-    <string name="dialog_settings_button_permission_cancel">Cancel</string>
+    <string name="dialog_cancel">Cancel</string>
     <string name="title_activity_sticker_creator" tools:ignore="MissingQuantity">Create new package</string>
     <string name="title_activity_pack_creator_first" tools:ignore="MissingQuantity">Create first package</string>
     <string name="error_message_name_pack_empty">Fill in the package name!</string>
@@ -117,4 +117,15 @@
     <string name="error_message_list_sticker_in_pack_invalid_size">The stickers in the pack are empty or smaller than the maximum size.</string>
     <string name="error_message_unable_to_update_stickerpack_name">Unable to update sticker name.</string>
     <string name="error_message_file_to_make_thumbnail_not_exist">The file to make a new thumbnail does not exist.</string>
+    <string name="dialog_rename">Rename</string>
+    <string name="dialog_title_invalid_pack">Invalid pack!</string>
+    <string name="dialog_message_delete_pack">Delete pack.</string>
+    <string name="dialog_title_invalid_thumbnail">Invalid thumbnail!</string>
+    <string name="dialog_message_create_thumbnail">Create new thumbnail for the pack.</string>
+    <string name="dialog_title_invalid_name">Invalid name</string>
+    <string name="dialog_message_insert_new_name">Would you like to insert a new name?</string>
+    <string name="dialog_title_fix_pack_size">Fix pack size!</string>
+    <string name="dialog_message_remove_extra_stickers">Remove extra stickers.</string>
+    <string name="dialog_title_cleanup_urls">Clean up pack URLs.</string>
+    <string name="dialog_message_cleanup_urls">The URLs are invalid, clean them up.</string>
 </resources>
