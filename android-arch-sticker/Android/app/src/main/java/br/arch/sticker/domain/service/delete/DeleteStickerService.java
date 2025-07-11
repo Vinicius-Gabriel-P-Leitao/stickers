@@ -17,17 +17,17 @@ import androidx.annotation.NonNull;
 import br.arch.sticker.core.error.throwable.sticker.DeleteStickerException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
-import br.arch.sticker.domain.data.database.repository.DeleteStickerPackRepo;
+import br.arch.sticker.domain.data.database.repository.DeleteStickerRepo;
 
 public class DeleteStickerService {
     private final static String TAG_LOG = DeleteStickerService.class.getSimpleName();
 
-    private final DeleteStickerPackRepo deleteStickerPackRepo;
+    private final DeleteStickerRepo deleteStickerPackRepo;
 
     public DeleteStickerService(Context paramContext) {
         Context context = paramContext.getApplicationContext();
         SQLiteDatabase database = StickerDatabaseHelper.getInstance(context).getWritableDatabase();
-        this.deleteStickerPackRepo = new DeleteStickerPackRepo(database);
+        this.deleteStickerPackRepo = new DeleteStickerRepo(database);
     }
 
     public CallbackResult<Boolean> deleteStickerByPack(@NonNull String stickerPackIdentifier, @NonNull String fileName) {

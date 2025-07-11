@@ -10,7 +10,7 @@ package br.arch.sticker.view.core.usecase.definition;
 
 // @formatter:off
 public enum MimeTypesSupported {
-    IMAGE(new String[]{"image/jpeg", "image/png"}),
+    IMAGE(new String[]{"image/jpeg", "image/jpg","image/png"}),
     ANIMATED(new String[]{"video/mp4", "image/gif"});
 
     private final String[] mimeTypes;
@@ -21,5 +21,18 @@ public enum MimeTypesSupported {
 
     public String[] getMimeTypes() {
         return mimeTypes;
+    }
+
+    public static MimeTypesSupported fromMimeType(String mimeType) throws IllegalArgumentException {
+        for (MimeTypesSupported mimeTypesSupported : values()) {
+            for (String supported : mimeTypesSupported.getMimeTypes()) {
+                if (supported.equalsIgnoreCase(mimeType)) {
+                    return mimeTypesSupported;
+                }
+            }
+        }
+
+        // TODO: Fazer exception personalizada.
+        throw new IllegalArgumentException("MimeType não suportado: " + mimeType);
     }
 }

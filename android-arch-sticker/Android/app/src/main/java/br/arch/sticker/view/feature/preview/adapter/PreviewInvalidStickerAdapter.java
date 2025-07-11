@@ -7,6 +7,9 @@
  */
 package br.arch.sticker.view.feature.preview.adapter;
 
+import static br.arch.sticker.domain.util.StickerPackPlaceholder.PLACEHOLDER_ANIMATED;
+import static br.arch.sticker.domain.util.StickerPackPlaceholder.PLACEHOLDER_STATIC;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.SystemClock;
@@ -45,107 +48,100 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
 
     private final OnFixClickListener listener;
 
-    public PreviewInvalidStickerAdapter(@NonNull String stickerPackIdentifier, @NonNull List<Sticker> stickerList, OnFixClickListener listener)
-        {
-            this.stickerPackIdentifier = stickerPackIdentifier;
-            this.stickerList = new ArrayList<>(stickerList);
-            this.stickerPack = null;
-            this.listener = listener;
-        }
+    public PreviewInvalidStickerAdapter(@NonNull String stickerPackIdentifier, @NonNull List<Sticker> stickerList, OnFixClickListener listener) {
+        this.stickerPackIdentifier = stickerPackIdentifier;
+        this.stickerList = filterValidStickers(stickerList);
+        this.stickerPack = null;
+        this.listener = listener;
+    }
 
-    public PreviewInvalidStickerAdapter(@NonNull StickerPack stickerPack, OnFixClickListener listener)
-        {
-            this.stickerPack = stickerPack;
-            this.stickerList = new ArrayList<>(stickerPack.getStickers());
-            this.stickerPackIdentifier = stickerPack.identifier;
-            this.listener = listener;
-        }
+    public PreviewInvalidStickerAdapter(@NonNull StickerPack stickerPack, OnFixClickListener listener) {
+        this.stickerPack = stickerPack;
+        this.stickerList = filterValidStickers(stickerPack.getStickers());
+        this.stickerPackIdentifier = stickerPack.identifier;
+        this.listener = listener;
+    }
 
     @NonNull
     @Override
-    public InvalidStickerListViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType)
-        {
-            final Context context = viewGroup.getContext();
-            final LayoutInflater layoutInflater = LayoutInflater.from(context);
-            final View stickersRow = layoutInflater.inflate(R.layout.container_invalid_sticker, viewGroup, false);
-            return new InvalidStickerListViewHolder(stickersRow);
-        }
+    public InvalidStickerListViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+        final Context context = viewGroup.getContext();
+        final LayoutInflater layoutInflater = LayoutInflater.from(context);
+        final View stickersRow = layoutInflater.inflate(R.layout.container_invalid_sticker, viewGroup, false);
+        return new InvalidStickerListViewHolder(stickersRow);
+    }
 
     @Override
-    public void onBindViewHolder(@NonNull InvalidStickerListViewHolder viewHolder, int position)
-        {
-            final Context context = viewHolder.itemView.getContext();
-            final Sticker sticker = stickerList.get(position);
+    public void onBindViewHolder(@NonNull InvalidStickerListViewHolder viewHolder, int position) {
+        final Context context = viewHolder.itemView.getContext();
+        final Sticker sticker = stickerList.get(position);
 
-            StickerAssetErrorCode code = StickerAssetErrorCode.fromName(sticker.stickerIsValid);
-            int resId = (code != null)
-                        ? code.getMessageResId()
-                        : R.string.throw_unknown_error;
+        StickerAssetErrorCode code = StickerAssetErrorCode.fromName(sticker.stickerIsValid);
+        int resId = (code != null) ? code.getMessageResId() : R.string.throw_unknown_error;
 
-            if (!stickerList.isEmpty()) {
-                viewHolder.stickerPreview.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
-                viewHolder.textErrorMessage.setText(context.getString(resId));
-            }
-
-            if (stickerPack != null) {
-                viewHolder.stickerPreview.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
-                viewHolder.textErrorMessage.setText(TextUtils.isEmpty(sticker.stickerIsValid)
-                                                    ? context.getString(R.string.throw_sticker_is_valid)
-                                                    : context.getString(resId));
-                viewHolder.buttonFix.setVisibility(TextUtils.isEmpty(sticker.stickerIsValid)
-                                                   ? View.GONE
-                                                   : View.VISIBLE);
-            }
-
-            viewHolder.buttonFix.setOnClickListener(new View.OnClickListener() {
-                private long lastClickTime = 0;
-
-                @Override
-                public void onClick(View view)
-                    {
-                        long now = SystemClock.elapsedRealtime();
-                        if (now - lastClickTime < 1000) return;
-                        lastClickTime = now;
-
-                        if (listener != null) {
-                            listener.onStickerFixClick(
-                                    sticker, stickerPackIdentifier);
-                        }
-                    }
-            });
+        if (!stickerList.isEmpty()) {
+            viewHolder.stickerPreview.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
+            viewHolder.textErrorMessage.setText(context.getString(resId));
         }
+
+        if (stickerPack != null) {
+            viewHolder.stickerPreview.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
+            viewHolder.textErrorMessage.setText(TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(R.string.throw_sticker_is_valid) : context.getString(resId));
+            viewHolder.buttonFix.setVisibility(TextUtils.isEmpty(sticker.stickerIsValid) ? View.GONE : View.VISIBLE);
+        }
+
+        viewHolder.buttonFix.setOnClickListener(new View.OnClickListener() {
+            private long lastClickTime = 0;
+
+            @Override
+            public void onClick(View view) {
+                long now = SystemClock.elapsedRealtime();
+                if (now - lastClickTime < 1000) return;
+                lastClickTime = now;
+
+                if (listener != null) {
+                    listener.onStickerFixClick(sticker, stickerPackIdentifier);
+                }
+            }
+        });
+    }
 
     @Override
-    public int getItemCount()
-        {
-            return stickerList != null
-                   ? stickerList.size()
-                   : 0;
-        }
+    public int getItemCount() {
+        return stickerList != null ? stickerList.size() : 0;
+    }
 
-    @SuppressLint("NotifyDataSetChanged")
-    public void setImageRowSpec(int maxNumberOfStickersInARow, int minMarginBetweenImages)
-        {
-            if (this.maxNumberOfStickersInARow != maxNumberOfStickersInARow) {
-                this.maxNumberOfStickersInARow = maxNumberOfStickersInARow;
-                notifyDataSetChanged();
+    private static ArrayList<Sticker> filterValidStickers(@NonNull List<Sticker> rawList) {
+        ArrayList<Sticker> result = new ArrayList<>();
+        for (Sticker sticker : rawList) {
+            if (!PLACEHOLDER_ANIMATED.equals(sticker.imageFileName) &&
+                    !PLACEHOLDER_STATIC.equals(sticker.imageFileName)) {
+                result.add(sticker);
             }
         }
-
-    public void removeSticker(Sticker sticker)
-        {
-            int pos = stickerList.indexOf(sticker);
-            if (pos >= 0) {
-                stickerList.remove(pos);
-                notifyItemRemoved(pos);
-            }
-        }
+        return result;
+    }
 
     @SuppressLint("NotifyDataSetChanged")
-    public void updateStickerPackItems(List<Sticker> newItems)
-        {
-            this.stickerList.clear();
-            this.stickerList.addAll(newItems);
+    public void setImageRowSpec(int maxNumberOfStickersInARow, int minMarginBetweenImages) {
+        if (this.maxNumberOfStickersInARow != maxNumberOfStickersInARow) {
+            this.maxNumberOfStickersInARow = maxNumberOfStickersInARow;
             notifyDataSetChanged();
         }
+    }
+
+    public void removeSticker(Sticker sticker) {
+        int pos = stickerList.indexOf(sticker);
+        if (pos >= 0) {
+            stickerList.remove(pos);
+            notifyItemRemoved(pos);
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateStickerPackItems(List<Sticker> newItems) {
+        this.stickerList.clear();
+        this.stickerList.addAll(newItems);
+        notifyDataSetChanged();
+    }
 }

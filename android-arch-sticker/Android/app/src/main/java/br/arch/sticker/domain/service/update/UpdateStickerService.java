@@ -15,17 +15,17 @@ import br.arch.sticker.core.error.ErrorCodeProvider;
 import br.arch.sticker.core.error.code.UpdateErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.UpdateStickerException;
 import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
-import br.arch.sticker.domain.data.database.repository.UpdateStickerPackRepo;
+import br.arch.sticker.domain.data.database.repository.UpdateStickerRepo;
 
 public class UpdateStickerService {
     private static final String TAG_LOG = UpdateStickerService.class.getSimpleName();
 
-    private final UpdateStickerPackRepo updateStickerPackRepo;
+    private final UpdateStickerRepo updateStickerRepo;
 
     public UpdateStickerService(Context paramContext) {
         Context context = paramContext.getApplicationContext();
         SQLiteDatabase database = StickerDatabaseHelper.getInstance(context).getWritableDatabase();
-        this.updateStickerPackRepo = new UpdateStickerPackRepo(database);
+        this.updateStickerRepo = new UpdateStickerRepo(database);
     }
 
     public boolean updateStickerFileName(String stickerPackIdentifier, String newFileName, String oldFileName) throws UpdateStickerException {
@@ -34,23 +34,15 @@ public class UpdateStickerService {
             return false;
         }
 
-        Log.d(
-                TAG_LOG, String.format(
-                        "Atualizando nome de figurinha: pack='%s', old='%s', new='%s'",
-                        stickerPackIdentifier, oldFileName, newFileName));
+        Log.d(TAG_LOG, String.format("Atualizando nome de figurinha: pack='%s', old='%s', new='%s'", stickerPackIdentifier, oldFileName, newFileName));
 
-        boolean updated = updateStickerPackRepo.updateStickerFileName(
-                stickerPackIdentifier,
-                newFileName, oldFileName);
-
-        if (!updated) {
-            Log.w(TAG_LOG, "Atualização de nome de figurinha falhou ou não teve efeito.");
-            throw new UpdateStickerException(
-                    "Atualização de nome de figurinha falhou ou não teve efeito.",
-                    UpdateErrorCode.ERROR_EMPTY_STICKERPACK);
+        if (updateStickerRepo.updateStickerFileName(stickerPackIdentifier, newFileName, oldFileName)) {
+            return true;
         }
 
-        return updated;
+        String message = "Atualização de nome de figurinha falhou ou não teve efeito.";
+        Log.w(TAG_LOG, message);
+        throw new UpdateStickerException(message, UpdateErrorCode.ERROR_EMPTY_STICKERPACK);
     }
 
     public boolean updateInvalidSticker(String stickerPackIdentifier, String fileName, ErrorCodeProvider errorCode) throws UpdateStickerException {
@@ -61,23 +53,15 @@ public class UpdateStickerService {
 
         String errorName = (errorCode instanceof Enum<?>) ? ((Enum<?>) errorCode).name() : errorCode.toString();
 
-        Log.d(
-                TAG_LOG,
-                String.format(
-                        "Marcando figurinha como inválida: pack='%s', file='%s', erro='%s'",
-                        stickerPackIdentifier, fileName, errorName));
+        Log.d(TAG_LOG, String.format("Marcando figurinha como inválida: pack='%s', file='%s', erro='%s'", stickerPackIdentifier, fileName, errorName));
 
-        boolean updated = updateStickerPackRepo.updateInvalidSticker(
-                stickerPackIdentifier,
-                fileName, errorName);
+        boolean updated = updateStickerRepo.updateInvalidSticker(stickerPackIdentifier, fileName, errorName);
 
         if (!updated) {
             Log.w(TAG_LOG, "Falha ao marcar a figurinha como inválida.");
-            throw new UpdateStickerException(
-                    "Falha ao marcar a figurinha como inválida.",
-                    UpdateErrorCode.ERROR_EMPTY_STICKERPACK);
+            throw new UpdateStickerException("Falha ao marcar a figurinha como inválida.", UpdateErrorCode.ERROR_EMPTY_STICKERPACK);
         }
 
-        return updated;
+        return true;
     }
 }
