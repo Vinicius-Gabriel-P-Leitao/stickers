@@ -24,7 +24,7 @@ import br.arch.sticker.core.error.code.SaveErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
-import br.arch.sticker.domain.data.database.repository.InsertStickerPackRepo;
+import br.arch.sticker.domain.data.database.repository.InsertStickerRepo;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 
@@ -34,14 +34,13 @@ public class StickerPackPlaceholder {
 
     private static boolean isCreatingPlaceholder = false;
 
-    private final InsertStickerPackRepo insertStickerPackRepo;
+    private final InsertStickerRepo insertStickerPackRepo;
     private final Context context;
 
     public StickerPackPlaceholder(Context context) {
         this.context = context;
-        SQLiteDatabase database = StickerDatabaseHelper.getInstance(
-                this.context).getWritableDatabase();
-        this.insertStickerPackRepo = new InsertStickerPackRepo(database);
+        SQLiteDatabase database = StickerDatabaseHelper.getInstance(this.context).getWritableDatabase();
+        this.insertStickerPackRepo = new InsertStickerRepo(database);
     }
 
     public Sticker makeAndSaveStickerPlaceholder(StickerPack stickerPack) {
@@ -69,7 +68,9 @@ public class StickerPackPlaceholder {
     public Sticker makeStickerPlaceholder(StickerPack stickerPack, File outputFile) {
         String fileName = stickerPack.animatedStickerPack ? PLACEHOLDER_ANIMATED : PLACEHOLDER_STATIC;
 
-        String accessibility = stickerPack.animatedStickerPack ? "Pacote animado com nome " + stickerPack.name : "Pacote estático com nome " + stickerPack.name;
+        String accessibility = stickerPack.animatedStickerPack ?
+                "Pacote animado com nome " + stickerPack.name :
+                "Pacote estático com nome " + stickerPack.name;
 
         File destFile = new File(outputFile, fileName);
         try (AssetFileDescriptor assetFileDescriptor = context.getAssets().openFd(

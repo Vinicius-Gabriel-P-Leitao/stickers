@@ -19,7 +19,7 @@
 #include "exception/HandlerJavaException.hpp"
 #include "service/WebpAnimationConverter.hpp"
 #include "service/ProcessFramesToFormat.hpp"
-#include "service/ProcessWebpToAvFrames.hpp."
+#include "service/ProcessWebpToAvFrames.hpp"
 
 #include "raii/AVFrameDestroyer.hpp"
 #include "raii/AVBufferDestroyer.hpp"

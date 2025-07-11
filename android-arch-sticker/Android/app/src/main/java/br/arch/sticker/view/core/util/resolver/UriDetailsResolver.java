@@ -17,6 +17,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import br.arch.sticker.core.error.code.MediaConversionErrorCode;
@@ -40,9 +41,8 @@ public class UriDetailsResolver {
         } else if (Arrays.equals(mimeTypes, MimeTypesSupported.ANIMATED.getMimeTypes())) {
             mediaUris = fetchListUri(context, MimeTypesSupported.ANIMATED);
         } else {
-            throw new MediaConversionException(
-                    "Tipo MIME não suportado para conversão: " + Arrays.toString(mimeTypes),
-                    MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
+            throw new MediaConversionException("Tipo MIME não suportado para conversão: " +
+                    Arrays.toString(mimeTypes), MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
         }
 
         return mediaUris;
@@ -60,31 +60,34 @@ public class UriDetailsResolver {
 
         Uri collection;
         String[] projection;
-        String selection;
+        String selectionColumn;
         String[] mimeTypes;
         String LOG_TAG;
 
         if (mediaTypeParam == MimeTypesSupported.IMAGE) {
             collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
             projection = new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA, MediaStore.Images.Media.MIME_TYPE};
-            selection = MediaStore.Images.Media.MIME_TYPE + "=? OR " + MediaStore.Images.Media.MIME_TYPE + "=?";
             mimeTypes = MimeTypesSupported.IMAGE.getMimeTypes();
+            selectionColumn = MediaStore.Images.Media.MIME_TYPE;
             LOG_TAG = "ImageUri";
         } else {
             collection = MediaStore.Files.getContentUri("external");
             projection = new String[]{MediaStore.Files.FileColumns._ID, MediaStore.Files.FileColumns.MEDIA_TYPE, MediaStore.Files.FileColumns.MIME_TYPE};
-            selection = MediaStore.Files.FileColumns.MIME_TYPE + "=? OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?";
             mimeTypes = MimeTypesSupported.ANIMATED.getMimeTypes();
+            selectionColumn = MediaStore.Files.FileColumns.MIME_TYPE;
             LOG_TAG = "AnimatedUri";
         }
+
+        String placeholders = String.join(",", Collections.nCopies(mimeTypes.length, "?"));
+        String selection = selectionColumn + " IN (" + placeholders + ")";
 
         String sortOrder = (MediaStore.Images.Media.DATE_ADDED) + " DESC";
         Cursor cursor = context.getContentResolver().query(collection, projection, selection, mimeTypes, sortOrder);
         if (cursor != null) {
             int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
 
-            int dataColumn = cursor.getColumnIndexOrThrow(
-                    mediaTypeParam == MimeTypesSupported.IMAGE ? MediaStore.Images.Media.DATA : MediaStore.Files.FileColumns.MEDIA_TYPE);
+            int dataColumn = cursor.getColumnIndexOrThrow(mediaTypeParam ==
+                    MimeTypesSupported.IMAGE ? MediaStore.Images.Media.DATA : MediaStore.Files.FileColumns.MEDIA_TYPE);
 
             while (cursor.moveToNext()) {
                 long id = cursor.getLong(idColumn);

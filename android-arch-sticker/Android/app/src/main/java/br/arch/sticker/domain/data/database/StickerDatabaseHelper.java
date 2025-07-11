@@ -18,14 +18,8 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     // Tabelas
-    public static final String TABLE_STICKER_PACKS = "sticker_packs";
     public static final String TABLE_STICKER_PACK = "sticker_pack";
     public static final String TABLE_STICKER = "sticker";
-
-    // Colunas sticker_packs
-    public static final String ID_STICKER_PACKS = "id_sticker_packs";
-    public static final String ANDROID_APP_DOWNLOAD_LINK_IN_QUERY = "android_play_store_link";
-    public static final String IOS_APP_DOWNLOAD_LINK_IN_QUERY = "ios_app_download_link";
 
     // Colunas sticker_pack
     public static final String STICKER_PACK_IDENTIFIER_IN_QUERY = "sticker_pack_identifier";
@@ -39,7 +33,8 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
     public static final String ANIMATED_STICKER_PACK = "animated_sticker_pack";
     public static final String IMAGE_DATA_VERSION = "image_data_version";
     public static final String AVOID_CACHE = "whatsapp_will_not_cache_stickers";
-    public static final String FK_STICKER_PACKS = "fk_sticker_packs";
+    public static final String ANDROID_APP_DOWNLOAD_LINK_IN_QUERY = "android_play_store_link";
+    public static final String IOS_APP_DOWNLOAD_LINK_IN_QUERY = "ios_app_download_link";
 
     // Colunas sticker
     public static final String ID_STICKER = "id_sticker";
@@ -64,22 +59,6 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(
-                "CREATE TABLE IF NOT EXISTS " + TABLE_STICKER_PACKS +
-                        " (" +
-                            ID_STICKER_PACKS + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                            ANDROID_APP_DOWNLOAD_LINK_IN_QUERY + " VARCHAR(100), " +
-                            IOS_APP_DOWNLOAD_LINK_IN_QUERY + " VARCHAR(100)" +
-                        ")"
-        );
-
-        String fkStickerPacks = String.format(
-                "FOREIGN KEY(%s) REFERENCES %s(%s) ON DELETE CASCADE",
-                FK_STICKER_PACKS,
-                TABLE_STICKER_PACKS,
-                ID_STICKER_PACKS
-        );
-
-        sqLiteDatabase.execSQL(
                 "CREATE TABLE IF NOT EXISTS " + TABLE_STICKER_PACK +
                         " (" +
                             STICKER_PACK_IDENTIFIER_IN_QUERY + " TEXT PRIMARY KEY " +
@@ -96,8 +75,8 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
                             ANIMATED_STICKER_PACK + " CHAR(1) NOT NULL, " +
                             IMAGE_DATA_VERSION + " CHAR(4), " +
                             AVOID_CACHE + " CHAR(5), " +
-                            FK_STICKER_PACKS + " INTEGER, " +
-                            fkStickerPacks +
+                            ANDROID_APP_DOWNLOAD_LINK_IN_QUERY + " VARCHAR(100), " +
+                            IOS_APP_DOWNLOAD_LINK_IN_QUERY + " VARCHAR(100)" +
                         ")"
         );
 
@@ -123,7 +102,6 @@ public class StickerDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_STICKER_PACKS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_STICKER_PACK);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_STICKER);
 

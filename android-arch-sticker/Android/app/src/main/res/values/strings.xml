@@ -37,7 +37,7 @@
     <string name="dialog_settings_permission_title">Manual permission</string>
     <string name="dialog_settings_message_permission">Gallery access required.</string>
     <string name="dialog_settings_button_permission_accept">Settings</string>
-    <string name="dialog_settings_button_permission_cancel">Cancel</string>
+    <string name="dialog_cancel">Cancel</string>
     <string name="title_activity_sticker_creator" tools:ignore="MissingQuantity">Create new package</string>
     <string name="title_activity_pack_creator_first" tools:ignore="MissingQuantity">Create first package</string>
     <string name="error_message_name_pack_empty">Fill in the package name!</string>
@@ -105,4 +105,33 @@
     <string name="error_message_quality_invalid_number">Please enter a valid number.</string>
     <string name="error_message_unable_to_implement_update_sticker">Unable to implement sticker modification.</string>
     <string name="error_message_sticker_file_does_not_reach_allowed_size">The sticker file does not reach the allowed size.</string>
+    <string name="error_message_invalid_sticker_list_empty">Invalid sticker list is empty or null.</string>
+    <string name="error_message_sticker_list_empty">Sticker list is null or empty. Nothing to validate.</string>
+    <string name="error_message_loading_sticker_pack">Error loading invalid sticker pack!</string>
+    <string name="error_message_invalid_not_found">No invalid stickers found.</string>
+    <string name="error_message_main_path_not_found">The main stickers folder was not found, or is not a folder.</string>
+    <string name="error_message_unable_delete_stickerpack_folder">Unable to delete package files folder.</string>
+    <string name="error_message_file_quality_must_be_entered">File quality must be entered.</string>
+    <string name="error_message_stickerpack_name_must_be_entered">The new name for the package must be entered.</string>
+    <string name="throw_delete_list_sticker_in_db">Error deleting sticker list from database.</string>
+    <string name="error_message_list_sticker_in_pack_invalid_size">The stickers in the pack are empty or smaller than the maximum size.</string>
+    <string name="error_message_unable_to_update_stickerpack_name">Unable to update sticker name.</string>
+    <string name="error_message_file_to_make_thumbnail_not_exist">The file to make a new thumbnail does not exist.</string>
+    <string name="dialog_rename">Rename</string>
+    <string name="dialog_title_invalid_pack">Invalid pack!</string>
+    <string name="dialog_message_delete_pack">Delete pack.</string>
+    <string name="dialog_title_invalid_thumbnail">Invalid thumbnail!</string>
+    <string name="dialog_message_create_thumbnail">Create new thumbnail for the pack.</string>
+    <string name="dialog_title_invalid_name">Invalid name</string>
+    <string name="dialog_message_insert_new_name">Would you like to insert a new name?</string>
+    <string name="dialog_title_fix_pack_size">Fix pack size!</string>
+    <string name="dialog_message_remove_extra_stickers">Remove extra stickers.</string>
+    <string name="dialog_title_cleanup_urls">Clean up pack URLs.</string>
+    <string name="dialog_message_cleanup_urls">The URLs are invalid, clean them up.</string>
+    <string name="error_message_process_canceled">Process cancelled.</string>
+    <string name="error_message_select_least_media">Select at least 1 media!</string>
+    <string name="error_message_max_media_selected">Maximum number of items selected!</string>
+    <string name="error_message_unsuported_media_type_in_gallery">No supported formats found for gallery.</string>
+    <string name="error_message_could_not_extract_path_media">Could not extract path from selected file %1$s.</string>
+    <string name="error_message_file_not_found">File not found, null or empty value.</string>
 </resources>

@@ -28,7 +28,8 @@ public class NativeProcessWebp {
         void onError(Exception exception);
     }
 
-    private static final ExecutorService nativeExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private static final ExecutorService nativeExecutor = Executors.newFixedThreadPool(Runtime.getRuntime()
+            .availableProcessors());
 
     public void processWebpAsync(
             String inputPath, String outputPath, float quality, boolean lossless, ConversionCallback callback) throws MediaConversionException {
@@ -42,7 +43,8 @@ public class NativeProcessWebp {
                         Thread.sleep(100);
                     } catch (InterruptedException exception) {
                         throw new MediaConversionException(
-                                exception.getMessage() != null ? exception.getMessage() : "Erro fazer ao pausar a thread, e não foi retornado mensagem de erro!",
+                                exception.getMessage() !=
+                                        null ? exception.getMessage() : "Erro fazer ao pausar a thread, e não foi retornado mensagem de erro!",
                                 exception.getCause(),
                                 MediaConversionErrorCode.ERROR_NATIVE_CONVERSION);
                     }

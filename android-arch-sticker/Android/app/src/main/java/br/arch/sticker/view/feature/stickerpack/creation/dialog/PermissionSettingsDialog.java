@@ -39,7 +39,7 @@ public class PermissionSettingsDialog {
                 dialog.dismiss();
             });
 
-            dialog.setTextIgnoreButton(activity.getString(R.string.dialog_settings_button_permission_cancel));
+            dialog.setTextIgnoreButton(activity.getString(R.string.dialog_cancel));
             dialog.setOnIgnoreClick(view -> {
                 permissionSettingsViewModel.setPermissionDenied();
                 dialog.dismiss();

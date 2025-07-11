@@ -58,16 +58,17 @@ public class StickerPackQueryProvider {
         }
 
         try {
-            StickerPack stickerPack = stickerPackQueryHelper.fetchStickerPackFromDatabase(
-                    stickerPackIdentifier, isFiltered);
+            StickerPack stickerPack = stickerPackQueryHelper.fetchStickerPackFromDatabase(stickerPackIdentifier, isFiltered);
             if (stickerPack == null) {
-                Log.w(TAG_LOG, "Nenhum pacote de figurinhas encontrado para o identificador: " + stickerPackIdentifier);
+                Log.w(TAG_LOG, "Nenhum pacote de figurinhas encontrado para o identificador: " +
+                        stickerPackIdentifier);
                 return new MatrixCursor(new String[]{"Erro ao buscar pacote, ele é nulo!"});
             }
 
             return stickerPackQueryHelper.fetchStickerPackData(uri, stickerPack);
         } catch (SQLException sqlException) {
-            Log.e(TAG_LOG, "Erro no banco de dados ao buscar pacote de figurinhas: " + stickerPackIdentifier, sqlException);
+            Log.e(TAG_LOG, "Erro no banco de dados ao buscar pacote de figurinhas: " +
+                    stickerPackIdentifier, sqlException);
             throw sqlException;
         } catch (RuntimeException exception) {
             Log.e(TAG_LOG, "Error buscar pacote de figurinha: " + stickerPackIdentifier, exception);
