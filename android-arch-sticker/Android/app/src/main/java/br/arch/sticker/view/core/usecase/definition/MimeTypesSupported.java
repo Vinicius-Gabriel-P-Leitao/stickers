@@ -22,4 +22,17 @@ public enum MimeTypesSupported {
     public String[] getMimeTypes() {
         return mimeTypes;
     }
+
+    public static MimeTypesSupported fromMimeType(String mimeType) throws IllegalArgumentException {
+        for (MimeTypesSupported mimeTypesSupported : values()) {
+            for (String supported : mimeTypesSupported.getMimeTypes()) {
+                if (supported.equalsIgnoreCase(mimeType)) {
+                    return mimeTypesSupported;
+                }
+            }
+        }
+
+        // TODO: Fazer exception personalizada.
+        throw new IllegalArgumentException("MimeType não suportado: " + mimeType);
+    }
 }

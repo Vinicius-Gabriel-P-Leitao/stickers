@@ -8,8 +8,6 @@
 
 package br.arch.sticker.view.feature.stickerpack.creation.fragment;
 
-import static br.arch.sticker.view.feature.editor.activity.StickerEditorActivity.REQUEST_CODE_MEDIA;
-
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -96,7 +94,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
 
         Button selectButton = view.findViewById(R.id.select_medias_button);
         selectButton.setOnClickListener(listener -> {
-            Set<Uri> selectedUris = mediaListAdapter.getSelectedMediaPaths();
+            final Set<Uri> selectedUris = mediaListAdapter.getSelectedMediaPaths();
 
             if (selectedUris.isEmpty()) {
                 Toast.makeText(
@@ -106,8 +104,9 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
 
             if (selectedUris.size() == 1) {
                 Intent intent = new Intent(getContext(), StickerEditorActivity.class);
-                intent.setType("image/* video/*");
-                startActivityForResult(Intent.createChooser(intent, "Selecionar mídia"), REQUEST_CODE_MEDIA);
+                intent.setData(selectedUris.iterator().next());
+                startActivity(intent);
+                return;
             }
 
             progressBar.setVisibility(View.VISIBLE);

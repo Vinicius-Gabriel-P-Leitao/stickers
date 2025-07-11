@@ -16,7 +16,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.OpenableColumns;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,21 +78,19 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull MediaViewHolder holder, int position) {
         final Uri uri = getItem(position);
-        if (uri.getPath() == null) {
-            Toast.makeText(context, context.getString(R.string.error_message_could_not_extract_path_media, uri), Toast.LENGTH_SHORT)
-                    .show();
+        String fileName = getFileNameFromUri(holder.itemView.getContext(), uri);
+
+        if (fileName.isBlank()) {
+            Toast.makeText(context, context.getString(R.string.error_message_file_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
-        String fileName = getFileNameFromUri(holder.itemView.getContext(), uri);
-        String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
-        Log.d("MediaPickerAdapter", "fileName: " + fileName + "extension: " + extension);
 
         RequestManager glide = Glide.with(holder.imageView.getContext());
-
         MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
-
         RequestBuilder<?> requestBuilder = null;
+
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
         if (extension.endsWith("mp4") || extension.endsWith("webm") || extension.endsWith("3gp")) {
             requestBuilder = glide.asBitmap().frame(1_000_000).load(uri);
         }
@@ -175,6 +172,12 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
                     }
                 }
             }
+        }
+
+        if (uri.getPath() == null) {
+            Toast.makeText(context, context.getString(R.string.error_message_could_not_extract_path_media, uri), Toast.LENGTH_SHORT)
+                    .show();
+            return "";
         }
 
         if (result == null) {
