@@ -45,10 +45,8 @@ public class StickerContentProvider extends ContentProvider {
     private static final int STICKERS_FILES_CODE = 4;
     private static final int STICKER_PACK_TRAY_ICON_CODE = 5;
 
-    public static final Uri AUTHORITY_URI = new Uri.Builder().scheme(
-            ContentResolver.SCHEME_CONTENT).authority(
-            BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(
-            StickerContentProvider.METADATA).build();
+    public static final Uri AUTHORITY_URI = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
+            .authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(StickerContentProvider.METADATA).build();
 
     private StickerPackQueryProvider stickerPackQueryProvider;
     private StickerQueryProvider stickerQueryProvider;
@@ -147,14 +145,11 @@ public class StickerContentProvider extends ContentProvider {
 
         return switch (code) {
             case METADATA_CODE ->
-                    "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." +
-                            METADATA;
+                    "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
             case METADATA_CODE_FOR_SINGLE_PACK ->
-                    "vnd.android.cursor.item/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." +
-                            METADATA;
+                    "vnd.android.cursor.item/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + METADATA;
             case METADATA_CODE_ALL_STICKERS ->
-                    "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." +
-                            STICKERS;
+                    "vnd.android.cursor.dir/vnd." + BuildConfig.CONTENT_PROVIDER_AUTHORITY + "." + STICKERS;
             case STICKERS_FILES_CODE -> "image/webp";
             case STICKER_PACK_TRAY_ICON_CODE -> "image/jpg";
 
@@ -173,15 +168,13 @@ public class StickerContentProvider extends ContentProvider {
 
         String packageName = getContext().getPackageName();
         if (packageName == null) {
-            throw new ContentProviderException(
-                    "Nome do pacote do content provider não disponível!");
+            throw new ContentProviderException("Nome do pacote do content provider não disponível!");
         }
 
         if (!authority.startsWith(packageName)) {
-            throw new ContentProviderException(
-                    "Sua autoridade (" + authority +
-                            ") para o provedor de conteúdo deve começar com o nome do seu pacote: " +
-                            getContext().getPackageName());
+            throw new ContentProviderException("Sua autoridade (" + authority +
+                    ") para o provedor de conteúdo deve começar com o nome do seu pacote: " +
+                    getContext().getPackageName());
         }
 
         return authority;

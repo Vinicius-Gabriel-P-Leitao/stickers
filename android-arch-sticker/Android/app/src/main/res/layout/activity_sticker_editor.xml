@@ -5,6 +5,7 @@
     android:id="@+id/editor_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/catppuccin_base"
     tools:context=".view.feature.editor.activity.StickerEditorActivity">
 
     <Button
@@ -25,15 +26,13 @@
 
     <FrameLayout
         android:id="@+id/crop_container"
-        android:layout_width="512dp"
+        android:layout_width="match_parent"
         android:layout_height="512dp"
         android:layout_marginTop="64dp"
-        android:background="#222222"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_confirm">
 
-        <!-- ImageView (oculto por padrão) -->
         <ImageView
             android:id="@+id/image_view"
             android:layout_width="match_parent"
@@ -42,17 +41,22 @@
             android:scaleType="matrix"
             android:visibility="gone" />
 
-        <VideoView
-            android:id="@+id/video_view"
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/player_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone" />
+            android:visibility="invisible"
+            app:resize_mode="fit"
+            app:show_buffering="when_playing"
+            app:surface_type="texture_view"
+            app:use_controller="false" />
 
         <View
             android:id="@+id/crop_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/crop_overlay_frame" />
+            android:background="@drawable/crop_overlay_frame"
+            android:visibility="gone" />
     </FrameLayout>
 
     <LinearLayout
@@ -80,5 +84,12 @@
             android:text="Selecionado: 0s - 5s"
             android:textColor="@android:color/white" />
     </LinearLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="-38dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
