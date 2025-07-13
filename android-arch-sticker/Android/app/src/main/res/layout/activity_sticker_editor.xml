@@ -64,26 +64,28 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp"
-        android:visibility="gone"
+        android:paddingLeft="8dp"
+        android:paddingTop="16dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="16dp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/crop_container">
 
-        <SeekBar
-            android:id="@+id/seek_bar_video"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_timeline"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/text_selected_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Selecionado: 0s - 5s"
-            android:textColor="@android:color/white" />
+            android:layout_height="80dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/background_side_border"
+            android:clipToPadding="false"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp" />
     </LinearLayout>
+
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"

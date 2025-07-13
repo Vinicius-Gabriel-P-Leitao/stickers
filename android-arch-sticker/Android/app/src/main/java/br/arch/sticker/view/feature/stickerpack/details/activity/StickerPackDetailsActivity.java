@@ -88,7 +88,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sticker_pack_details);
+        setContentView(R.layout.activity_stickerpack_details);
 
         boolean showUpButton = getIntent().getBooleanExtra(EXTRA_SHOW_UP_BUTTON, false);
         stickerPack = getIntent().getParcelableExtra(EXTRA_STICKER_PACK_DATA);

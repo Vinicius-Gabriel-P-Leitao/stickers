@@ -160,7 +160,7 @@ public class StickerPackListActivity extends StickerPackAddActivity {
     protected void onCreate(Bundle savedInstanceState)
         {
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_sticker_pack_list);
+            setContentView(R.layout.activity_stickerpack_list);
 
             packRecyclerView = findViewById(R.id.recycler_valid_packs);
             stickerPackListViewmodel = new ViewModelProvider(this).get(StickerPackListViewModel.class);

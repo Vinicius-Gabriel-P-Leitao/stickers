@@ -48,7 +48,7 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         viewModel = new ViewModelProvider(requireActivity()).get(NameStickerPackViewModel.class);
 
-        View view = inflater.inflate(R.layout.dialog_metadata_pack, container, false);
+        View view = inflater.inflate(R.layout.dialog_metadata_stickerpack, container, false);
 
         ImageButton buttonGrantPermission = view.findViewById(R.id.open_gallery);
         TextInputEditText textInputEditText = view.findViewById(R.id.et_user_input);

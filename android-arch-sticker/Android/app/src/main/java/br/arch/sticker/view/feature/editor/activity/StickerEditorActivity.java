@@ -9,7 +9,9 @@
 package br.arch.sticker.view.feature.editor.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -17,8 +19,6 @@ import android.view.TextureView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -27,25 +27,28 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
 import java.io.IOException;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
 
 import br.arch.sticker.R;
 import br.arch.sticker.view.core.base.BaseActivity;
 import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
+import br.arch.sticker.view.feature.editor.adapter.TimelineFramesAdapter;
 import br.arch.sticker.view.feature.editor.controller.GestureController;
 
 public class StickerEditorActivity extends BaseActivity {
     private ExoPlayer player;
     private ImageView imageView;
     private View cropOverlayView;
-    private SeekBar seekBarVideo;
     private PlayerView playerView;
-    private TextView textSelectedTime;
     private LinearLayout videoControls;
+    private RecyclerView recyclerTimeline;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,8 +63,9 @@ public class StickerEditorActivity extends BaseActivity {
         playerView = findViewById(R.id.player_view);
         cropOverlayView = findViewById(R.id.crop_overlay);
         videoControls = findViewById(R.id.video_player_controls);
-        seekBarVideo = findViewById(R.id.seek_bar_video);
-        textSelectedTime = findViewById(R.id.text_selected_time);
+
+        recyclerTimeline = findViewById(R.id.recycler_timeline);
+        recyclerTimeline.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         Uri uri = getIntent().getData();
         if (uri == null) {
@@ -123,26 +127,6 @@ public class StickerEditorActivity extends BaseActivity {
             player = new ExoPlayer.Builder(this).build();
             playerView.setPlayer(player);
 
-            seekBarVideo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    if (fromUser) {
-                        player.seekTo(progress);
-                        updateSelectedTimeText();
-                    }
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                    player.setPlayWhenReady(false);
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    player.setPlayWhenReady(true);
-                }
-            });
-
             TextureView textureView = (TextureView) playerView.getVideoSurfaceView();
             GestureController gestureController = new GestureController(textureView);
             textureView.setOnTouchListener((view, motionEvent) -> gestureController.onTouch(motionEvent));
@@ -184,24 +168,40 @@ public class StickerEditorActivity extends BaseActivity {
         player.setMediaItem(mediaItem);
         player.prepare();
         player.setPlayWhenReady(true);
-        updateSeekBar();
-    }
 
-    private void updateSeekBar() {
-        if (player != null) {
-            seekBarVideo.setProgress((int) player.getCurrentPosition());
-            updateSelectedTimeText();
-            if (player.isPlaying()) {
-                playerView.postDelayed(this::updateSeekBar, 1000);
+        List<Bitmap> frames = extractFrames(uri, 15, this);
+
+        TimelineFramesAdapter adapter = new TimelineFramesAdapter(frames, position -> {
+            long seekMs = (position * 1000L);
+            if (player != null) {
+                player.seekTo(seekMs);
             }
-        }
+        });
+
+        recyclerTimeline.setAdapter(adapter);
     }
 
-    private void updateSelectedTimeText() {
-        if (player != null) {
-            long currentPosition = player.getCurrentPosition() / 1000;
-            long duration = player.getDuration() / 1000;
-            textSelectedTime.setText(String.format(Locale.ROOT, "Selecionado: %ds - %ds", currentPosition, duration));
+    private List<Bitmap> extractFrames(Uri videoUri, int frameCount, Context context) {
+        List<Bitmap> frames = new ArrayList<>();
+
+        try (MediaMetadataRetriever retriever = new MediaMetadataRetriever()) {
+            retriever.setDataSource(context, videoUri);
+
+            String durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            long durationMs = Long.parseLong(durationStr);
+            long interval = durationMs / frameCount;
+
+            for (int i = 0; i < frameCount; i++) {
+                long timeUs = i * interval * 1000;
+                Bitmap frame = retriever.getFrameAtTime(timeUs, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                if (frame != null) {
+                    frames.add(frame);
+                }
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
+
+        return frames;
     }
 }
