@@ -15,12 +15,14 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.media3.common.MediaItem;
@@ -38,17 +40,23 @@ import java.util.List;
 
 import br.arch.sticker.R;
 import br.arch.sticker.view.core.base.BaseActivity;
+import br.arch.sticker.view.core.usecase.component.RangeSelectorOverlayView;
 import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 import br.arch.sticker.view.feature.editor.adapter.TimelineFramesAdapter;
 import br.arch.sticker.view.feature.editor.controller.GestureController;
 
 public class StickerEditorActivity extends BaseActivity {
-    private ExoPlayer player;
-    private ImageView imageView;
-    private View cropOverlayView;
-    private PlayerView playerView;
-    private LinearLayout videoControls;
+    private final static String TAG_LOG = StickerEditorActivity.class.getSimpleName();
+
+    private RangeSelectorOverlayView rangeSelector;
     private RecyclerView recyclerTimeline;
+    private FrameLayout videoControls;
+    private PlayerView playerView;
+    private View cropOverlayView;
+    private ImageView imageView;
+    private ExoPlayer player;
+
+    private long videoDurationMs;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +71,7 @@ public class StickerEditorActivity extends BaseActivity {
         playerView = findViewById(R.id.player_view);
         cropOverlayView = findViewById(R.id.crop_overlay);
         videoControls = findViewById(R.id.video_player_controls);
+        rangeSelector = findViewById(R.id.range_selector);
 
         recyclerTimeline = findViewById(R.id.recycler_timeline);
         recyclerTimeline.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -74,6 +83,7 @@ public class StickerEditorActivity extends BaseActivity {
             return;
         }
 
+        getVideoSeconds();
         processUris(uri);
     }
 
@@ -128,7 +138,7 @@ public class StickerEditorActivity extends BaseActivity {
             playerView.setPlayer(player);
 
             TextureView textureView = (TextureView) playerView.getVideoSurfaceView();
-            GestureController gestureController = new GestureController(textureView);
+            GestureController gestureController = new GestureController(textureView); // TODO FAZER COM SEGURANÇA
             textureView.setOnTouchListener((view, motionEvent) -> gestureController.onTouch(motionEvent));
 
             startVideoPlayback(uri);
@@ -178,6 +188,26 @@ public class StickerEditorActivity extends BaseActivity {
             }
         });
 
+        recyclerTimeline.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                int offset = recyclerView.computeHorizontalScrollOffset();
+                int range = recyclerView.computeHorizontalScrollRange() - recyclerView.computeHorizontalScrollExtent();
+
+                if (range > 0) {
+                    float scrollPercent = (float) offset / range;
+
+                    long seekMs = (long) (videoDurationMs * scrollPercent);
+
+                    if (player != null) {
+                        player.seekTo(seekMs);
+                    }
+                }
+            }
+        });
+
         recyclerTimeline.setAdapter(adapter);
     }
 
@@ -188,11 +218,11 @@ public class StickerEditorActivity extends BaseActivity {
             retriever.setDataSource(context, videoUri);
 
             String durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            long durationMs = Long.parseLong(durationStr);
-            long interval = durationMs / frameCount;
+            videoDurationMs = Long.parseLong(durationStr); // TODO: FAZER COM MAIS SEGURANÇA
+            long interval = videoDurationMs / frameCount;
 
-            for (int i = 0; i < frameCount; i++) {
-                long timeUs = i * interval * 1000;
+            for (int counter = 0; counter < frameCount; counter++) {
+                long timeUs = counter * interval * 1000;
                 Bitmap frame = retriever.getFrameAtTime(timeUs, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
                 if (frame != null) {
                     frames.add(frame);
@@ -203,5 +233,14 @@ public class StickerEditorActivity extends BaseActivity {
         }
 
         return frames;
+    }
+
+    public void getVideoSeconds() {
+        rangeSelector.setOnRangeChangeListener(seconds -> {
+            runOnUiThread(() -> {
+                // TODO FAZER FORMA DE ARMAZENAR ISSO PARA PEGAR A AREA DE CROP DO VIDEO
+                Log.d(TAG_LOG, "Segundos: " + seconds);
+            });
+        });
     }
 }

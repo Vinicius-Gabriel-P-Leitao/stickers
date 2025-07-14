@@ -28,7 +28,9 @@
         android:id="@+id/crop_container"
         android:layout_width="match_parent"
         android:layout_height="512dp"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="64dp"
+        android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_confirm">
@@ -59,16 +61,18 @@
             android:visibility="gone" />
     </FrameLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/video_player_controls"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingLeft="8dp"
-        android:paddingTop="16dp"
-        android:paddingRight="8dp"
-        android:paddingBottom="16dp"
-        android:visibility="visible"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="60dp"
+        android:background="@drawable/background_slide_border"
+        android:paddingStart="10dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -78,14 +82,16 @@
             android:id="@+id/recycler_timeline"
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/background_side_border"
-            android:clipToPadding="false"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp" />
-    </LinearLayout>
+            android:layout_gravity="center"
+            android:overScrollMode="never" />
 
+        <br.arch.sticker.view.core.usecase.component.RangeSelectorOverlayView
+            android:id="@+id/range_selector"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"

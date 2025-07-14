@@ -18,8 +18,8 @@ import androidx.annotation.NonNull;
 
 public class GestureController {
     private final TextureView view;
-    private final ScaleGestureDetector scaleDetector;
     private final GestureDetector gestureDetector;
+    private final ScaleGestureDetector scaleDetector;
     private float scaleFactor = 1.0f;
     private float translateX = 0f;
     private float translateY = 0f;
