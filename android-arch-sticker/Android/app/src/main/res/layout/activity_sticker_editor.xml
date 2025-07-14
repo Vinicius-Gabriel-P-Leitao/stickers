@@ -85,7 +85,7 @@
             android:layout_gravity="center"
             android:overScrollMode="never" />
 
-        <br.arch.sticker.view.core.usecase.component.RangeSelectorOverlayView
+        <br.arch.sticker.view.core.usecase.component.RangeTimelineOverlayView
             android:id="@+id/range_selector"
             android:layout_width="match_parent"
             android:layout_height="80dp"

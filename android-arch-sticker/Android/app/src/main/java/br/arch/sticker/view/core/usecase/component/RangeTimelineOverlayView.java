@@ -21,7 +21,7 @@ import androidx.core.content.ContextCompat;
 
 import br.arch.sticker.R;
 
-public class RangeSelectorOverlayView extends View {
+public class RangeTimelineOverlayView extends View {
     enum Handle {LEFT, RIGHT}
 
     public interface OnRangeChangeListener {
@@ -48,7 +48,7 @@ public class RangeSelectorOverlayView extends View {
     private final Paint selectionPaint = new Paint();
     private final Paint handleBackgroundPaint = new Paint();
 
-    public RangeSelectorOverlayView(Context context, @Nullable AttributeSet attrs) {
+    public RangeTimelineOverlayView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         selectionPaint.setStyle(Paint.Style.STROKE);
         selectionPaint.setStrokeWidth(15f);
@@ -94,11 +94,11 @@ public class RangeSelectorOverlayView extends View {
 
         canvas.drawRoundRect(left, halfStroke, right, bottom, dpToPx(8), dpToPx(8), selectionPaint);
 
-        canvas.drawRoundRect(leftHandleX - handleWidth / 3f, halfStroke, leftHandleX, bottom,
-                handleCornerRadius, handleCornerRadius, handleBackgroundPaint);
+        canvas.drawRoundRect(leftHandleX - handleWidth /
+                3f, halfStroke, leftHandleX, bottom, handleCornerRadius, handleCornerRadius, handleBackgroundPaint);
 
-        canvas.drawRoundRect(rightHandleX, halfStroke, rightHandleX + handleWidth / 3f, bottom,
-                handleCornerRadius, handleCornerRadius, handleBackgroundPaint);
+        canvas.drawRoundRect(rightHandleX, halfStroke,
+                rightHandleX + handleWidth / 3f, bottom, handleCornerRadius, handleCornerRadius, handleBackgroundPaint);
 
         final float centerY = getHeight() / 2f;
         final float handleTop = centerY - handleLineHeight / 2f;
@@ -177,6 +177,14 @@ public class RangeSelectorOverlayView extends View {
     public boolean performClick() {
         super.performClick();
         return true;
+    }
+
+    public float getStartSeconds(int scrollOffsetPx) {
+        return (scrollOffsetPx + leftHandleX) / secondsToPx;
+    }
+
+    public float getEndSeconds(int scrollOffsetPx) {
+        return (scrollOffsetPx + rightHandleX) / secondsToPx;
     }
 
     private float dpToPx(float dp) {

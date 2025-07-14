@@ -14,6 +14,8 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.TextureView;
@@ -40,7 +42,7 @@ import java.util.List;
 
 import br.arch.sticker.R;
 import br.arch.sticker.view.core.base.BaseActivity;
-import br.arch.sticker.view.core.usecase.component.RangeSelectorOverlayView;
+import br.arch.sticker.view.core.usecase.component.RangeTimelineOverlayView;
 import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 import br.arch.sticker.view.feature.editor.adapter.TimelineFramesAdapter;
 import br.arch.sticker.view.feature.editor.controller.GestureController;
@@ -48,7 +50,7 @@ import br.arch.sticker.view.feature.editor.controller.GestureController;
 public class StickerEditorActivity extends BaseActivity {
     private final static String TAG_LOG = StickerEditorActivity.class.getSimpleName();
 
-    private RangeSelectorOverlayView rangeSelector;
+    private RangeTimelineOverlayView rangeTimeline;
     private RecyclerView recyclerTimeline;
     private FrameLayout videoControls;
     private PlayerView playerView;
@@ -57,6 +59,9 @@ public class StickerEditorActivity extends BaseActivity {
     private ExoPlayer player;
 
     private long videoDurationMs;
+    long loopStartMs = 0;
+    long loopDurationMs = 5000;
+    long loopEndMs = loopDurationMs;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,7 +76,7 @@ public class StickerEditorActivity extends BaseActivity {
         playerView = findViewById(R.id.player_view);
         cropOverlayView = findViewById(R.id.crop_overlay);
         videoControls = findViewById(R.id.video_player_controls);
-        rangeSelector = findViewById(R.id.range_selector);
+        rangeTimeline = findViewById(R.id.range_selector);
 
         recyclerTimeline = findViewById(R.id.recycler_timeline);
         recyclerTimeline.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -82,6 +87,23 @@ public class StickerEditorActivity extends BaseActivity {
             finish();
             return;
         }
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        Runnable loopChecker = new Runnable() {
+            @Override
+            public void run() {
+                if (player != null && player.isPlaying()) {
+                    long currentPos = player.getCurrentPosition();
+                    if (currentPos >= loopEndMs) {
+                        player.seekTo(loopStartMs);
+                    }
+                }
+
+                handler.postDelayed(this, 100);
+            }
+        };
+
+        handler.post(loopChecker);
 
         getVideoSeconds();
         processUris(uri);
@@ -192,23 +214,15 @@ public class StickerEditorActivity extends BaseActivity {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
-                int offset = recyclerView.computeHorizontalScrollOffset();
-                int range = recyclerView.computeHorizontalScrollRange() - recyclerView.computeHorizontalScrollExtent();
-
-                if (range > 0) {
-                    float scrollPercent = (float) offset / range;
-
-                    long seekMs = (long) (videoDurationMs * scrollPercent);
-
-                    if (player != null) {
-                        player.seekTo(seekMs);
-                    }
-                }
+                onRangeChanged(loopDurationMs / 1000f);
             }
         });
 
         recyclerTimeline.setAdapter(adapter);
+
+        recyclerTimeline.post(() -> {
+            onRangeChanged(loopDurationMs / 1000f);
+        });
     }
 
     private List<Bitmap> extractFrames(Uri videoUri, int frameCount, Context context) {
@@ -236,11 +250,33 @@ public class StickerEditorActivity extends BaseActivity {
     }
 
     public void getVideoSeconds() {
-        rangeSelector.setOnRangeChangeListener(seconds -> {
+        rangeTimeline.setOnRangeChangeListener(seconds -> {
             runOnUiThread(() -> {
+                // TODO FAZER LOGICA PARA ISSO TAMBEM SER ATUALIZADO BASEADO DE PARA ONDE A RANGE FOI MOVIDA
+                loopDurationMs = (long) (seconds * 1000);
+                loopEndMs = Math.min(videoDurationMs, loopStartMs + loopDurationMs);
+                onRangeChanged(seconds);
+
                 // TODO FAZER FORMA DE ARMAZENAR ISSO PARA PEGAR A AREA DE CROP DO VIDEO
                 Log.d(TAG_LOG, "Segundos: " + seconds);
             });
         });
+    }
+
+    public void onRangeChanged(float selectedSeconds) {
+        int scrollOffsetPx = recyclerTimeline.computeHorizontalScrollOffset();
+
+        float startSec = rangeTimeline.getStartSeconds(scrollOffsetPx);
+        float endSec = rangeTimeline.getEndSeconds(scrollOffsetPx);
+
+        loopStartMs = (long) (startSec * 1000);
+        loopEndMs = (long) (endSec * 1000);
+
+        loopStartMs = Math.max(0, Math.min(loopStartMs, videoDurationMs));
+        loopEndMs = Math.max(loopStartMs, Math.min(loopEndMs, videoDurationMs));
+
+        if (player != null) {
+            player.seekTo(loopStartMs);
+        }
     }
 }
