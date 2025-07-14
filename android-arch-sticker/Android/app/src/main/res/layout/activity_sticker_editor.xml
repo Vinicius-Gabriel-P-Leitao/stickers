@@ -27,19 +27,23 @@
     <FrameLayout
         android:id="@+id/crop_container"
         android:layout_width="match_parent"
-        android:layout_height="512dp"
+        android:layout_height="0dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="64dp"
         android:layout_marginEnd="10dp"
+        android:background="@drawable/rounded_container_bg"
+        android:elevation="6dp"
+        app:layout_constraintBottom_toTopOf="@+id/timeline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_confirm">
+        app:layout_constraintTop_toBottomOf="@id/button_confirm">
 
         <ImageView
             android:id="@+id/image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:contentDescription="Descrição"
+            android:adjustViewBounds="true"
+            android:contentDescription="TODO"
             android:scaleType="matrix"
             android:visibility="gone" />
 
@@ -48,21 +52,42 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible"
-            app:resize_mode="fit"
-            app:show_buffering="when_playing"
             app:surface_type="texture_view"
             app:use_controller="false" />
 
         <View
-            android:id="@+id/crop_overlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/crop_overlay_frame"
+            android:id="@+id/crop_area"
+            android:layout_width="512px"
+            android:layout_height="512px"
+            android:layout_gravity="center"
+            android:background="@drawable/crop_overlay_hole"
+            android:clickable="false"
+            android:elevation="8dp"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless" />
+
+        <ProgressBar
+            android:id="@+id/loading_spinner"
+            style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/media_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Selecione uma mídia"
+            android:textColor="#AAAAAA"
+            android:textSize="16sp"
             android:visibility="gone" />
     </FrameLayout>
 
+
     <FrameLayout
-        android:id="@+id/video_player_controls"
+        android:id="@+id/timeline"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -73,31 +98,38 @@
         android:paddingTop="5dp"
         android:paddingEnd="10dp"
         android:paddingBottom="5dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/crop_container">
 
+        <TextView
+            android:id="@+id/timeline_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginBottom="4dp"
+            android:background="@android:color/transparent"
+            android:text="5s"
+            android:textColor="@color/catppuccin_text"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_timeline"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_gravity="center"
+            android:layout_height="70dp"
+            android:layout_gravity="top"
+            android:layout_marginTop="28dp"
             android:overScrollMode="never" />
 
         <br.arch.sticker.view.core.usecase.component.RangeTimelineOverlayView
-            android:id="@+id/range_selector"
+            android:id="@+id/range_timeline"
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:layout_gravity="center" />
-
+            android:layout_gravity="top"
+            android:layout_marginTop="24dp" />
     </FrameLayout>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="-38dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

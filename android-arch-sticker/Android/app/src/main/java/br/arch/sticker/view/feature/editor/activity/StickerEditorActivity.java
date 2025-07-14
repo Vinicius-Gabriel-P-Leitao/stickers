@@ -11,6 +11,9 @@ package br.arch.sticker.view.feature.editor.activity;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,8 +23,10 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -52,16 +57,20 @@ public class StickerEditorActivity extends BaseActivity {
 
     private RangeTimelineOverlayView rangeTimeline;
     private RecyclerView recyclerTimeline;
-    private FrameLayout videoControls;
+    private TextureView textureView;
+    private FrameLayout timeline;
+    private TextView timelineTitle;
     private PlayerView playerView;
-    private View cropOverlayView;
+    private Button buttonConfirm;
     private ImageView imageView;
     private ExoPlayer player;
 
+    private String mediaWidth;
+    private String mediaHeight;
+    private long loopStartMs = 0;
     private long videoDurationMs;
-    long loopStartMs = 0;
-    long loopDurationMs = 5000;
-    long loopEndMs = loopDurationMs;
+    private long loopDurationMs = 5000;
+    private long loopEndMs = loopDurationMs;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,21 +81,31 @@ public class StickerEditorActivity extends BaseActivity {
             getSupportActionBar().hide();
         }
 
-        imageView = findViewById(R.id.image_view);
-        playerView = findViewById(R.id.player_view);
-        cropOverlayView = findViewById(R.id.crop_overlay);
-        videoControls = findViewById(R.id.video_player_controls);
-        rangeTimeline = findViewById(R.id.range_selector);
-
-        recyclerTimeline = findViewById(R.id.recycler_timeline);
-        recyclerTimeline.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
-        Uri uri = getIntent().getData();
+        final Uri uri = getIntent().getData();
         if (uri == null) {
             Toast.makeText(this, "Nenhuma mídia recebida", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
+
+        timeline = findViewById(R.id.timeline);
+        imageView = findViewById(R.id.image_view);
+        playerView = findViewById(R.id.player_view);
+        rangeTimeline = findViewById(R.id.range_timeline);
+        timelineTitle = findViewById(R.id.timeline_title);
+        buttonConfirm = findViewById(R.id.button_confirm);
+
+        recyclerTimeline = findViewById(R.id.recycler_timeline);
+        recyclerTimeline.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        buttonConfirm.setOnClickListener(view -> {
+            Rect crop = getCropRectFromTransformedTexture();
+            if (crop != null) {
+                Log.d("CROP", "Recorte real do vídeo: " + crop.toShortString());
+            } else {
+                Toast.makeText(this, "Erro ao calcular recorte", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         Handler handler = new Handler(Looper.getMainLooper());
         Runnable loopChecker = new Runnable() {
@@ -135,11 +154,14 @@ public class StickerEditorActivity extends BaseActivity {
     private void handleImage(Uri uri) {
         imageView.setVisibility(View.VISIBLE);
         playerView.setVisibility(View.GONE);
-        videoControls.setVisibility(View.GONE);
-        cropOverlayView.setVisibility(View.GONE);
+        timeline.setVisibility(View.GONE);
 
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+
+            mediaWidth = String.valueOf(bitmap.getWidth());
+            mediaHeight = String.valueOf(bitmap.getHeight());
+
             imageView.setImageBitmap(bitmap);
         } catch (IOException exception) {
             Toast.makeText(this, "Erro ao carregar imagem", Toast.LENGTH_SHORT).show();
@@ -152,21 +174,20 @@ public class StickerEditorActivity extends BaseActivity {
         imageView.setVisibility(View.GONE);
 
         if ("video/mp4".equalsIgnoreCase(mimeType)) {
-            videoControls.setVisibility(View.VISIBLE);
+            timeline.setVisibility(View.VISIBLE);
             playerView.setVisibility(View.VISIBLE);
-            cropOverlayView.setVisibility(View.VISIBLE);
 
             player = new ExoPlayer.Builder(this).build();
             playerView.setPlayer(player);
 
-            TextureView textureView = (TextureView) playerView.getVideoSurfaceView();
+            textureView = (TextureView) playerView.getVideoSurfaceView();
             GestureController gestureController = new GestureController(textureView); // TODO FAZER COM SEGURANÇA
             textureView.setOnTouchListener((view, motionEvent) -> gestureController.onTouch(motionEvent));
 
             startVideoPlayback(uri);
         } else if ("image/gif".equalsIgnoreCase(mimeType)) {
             playerView.setVisibility(View.GONE);
-            videoControls.setVisibility(View.GONE);
+            timeline.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
 
             Glide.with(this).asGif().load(uri).into(imageView);
@@ -214,15 +235,12 @@ public class StickerEditorActivity extends BaseActivity {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                onRangeChanged(loopDurationMs / 1000f);
+                onRangeChanged();
             }
         });
 
         recyclerTimeline.setAdapter(adapter);
-
-        recyclerTimeline.post(() -> {
-            onRangeChanged(loopDurationMs / 1000f);
-        });
+        recyclerTimeline.post(this::onRangeChanged);
     }
 
     private List<Bitmap> extractFrames(Uri videoUri, int frameCount, Context context) {
@@ -233,8 +251,11 @@ public class StickerEditorActivity extends BaseActivity {
 
             String durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             videoDurationMs = Long.parseLong(durationStr); // TODO: FAZER COM MAIS SEGURANÇA
-            long interval = videoDurationMs / frameCount;
 
+            mediaWidth = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+            mediaHeight = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+
+            long interval = videoDurationMs / frameCount;
             for (int counter = 0; counter < frameCount; counter++) {
                 long timeUs = counter * interval * 1000;
                 Bitmap frame = retriever.getFrameAtTime(timeUs, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
@@ -252,25 +273,25 @@ public class StickerEditorActivity extends BaseActivity {
     public void getVideoSeconds() {
         rangeTimeline.setOnRangeChangeListener(seconds -> {
             runOnUiThread(() -> {
-                // TODO FAZER LOGICA PARA ISSO TAMBEM SER ATUALIZADO BASEADO DE PARA ONDE A RANGE FOI MOVIDA
-                loopDurationMs = (long) (seconds * 1000);
-                loopEndMs = Math.min(videoDurationMs, loopStartMs + loopDurationMs);
-                onRangeChanged(seconds);
+                float aroundSeconds = Math.round(seconds * 10) / 10f;
 
-                // TODO FAZER FORMA DE ARMAZENAR ISSO PARA PEGAR A AREA DE CROP DO VIDEO
-                Log.d(TAG_LOG, "Segundos: " + seconds);
+                timelineTitle.setText(aroundSeconds + "s");
+
+                loopDurationMs = (long) (aroundSeconds * 1000);
+                loopEndMs = Math.min(videoDurationMs, loopStartMs + loopDurationMs);
+                onRangeChanged();
             });
         });
     }
 
-    public void onRangeChanged(float selectedSeconds) {
+    public void onRangeChanged() {
         int scrollOffsetPx = recyclerTimeline.computeHorizontalScrollOffset();
 
-        float startSec = rangeTimeline.getStartSeconds(scrollOffsetPx);
-        float endSec = rangeTimeline.getEndSeconds(scrollOffsetPx);
+        float startSeconds = rangeTimeline.getStartSeconds(scrollOffsetPx);
+        float endSeconds = rangeTimeline.getEndSeconds(scrollOffsetPx);
 
-        loopStartMs = (long) (startSec * 1000);
-        loopEndMs = (long) (endSec * 1000);
+        loopStartMs = (long) (startSeconds * 1000);
+        loopEndMs = (long) (endSeconds * 1000);
 
         loopStartMs = Math.max(0, Math.min(loopStartMs, videoDurationMs));
         loopEndMs = Math.max(loopStartMs, Math.min(loopEndMs, videoDurationMs));
@@ -278,5 +299,43 @@ public class StickerEditorActivity extends BaseActivity {
         if (player != null) {
             player.seekTo(loopStartMs);
         }
+    }
+
+    public @Nullable Rect getCropRectFromTransformedTexture() {
+        View cropArea = findViewById(R.id.crop_area);
+
+        if (textureView == null || cropArea == null || mediaWidth == null || mediaHeight == null) return null;
+
+        int videoWidth = Integer.parseInt(mediaWidth);
+        int videoHeight = Integer.parseInt(mediaHeight);
+
+        Matrix transformMatrix = textureView.getTransform(null);
+
+        Rect cropScreenRect = new Rect();
+        cropArea.getGlobalVisibleRect(cropScreenRect);
+
+        Rect textureScreenRect = new Rect();
+        textureView.getGlobalVisibleRect(textureScreenRect);
+
+        RectF cropRectInTexture = new RectF(
+                cropScreenRect.left - textureScreenRect.left,
+                cropScreenRect.top - textureScreenRect.top,
+                cropScreenRect.right - textureScreenRect.left,
+                cropScreenRect.bottom - textureScreenRect.top);
+
+        Matrix inverseMatrix = new Matrix();
+        if (!transformMatrix.invert(inverseMatrix)) return null;
+
+        inverseMatrix.mapRect(cropRectInTexture);
+
+        float scaleX = (float) videoWidth / textureView.getWidth();
+        float scaleY = (float) videoHeight / textureView.getHeight();
+
+        int left = Math.round(cropRectInTexture.left * scaleX);
+        int top = Math.round(cropRectInTexture.top * scaleY);
+        int width = Math.round(cropRectInTexture.width() * scaleX);
+        int height = Math.round(cropRectInTexture.height() * scaleY);
+
+        return new Rect(left, top, left + width, top + height);
     }
 }
