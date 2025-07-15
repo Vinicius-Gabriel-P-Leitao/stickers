@@ -9,22 +9,26 @@
 package br.arch.sticker.view.feature.editor.controller;
 
 import android.graphics.Matrix;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.TextureView;
+import android.view.View;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
 public class GestureController {
-    private final TextureView view;
+    private final View view;
     private final GestureDetector gestureDetector;
     private final ScaleGestureDetector scaleDetector;
-    private float scaleFactor = 1.0f;
+
     private float translateX = 0f;
     private float translateY = 0f;
+    private float scaleFactor = 1.0f;
 
-    public GestureController(TextureView view) {
+    public GestureController(View view) {
         this.view = view;
 
         scaleDetector = new ScaleGestureDetector(view.getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -58,7 +62,18 @@ public class GestureController {
         Matrix matrix = new Matrix();
         matrix.postScale(scaleFactor, scaleFactor, view.getWidth() / 2f, view.getHeight() / 2f);
         matrix.postTranslate(translateX, translateY);
-        view.setTransform(matrix);
+
+        if (view instanceof TextureView textureView) {
+            textureView.setTransform(matrix);
+            return;
+        }
+
+        if (view instanceof ImageView imageView) {
+            imageView.setImageMatrix(matrix);
+            return;
+        }
+
+        Log.w("GestureController", "View não suportada para transformação.");
     }
 }
 

@@ -91,7 +91,7 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
         RequestBuilder<?> requestBuilder = null;
 
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
-        if (extension.endsWith("mp4") || extension.endsWith("webm") || extension.endsWith("3gp")) {
+        if (extension.endsWith("mp4") || extension.endsWith("webm")) {
             requestBuilder = glide.asBitmap().frame(1_000_000).load(uri);
         }
 

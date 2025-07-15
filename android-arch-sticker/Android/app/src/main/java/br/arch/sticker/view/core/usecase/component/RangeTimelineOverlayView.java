@@ -31,7 +31,6 @@ public class RangeTimelineOverlayView extends View {
     private OnRangeChangeListener listener;
 
     private float selectedSeconds = 5f;
-
     private float secondsToPx;
 
     private final float handleWidth = dpToPx(20f);
@@ -127,10 +126,13 @@ public class RangeTimelineOverlayView extends View {
                 if (isInLeftHandle) {
                     draggingHandle = Handle.LEFT;
                     return true;
-                } else if (isInRightHandle) {
+                }
+
+                if (isInRightHandle) {
                     draggingHandle = Handle.RIGHT;
                     return true;
                 }
+
                 return false;
 
             case MotionEvent.ACTION_MOVE:
@@ -147,7 +149,9 @@ public class RangeTimelineOverlayView extends View {
                     }
                     invalidate();
                     return true;
-                } else if (draggingHandle == Handle.RIGHT) {
+                }
+
+                if (draggingHandle == Handle.RIGHT) {
                     float minWidth = minSeconds * secondsToPx;
                     float newRight = Math.max(x, leftHandleX + minWidth);
                     rightHandleX = Math.min(maxX, newRight);
@@ -158,9 +162,11 @@ public class RangeTimelineOverlayView extends View {
                     if (listener != null) {
                         listener.onRangeChanged(selectedSeconds);
                     }
+
                     invalidate();
                     return true;
                 }
+
                 break;
 
             case MotionEvent.ACTION_UP:

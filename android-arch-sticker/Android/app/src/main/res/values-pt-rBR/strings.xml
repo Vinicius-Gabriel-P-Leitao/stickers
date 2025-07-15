@@ -134,4 +134,5 @@
     <string name="error_message_unsuported_media_type_in_gallery">Nenhum formato suportado foi encontrado para galeria.</string>
     <string name="error_message_could_not_extract_path_media">Não foi possível extrair caminho do arquivo selecionado %1$s.</string>
     <string name="error_message_file_not_found">"File not found, null or empty value. "</string>
+    <string name="error_message_invalid_view_render_video">A surface para renderizar o vídeo não é compatível com o app.</string>
 </resources>

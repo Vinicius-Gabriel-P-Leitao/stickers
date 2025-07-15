@@ -8,6 +8,10 @@
 
 package br.arch.sticker.view.feature.stickerpack.creation.fragment;
 
+import static br.arch.sticker.view.feature.editor.activity.StickerEditorActivity.MEDIA_HEIGHT;
+import static br.arch.sticker.view.feature.editor.activity.StickerEditorActivity.MEDIA_WIDTH;
+import static br.arch.sticker.view.feature.editor.activity.StickerEditorActivity.VIDEO_DURATION;
+
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -42,13 +46,20 @@ import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 import br.arch.sticker.view.core.usecase.component.BottomFadingRecyclerView;
 import br.arch.sticker.view.core.util.resolver.UriDetailsResolver;
 import br.arch.sticker.view.feature.editor.activity.StickerEditorActivity;
+import br.arch.sticker.view.feature.editor.viewmodel.StickerEditorViewModel;
 import br.arch.sticker.view.feature.stickerpack.creation.adapter.MediaPickerAdapter;
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.StickerPackCreationViewModel;
 
 public class MediaPickerFragment extends BottomSheetDialogFragment {
-    private StickerPackCreationViewModel viewModel;
+    private StickerPackCreationViewModel StickerPackCreationViewModel;
+    private StickerEditorViewModel stickerEditorViewModel;
     private MediaPickerAdapter mediaListAdapter;
     private ProgressBar progressBar;
+
+    private Uri videoUri;
+    private String mediaWidth;
+    private String mediaHeight;
+    private long videoDurationMs;
 
     private MediaPickerAdapter.OnItemClickListener listener;
 
@@ -61,7 +72,8 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.BottomSheetStyle);
 
-        viewModel = new ViewModelProvider(requireActivity()).get(StickerPackCreationViewModel.class);
+        StickerPackCreationViewModel = new ViewModelProvider(requireActivity()).get(StickerPackCreationViewModel.class);
+        stickerEditorViewModel = new ViewModelProvider(this).get(StickerEditorViewModel.class);
     }
 
     @Nullable
@@ -97,31 +109,52 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
             final Set<Uri> selectedUris = mediaListAdapter.getSelectedMediaPaths();
 
             if (selectedUris.isEmpty()) {
-                Toast.makeText(
-                        getContext(), getString(R.string.error_message_select_least_media), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.error_message_select_least_media), Toast.LENGTH_SHORT)
+                        .show();
                 return;
             }
 
             if (selectedUris.size() == 1) {
-                Intent intent = new Intent(getContext(), StickerEditorActivity.class);
-                intent.setData(selectedUris.iterator().next());
-                startActivity(intent);
+                progressBar.setVisibility(View.VISIBLE);
+                videoUri = selectedUris.iterator().next();
+                stickerEditorViewModel.loadVideoMetadata(videoUri);
                 return;
             }
 
             progressBar.setVisibility(View.VISIBLE);
-            viewModel.startConversions(selectedUris);
+            StickerPackCreationViewModel.startConversions(selectedUris);
         });
 
-        viewModel.getMimeTypesSupported().observe(getViewLifecycleOwner(), mimeTypesSupported -> {
+        stickerEditorViewModel.getMediaWidth().observe(getViewLifecycleOwner(), width -> {
+            if (width != null) {
+                mediaWidth = width;
+                tryLaunchEditorIfReady(videoUri);
+            }
+        });
+
+        stickerEditorViewModel.getMediaHeight().observe(getViewLifecycleOwner(), height -> {
+            if (height != null) {
+                mediaHeight = height;
+                tryLaunchEditorIfReady(videoUri);
+            }
+        });
+
+        stickerEditorViewModel.getVideoDurationMsLiveData().observe(getViewLifecycleOwner(), duration -> {
+            if (duration != null) {
+                videoDurationMs = duration;
+                tryLaunchEditorIfReady(videoUri);
+            }
+        });
+
+        StickerPackCreationViewModel.getMimeTypesSupported().observe(getViewLifecycleOwner(), mimeTypesSupported -> {
             List<Uri> uris = UriDetailsResolver.fetchMediaUri(requireContext(), mimeTypesSupported.getMimeTypes());
             mediaListAdapter.submitList(new ArrayList<>(uris));
         });
 
-        viewModel.getStickerPackResult().observe(getViewLifecycleOwner(), result -> {
+        StickerPackCreationViewModel.getStickerPackResult().observe(getViewLifecycleOwner(), result -> {
             if (result != null) {
                 if (result.isSuccess()) {
-                    viewModel.setStickerPackPreview(result.getData());
+                    StickerPackCreationViewModel.setStickerPackPreview(result.getData());
                     progressBar.setVisibility(View.GONE);
 
                     dismiss();
@@ -164,7 +197,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
     @Override
     public void onCancel(@NonNull DialogInterface dialog) {
         super.onCancel(dialog);
-        viewModel.setCancelConversions();
+        StickerPackCreationViewModel.setCancelConversions();
         Toast.makeText(requireActivity(), getString(R.string.error_message_process_canceled), Toast.LENGTH_SHORT)
                 .show();
     }
@@ -172,6 +205,17 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        viewModel.setCancelConversions();
+        StickerPackCreationViewModel.setCancelConversions();
+    }
+
+    private void tryLaunchEditorIfReady(Uri uri) {
+        if (mediaWidth != null && mediaHeight != null && videoDurationMs != 0L) {
+            Intent intent = new Intent(requireContext(), StickerEditorActivity.class);
+            intent.setData(uri);
+            intent.putExtra(MEDIA_WIDTH, mediaWidth);
+            intent.putExtra(MEDIA_HEIGHT, mediaHeight);
+            intent.putExtra(VIDEO_DURATION, videoDurationMs);
+            startActivity(intent);
+        }
     }
 }

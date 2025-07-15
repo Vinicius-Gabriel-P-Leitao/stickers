@@ -42,40 +42,40 @@ import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 import br.arch.sticker.view.core.util.convert.ConvertMediaToStickerFormat;
 
 public class StickerPackCreationViewModel extends AndroidViewModel {
-    private ExecutorService generateStickerPack;
+    public record ProgressState(int total, int completed, boolean done) {
+    }
 
-    private final ConvertMediaToStickerFormat convertMediaToStickerFormat;
-    private final SaveStickerPackService saveStickerPackService;
     private final Context context;
+    private final SaveStickerPackService saveStickerPackService;
+    private final ConvertMediaToStickerFormat convertMediaToStickerFormat;
 
-    private final List<Future<?>> conversionFutures = Collections.synchronizedList(new ArrayList<>());
-    private final List<File> convertedFiles = Collections.synchronizedList(new ArrayList<>());
-    private final AtomicInteger completedConversions = new AtomicInteger(0);
+    private int totalConversions = 0;
+    private ExecutorService generateStickerPack;
+    private ExecutorService conversionExecutor;
     private boolean conversionsCancelled = false;
+    private final AtomicInteger completedConversions = new AtomicInteger(0);
+    private final List<File> convertedFiles = Collections.synchronizedList(new ArrayList<>());
+    private final List<Future<?>> conversionFutures = Collections.synchronizedList(new ArrayList<>());
+
+    public final MutableLiveData<CallbackResult<StickerPack>> stickerPackResult = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> fragmentVisibility = new MutableLiveData<>(false);
+    public final MutableLiveData<MimeTypesSupported> mimeTypesSupported = new MutableLiveData<>();
+    private final MutableLiveData<List<File>> convertedFilesLiveData = new MutableLiveData<>();
+    private final MutableLiveData<ProgressState> conversionProgress = new MutableLiveData<>();
+    private final MutableLiveData<StickerPack> stickerPackPreview = new MutableLiveData<>();
+    public final MutableLiveData<Boolean> isAnimatedPack = new MutableLiveData<>();
+    public final MutableLiveData<String> nameStickerPack = new MutableLiveData<>();
+
     public StickerPackCreationViewModel(@NonNull Application application) {
         super(application);
         this.context = getApplication().getApplicationContext();
-        convertedFilesLiveData.observeForever(convertedStickerPackObserver);
         this.saveStickerPackService = new SaveStickerPackService(this.context);
         this.convertMediaToStickerFormat = new ConvertMediaToStickerFormat(this.context);
+
+        convertedFilesLiveData.observeForever(convertedStickerPackObserver);
     }
-    private ExecutorService conversionExecutor;
-    private int totalConversions = 0;
 
-    public final MutableLiveData<CallbackResult<StickerPack>> stickerPackResult = new MutableLiveData<>();
-    private final MutableLiveData<StickerPack> stickerPackPreview = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> fragmentVisibility = new MutableLiveData<>(false);
-    private final MutableLiveData<ProgressState> conversionProgress = new MutableLiveData<>();
-    public final MutableLiveData<Boolean> isAnimatedPack = new MutableLiveData<>();
-    public final MutableLiveData<String> nameStickerPack = new MutableLiveData<>();
-    public final MutableLiveData<MimeTypesSupported> mimeTypesSupported = new MutableLiveData<>();
-    private final MutableLiveData<List<File>> convertedFilesLiveData = new MutableLiveData<>();
-
-    private final Observer<List<File>> convertedStickerPackObserver = files -> {
-        if (files != null) {
-            generateStickerPack(files);
-        }
-    };
+    private final Observer<List<File>> convertedStickerPackObserver = this::onChangedConverted;
 
     public LiveData<CallbackResult<StickerPack>> getStickerPackResult() {
         return stickerPackResult;
@@ -121,8 +121,7 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
 
         int cores = Runtime.getRuntime().availableProcessors();
         int maxThreads = Math.min(30, cores * 2);
-        conversionExecutor = new ThreadPoolExecutor(cores, maxThreads, 1L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>());
+        conversionExecutor = new ThreadPoolExecutor(cores, maxThreads, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
         totalConversions = uris.size();
         completedConversions.set(0);
@@ -139,13 +138,10 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
 
                     if (uri.getPath() == null) throw new Exception("URI sem caminho válido.");
                     String fileName = new File(uri.getPath()).getName();
-                    convertedFiles.add(
-                            convertMediaToStickerFormat.convertMediaToWebPAsyncFuture(uri,
-                                    fileName).get());
+                    convertedFiles.add(convertMediaToStickerFormat.convertMediaToWebPAsyncFuture(uri, fileName).get());
 
                     int done = completedConversions.incrementAndGet();
-                    conversionProgress.postValue(
-                            new ProgressState(totalConversions, done, done == totalConversions));
+                    conversionProgress.postValue(new ProgressState(totalConversions, done, done == totalConversions));
 
                     if (done == totalConversions) {
                         convertedFilesLiveData.postValue(new ArrayList<>(convertedFiles));
@@ -153,8 +149,7 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
                 } catch (MediaConversionException mediaConversionException) {
                     postFailure(mediaConversionException.getMessage());
                 } catch (InterruptedException interruptedException) {
-                    Log.e(getClass().getSimpleName(), "Erro de interrupção do processo: " + uri,
-                            interruptedException);
+                    Log.e(getClass().getSimpleName(), "Erro de interrupção do processo: " + uri, interruptedException);
                 } catch (Exception exception) {
                     Log.e(getClass().getSimpleName(), "Erro ao converter URI: " + uri, exception);
                     postFailure("Erro na conversão: " + exception.getMessage());
@@ -180,6 +175,20 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
         }
     }
 
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        convertedFilesLiveData.removeObserver(convertedStickerPackObserver);
+
+        if (generateStickerPack != null && !generateStickerPack.isShutdown()) {
+            generateStickerPack.shutdownNow();
+        }
+
+        if (conversionExecutor != null && !conversionExecutor.isShutdown()) {
+            conversionExecutor.shutdownNow();
+        }
+    }
+
     private void generateStickerPack(List<File> files) {
         generateStickerPack = Executors.newSingleThreadExecutor();
 
@@ -197,8 +206,8 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
 
             generateStickerPack.submit(() -> {
                 try {
-                    CallbackResult<StickerPack> result = saveStickerPackService.saveStickerPackAsync(
-                            animated, files, name).get();
+                    CallbackResult<StickerPack> result = saveStickerPackService.saveStickerPackAsync(animated, files, name)
+                            .get();
                     stickerPackResult.postValue(result);
                 } catch (AppCoreStateException appCoreStateException) {
                     postFailure(appCoreStateException.getErrorCodeName());
@@ -207,8 +216,7 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
                 }
             });
         } catch (StickerPackSaveException exception) {
-            Log.d(StickerPackCreationViewModel.class.getSimpleName(), "Erro na conversão",
-                    exception);
+            Log.d(StickerPackCreationViewModel.class.getSimpleName(), "Erro na conversão", exception);
             postFailure("Erro na conversão: " + exception.getMessage());
         }
     }
@@ -217,21 +225,10 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
         stickerPackResult.postValue(CallbackResult.failure(new Exception(message)));
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        convertedFilesLiveData.removeObserver(convertedStickerPackObserver);
-
-        if (generateStickerPack != null && !generateStickerPack.isShutdown()) {
-            generateStickerPack.shutdownNow();
+    private void onChangedConverted(List<File> files) {
+        if (files != null) {
+            generateStickerPack(files);
         }
-
-        if (conversionExecutor != null && !conversionExecutor.isShutdown()) {
-            conversionExecutor.shutdownNow();
-        }
-    }
-
-    public record ProgressState(int total, int completed, boolean done) {
     }
 }
 

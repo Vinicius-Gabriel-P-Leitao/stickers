@@ -9,6 +9,7 @@
 package br.arch.sticker.view.feature.editor.adapter;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,21 +18,21 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
 
 import java.util.List;
+import java.util.Map;
 
 import br.arch.sticker.R;
 import br.arch.sticker.view.feature.editor.viewholder.FrameViewHolder;
 
 public class TimelineFramesAdapter extends RecyclerView.Adapter<FrameViewHolder> {
-    private final List<Bitmap> frames;
-    private final OnFrameClickListener listener;
-
     public interface OnFrameClickListener {
         void onFrameClick(int position);
     }
+
+    private final List<Bitmap> frames;
+    private final OnFrameClickListener listener;
 
     public TimelineFramesAdapter(List<Bitmap> frames, OnFrameClickListener listener) {
         this.frames = frames;
@@ -48,10 +49,13 @@ public class TimelineFramesAdapter extends RecyclerView.Adapter<FrameViewHolder>
     @Override
     public void onBindViewHolder(@NonNull FrameViewHolder holder, int position) {
         Bitmap frame = frames.get(position);
-
         RequestManager glide = Glide.with(holder.imageView.getContext());
-        RequestBuilder<Bitmap> requestBuilder = glide.asBitmap().load(frame);
-        requestBuilder.centerCrop().into(holder.imageView);
+
+        if (frame != null) {
+            Glide.with(holder.imageView.getContext()).asBitmap().load(frame).centerCrop().into(holder.imageView);
+        } else {
+            holder.imageView.setImageResource(R.drawable.background_invalid_pack);
+        }
 
         holder.imageView.setOnClickListener(view -> {
             if (listener != null) {
@@ -63,5 +67,20 @@ public class TimelineFramesAdapter extends RecyclerView.Adapter<FrameViewHolder>
     @Override
     public int getItemCount() {
         return frames.size();
+    }
+
+    public void updateFrames(@NonNull Map<Integer, Bitmap> newFrames) {
+        for (Map.Entry<Integer, Bitmap> entry : newFrames.entrySet()) {
+            int index = entry.getKey();
+            Bitmap frame = entry.getValue();
+
+            if (index >= 0 && index < frames.size()) {
+                frames.set(index, frame);
+                notifyItemChanged(index);
+                Log.d("TimelineFramesAdapter", "Atualizou frame no index: " + index);
+            } else {
+                Log.w("TimelineFramesAdapter", "Index fora do alcance: " + index);
+            }
+        }
     }
 }
