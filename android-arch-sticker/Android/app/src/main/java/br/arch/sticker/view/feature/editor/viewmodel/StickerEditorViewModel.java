@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import br.arch.sticker.R;
 import br.arch.sticker.domain.util.ApplicationTranslate;
+import br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
 
 public class StickerEditorViewModel extends AndroidViewModel {
     private static final String TAG_LOG = StickerEditorViewModel.class.getSimpleName();
@@ -105,7 +106,7 @@ public class StickerEditorViewModel extends AndroidViewModel {
                 mediaWidth.postValue(widthStr);
                 mediaHeight.postValue(heightStr);
             } catch (Exception exception) {
-                errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_message_failed_to_load_video_metadata).log(TAG_LOG, Log.ERROR, exception).get());
+                errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_message_failed_to_load_video_metadata).log(TAG_LOG, Level.ERROR, exception).get());
             }
         });
     }
@@ -160,7 +161,7 @@ public class StickerEditorViewModel extends AndroidViewModel {
 
             final Long videoDurationMs = videoDurationMsLiveData.getValue();
             if (videoDurationMs == null || videoDurationMs == 0L) {
-                errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_log_timeline_invalid_duration).log(TAG_LOG, Log.ERROR).get());
+                errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_log_timeline_invalid_duration).log(TAG_LOG, Level.ERROR).get());
                 return;
             }
 
@@ -181,13 +182,14 @@ public class StickerEditorViewModel extends AndroidViewModel {
                     }
 
                     Log.d(TAG_LOG, applicationTranslate.translate(R.string.debug_log_extracting_frame_at_index, globalIndex, timeMs).get());
-                    Bitmap frame = retriever.getFrameAtTime(timeMs * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                    Bitmap frame = retriever.getFrameAtTime(
+                            timeMs * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
                     if (frame != null) {
                         extractedFrames.put(globalIndex, frame);
                     }
                 }
             } catch (Exception exception) {
-                errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_message_extracting_frames).log(TAG_LOG, Log.ERROR, exception).get());
+                errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_message_extracting_frames).log(TAG_LOG, Level.ERROR, exception).get());
             }
 
             if (!extractedFrames.isEmpty()) {

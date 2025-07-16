@@ -136,7 +136,7 @@
     <string name="error_message_file_not_found">"File not found, null or empty value. "</string>
     <string name="error_message_invalid_view_render_video">A surface para renderizar o vídeo não é compatível com o app.</string>
     <string name="debug_log_frame_update_editor">Frame de index atualizado: %1$s.</string>
-    <string name="error_log_out_of_range_index">Index out of range: %1$s.</string>
+    <string name="error_log_out_of_range_index">Index out of range.</string>
     <string name="error_message_no_media_received">Nenhuma mídia recebida.</string>
     <string name="debug_log_actual_video_crop">"Actual video crop: %1$s. "</string>
     <string name="error_message_calculation_clipping">Erro ao calcular recorte.</string>

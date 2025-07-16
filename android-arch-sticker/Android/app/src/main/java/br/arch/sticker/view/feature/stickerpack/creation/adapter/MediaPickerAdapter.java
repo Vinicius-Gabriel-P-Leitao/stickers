@@ -43,13 +43,15 @@ import br.arch.sticker.view.core.util.transformation.CropSquareTransformation;
 import br.arch.sticker.view.feature.stickerpack.creation.viewholder.MediaViewHolder;
 
 public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
-    public static final String PAYLOAD_SELECTION_CHANGED = "payload_selection_changed";
-    private final List<Integer> selectedItems = new ArrayList<>();
-    private final Context context;
 
     public interface OnItemClickListener {
         void onItemClick(String imagePath);
     }
+
+    public static final String PAYLOAD_SELECTION_CHANGED = "payload_selection_changed";
+
+    private final List<Integer> selectedItems = new ArrayList<>();
+    private final Context context;
 
     public MediaPickerAdapter(Context context, OnItemClickListener itemClickListener) {
         super(new UriDiffCallback());

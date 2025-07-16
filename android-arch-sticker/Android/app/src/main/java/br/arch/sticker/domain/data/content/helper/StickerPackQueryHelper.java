@@ -49,19 +49,15 @@ public class StickerPackQueryHelper {
 
     public StickerPackQueryHelper(Context context) {
         this.context = context.getApplicationContext();
-        SQLiteDatabase database = StickerDatabaseHelper.getInstance(
-                this.context).getReadableDatabase();
+        SQLiteDatabase database = StickerDatabaseHelper.getInstance(this.context)
+                .getReadableDatabase();
         this.selectStickerPackRepo = new SelectStickerPackRepo(database);
     }
 
     @NonNull
     public Cursor fetchListStickerPackData(@NonNull Uri uri, @NonNull List<StickerPack> stickerPackList) {
-        MatrixCursor cursor = new MatrixCursor(new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY,
-                STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY,
-                STICKER_PACK_TRAY_IMAGE_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY,
-                IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE,
-                PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE,
-                ANIMATED_STICKER_PACK,});
+        MatrixCursor cursor = new MatrixCursor(
+                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_TRAY_IMAGE_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
 
         for (StickerPack stickerPack : stickerPackList) {
             MatrixCursor.RowBuilder builder = cursor.newRow();
@@ -80,8 +76,7 @@ public class StickerPackQueryHelper {
             builder.add(stickerPack.animatedStickerPack ? 1 : 0);
         }
 
-        cursor.setNotificationUri(context.getContentResolver(),
-                uri);
+        cursor.setNotificationUri(context.getContentResolver(), uri);
         return cursor;
     }
 
@@ -111,8 +106,8 @@ public class StickerPackQueryHelper {
                                 cursor.getColumnIndexOrThrow(STICKER_PACK_TRAY_IMAGE_IN_QUERY));
                         String imageDataVersion = cursor.getString(
                                 cursor.getColumnIndexOrThrow(IMAGE_DATA_VERSION));
-                        boolean avoidCache = cursor.getInt(
-                                cursor.getColumnIndexOrThrow(AVOID_CACHE)) != 0;
+                        boolean avoidCache =
+                                cursor.getInt(cursor.getColumnIndexOrThrow(AVOID_CACHE)) != 0;
                         String publisherEmail = cursor.getString(
                                 cursor.getColumnIndexOrThrow(PUBLISHER_EMAIL));
                         String publisherWebsite = cursor.getString(
@@ -124,18 +119,10 @@ public class StickerPackQueryHelper {
                         boolean animatedStickerPack = cursor.getInt(
                                 cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) != 0;
 
-                        currentStickerPack = new StickerPack(
-                                identifier,
-                                name,
-                                publisher,
-                                trayImageFile,
-                                publisherEmail,
-                                publisherWebsite,
-                                privacyPolicyWebsite,
-                                licenseAgreementWebsite,
-                                imageDataVersion,
-                                avoidCache,
-                                animatedStickerPack);
+                        currentStickerPack = new StickerPack(identifier, name, publisher,
+                                trayImageFile, publisherEmail, publisherWebsite,
+                                privacyPolicyWebsite, licenseAgreementWebsite, imageDataVersion,
+                                avoidCache, animatedStickerPack);
 
                         currentStickerPack.setStickers(new ArrayList<>());
                         stickerPackList.add(currentStickerPack);
@@ -151,12 +138,8 @@ public class StickerPackQueryHelper {
                     String accessibilityText = cursor.getString(
                             cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
 
-                    Sticker sticker = new Sticker(
-                            imageFile,
-                            emojis,
-                            stickerIsValid,
-                            accessibilityText,
-                            identifier);
+                    Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid,
+                            accessibilityText, identifier);
                     currentStickerPack.getStickers().add(sticker);
 
                 } while (cursor.moveToNext());
@@ -170,12 +153,8 @@ public class StickerPackQueryHelper {
 
     @NonNull
     public Cursor fetchStickerPackData(@NonNull Uri uri, @NonNull StickerPack stickerPack) {
-        MatrixCursor cursor = new MatrixCursor(new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY,
-                STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY,
-                STICKER_PACK_TRAY_IMAGE_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY,
-                IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE,
-                PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE,
-                ANIMATED_STICKER_PACK,});
+        MatrixCursor cursor = new MatrixCursor(
+                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_TRAY_IMAGE_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
 
         MatrixCursor.RowBuilder builder = cursor.newRow();
         builder.add(stickerPack.identifier);
@@ -192,9 +171,7 @@ public class StickerPackQueryHelper {
         builder.add(stickerPack.avoidCache ? 1 : 0);
         builder.add(stickerPack.animatedStickerPack ? 1 : 0);
 
-        cursor.setNotificationUri(
-                context.getContentResolver(),
-                uri);
+        cursor.setNotificationUri(context.getContentResolver(), uri);
         return cursor;
     }
 
@@ -227,8 +204,8 @@ public class StickerPackQueryHelper {
                         cursor.getColumnIndexOrThrow(PRIVACY_POLICY_WEBSITE));
                 String licenseAgreementWebsite = cursor.getString(
                         cursor.getColumnIndexOrThrow(LICENSE_AGREEMENT_WEBSITE));
-                boolean animatedStickerPack = cursor.getInt(
-                        cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) != 0;
+                boolean animatedStickerPack =
+                        cursor.getInt(cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) != 0;
                 String imageDataVersion = cursor.getString(
                         cursor.getColumnIndexOrThrow(IMAGE_DATA_VERSION));
                 boolean avoidCache = cursor.getInt(cursor.getColumnIndexOrThrow(AVOID_CACHE)) != 0;
@@ -244,28 +221,15 @@ public class StickerPackQueryHelper {
                     String accessibilityText = cursor.getString(
                             cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
 
-                    Sticker sticker = new Sticker(
-                            imageFile,
-                            emojis,
-                            stickerIsValid,
-                            accessibilityText,
-                            identifier);
+                    Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid,
+                            accessibilityText, identifier);
 
                     stickerList.add(sticker);
                 } while (cursor.moveToNext());
 
-                stickerPack = new StickerPack(
-                        identifier,
-                        name,
-                        publisher,
-                        trayImageFile,
-                        publisherEmail,
-                        publisherWebsite,
-                        privacyPolicyWebsite,
-                        licenseAgreementWebsite,
-                        imageDataVersion,
-                        avoidCache,
-                        animatedStickerPack);
+                stickerPack = new StickerPack(identifier, name, publisher, trayImageFile,
+                        publisherEmail, publisherWebsite, privacyPolicyWebsite,
+                        licenseAgreementWebsite, imageDataVersion, avoidCache, animatedStickerPack);
 
                 stickerPack.setStickers(stickerList);
             }

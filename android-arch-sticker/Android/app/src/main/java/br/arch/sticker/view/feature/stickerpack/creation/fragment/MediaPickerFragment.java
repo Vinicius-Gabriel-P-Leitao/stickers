@@ -42,17 +42,15 @@ import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 import br.arch.sticker.view.core.usecase.component.BottomFadingRecyclerView;
 import br.arch.sticker.view.core.util.resolver.UriDetailsResolver;
 import br.arch.sticker.view.feature.editor.activity.StickerEditorActivity;
-import br.arch.sticker.view.feature.editor.viewmodel.StickerEditorViewModel;
 import br.arch.sticker.view.feature.stickerpack.creation.adapter.MediaPickerAdapter;
 import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.StickerPackCreationViewModel;
 
 public class MediaPickerFragment extends BottomSheetDialogFragment {
+    private MediaPickerAdapter.OnItemClickListener listener;
+
     private StickerPackCreationViewModel StickerPackCreationViewModel;
-    private StickerEditorViewModel stickerEditorViewModel;
     private MediaPickerAdapter mediaListAdapter;
     private ProgressBar progressBar;
-
-    private MediaPickerAdapter.OnItemClickListener listener;
 
     public void setOnItemClickListener(MediaPickerAdapter.OnItemClickListener listener) {
         this.listener = listener;
@@ -64,7 +62,6 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
         setStyle(DialogFragment.STYLE_NORMAL, R.style.BottomSheetStyle);
 
         StickerPackCreationViewModel = new ViewModelProvider(requireActivity()).get(StickerPackCreationViewModel.class);
-        stickerEditorViewModel = new ViewModelProvider(this).get(StickerEditorViewModel.class);
     }
 
     @Nullable

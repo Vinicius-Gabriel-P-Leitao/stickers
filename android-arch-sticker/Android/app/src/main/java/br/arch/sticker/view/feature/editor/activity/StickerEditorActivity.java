@@ -53,6 +53,7 @@ import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 import br.arch.sticker.view.feature.editor.adapter.TimelineFramesAdapter;
 import br.arch.sticker.view.feature.editor.controller.GestureController;
 import br.arch.sticker.view.feature.editor.viewmodel.StickerEditorViewModel;
+import br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
 
 public class StickerEditorActivity extends BaseActivity {
     private final static String TAG_LOG = StickerEditorActivity.class.getSimpleName();
@@ -263,7 +264,7 @@ public class StickerEditorActivity extends BaseActivity {
             }
 
             if (videoDurationMs == 0) {
-                Toast.makeText(this, applicationTranslate.translate(R.string.error_log_timeline_invalid_duration).log(TAG_LOG, Log.ERROR).get(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, applicationTranslate.translate(R.string.error_log_timeline_invalid_duration).log(TAG_LOG, Level.ERROR).get(), Toast.LENGTH_SHORT).show();
                 return;
             }
 

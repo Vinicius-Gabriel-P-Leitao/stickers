@@ -35,6 +35,20 @@ public class ApplicationTranslate {
     }
 
     public static class LoggableString {
+        public enum Level {
+            VERBOSE(1), DEBUG(2), INFO(3), WARN(4), ERROR(5), ASSERT(6);
+
+            private final int level;
+
+            Level(int level) {
+                this.level = level;
+            }
+
+            public int getLevel() {
+                return level;
+            }
+        }
+
         private final String message;
 
         private LoggableString(String message) {
@@ -46,18 +60,18 @@ public class ApplicationTranslate {
             return this;
         }
 
-        public LoggableString log(String TAG_LOG, int priority, Object... args) {
+        public LoggableString log(String TAG_LOG, Level priority, Object... args) {
             switch (priority) {
-                case Log.VERBOSE:
+                case VERBOSE:
                     Log.v(TAG_LOG, message + Arrays.toString(args));
                     break;
-                case Log.INFO:
+                case INFO:
                     Log.i(TAG_LOG, message + Arrays.toString(args));
                     break;
-                case Log.WARN:
+                case WARN:
                     Log.w(TAG_LOG, message + Arrays.toString(args));
                     break;
-                case Log.ERROR:
+                case ERROR:
                     Log.e(TAG_LOG, message + Arrays.toString(args));
                     break;
                 default:
