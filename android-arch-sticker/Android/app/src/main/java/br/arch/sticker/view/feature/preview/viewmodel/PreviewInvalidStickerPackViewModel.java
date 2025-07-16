@@ -50,12 +50,16 @@ import br.arch.sticker.view.core.util.event.GenericEvent;
 public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
     private static final String TAG_LOG = PreviewInvalidStickerPackViewModel.class.getSimpleName();
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
     private final DeleteStickerAssetService deleteStickerAssetService;
     private final UpdateStickerPackService updateStickerPackService;
     private final DeleteStickerPackService deleteStickerPackService;
     private final Context context;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final MutableLiveData<GenericEvent<FixActionStickerPack>> stickerpackMutableLiveData = new MutableLiveData<>();
+    private final MutableLiveData<FixActionStickerPack> fixCompletedLiveData = new MutableLiveData<>();
+    private final MutableLiveData<String> errorMessageLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> progressLiveData = new MutableLiveData<>();
 
     public PreviewInvalidStickerPackViewModel(@NonNull Application application) {
         super(application);
@@ -64,11 +68,6 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         this.updateStickerPackService = new UpdateStickerPackService(this.context);
         this.deleteStickerAssetService = new DeleteStickerAssetService(this.context);
     }
-
-    private final MutableLiveData<GenericEvent<FixActionStickerPack>> stickerpackMutableLiveData = new MutableLiveData<>();
-    private final MutableLiveData<FixActionStickerPack> fixCompletedLiveData = new MutableLiveData<>();
-    private final MutableLiveData<String> errorMessageLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> progressLiveData = new MutableLiveData<>();
 
     public LiveData<GenericEvent<FixActionStickerPack>> getStickerMutableLiveData() {
         return stickerpackMutableLiveData;
@@ -289,10 +288,10 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
     }
 
     public sealed interface FixActionStickerPack permits FixActionStickerPack.Delete,
-                                                         FixActionStickerPack.NewThumbnail,
-                                                         FixActionStickerPack.RenameStickerPack,
-                                                         FixActionStickerPack.ResizeStickerPack,
-                                                         FixActionStickerPack.CleanUpUrl {
+            FixActionStickerPack.NewThumbnail,
+            FixActionStickerPack.RenameStickerPack,
+            FixActionStickerPack.ResizeStickerPack,
+            FixActionStickerPack.CleanUpUrl {
         record Delete(StickerPack stickerPack) implements FixActionStickerPack {
         }
 
@@ -300,7 +299,7 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         }
 
         record RenameStickerPack(StickerPack stickerPack, String newName) implements
-                                                                          FixActionStickerPack {
+                FixActionStickerPack {
             public RenameStickerPack withNewName(@Nullable String newName) {
                 return new RenameStickerPack(stickerPack, newName);
             }

@@ -81,10 +81,10 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
         String fileName = getFileNameFromUri(holder.itemView.getContext(), uri);
 
         if (fileName.isBlank()) {
-            Toast.makeText(context, context.getString(R.string.error_message_file_not_found), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.error_message_file_not_found), Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
-
 
         RequestManager glide = Glide.with(holder.imageView.getContext());
         MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
@@ -104,6 +104,7 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
         }
 
         if (requestBuilder == null) {
+            // TODO: Fazer carregar um placeholder
             Toast.makeText(context, context.getString(R.string.error_message_unsuported_media_type_in_gallery), Toast.LENGTH_LONG)
                     .show();
             return;

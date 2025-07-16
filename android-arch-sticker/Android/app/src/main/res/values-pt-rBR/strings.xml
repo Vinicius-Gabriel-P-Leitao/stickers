@@ -135,4 +135,18 @@
     <string name="error_message_could_not_extract_path_media">Não foi possível extrair caminho do arquivo selecionado %1$s.</string>
     <string name="error_message_file_not_found">"File not found, null or empty value. "</string>
     <string name="error_message_invalid_view_render_video">A surface para renderizar o vídeo não é compatível com o app.</string>
+    <string name="debug_log_frame_update_editor">Frame de index atualizado: %1$s.</string>
+    <string name="error_log_out_of_range_index">Index out of range: %1$s.</string>
+    <string name="error_message_no_media_received">Nenhuma mídia recebida.</string>
+    <string name="debug_log_actual_video_crop">"Actual video crop: %1$s. "</string>
+    <string name="error_message_calculation_clipping">Erro ao calcular recorte.</string>
+    <string name="error_message_unsupported_mimetype">Tipo não suportado: %1$s.</string>
+    <string name="error_message_error_loading_image">Error loading image.</string>
+    <string name="error_log_timeline_invalid_duration">Duração inválida, abortando timeline.</string>
+    <string name="timeline_title_seconds">%1$s segundos</string>
+    <string name="warning_log_unknown">%1$s desconhecida.</string>
+    <string name="debug_log_extracting_frame_at_index">>> Extraindo quadro no índice %1$s (timeMs= %2$s)</string>
+    <string name="error_message_failed_to_load_video_metadata">Falha ao carregar metadados de vídeo.</string>
+    <string name="debug_log_extracted_frames">>> Extraídos %1$s quadros.</string>
+    <string name="error_message_extracting_frames">Erro ao extrair quadros.</string>
 </resources>

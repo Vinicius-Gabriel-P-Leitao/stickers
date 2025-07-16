@@ -21,14 +21,14 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import br.arch.sticker.R;
 
-public class AlertInputStickerDialog extends Dialog {
+public class InputAlertStickerDialog extends Dialog {
     private TextView titleTextView;
     private TextView messageTextView;
     private TextInputEditText textInputEditText;
     private Button fixButton;
     private ImageView iconImageView;
 
-    public AlertInputStickerDialog(@NonNull Context context)
+    public InputAlertStickerDialog(@NonNull Context context)
         {
             super(context, R.style.AlterDialogStyle);
             init();

@@ -8,6 +8,7 @@
 
 package br.arch.sticker.view.feature.editor.adapter;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,12 +19,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
 
 import java.util.List;
 import java.util.Map;
 
 import br.arch.sticker.R;
+import br.arch.sticker.domain.util.ApplicationTranslate;
 import br.arch.sticker.view.feature.editor.viewholder.FrameViewHolder;
 
 public class TimelineFramesAdapter extends RecyclerView.Adapter<FrameViewHolder> {
@@ -31,12 +32,16 @@ public class TimelineFramesAdapter extends RecyclerView.Adapter<FrameViewHolder>
         void onFrameClick(int position);
     }
 
+    private final static String TAG_LOG = TimelineFramesAdapter.class.getSimpleName();
+
     private final List<Bitmap> frames;
     private final OnFrameClickListener listener;
+    private final ApplicationTranslate applicationTranslate;
 
-    public TimelineFramesAdapter(List<Bitmap> frames, OnFrameClickListener listener) {
+    public TimelineFramesAdapter(Context context, List<Bitmap> frames, OnFrameClickListener listener) {
         this.frames = frames;
         this.listener = listener;
+        this.applicationTranslate = new ApplicationTranslate(context.getResources());
     }
 
     @NonNull
@@ -49,7 +54,6 @@ public class TimelineFramesAdapter extends RecyclerView.Adapter<FrameViewHolder>
     @Override
     public void onBindViewHolder(@NonNull FrameViewHolder holder, int position) {
         Bitmap frame = frames.get(position);
-        RequestManager glide = Glide.with(holder.imageView.getContext());
 
         if (frame != null) {
             Glide.with(holder.imageView.getContext()).asBitmap().load(frame).centerCrop().into(holder.imageView);
@@ -77,9 +81,10 @@ public class TimelineFramesAdapter extends RecyclerView.Adapter<FrameViewHolder>
             if (index >= 0 && index < frames.size()) {
                 frames.set(index, frame);
                 notifyItemChanged(index);
-                Log.d("TimelineFramesAdapter", "Atualizou frame no index: " + index);
+
+                Log.d(TAG_LOG, applicationTranslate.translate(R.string.debug_log_frame_update_editor, index).get());
             } else {
-                Log.w("TimelineFramesAdapter", "Index fora do alcance: " + index);
+                Log.w(TAG_LOG, applicationTranslate.translate(R.string.error_log_out_of_range_index).get());
             }
         }
     }

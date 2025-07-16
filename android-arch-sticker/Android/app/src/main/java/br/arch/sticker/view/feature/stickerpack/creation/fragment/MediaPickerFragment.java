@@ -8,10 +8,6 @@
 
 package br.arch.sticker.view.feature.stickerpack.creation.fragment;
 
-import static br.arch.sticker.view.feature.editor.activity.StickerEditorActivity.MEDIA_HEIGHT;
-import static br.arch.sticker.view.feature.editor.activity.StickerEditorActivity.MEDIA_WIDTH;
-import static br.arch.sticker.view.feature.editor.activity.StickerEditorActivity.VIDEO_DURATION;
-
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -55,11 +51,6 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
     private StickerEditorViewModel stickerEditorViewModel;
     private MediaPickerAdapter mediaListAdapter;
     private ProgressBar progressBar;
-
-    private Uri videoUri;
-    private String mediaWidth;
-    private String mediaHeight;
-    private long videoDurationMs;
 
     private MediaPickerAdapter.OnItemClickListener listener;
 
@@ -116,34 +107,12 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
 
             if (selectedUris.size() == 1) {
                 progressBar.setVisibility(View.VISIBLE);
-                videoUri = selectedUris.iterator().next();
-                stickerEditorViewModel.loadVideoMetadata(videoUri);
+                tryLaunchEditorIfReady(selectedUris.iterator().next());
                 return;
             }
 
             progressBar.setVisibility(View.VISIBLE);
             StickerPackCreationViewModel.startConversions(selectedUris);
-        });
-
-        stickerEditorViewModel.getMediaWidth().observe(getViewLifecycleOwner(), width -> {
-            if (width != null) {
-                mediaWidth = width;
-                tryLaunchEditorIfReady(videoUri);
-            }
-        });
-
-        stickerEditorViewModel.getMediaHeight().observe(getViewLifecycleOwner(), height -> {
-            if (height != null) {
-                mediaHeight = height;
-                tryLaunchEditorIfReady(videoUri);
-            }
-        });
-
-        stickerEditorViewModel.getVideoDurationMsLiveData().observe(getViewLifecycleOwner(), duration -> {
-            if (duration != null) {
-                videoDurationMs = duration;
-                tryLaunchEditorIfReady(videoUri);
-            }
         });
 
         StickerPackCreationViewModel.getMimeTypesSupported().observe(getViewLifecycleOwner(), mimeTypesSupported -> {
@@ -209,13 +178,9 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
     }
 
     private void tryLaunchEditorIfReady(Uri uri) {
-        if (mediaWidth != null && mediaHeight != null && videoDurationMs != 0L) {
-            Intent intent = new Intent(requireContext(), StickerEditorActivity.class);
-            intent.setData(uri);
-            intent.putExtra(MEDIA_WIDTH, mediaWidth);
-            intent.putExtra(MEDIA_HEIGHT, mediaHeight);
-            intent.putExtra(VIDEO_DURATION, videoDurationMs);
-            startActivity(intent);
-        }
+        Intent intent = new Intent(requireContext(), StickerEditorActivity.class);
+        intent.setData(uri);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(intent);
     }
 }

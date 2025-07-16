@@ -12,7 +12,7 @@ import android.content.Context;
 import android.view.View;
 
 import br.arch.sticker.R;
-import br.arch.sticker.view.core.usecase.component.AlertInputStickerDialog;
+import br.arch.sticker.view.core.usecase.component.InputAlertStickerDialog;
 import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerPackViewModel;
 
@@ -20,12 +20,12 @@ public class InvalidStickerPackDialogController {
     private final PreviewInvalidStickerPackViewModel viewModel;
 
     private final AlertStickerDialog alertStickerDialog;
-    private final AlertInputStickerDialog alertInputStickerDialog;
+    private final InputAlertStickerDialog inputAlertStickerDialog;
 
     public InvalidStickerPackDialogController(Context context, PreviewInvalidStickerPackViewModel viewModel) {
         this.viewModel = viewModel;
         alertStickerDialog = new AlertStickerDialog(context);
-        this.alertInputStickerDialog = new AlertInputStickerDialog(context);
+        this.inputAlertStickerDialog = new InputAlertStickerDialog(context);
     }
 
     private void resetDialogs() {
@@ -34,17 +34,17 @@ public class InvalidStickerPackDialogController {
         alertStickerDialog.setOnIgnoreClick(null);
         alertStickerDialog.setOnFixClick(null);
 
-        alertInputStickerDialog.setVisibilityIgnoreButton(View.GONE);
-        alertInputStickerDialog.setVisibilityFixButton(View.GONE);
-        alertInputStickerDialog.setOnFixClick(null);
-        alertInputStickerDialog.setTextInput(null);
+        inputAlertStickerDialog.setVisibilityIgnoreButton(View.GONE);
+        inputAlertStickerDialog.setVisibilityFixButton(View.GONE);
+        inputAlertStickerDialog.setOnFixClick(null);
+        inputAlertStickerDialog.setTextInput(null);
     }
 
     public void showFixAction(PreviewInvalidStickerPackViewModel.FixActionStickerPack action) {
         resetDialogs();
 
         Context alertStickerContext = alertStickerDialog.getContext();
-        Context alertInputStickerContext = alertInputStickerDialog.getContext();
+        Context alertInputStickerContext = inputAlertStickerDialog.getContext();
 
         if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.Delete delete) {
             alertStickerDialog.setTitleText(alertStickerContext.getString(R.string.dialog_title_invalid_pack));
@@ -83,19 +83,19 @@ public class InvalidStickerPackDialogController {
         }
 
         if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.RenameStickerPack renameStickerPack) {
-            alertInputStickerDialog.setTitleText(alertInputStickerContext.getString(R.string.dialog_title_invalid_name));
-            alertInputStickerDialog.setMessageText(alertInputStickerContext.getString(R.string.dialog_message_insert_new_name));
-            alertInputStickerDialog.setVisibilityFixButton(View.VISIBLE);
-            alertInputStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
+            inputAlertStickerDialog.setTitleText(alertInputStickerContext.getString(R.string.dialog_title_invalid_name));
+            inputAlertStickerDialog.setMessageText(alertInputStickerContext.getString(R.string.dialog_message_insert_new_name));
+            inputAlertStickerDialog.setVisibilityFixButton(View.VISIBLE);
+            inputAlertStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
 
-            alertInputStickerDialog.setTextInput(alertInputStickerContext.getString(R.string.dialog_rename));
-            alertInputStickerDialog.setTextFixButton(alertInputStickerContext.getString(R.string.dialog_rename));
-            alertInputStickerDialog.setOnFixClick(view -> {
+            inputAlertStickerDialog.setTextInput(alertInputStickerContext.getString(R.string.dialog_rename));
+            inputAlertStickerDialog.setTextFixButton(alertInputStickerContext.getString(R.string.dialog_rename));
+            inputAlertStickerDialog.setOnFixClick(view -> {
                 viewModel.onFixActionConfirmed(renameStickerPack);
-                alertInputStickerDialog.dismiss();
+                inputAlertStickerDialog.dismiss();
             });
 
-            alertInputStickerDialog.show();
+            inputAlertStickerDialog.show();
         }
 
         if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.ResizeStickerPack resizeStickerPack) {

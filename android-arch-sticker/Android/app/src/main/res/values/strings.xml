@@ -135,4 +135,18 @@
     <string name="error_message_could_not_extract_path_media">Could not extract path from selected file %1$s.</string>
     <string name="error_message_file_not_found">File not found, null or empty value.</string>
     <string name="error_message_invalid_view_render_video">The surface for rendering the video is not supported by the app.</string>
+    <string name="debug_log_frame_update_editor">Updated index frame: %1$s.</string>
+    <string name="error_log_out_of_range_index">Index out of range: %1$s.</string>
+    <string name="error_message_no_media_received">No media received.</string>
+    <string name="debug_log_actual_video_crop">Actual video crop: %1$s.</string>
+    <string name="error_message_calculation_clipping">Error calculating clipping.</string>
+    <string name="error_message_unsupported_mimetype">Unsupported type: %1$s.</string>
+    <string name="error_message_error_loading_image">Error loading image.</string>
+    <string name="error_log_timeline_invalid_duration">Invalid duration, aborting timeline.</string>
+    <string name="timeline_title_seconds">%1$s seconds</string>
+    <string name="warning_log_unknown">%1$s  unknown.</string>
+    <string name="debug_log_extracting_frame_at_index">>> Extracting frame at index %1$s (timeMs= %2$s)</string>
+    <string name="error_message_failed_to_load_video_metadata">Failed to load video metadata.</string>
+    <string name="debug_log_extracted_frames">>> Extracted %1$s frames.</string>
+    <string name="error_message_extracting_frames">Error extracting frames.</string>
 </resources>
