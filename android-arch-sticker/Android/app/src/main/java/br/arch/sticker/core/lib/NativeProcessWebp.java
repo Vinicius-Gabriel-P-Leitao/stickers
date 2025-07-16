@@ -8,31 +8,45 @@
 
 package br.arch.sticker.core.lib;
 
+import android.content.res.Resources;
+
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import br.arch.sticker.R;
 import br.arch.sticker.core.error.code.MediaConversionErrorCode;
 import br.arch.sticker.core.error.throwable.media.MediaConversionException;
+import br.arch.sticker.domain.util.ApplicationTranslate;
+import br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
 
+// @formatter:off
 public class NativeProcessWebp {
-    static {
-        System.loadLibrary("sticker");
-    }
-
-    public native boolean convertToWebp(String inputPath, String outputPath, float quality, boolean lossless);
-
     public interface ConversionCallback {
         void onSuccess(File file);
 
         void onError(Exception exception);
     }
 
-    private static final ExecutorService nativeExecutor = Executors.newFixedThreadPool(Runtime.getRuntime()
-            .availableProcessors());
+    private final static String TAG_LOG = NativeProcessWebp.class.getSimpleName();
 
-    public void processWebpAsync(
-            String inputPath, String outputPath, float quality, boolean lossless, ConversionCallback callback) throws MediaConversionException {
+    static {
+        System.loadLibrary("sticker");
+    }
+
+    private final ApplicationTranslate applicationTranslate;
+
+    private static final ExecutorService nativeExecutor = Executors.newFixedThreadPool(
+            Runtime.getRuntime().availableProcessors());
+
+    public NativeProcessWebp(Resources resources) {
+        this.applicationTranslate = new ApplicationTranslate(resources);
+    }
+
+    public native boolean convertToWebp(String inputPath, String outputPath, float quality, boolean lossless);
+
+    public void processWebpAsync(String inputPath, String outputPath, float quality, boolean lossless, ConversionCallback callback)
+            throws MediaConversionException {
         nativeExecutor.submit(() -> {
             try {
                 boolean success = convertToWebp(inputPath, outputPath, quality, lossless);
@@ -43,8 +57,9 @@ public class NativeProcessWebp {
                         Thread.sleep(100);
                     } catch (InterruptedException exception) {
                         throw new MediaConversionException(
-                                exception.getMessage() !=
-                                        null ? exception.getMessage() : "Erro fazer ao pausar a thread, e não foi retornado mensagem de erro!",
+                                exception.getMessage() != null
+                                    ? exception.getMessage()
+                                    : applicationTranslate.translate(R.string.throw_pausing_thread_native).log(TAG_LOG, Level.ERROR, exception).get(),
                                 exception.getCause(),
                                 MediaConversionErrorCode.ERROR_NATIVE_CONVERSION);
                     }
@@ -52,14 +67,14 @@ public class NativeProcessWebp {
                     callback.onSuccess(outputFile);
                 } else {
                     callback.onError(new MediaConversionException(
-                            "Falha na conversão ou arquivo não gerado.",
+                            applicationTranslate.translate(R.string.throw_convertsion_failed_generated).log(TAG_LOG, Level.ERROR).get(),
                             MediaConversionErrorCode.ERROR_NATIVE_CONVERSION));
                 }
             } catch (Exception exception) {
-                callback.onError(new MediaConversionException(
-                        "Erro inesperado durante a conversão nativa: ",
-                        exception,
-                        MediaConversionErrorCode.ERROR_NATIVE_CONVERSION));
+                callback.onError(
+                        new MediaConversionException(
+                                applicationTranslate.translate(R.string.throw_unexpected_error_during_native_conversion).log(TAG_LOG, Level.ERROR, exception).get(),
+                                MediaConversionErrorCode.ERROR_NATIVE_CONVERSION));
             }
         });
     }

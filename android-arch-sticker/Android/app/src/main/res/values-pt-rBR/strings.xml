@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <plurals name="title_activity_sticker_packs_list" tools:ignore="MissingQuantity">
-        <item quantity="one" tools:ignore="ImpliedQuantity">Pacote de figurinhas</item>
-        <item quantity="other">Pacotes de figurinhas</item>
+        <item quantity="one" tools:ignore="ImpliedQuantity">Pacotes de figurinha</item>
+        <item quantity="other">Pacote de figurinha</item>
     </plurals>
 
     <string name="tray_image_content_description">Miniatura de pacote de figurinhas</string>
@@ -38,8 +38,8 @@
     <string name="dialog_settings_message_permission">Permisão foi negada, necessário permitir manualmente</string>
     <string name="dialog_settings_button_permission_accept">Abrir configurações</string>
     <string name="dialog_cancel">Cancelar</string>
-    <string name="title_activity_sticker_creator" tools:ignore="MissingQuantity">Criar pacote</string>
-    <string name="title_activity_pack_creator_first" tools:ignore="MissingQuantity">Criar primeiro pacote</string>
+    <string name="title_activity_sticker_creator">Criar pacote</string>
+    <string name="title_activity_pack_creator_first">Criar primeiro pacote</string>
     <string name="error_message_name_pack_empty">Preecha o nome do pacote!</string>
     <string name="preview_sticker_description">Thumbnail do pacote de figurinhas</string>
     <string name="button_open_media_getter">Abrir aba de nome do pacote e galeria</string>
@@ -130,7 +130,7 @@
     <string name="dialog_message_cleanup_urls">As urls estão invalidas, limpar.</string>
     <string name="error_message_process_canceled">Processo cancelado.</string>
     <string name="error_message_select_least_media">Selecione pelo menos 1 media!</string>
-    <string name="error_message_max_media_selected">Numero máximo de itens selecionados!</string>
+    <string name="error_message_max_media_selected">Número máximo de itens selecionados!</string>
     <string name="error_message_unsuported_media_type_in_gallery">Nenhum formato suportado foi encontrado para galeria.</string>
     <string name="error_message_could_not_extract_path_media">Não foi possível extrair caminho do arquivo selecionado %1$s.</string>
     <string name="error_message_file_not_found">"File not found, null or empty value. "</string>
@@ -138,7 +138,7 @@
     <string name="debug_log_frame_update_editor">Frame de index atualizado: %1$s.</string>
     <string name="error_log_out_of_range_index">Index out of range.</string>
     <string name="error_message_no_media_received">Nenhuma mídia recebida.</string>
-    <string name="debug_log_actual_video_crop">"Actual video crop: %1$s. "</string>
+    <string name="debug_log_actual_video_crop">"Actual vídeo crop: %1$s. "</string>
     <string name="error_message_calculation_clipping">Erro ao calcular recorte.</string>
     <string name="error_message_unsupported_mimetype">Tipo não suportado: %1$s.</string>
     <string name="error_message_error_loading_image">Error loading image.</string>
@@ -149,4 +149,47 @@
     <string name="error_message_failed_to_load_video_metadata">Falha ao carregar metadados de vídeo.</string>
     <string name="debug_log_extracted_frames">>> Extraídos %1$s quadros.</string>
     <string name="error_message_extracting_frames">Erro ao extrair quadros.</string>
+    <string name="throw_pausing_thread_native">Erro fazer ao pausar a thread, e não foi retornado mensagem de erro!</string>
+    <string name="throw_convertsion_failed_generated">Falha na conversão ou arquivo não gerado.</string>
+    <string name="throw_unexpected_error_during_native_conversion">Erro inesperado durante a conversão nativa.</string>
+    <string name="throw_unknown_error_code">Código de erro desconhecido: %1$s.</string>
+    <!--- -->
+    <string name="throw_identifier_empty">O identificador do pacote de figurinhas está vazio!</string>
+    <string name="throw_identifier_exceeds_max_chars">O identificador do pacote de figurinhas não pode exceder %d caracteres</string>
+    <string name="throw_publisher_empty">O publisher do pacote de figurinhas está vazio, identificador do pacote de figurinhas: %s</string>
+    <string name="throw_publisher_exceeds_max_chars">O publisher do pacote de figurinhas não pode exceder %d caracteres, identificador do pacote de figurinhas: %s</string>
+    <string name="throw_name_empty">Nome do pacote de figurinhas está vazio, identificador do pacote de figurinhas: %s</string>
+    <string name="throw_name_exceeds_max_chars">O nome do pacote de figurinhas não pode exceder %d caracteres, identificador do pacote de figurinhas: %s</string>
+    <string name="throw_thumbnail_empty">A thumbnail do pacote de figurinhas está vazia, identificador do pacote de figurinhas: %s</string>
+    <string name="throw_android_play_store_invalid_url">Certifique-se de incluir http ou https nas URL, o link da Android Play Store não é uma URL válida: %s</string>
+    <string name="throw_android_play_store_wrong_domain">O link da Android Play Store deve usar o domínio da Play Store: %s</string>
+    <string name="throw_ios_app_store_invalid_url">Certifique-se de incluir http ou https nos links de URL, o link da loja de aplicativos iOS não é uma URL válida: %s</string>
+    <string name="throw_ios_app_store_wrong_domain">O link da loja de aplicativos iOS deve usar o domínio da loja de aplicativos: %s</string>
+    <string name="throw_license_agreement_invalid_url">Certifique-se de incluir http ou https nos links de URL, o link do contrato de licença não é uma URL válida: %s</string>
+    <string name="throw_privacy_policy_invalid_url">Certifique-se de incluir http ou https nos links de URL, o link da política de privacidade não é uma URL válida: %s</string>
+    <string name="throw_publisher_website_invalid_url">Certifique-se de incluir http ou https nos links de URL, o link do site do editor não é uma URL válida: %s</string>
+    <string name="throw_publisher_email_invalid">O e-mail do publisher não parece válido, o e-mail é: %s</string>
+    <string name="throw_thumbnail_size_exceeds_max">A imagem da thumbnail deve ter menos de %d KB, arquivo de thumbnail: %s</string>
+    <string name="throw_thumbnail_height_invalid">A altura da thumbnail deve estar entre %d e %d pixels, a altura atual da imagem da bandeja é %d, arquivo: %s</string>
+    <string name="throw_thumbnail_width_invalid">A largura da thumbnail deve estar entre %d e %d pixels, a largura atual da imagem da bandeja é %d, arquivo: %s</string>
+    <string name="throw_thumbnail_cannot_open">Não é possível abrir a thumbnail: %s</string>
+    <string name="throw_sticker_count_invalid">A quantidade de figurinhas do pacote deve estar entre 3 a 30, atualmente tem %d, identificador do pacote de figurinhas: %s</string>
+    <string name="throw_invalid_characters">%s contém caracteres inválidos, os caracteres permitidos são de a a z, A a Z, _, \' - . e caractere de espaço</string>
+    <string name="throw_contains_double_dot">%s não pode conter ..</string>
+    <string name="throw_url_malformed">Url: %s está malformada</string>
+    <!-- -->
+    <string name="throw_sticker_invalid">Figurinha inválida.</string>
+    <string name="throw_sticker_path_invalid">Nenhum caminho de figurinha para o figurinha, identificador do pacote de figurinhas: %s</string>
+    <string name="throw_accessibility_text_exceeds_limit">Comprimento do texto de acessibilidade excedeu o limite, identificador do pacote de figurinhas: %s, arquivo: %s</string>
+    <string name="throw_static_sticker_file_size_exceeds_limit">A figurinha estática deve ser menor que %d KB, o arquivo atual tem %d KB, identificador do pacote: %s, arquivo: %s</string>
+    <string name="throw_animated_sticker_file_size_exceeds_limit">A figurinha animada deve ser menor que %d KB, o arquivo atual tem %d KB, identificador do pacote: %s, arquivo: %s</string>
+    <string name="throw_sticker_height_invalid">A altura da figurinha deve ser %d, a altura atual é %d, identificador do pacote: %s, arquivo: %s</string>
+    <string name="throw_sticker_width_invalid">A largura da figurinha deve ser %d, a largura atual é %d, identificador do pacote: %s, arquivo: %s</string>
+    <string name="throw_animated_sticker_not_animated">Este pacote está marcado como animado, todas as figurinhas devem ser animadas. Identificador do pacote: %s, arquivo: %s</string>
+    <string name="throw_static_sticker_has_animation">Este pacote não está marcado como animado, todas as figurinhas devem ser estáticas. Identificador do pacote: %s, arquivo: %s</string>
+    <string name="throw_animated_sticker_duration_exceeds_limit">A duração máxima da animação é: %d ms, a duração atual é: %d ms, identificador do pacote: %s, arquivo: %s</string>
+    <string name="throw_webp_processing_error">Erro ao processar a imagem WebP. Identificador do pacote: %s, arquivo: %s</string>
+    <string name="throw_sticker_file_cannot_open">Não foi possível abrir o arquivo da figurinha. Identificador do pacote: %s, arquivo: %s</string>
+    <string name="throw_animated_sticker_frame_duration_too_short">O limite mínimo de duração de um quadro da figurinha animada é %d ms. Pacote: %s, Arquivo: %s</string>
+    <string name="throw_null_cursor_searching_stickerpack">Cursor nulo ao buscar pacote de figurinhas.</string>
 </resources>

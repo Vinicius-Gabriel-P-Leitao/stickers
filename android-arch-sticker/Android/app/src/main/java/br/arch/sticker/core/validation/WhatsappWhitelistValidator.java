@@ -35,88 +35,91 @@ public class WhatsappWhitelistValidator {
 
     private final Context context;
 
-    public WhatsappWhitelistValidator(Context context)
-        {
-            this.context = context;
-        }
+    public WhatsappWhitelistValidator(Context context) {
+        this.context = context;
+    }
 
-    public boolean isWhitelisted(@NonNull String identifier)
-        {
-            try {
-                if (isWhatsAppConsumerAppInstalled(context.getPackageManager()) && isWhatsAppSmbAppInstalled(context.getPackageManager())) {
-                    return false;
-                }
-
-                boolean consumerResult = isStickerPackWhitelistedInWhatsAppConsumer(identifier);
-                boolean smbResult = isStickerPackWhitelistedInWhatsAppSmb(identifier);
-
-                return consumerResult && smbResult;
-            } catch (Exception exception) {
+    public boolean isWhitelisted(@NonNull String identifier) {
+        try {
+            if (isWhatsAppConsumerAppInstalled(context.getPackageManager()) &&
+                    isWhatsAppSmbAppInstalled(context.getPackageManager())) {
                 return false;
             }
-        }
 
-    private boolean isWhitelistedFromProvider(@NonNull String identifier, String whatsappPackageName)
-        {
-            final PackageManager packageManager = context.getPackageManager();
+            boolean consumerResult = isStickerPackWhitelistedInWhatsAppConsumer(identifier);
+            boolean smbResult = isStickerPackWhitelistedInWhatsAppSmb(identifier);
 
-            if (isPackageInstalled(whatsappPackageName, packageManager)) {
-                final String whatsappProviderAuthority = whatsappPackageName + CONTENT_PROVIDER;
-
-                final ProviderInfo providerInfo = packageManager.resolveContentProvider(whatsappProviderAuthority, PackageManager.GET_META_DATA);
-                // provider is not there. The WhatsApp app may be an old version.
-                if (providerInfo == null) {
-                    return false;
-                }
-
-                final Uri queryUri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(whatsappProviderAuthority).appendPath(
-                        QUERY_PATH).appendQueryParameter(AUTHORITY_QUERY_PARAM, STICKER_APP_AUTHORITY).appendQueryParameter(IDENTIFIER_QUERY_PARAM,
-                        identifier).build();
-
-                try (final Cursor cursor = context.getContentResolver().query(queryUri, null, null, null, null)) {
-
-                    if (cursor != null && cursor.moveToFirst()) {
-                        final int whiteListResult = cursor.getInt(cursor.getColumnIndexOrThrow(QUERY_RESULT_COLUMN_NAME));
-                        return whiteListResult == 1;
-                    }
-                }
-            } else {
-                //if app is not installed, then don't need to take into its whitelist info into account.
-                return true;
-            }
-
+            return consumerResult && smbResult;
+        } catch (Exception exception) {
             return false;
         }
+    }
 
-    public static boolean isPackageInstalled(String packageName, PackageManager packageManager)
-        {
-            try {
-                final ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
+    private boolean isWhitelistedFromProvider(@NonNull String identifier, String whatsappPackageName) {
+        final PackageManager packageManager = context.getPackageManager();
 
-                //noinspection SimplifiableIfStatement
-                return applicationInfo.enabled;
-            } catch (PackageManager.NameNotFoundException exception) {
+        if (isPackageInstalled(whatsappPackageName, packageManager)) {
+            final String whatsappProviderAuthority = whatsappPackageName + CONTENT_PROVIDER;
+
+            final ProviderInfo providerInfo = packageManager.resolveContentProvider(
+                    whatsappProviderAuthority, PackageManager.GET_META_DATA);
+            // provider is not there. The WhatsApp app may be an old version.
+            if (providerInfo == null) {
                 return false;
             }
+
+            final Uri queryUri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
+                    .authority(whatsappProviderAuthority).appendPath(QUERY_PATH)
+                    .appendQueryParameter(AUTHORITY_QUERY_PARAM, STICKER_APP_AUTHORITY)
+                    .appendQueryParameter(IDENTIFIER_QUERY_PARAM, identifier).build();
+
+            try (final Cursor cursor = context.getContentResolver()
+                    .query(queryUri, null, null, null, null)) {
+
+                if (cursor != null && cursor.moveToFirst()) {
+                    final int whiteListResult = cursor.getInt(
+                            cursor.getColumnIndexOrThrow(QUERY_RESULT_COLUMN_NAME));
+                    return whiteListResult == 1;
+                }
+            }
+        } else {
+            //if app is not installed, then don't need to take into its whitelist info into account.
+            return true;
         }
 
-    public boolean isWhatsAppConsumerAppInstalled(PackageManager packageManager)
-        {
-            return !WhatsappWhitelistValidator.isPackageInstalled(CONSUMER_WHATSAPP_PACKAGE_NAME, packageManager);
-        }
+        return false;
+    }
 
-    public boolean isWhatsAppSmbAppInstalled(PackageManager packageManager)
-        {
-            return !WhatsappWhitelistValidator.isPackageInstalled(SMB_WHATSAPP_PACKAGE_NAME, packageManager);
-        }
+    public static boolean isPackageInstalled(String packageName, PackageManager packageManager) {
+        try {
+            final ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName,
+                    0
+            );
 
-    public boolean isStickerPackWhitelistedInWhatsAppConsumer(@NonNull String identifier)
-        {
-            return isWhitelistedFromProvider(identifier, CONSUMER_WHATSAPP_PACKAGE_NAME);
+            //noinspection SimplifiableIfStatement
+            return applicationInfo.enabled;
+        } catch (PackageManager.NameNotFoundException exception) {
+            return false;
         }
+    }
 
-    public boolean isStickerPackWhitelistedInWhatsAppSmb(@NonNull String identifier)
-        {
-            return isWhitelistedFromProvider(identifier, SMB_WHATSAPP_PACKAGE_NAME);
-        }
+    public boolean isWhatsAppConsumerAppInstalled(PackageManager packageManager) {
+        return !WhatsappWhitelistValidator.isPackageInstalled(CONSUMER_WHATSAPP_PACKAGE_NAME,
+                packageManager
+        );
+    }
+
+    public boolean isWhatsAppSmbAppInstalled(PackageManager packageManager) {
+        return !WhatsappWhitelistValidator.isPackageInstalled(SMB_WHATSAPP_PACKAGE_NAME,
+                packageManager
+        );
+    }
+
+    public boolean isStickerPackWhitelistedInWhatsAppConsumer(@NonNull String identifier) {
+        return isWhitelistedFromProvider(identifier, CONSUMER_WHATSAPP_PACKAGE_NAME);
+    }
+
+    public boolean isStickerPackWhitelistedInWhatsAppSmb(@NonNull String identifier) {
+        return isWhitelistedFromProvider(identifier, SMB_WHATSAPP_PACKAGE_NAME);
+    }
 }

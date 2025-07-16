@@ -37,14 +37,20 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.arch.sticker.R;
 import br.arch.sticker.core.error.throwable.content.ContentProviderException;
 import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
 import br.arch.sticker.domain.data.database.repository.SelectStickerPackRepo;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
+import br.arch.sticker.domain.util.ApplicationTranslate;
+import br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
 
 public class StickerPackQueryHelper {
+    private final static String TAG_LOG = StickerPackQueryHelper.class.getSimpleName();
+
     private final Context context;
+    private final ApplicationTranslate applicationTranslate;
     private final SelectStickerPackRepo selectStickerPackRepo;
 
     public StickerPackQueryHelper(Context context) {
@@ -52,12 +58,18 @@ public class StickerPackQueryHelper {
         SQLiteDatabase database = StickerDatabaseHelper.getInstance(this.context)
                 .getReadableDatabase();
         this.selectStickerPackRepo = new SelectStickerPackRepo(database);
+        this.applicationTranslate = new ApplicationTranslate(this.context.getResources());
     }
 
     @NonNull
     public Cursor fetchListStickerPackData(@NonNull Uri uri, @NonNull List<StickerPack> stickerPackList) {
         MatrixCursor cursor = new MatrixCursor(
-                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_TRAY_IMAGE_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
+                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY,
+                        STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_TRAY_IMAGE_IN_QUERY,
+                        ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY,
+                        PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE,
+                        LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE,
+                        ANIMATED_STICKER_PACK,});
 
         for (StickerPack stickerPack : stickerPackList) {
             MatrixCursor.RowBuilder builder = cursor.newRow();
@@ -83,7 +95,9 @@ public class StickerPackQueryHelper {
     public List<StickerPack> fetchListStickerPackFromDatabase() {
         Cursor cursor = selectStickerPackRepo.getAllStickerPacks();
         if (cursor == null) {
-            throw new ContentProviderException("Cursor nulo ao buscar pacote de figurinhas.");
+            throw new ContentProviderException(
+                    applicationTranslate.translate(R.string.throw_null_cursor_searching_stickerpack)
+                            .log(TAG_LOG, Level.ERROR).get());
         }
 
         List<StickerPack> stickerPackList = new ArrayList<>();
@@ -122,7 +136,8 @@ public class StickerPackQueryHelper {
                         currentStickerPack = new StickerPack(identifier, name, publisher,
                                 trayImageFile, publisherEmail, publisherWebsite,
                                 privacyPolicyWebsite, licenseAgreementWebsite, imageDataVersion,
-                                avoidCache, animatedStickerPack);
+                                avoidCache, animatedStickerPack
+                        );
 
                         currentStickerPack.setStickers(new ArrayList<>());
                         stickerPackList.add(currentStickerPack);
@@ -139,7 +154,8 @@ public class StickerPackQueryHelper {
                             cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
 
                     Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid,
-                            accessibilityText, identifier);
+                            accessibilityText, identifier
+                    );
                     currentStickerPack.getStickers().add(sticker);
 
                 } while (cursor.moveToNext());
@@ -154,7 +170,12 @@ public class StickerPackQueryHelper {
     @NonNull
     public Cursor fetchStickerPackData(@NonNull Uri uri, @NonNull StickerPack stickerPack) {
         MatrixCursor cursor = new MatrixCursor(
-                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY, STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_TRAY_IMAGE_IN_QUERY, ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY, PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE, LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE, ANIMATED_STICKER_PACK,});
+                new String[]{STICKER_PACK_IDENTIFIER_IN_QUERY, STICKER_PACK_NAME_IN_QUERY,
+                        STICKER_PACK_PUBLISHER_IN_QUERY, STICKER_PACK_TRAY_IMAGE_IN_QUERY,
+                        ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, IOS_APP_DOWNLOAD_LINK_IN_QUERY,
+                        PUBLISHER_EMAIL, PUBLISHER_WEBSITE, PRIVACY_POLICY_WEBSITE,
+                        LICENSE_AGREEMENT_WEBSITE, IMAGE_DATA_VERSION, AVOID_CACHE,
+                        ANIMATED_STICKER_PACK,});
 
         MatrixCursor.RowBuilder builder = cursor.newRow();
         builder.add(stickerPack.identifier);
@@ -181,7 +202,9 @@ public class StickerPackQueryHelper {
                 stickerPackIdentifier);
 
         if (cursor == null) {
-            throw new ContentProviderException("Cursor nulo ao buscar pacote de figurinhas.");
+            throw new ContentProviderException(
+                    applicationTranslate.translate(R.string.throw_null_cursor_searching_stickerpack)
+                            .log(TAG_LOG, Level.ERROR).get());
         }
 
         StickerPack stickerPack = null;
@@ -222,14 +245,16 @@ public class StickerPackQueryHelper {
                             cursor.getColumnIndexOrThrow(STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY));
 
                     Sticker sticker = new Sticker(imageFile, emojis, stickerIsValid,
-                            accessibilityText, identifier);
+                            accessibilityText, identifier
+                    );
 
                     stickerList.add(sticker);
                 } while (cursor.moveToNext());
 
                 stickerPack = new StickerPack(identifier, name, publisher, trayImageFile,
                         publisherEmail, publisherWebsite, privacyPolicyWebsite,
-                        licenseAgreementWebsite, imageDataVersion, avoidCache, animatedStickerPack);
+                        licenseAgreementWebsite, imageDataVersion, avoidCache, animatedStickerPack
+                );
 
                 stickerPack.setStickers(stickerList);
             }
