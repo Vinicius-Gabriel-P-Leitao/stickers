@@ -153,7 +153,6 @@
     <string name="throw_convertsion_failed_generated">Falha na conversão ou arquivo não gerado.</string>
     <string name="throw_unexpected_error_during_native_conversion">Erro inesperado durante a conversão nativa.</string>
     <string name="throw_unknown_error_code">Código de erro desconhecido: %1$s.</string>
-    <!--- -->
     <string name="throw_identifier_empty">O identificador do pacote de figurinhas está vazio!</string>
     <string name="throw_identifier_exceeds_max_chars">O identificador do pacote de figurinhas não pode exceder %d caracteres</string>
     <string name="throw_publisher_empty">O publisher do pacote de figurinhas está vazio, identificador do pacote de figurinhas: %s</string>
@@ -177,7 +176,6 @@
     <string name="throw_invalid_characters">%s contém caracteres inválidos, os caracteres permitidos são de a a z, A a Z, _, \' - . e caractere de espaço</string>
     <string name="throw_contains_double_dot">%s não pode conter ..</string>
     <string name="throw_url_malformed">Url: %s está malformada</string>
-    <!-- -->
     <string name="throw_sticker_invalid">Figurinha inválida.</string>
     <string name="throw_sticker_path_invalid">Nenhum caminho de figurinha para o figurinha, identificador do pacote de figurinhas: %s</string>
     <string name="throw_accessibility_text_exceeds_limit">Comprimento do texto de acessibilidade excedeu o limite, identificador do pacote de figurinhas: %s, arquivo: %s</string>
@@ -192,7 +190,6 @@
     <string name="throw_sticker_file_cannot_open">Não foi possível abrir o arquivo da figurinha. Identificador do pacote: %s, arquivo: %s</string>
     <string name="throw_animated_sticker_frame_duration_too_short">O limite mínimo de duração de um quadro da figurinha animada é %d ms. Pacote: %s, Arquivo: %s</string>
     <string name="throw_null_cursor_searching_stickerpack">Cursor nulo ao buscar pacote de figurinhas.</string>
-    <!-- -->
     <string name="throw_invalid_path_segments">Segmentos de caminho devem ser 3, uri é: %s</string>
     <string name="throw_empty_identifier">Identificador está vazio, uri: %s</string>
     <string name="throw_empty_file_name">Nome do arquivo está vazio, uri: %s</string>
@@ -206,4 +203,21 @@
     <string name="throw_open_file_error">Erro ao abrir %s: %s</string>
     <string name="warn_log_non_webp_file">Arquivo ignorado por não ser .webp: %s</string>
     <string name="debug_log_validation_skipped">Ignorando validação porque não é o WhatsApp: %s</string>
+    <string name="throw_empty_sticker_pack_list">Nenhum pacote de figurinhas encontrado!</string>
+    <string name="throw_database_error_all_packs">Erro no banco de dados ao buscar pacotes de figurinhas!</string>
+    <string name="throw_unexpected_error_all_packs">Erro inesperado ao buscar pacotes de figurinhas.</string>
+    <string name="throw_invalid_identifier">O identificador do pacote está nulo!</string>
+    <string name="throw_database_error_single_pack">Erro no banco de dados ao buscar pacote de figurinhas: %s</string>
+    <string name="throw_unexpected_error_single_pack">Erro inesperado ao buscar pacote de figurinha</string>
+    <string name="warn_log_no_sticker_pack_found">Nenhum pacote de figurinhas encontrado para o identificador: %s</string>
+    <string name="error_log_invalid_identifier">Identificador de pacote de figurinhas inválido na Uri: %s</string>
+    <string name="error_log_fetch_single_pack">Erro buscar pacote de figurinha: %s</string>
+    <string name="error_log_fetch_sticker_pack">Erro ao buscar pacote de figurinhas: %s</string>
+    <!-- -->
+    <string name="throw_unknown_uri">URI desconhecida: %s</string>
+    <string name="throw_unsupported_operation">Operação não suportada!</string>
+    <string name="throw_context_unavailable">Contexto do content provider não disponível!</string>
+    <string name="throw_package_name_unavailable">Nome do pacote do content provider não disponível!</string>
+    <string name="throw_invalid_authority">Sua autoridade (%s) para o provedor de conteúdo deve começar com o nome do seu pacote: %s</string>
+    <string name="warn_log_fallback_not_found">Fallback não encontrado em assets</string>
 </resources>

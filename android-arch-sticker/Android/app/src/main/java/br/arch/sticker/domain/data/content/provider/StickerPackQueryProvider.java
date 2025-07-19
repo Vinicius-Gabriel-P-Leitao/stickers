@@ -8,7 +8,10 @@
 
 package br.arch.sticker.domain.data.content.provider;
 
+import static br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.*;
+
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.SQLException;
@@ -20,59 +23,77 @@ import androidx.annotation.NonNull;
 
 import java.util.List;
 
+import br.arch.sticker.R;
 import br.arch.sticker.domain.data.content.helper.StickerPackQueryHelper;
 import br.arch.sticker.domain.data.model.StickerPack;
+import br.arch.sticker.domain.util.ApplicationTranslate;
 
 public class StickerPackQueryProvider {
     private final static String TAG_LOG = StickerPackQueryProvider.class.getSimpleName();
 
     private final StickerPackQueryHelper stickerPackQueryHelper;
+    private final ApplicationTranslate applicationTranslate;
+    private final Resources resources;
 
     public StickerPackQueryProvider(Context context) {
+        this.resources = context.getResources();
         this.stickerPackQueryHelper = new StickerPackQueryHelper(context);
+        this.applicationTranslate = new ApplicationTranslate(this.resources);
     }
 
     public Cursor fetchAllStickerPack(@NonNull Uri uri) {
         try {
             List<StickerPack> stickerPackList = stickerPackQueryHelper.fetchListStickerPackFromDatabase();
             if (stickerPackList.isEmpty()) {
-                Log.w(TAG_LOG, "Nenhum pacote de figurinhas encontrado!");
-                return new MatrixCursor(new String[]{"Nenhum pacote de figurinhas encontrado!"});
+                return new MatrixCursor(new String[]{
+                        applicationTranslate.translate(R.string.throw_empty_sticker_pack_list)
+                                .log(TAG_LOG, Level.WARN).get()});
             }
 
             return stickerPackQueryHelper.fetchListStickerPackData(uri, stickerPackList);
         } catch (SQLException sqlException) {
-            Log.e(TAG_LOG, "Erro no banco de dados ao buscar pacotes de figurinhas!", sqlException);
+            Log.e(TAG_LOG, applicationTranslate.translate(R.string.throw_database_error_all_packs)
+                    .log(TAG_LOG, Level.ERROR, sqlException).get(), sqlException
+            );
             throw sqlException;
         } catch (RuntimeException exception) {
-            Log.e(TAG_LOG, "Error buscar pacote de figurinhas!", exception);
-            throw new RuntimeException("Erro inesperado ao buscar pacotes de figuinhas", exception);
+            throw new RuntimeException(
+                    applicationTranslate.translate(R.string.throw_unexpected_error_all_packs)
+                            .log(TAG_LOG, Level.ERROR, exception).get(), exception
+            );
         }
     }
 
     public Cursor fetchSingleStickerPack(@NonNull Uri uri, boolean isFiltered) {
         final String stickerPackIdentifier = uri.getLastPathSegment();
         if (TextUtils.isEmpty(stickerPackIdentifier)) {
-            Log.e(TAG_LOG, "Identificador de pacote de figurinhas inválido na Uri: " + uri);
-            return new MatrixCursor(new String[]{"O identifer do pacote está nulo!"});
+            return new MatrixCursor(new String[]{
+                    applicationTranslate.translate(R.string.throw_invalid_identifier)
+                            .log(TAG_LOG, Level.ERROR, uri).get()});
         }
 
         try {
-            StickerPack stickerPack = stickerPackQueryHelper.fetchStickerPackFromDatabase(stickerPackIdentifier, isFiltered);
+            StickerPack stickerPack = stickerPackQueryHelper.fetchStickerPackFromDatabase(
+                    stickerPackIdentifier, isFiltered);
             if (stickerPack == null) {
-                Log.w(TAG_LOG, "Nenhum pacote de figurinhas encontrado para o identificador: " +
-                        stickerPackIdentifier);
-                return new MatrixCursor(new String[]{"Erro ao buscar pacote, ele é nulo!"});
+                return new MatrixCursor(new String[]{
+                        applicationTranslate.translate(R.string.warn_log_no_sticker_pack_found,
+                                stickerPackIdentifier
+                        ).log(TAG_LOG, Level.WARN).get()});
             }
 
             return stickerPackQueryHelper.fetchStickerPackData(uri, stickerPack);
         } catch (SQLException sqlException) {
-            Log.e(TAG_LOG, "Erro no banco de dados ao buscar pacote de figurinhas: " +
-                    stickerPackIdentifier, sqlException);
+            Log.e(TAG_LOG, resources.getString(R.string.throw_database_error_single_pack,
+                            stickerPackIdentifier
+                    ), sqlException
+            );
             throw sqlException;
         } catch (RuntimeException exception) {
-            Log.e(TAG_LOG, "Error buscar pacote de figurinha: " + stickerPackIdentifier, exception);
-            throw new RuntimeException("Erro inesperado ao buscar pacote de figuinha", exception);
+            throw new RuntimeException(
+                    applicationTranslate.translate(R.string.throw_unexpected_error_all_packs)
+                            .log(TAG_LOG, Level.ERROR, exception).get(), exception
+            );
         }
     }
 }

@@ -9,6 +9,7 @@
 package br.arch.sticker.domain.data.content.provider;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -19,15 +20,18 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.arch.sticker.R;
 import br.arch.sticker.domain.data.content.helper.StickerQueryHelper;
 import br.arch.sticker.domain.data.model.Sticker;
 
 public class StickerQueryProvider {
     private final static String TAG_LOG = StickerQueryProvider.class.getSimpleName();
 
+    private final Resources resources;
     private final StickerQueryHelper stickerQueryHelper;
 
     public StickerQueryProvider(Context context) {
+        this.resources = context.getResources();
         this.stickerQueryHelper = new StickerQueryHelper(context);
     }
 
@@ -37,7 +41,7 @@ public class StickerQueryProvider {
 
         try {
             if (TextUtils.isEmpty(stickerPackIdentifier)) {
-                Log.e(TAG_LOG, "Identificador de pacote de adesivos inválido na Uri: " + uri);
+                Log.e(TAG_LOG, resources.getString(R.string.error_log_invalid_identifier, uri));
                 return stickerQueryHelper.fetchStickerData(uri, new ArrayList<>());
             }
 
@@ -45,7 +49,10 @@ public class StickerQueryProvider {
                     stickerPackIdentifier);
             return stickerQueryHelper.fetchStickerData(uri, stickerPack);
         } catch (RuntimeException exception) {
-            Log.e(TAG_LOG, "Erro ao buscar pacote de figurinhas: " + stickerPackIdentifier, exception);
+            Log.e(TAG_LOG, resources.getString(R.string.error_log_fetch_sticker_pack,
+                            stickerPackIdentifier
+                    ), exception
+            );
             return stickerQueryHelper.fetchStickerData(uri, new ArrayList<>());
         }
     }
