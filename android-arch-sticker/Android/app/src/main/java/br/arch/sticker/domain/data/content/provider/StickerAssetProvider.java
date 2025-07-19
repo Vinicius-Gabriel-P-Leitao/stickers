@@ -16,7 +16,6 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
@@ -28,58 +27,74 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import br.arch.sticker.R;
 import br.arch.sticker.core.error.throwable.base.InternalAppException;
 import br.arch.sticker.core.error.throwable.content.ContentProviderException;
 import br.arch.sticker.core.error.throwable.sticker.StickerFileException;
 import br.arch.sticker.core.validation.StickerValidator;
 import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
 import br.arch.sticker.domain.data.database.repository.SelectStickerPackRepo;
+import br.arch.sticker.domain.util.ApplicationTranslate;
+import br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
 
 public class StickerAssetProvider {
     private final static String TAG_LOG = StickerAssetProvider.class.getSimpleName();
 
     private final SelectStickerPackRepo selectStickerPackRepo;
+    private final ApplicationTranslate applicationTranslate;
     private final StickerValidator stickerValidator;
     private final Context context;
 
     public StickerAssetProvider(Context context) {
         this.context = context.getApplicationContext();
         this.stickerValidator = new StickerValidator(this.context);
-        SQLiteDatabase database = StickerDatabaseHelper.getInstance(
-                this.context).getReadableDatabase();
-        this.selectStickerPackRepo = new SelectStickerPackRepo(database);
+        this.applicationTranslate = new ApplicationTranslate(this.context.getResources());
+        this.selectStickerPackRepo = new SelectStickerPackRepo(
+                StickerDatabaseHelper.getInstance(this.context).getReadableDatabase());
     }
 
-    public AssetFileDescriptor fetchStickerAsset(Uri uri, boolean isWhatsApp) throws ContentProviderException, FileNotFoundException {
+    public AssetFileDescriptor fetchStickerAsset(Uri uri, boolean isWhatsApp)
+            throws ContentProviderException, FileNotFoundException {
         final File stickerPackDir = new File(context.getFilesDir(), STICKERS_ASSET);
         final List<String> pathSegments = uri.getPathSegments();
 
         if (pathSegments.size() != 3) {
-            throw new ContentProviderException("Segmentos de caminho devem ser 3, uri é: " + uri);
+            throw new ContentProviderException(
+                    applicationTranslate.translate(R.string.throw_invalid_path_segments, uri)
+                            .log(TAG_LOG, Level.ERROR).get());
         }
 
         final String fileName = pathSegments.get(2);
         final String stickerPackIdentifier = pathSegments.get(1);
 
         if (TextUtils.isEmpty(stickerPackIdentifier)) {
-            throw new ContentProviderException("Identificador está vazio, uri: " + uri);
+            throw new ContentProviderException(
+                    applicationTranslate.translate(R.string.throw_empty_identifier, uri)
+                            .log(TAG_LOG, Level.ERROR).get());
         }
 
         if (TextUtils.isEmpty(fileName)) {
-            throw new ContentProviderException("Nome do arquivo está vazio, uri: " + uri);
+            throw new ContentProviderException(
+                    applicationTranslate.translate(R.string.throw_empty_file_name, uri)
+                            .log(TAG_LOG, Level.ERROR).get());
         }
 
         final File stickerDirectory = new File(stickerPackDir, stickerPackIdentifier);
         final File stickerFile = new File(stickerDirectory, fileName);
 
         if (!stickerDirectory.exists() || !stickerDirectory.isDirectory()) {
+
             throw new FileNotFoundException(
-                    "Diretório de figurinhas não encontrado: " + stickerDirectory.getPath());
+                    applicationTranslate.translate(R.string.throw_sticker_directory_not_found,
+                            stickerDirectory.getPath()
+                    ).log(TAG_LOG, Level.ERROR).get());
         }
 
         if (!stickerFile.exists() || !stickerFile.isFile()) {
             throw new FileNotFoundException(
-                    "Arquivo não encontrado ou inválido: " + stickerFile.getAbsolutePath());
+                    applicationTranslate.translate(R.string.throw_file_not_found_or_invalid,
+                            stickerFile.getAbsolutePath()
+                    ).log(TAG_LOG, Level.ERROR).get());
         }
 
         if (THUMBNAIL_FILE.equalsIgnoreCase(fileName)) {
@@ -89,60 +104,74 @@ public class StickerAssetProvider {
         try (Cursor cursor = selectStickerPackRepo.getStickerPackIsAnimated(
                 stickerPackIdentifier)) {
             if (cursor == null) {
-                throw new ContentProviderException("Cursor nulo ao buscar pacote de figurinhas.");
+                throw new ContentProviderException(
+                        applicationTranslate.translate(R.string.throw_null_cursor)
+                                .log(TAG_LOG, Level.ERROR).get());
             }
 
             if (!cursor.moveToFirst()) {
                 throw new ContentProviderException(
-                        "Pacote de figurinha não encontrado no banco: " + stickerPackIdentifier);
+                        applicationTranslate.translate(R.string.throw_sticker_pack_not_found,
+                                stickerPackIdentifier
+                        ).log(TAG_LOG, Level.ERROR).get());
             }
 
-            final boolean animatedStickerPack = cursor.getInt(
-                    cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) != 0;
+            final boolean animatedStickerPack =
+                    cursor.getInt(cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) != 0;
             if (isWhatsApp) {
                 if (!fileName.toLowerCase(Locale.ROOT).endsWith(".webp")) {
-                    Log.w(TAG_LOG, "Arquivo ignorado por não ser .webp: " + fileName);
+                    Log.w(TAG_LOG, context.getString(R.string.warn_log_non_webp_file, fileName));
                     return null;
                 }
 
                 try {
                     stickerValidator.validateStickerFile(stickerPackIdentifier, fileName,
-                            animatedStickerPack);
+                            animatedStickerPack
+                    );
                 } catch (StickerFileException | InternalAppException exception) {
-                    Log.w(TAG_LOG,
-                            "Sticker inválido, ignorado: " + stickerFile.getAbsolutePath() + " - " + exception.getMessage());
-                    throw new ContentProviderException(exception.getMessage(), exception);
+                    throw new ContentProviderException(
+                            applicationTranslate.translate(R.string.throw_invalid_sticker,
+                                    stickerFile.getAbsolutePath(), fileName
+                            ).log(TAG_LOG, Level.WARN, exception.getMessage()).get(), exception
+                    );
                 }
             } else {
-                Log.d(TAG_LOG,
-                        "Ignorando validação porque não é o WhatsApp: " + stickerFile.getAbsolutePath());
+                Log.d(TAG_LOG, (context.getString(R.string.debug_log_validation_skipped,
+                                stickerFile.getAbsolutePath()
+                        ))
+                );
             }
 
             return this.openAssetFileSafely(stickerFile, "sticker");
         } catch (SQLException sqlException) {
-            Log.e(TAG_LOG,
-                    "Erro no banco de dados ao buscar se o pacote é animado: " + stickerPackIdentifier,
-                    sqlException);
-            throw new ContentProviderException(sqlException.getMessage(), sqlException);
+            throw new ContentProviderException(
+                    applicationTranslate.translate(R.string.throw_database_error,
+                            stickerPackIdentifier
+                    ).log(TAG_LOG, Level.ERROR, sqlException).get(), sqlException
+            );
         } catch (RuntimeException exception) {
-            Log.e(TAG_LOG,
-                    "Erro inesperado ao buscar sticker stickerPack: " + stickerPackIdentifier,
-                    exception);
-            throw new ContentProviderException("Erro inesperado ao buscar sticker stickerPack",
-                    exception);
+            throw new ContentProviderException(
+                    applicationTranslate.translate(R.string.throw_unexpected_error,
+                            stickerPackIdentifier
+                    ).log(TAG_LOG, Level.ERROR, exception).get(), exception
+            );
         }
     }
 
     private AssetFileDescriptor openAssetFileSafely(File file, String type) {
         try {
             ParcelFileDescriptor parcelFileDescriptor = ParcelFileDescriptor.open(file,
-                    ParcelFileDescriptor.MODE_READ_ONLY);
+                    ParcelFileDescriptor.MODE_READ_ONLY
+            );
             return new AssetFileDescriptor(parcelFileDescriptor, 0,
-                    AssetFileDescriptor.UNKNOWN_LENGTH);
+                    AssetFileDescriptor.UNKNOWN_LENGTH
+            );
         } catch (IOException exception) {
-            Log.e(TAG_LOG, "Erro ao abrir " + type + ": " + file.getAbsolutePath(), exception);
             throw new ContentProviderException(
-                    "Erro ao abrir " + type + ": " + file.getAbsolutePath(), exception);
+                    applicationTranslate.translate(R.string.throw_open_file_error, type,
+                            file.getAbsolutePath()
+                    ).log(TAG_LOG, Level.ERROR).get(), exception
+            );
         }
     }
 }

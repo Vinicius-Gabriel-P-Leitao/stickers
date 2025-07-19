@@ -193,4 +193,18 @@
     <string name="throw_sticker_file_cannot_open">Could not open the sticker file. Pack identifier: %s, file: %s</string>
     <string name="throw_animated_sticker_frame_duration_too_short">The minimum frame duration for an animated sticker is %d ms. Pack: %s, File: %s</string>
     <string name="throw_null_cursor_searching_stickerpack">Null cursor when searching for sticker pack.</string>
+    <!-- -->
+    <string name="throw_invalid_path_segments">Path segments must be 3, uri is: %s</string>
+    <string name="throw_empty_identifier">Identifier is empty, uri: %s</string>
+    <string name="throw_empty_file_name">File name is empty, uri: %s</string>
+    <string name="throw_sticker_directory_not_found">Sticker directory not found: %s</string>
+    <string name="throw_file_not_found_or_invalid">File not found or invalid: %s</string>
+    <string name="throw_null_cursor">Null cursor when fetching sticker pack.</string>
+    <string name="throw_sticker_pack_not_found">Sticker pack not found in database: %s</string>
+    <string name="throw_invalid_sticker">Invalid sticker, ignored: %s - %s</string>
+    <string name="throw_database_error">Database error when fetching whether pack is animated: %s</string>
+    <string name="throw_unexpected_error">Unexpected error when fetching sticker pack</string>
+    <string name="throw_open_file_error">Error opening %s: %s</string>
+    <string name="warn_log_non_webp_file">File ignored because it is not .webp: %s</string>
+    <string name="debug_log_validation_skipped">Skipping validation because it is not WhatsApp: %s</string>
 </resources>

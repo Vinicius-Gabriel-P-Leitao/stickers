@@ -192,4 +192,18 @@
     <string name="throw_sticker_file_cannot_open">Não foi possível abrir o arquivo da figurinha. Identificador do pacote: %s, arquivo: %s</string>
     <string name="throw_animated_sticker_frame_duration_too_short">O limite mínimo de duração de um quadro da figurinha animada é %d ms. Pacote: %s, Arquivo: %s</string>
     <string name="throw_null_cursor_searching_stickerpack">Cursor nulo ao buscar pacote de figurinhas.</string>
+    <!-- -->
+    <string name="throw_invalid_path_segments">Segmentos de caminho devem ser 3, uri é: %s</string>
+    <string name="throw_empty_identifier">Identificador está vazio, uri: %s</string>
+    <string name="throw_empty_file_name">Nome do arquivo está vazio, uri: %s</string>
+    <string name="throw_sticker_directory_not_found">Diretório de figurinhas não encontrado: %s</string>
+    <string name="throw_file_not_found_or_invalid">Arquivo não encontrado ou inválido: %s</string>
+    <string name="throw_null_cursor">Cursor nulo ao buscar pacote de figurinhas.</string>
+    <string name="throw_sticker_pack_not_found">Pacote de figurinha não encontrado no banco: %s</string>
+    <string name="throw_invalid_sticker">Sticker inválido, ignorado: %s - %s</string>
+    <string name="throw_database_error">Erro no banco de dados ao buscar se o pacote é animado: %s</string>
+    <string name="throw_unexpected_error">Erro inesperado ao buscar sticker stickerPack</string>
+    <string name="throw_open_file_error">Erro ao abrir %s: %s</string>
+    <string name="warn_log_non_webp_file">Arquivo ignorado por não ser .webp: %s</string>
+    <string name="debug_log_validation_skipped">Ignorando validação porque não é o WhatsApp: %s</string>
 </resources>

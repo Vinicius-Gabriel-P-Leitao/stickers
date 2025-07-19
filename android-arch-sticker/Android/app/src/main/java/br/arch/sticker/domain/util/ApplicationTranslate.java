@@ -63,19 +63,19 @@ public class ApplicationTranslate {
         public LoggableString log(String TAG_LOG, Level priority, Object... args) {
             switch (priority) {
                 case VERBOSE:
-                    Log.v(TAG_LOG, message + Arrays.toString(args));
+                    Log.v(TAG_LOG, message + "\n" + Arrays.toString(args));
                     break;
                 case INFO:
-                    Log.i(TAG_LOG, message + Arrays.toString(args));
+                    Log.i(TAG_LOG, message + "\n" + Arrays.toString(args));
                     break;
                 case WARN:
-                    Log.w(TAG_LOG, message + Arrays.toString(args));
+                    Log.w(TAG_LOG, message + "\n" + Arrays.toString(args));
                     break;
                 case ERROR:
-                    Log.e(TAG_LOG, message + Arrays.toString(args));
+                    Log.e(TAG_LOG, message + "\n" + Arrays.toString(args));
                     break;
                 default:
-                    Log.d(TAG_LOG, message + Arrays.toString(args));
+                    Log.d(TAG_LOG, message + "\n" + Arrays.toString(args));
                     break;
             }
             return this;
