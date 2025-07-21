@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 
 import java.io.File;
 
-import br.arch.sticker.core.error.code.SaveErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
 
@@ -26,7 +26,7 @@ public class StickerPackDirectory {
                     return CallbackResult.failure(
                             new StickerPackSaveException(
                                     String.format("Falha ao criar o mainDirectory: %s", mainDirectory.getPath()),
-                                    SaveErrorCode.ERROR_PACK_SAVE_UTIL));
+                                    ErrorCode.ERROR_PACK_SAVE_UTIL));
                 }
 
                 return CallbackResult.success(created);
@@ -47,7 +47,7 @@ public class StickerPackDirectory {
                     return CallbackResult.failure(
                             new StickerPackSaveException(
                                     String.format("Falha ao criar a pasta: %s", stickerPackDirectory.getPath()),
-                                    SaveErrorCode.ERROR_PACK_SAVE_UTIL));
+                                    ErrorCode.ERROR_PACK_SAVE_UTIL));
 
                 }
 

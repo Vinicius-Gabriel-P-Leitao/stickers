@@ -10,17 +10,20 @@ package br.arch.sticker.core.error.throwable.sticker;
 
 import androidx.annotation.NonNull;
 
-import br.arch.sticker.core.error.ErrorCodeProvider;
-import br.arch.sticker.core.error.code.SaveErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 
 // @formatter:off
 public class StickerPackSaveException extends AppCoreStateException {
-    public StickerPackSaveException(@NonNull String message, @NonNull ErrorCodeProvider errorCode) {
+    public StickerPackSaveException( Exception exception) {
+        super(exception);
+    }
+
+    public StickerPackSaveException(@NonNull String message, @NonNull ErrorCode errorCode) {
         super(message, errorCode);
     }
 
-    public StickerPackSaveException(@NonNull String message, Exception exception, @NonNull ErrorCodeProvider errorCode) {
+    public StickerPackSaveException(@NonNull String message, Exception exception, @NonNull ErrorCode errorCode) {
         super(message, exception, errorCode);
     }
 }

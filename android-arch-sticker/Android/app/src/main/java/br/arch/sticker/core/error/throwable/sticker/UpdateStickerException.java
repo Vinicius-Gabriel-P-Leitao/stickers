@@ -11,19 +11,19 @@ package br.arch.sticker.core.error.throwable.sticker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import br.arch.sticker.core.error.ErrorCodeProvider;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 
 public class UpdateStickerException extends AppCoreStateException {
-    public UpdateStickerException(@NonNull String message, ErrorCodeProvider errorCode) {
+    public UpdateStickerException(@NonNull String message, ErrorCode errorCode) {
         super(message, errorCode);
     }
 
-    public UpdateStickerException(@NonNull String message, ErrorCodeProvider errorCode, @Nullable Object[] details) {
+    public UpdateStickerException(@NonNull String message, ErrorCode errorCode, @Nullable Object[] details) {
         super(message, null, errorCode, details);
     }
 
-    public UpdateStickerException(@NonNull String message, @Nullable Throwable cause, ErrorCodeProvider errorCode, @Nullable Object[] details) {
+    public UpdateStickerException(@NonNull String message, @Nullable Throwable cause, ErrorCode errorCode, @Nullable Object[] details) {
         super(message, cause, errorCode, details);
     }
 }

@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 
 import java.io.File;
 
-import br.arch.sticker.core.error.code.DeleteErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.DeleteStickerException;
 import br.arch.sticker.core.pattern.CallbackResult;
 
@@ -52,12 +52,12 @@ public class DeleteStickerPackPathService {
                         } else {
                             return CallbackResult.failure(
                                     new DeleteStickerException("Falha ao deletar diretório: " + stickerPackDirectory.getAbsolutePath(),
-                                            DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
+                                            ErrorCode.ERROR_PACK_DELETE_SERVICE));
                         }
                     } else {
                         return CallbackResult.failure(
                                 new DeleteStickerException(String.format("Diretório não encontrado: %s", stickerPackDirectory.getAbsolutePath()),
-                                        DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
+                                        ErrorCode.ERROR_PACK_DELETE_SERVICE));
                     }
 
                 case WARNING:
@@ -68,6 +68,6 @@ public class DeleteStickerPackPathService {
             }
 
             return CallbackResult.failure(
-                    new DeleteStickerException("Status inesperado ao deletar pacote de figurinhas.", DeleteErrorCode.ERROR_PACK_DELETE_SERVICE));
+                    new DeleteStickerException("Status inesperado ao deletar pacote de figurinhas.", ErrorCode.ERROR_PACK_DELETE_SERVICE));
         }
 }

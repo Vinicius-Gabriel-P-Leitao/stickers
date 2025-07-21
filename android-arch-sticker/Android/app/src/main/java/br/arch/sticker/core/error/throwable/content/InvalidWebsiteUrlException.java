@@ -11,13 +11,13 @@ package br.arch.sticker.core.error.throwable.content;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import br.arch.sticker.core.error.ErrorCodeProvider;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 
 // @formatter:off
 public class InvalidWebsiteUrlException extends AppCoreStateException {
 
-    public InvalidWebsiteUrlException(@NonNull String message, @Nullable Throwable cause, ErrorCodeProvider errorCode, @Nullable String invalidUrl) {
+    public InvalidWebsiteUrlException(@NonNull String message, @Nullable Throwable cause, ErrorCode errorCode, @Nullable String invalidUrl) {
         super(message, cause, errorCode, new Object[]{invalidUrl});
     }
 }

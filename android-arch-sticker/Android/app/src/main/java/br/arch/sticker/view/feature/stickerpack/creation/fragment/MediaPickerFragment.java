@@ -145,10 +145,10 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
 
                                 if (result.isFailure()) {
                                     if (result.getError() instanceof AppCoreStateException appCoreStateException) {
-                                        String errorMessage = getString(
-                                                appCoreStateException.getErrorCode().getMessageResId());
-                                        Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT)
-                                                .show();
+                                        Toast.makeText(getContext(), getString(
+                                                        appCoreStateException.getErrorCode().getMessageResId()),
+                                                Toast.LENGTH_SHORT
+                                        ).show();
                                     }
 
                                     Toast.makeText(getContext(), result.getError().getMessage(),

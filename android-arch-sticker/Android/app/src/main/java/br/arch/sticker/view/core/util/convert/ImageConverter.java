@@ -20,7 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 
-import br.arch.sticker.core.error.code.MediaConversionErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 
 public class ImageConverter {
@@ -44,7 +44,7 @@ public class ImageConverter {
 
             if (bitmap == null) {
                 throw new MediaConversionException(String.format("Falha ao decodificar a imagem do caminho: %s", cleanedPath),
-                        MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
+                        ErrorCode.ERROR_PACK_CONVERSION_MEDIA);
             }
 
             Bitmap squareBitmap = cropImageAndResizeToSquare(bitmap);
@@ -59,7 +59,7 @@ public class ImageConverter {
                 return outputFile.getAbsoluteFile();
             } catch (IOException exception) {
                 throw new MediaConversionException(Objects.toString(exception.getMessage(), "Erro desconhecido ao converter mídia"),
-                        exception.getCause(), MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
+                        exception.getCause(), ErrorCode.ERROR_PACK_CONVERSION_MEDIA);
             }
         }
 

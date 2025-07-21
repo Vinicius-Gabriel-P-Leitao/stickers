@@ -11,28 +11,32 @@ package br.arch.sticker.core.error.throwable.base;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import br.arch.sticker.core.error.ErrorCodeProvider;
+import br.arch.sticker.core.error.ErrorCode;
 
 // @formatter:off
 public class AppCoreStateException extends IllegalStateException {
-    private final ErrorCodeProvider errorCode;
+    private final ErrorCode errorCode;
     private final Object[] details;
 
-    public AppCoreStateException(@NonNull String message, @Nullable ErrorCodeProvider errorCode) {
+    public AppCoreStateException(@Nullable Throwable cause) {
+        this(cause != null ? cause.getMessage() : null, cause, null, null);
+    }
+
+    public AppCoreStateException(@NonNull String message, @Nullable ErrorCode errorCode) {
         this(message, null, errorCode, null);
     }
 
-    public AppCoreStateException(@NonNull String message, @Nullable Throwable cause, @Nullable ErrorCodeProvider errorCode) {
+    public AppCoreStateException(@NonNull String message, @Nullable Throwable cause, @Nullable ErrorCode errorCode) {
         this(message, cause, errorCode, null);
     }
 
-    public AppCoreStateException(@NonNull String message, @Nullable Throwable cause, @Nullable ErrorCodeProvider errorCode, @Nullable Object[] details) {
+    public AppCoreStateException(@NonNull String message, @Nullable Throwable cause, @Nullable ErrorCode errorCode, @Nullable Object[] details) {
         super(message, cause);
         this.errorCode = errorCode;
         this.details = details;
     }
 
-    public ErrorCodeProvider getErrorCode() {
+    public ErrorCode getErrorCode() {
         return errorCode;
     }
 

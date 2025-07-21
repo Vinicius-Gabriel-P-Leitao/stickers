@@ -21,7 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import br.arch.sticker.core.error.code.FetchErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.FetchStickerException;
 
 public class FetchStickerAssetService {
@@ -53,18 +53,18 @@ public class FetchStickerAssetService {
                 throw new FetchStickerException(
                         "Não foi possível ler a figurinha: " + stickerPackIdentifier + "/" +
                                 fileName,
-                        fileNotFoundException, FetchErrorCode.ERROR_EMPTY_STICKERPACK
+                        fileNotFoundException, ErrorCode.ERROR_EMPTY_STICKERPACK
                 );
             } catch (IOException exception) {
                 throw new FetchStickerException(
                         "Erro ao ler figurinha: " + stickerPackIdentifier + "/" + fileName,
-                        exception, FetchErrorCode.ERROR_EMPTY_STICKERPACK
+                        exception, ErrorCode.ERROR_EMPTY_STICKERPACK
                 );
             }
         } else {
             throw new FetchStickerException(
                     "Arquivo de figurinha não encontrado: " + stickerFile.getAbsolutePath(),
-                    FetchErrorCode.ERROR_EMPTY_STICKERPACK
+                    ErrorCode.ERROR_EMPTY_STICKERPACK
             );
         }
     }

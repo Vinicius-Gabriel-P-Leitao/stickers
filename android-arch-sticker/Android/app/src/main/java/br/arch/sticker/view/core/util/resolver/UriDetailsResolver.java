@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import br.arch.sticker.core.error.code.MediaConversionErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 
@@ -42,7 +42,7 @@ public class UriDetailsResolver {
             mediaUris = fetchListUri(context, MimeTypesSupported.ANIMATED);
         } else {
             throw new MediaConversionException("Tipo MIME não suportado para conversão: " +
-                    Arrays.toString(mimeTypes), MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA);
+                    Arrays.toString(mimeTypes), ErrorCode.ERROR_PACK_CONVERSION_MEDIA);
         }
 
         return mediaUris;

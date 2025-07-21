@@ -156,6 +156,18 @@
     <string name="error_invalid_path_segments">Segmentos de caminho devem ser 3, uri é: %s</string>
     <string name="error_sticker_pack_not_found">Pacote de figurinha não encontrado: %s</string>
     <string name="error_open_file_error">Erro ao abrir %s: %s</string>
+    <string name="error_save_sticker_pack_general">Erro ao salvar pacote de figurinhas.</string>
+    <string name="error_save_sticker_pack_directory_null">O diretório para salvar os pacotes está como nulo.</string>
+    <string name="error_save_sticker_pack_invalid_id">Pacote de figurinhas inválido ou identificador nulo.</string>
+    <string name="error_save_sticker_pack_db">Erro de banco ao inserir pacote.</string>
+    <string name="error_validate_sticker_pack">Erro ao validar pacote!</string>
+    <string name="error_validate_sticker">Erro ao validar figurinha!</string>
+    <string name="error_unexpected_save_sticker_pack_db">Erro inesperado ao salvar pacote de figurinhas no banco de dados.</string>
+    <string name="error_insert_sticker_invalid_data">Dados da figurinha inválidos ou identificador de pacote ausente.</string>
+    <string name="error_insert_sticker_db">Erro no banco ao inserir figurinha.</string>
+    <string name="error_unexpected_insert_sticker_db">Erro inesperado ao salvar figurinha no banco de dados.</string>
+    <string name="error_create_sticker_placeholder">Erro ao criar placeholder para o pacote de figurinhas!</string>
+    <string name="error_cursos_invalid_fields">O cursor está com campos inválidos.</string>
 
     <!-- Debug and Warning Logs -->
     <string name="debug_frame_updated">Frame atualizado: %1$s.</string>

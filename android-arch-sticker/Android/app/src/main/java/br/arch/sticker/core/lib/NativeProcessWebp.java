@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import br.arch.sticker.R;
-import br.arch.sticker.core.error.code.MediaConversionErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 import br.arch.sticker.domain.util.ApplicationTranslate;
 import br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
@@ -61,20 +61,20 @@ public class NativeProcessWebp {
                                     ? exception.getMessage()
                                     : applicationTranslate.translate(R.string.error_pausing_thread).log(TAG_LOG, Level.ERROR, exception).get(),
                                 exception.getCause(),
-                                MediaConversionErrorCode.ERROR_NATIVE_CONVERSION);
+                                ErrorCode.ERROR_NATIVE_CONVERSION);
                     }
 
                     callback.onSuccess(outputFile);
                 } else {
                     callback.onError(new MediaConversionException(
                             applicationTranslate.translate(R.string.error_conversion_failed).log(TAG_LOG, Level.ERROR).get(),
-                            MediaConversionErrorCode.ERROR_NATIVE_CONVERSION));
+                            ErrorCode.ERROR_NATIVE_CONVERSION));
                 }
             } catch (Exception exception) {
                 callback.onError(
                         new MediaConversionException(
                                 applicationTranslate.translate(R.string.error_native_conversion).log(TAG_LOG, Level.ERROR, exception).get(),
-                                MediaConversionErrorCode.ERROR_NATIVE_CONVERSION));
+                                ErrorCode.ERROR_NATIVE_CONVERSION));
             }
         });
     }

@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import br.arch.sticker.core.error.code.SaveErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.model.Sticker;
@@ -48,7 +48,7 @@ public class SaveStickerAssetService {
         if (!stickerPackDirectory.canWrite()) {
             return CallbackResult.failure(new StickerPackSaveException(
                     "Sem permissão de escrita no diretório destino: " + stickerPackDirectory,
-                    SaveErrorCode.ERROR_PACK_SAVE_SERVICE
+                    ErrorCode.ERROR_PACK_SAVE_SERVICE
             ));
         }
 
@@ -56,7 +56,7 @@ public class SaveStickerAssetService {
             Log.e("copyStickerFromCache", "Lista de stickers vazia!");
             return CallbackResult.failure(
                     new StickerPackSaveException("Lista de stickers vazia no pacote",
-                                                 SaveErrorCode.ERROR_PACK_SAVE_SERVICE
+                                                 ErrorCode.ERROR_PACK_SAVE_SERVICE
                     ));
         }
 
@@ -66,7 +66,7 @@ public class SaveStickerAssetService {
         ); if (thumbnail.isFailure() || thumbnail.isWarning()) {
             return CallbackResult.failure(new StickerPackSaveException(
                     "Falha ao criar thumbnail: " + thumbnail.getError(),
-                    SaveErrorCode.ERROR_PACK_SAVE_SERVICE
+                    ErrorCode.ERROR_PACK_SAVE_SERVICE
             ));
         }
 
@@ -78,7 +78,7 @@ public class SaveStickerAssetService {
             if (fileName == null || fileName.trim().isEmpty()) {
                 return CallbackResult.failure(
                         new StickerPackSaveException("Nome do arquivo do sticker é nulo ou vazio",
-                                                     SaveErrorCode.ERROR_PACK_SAVE_SERVICE
+                                                     ErrorCode.ERROR_PACK_SAVE_SERVICE
                         ));
             }
 
@@ -93,7 +93,7 @@ public class SaveStickerAssetService {
             File sourceFile = new File(context.getCacheDir(), fileName); if (!sourceFile.exists()) {
                 return CallbackResult.failure(new StickerPackSaveException(
                         String.format("Arquivo não encontrado: %s", fileName),
-                        SaveErrorCode.ERROR_PACK_SAVE_SERVICE
+                        ErrorCode.ERROR_PACK_SAVE_SERVICE
                 ));
             }
 
@@ -117,7 +117,7 @@ public class SaveStickerAssetService {
             } catch (IOException exception) {
                 return CallbackResult.failure(new StickerPackSaveException(
                         String.format("Erro ao copiar arquivo: %s", fileName), exception,
-                        SaveErrorCode.ERROR_PACK_SAVE_SERVICE
+                        ErrorCode.ERROR_PACK_SAVE_SERVICE
                 ));
             }
         }

@@ -17,7 +17,7 @@ import android.database.sqlite.SQLiteException;
 import java.util.List;
 
 import br.arch.sticker.R;
-import br.arch.sticker.core.error.code.DeleteErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.DeleteStickerException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
@@ -43,7 +43,7 @@ public class DeleteStickerPackService {
         if (stickerPackIdentifier == null) {
             return CallbackResult.failure(new DeleteStickerException(
                     applicationTranslate.translate(R.string.error_invalid_identifier)
-                            .log(TAG_LOG, Level.ERROR).get(), DeleteErrorCode.ERROR_PACK_DELETE_DB
+                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_DELETE_DB
             ));
         }
 
@@ -62,13 +62,13 @@ public class DeleteStickerPackService {
             return CallbackResult.failure(new DeleteStickerException(
                     applicationTranslate.translate(R.string.error_delete_sticker_db)
                             .log(TAG_LOG, Level.ERROR, runtimeException).get(), runtimeException,
-                    DeleteErrorCode.ERROR_PACK_DELETE_DB
+                    ErrorCode.ERROR_PACK_DELETE_DB
             ));
         } catch (Exception exception) {
             return CallbackResult.failure(new DeleteStickerException(
                     applicationTranslate.translate(R.string.error_unknown)
                             .log(TAG_LOG, Level.ERROR, exception).get(), exception,
-                    DeleteErrorCode.ERROR_PACK_DELETE_DB
+                    ErrorCode.ERROR_PACK_DELETE_DB
             ));
         }
     }
@@ -77,14 +77,14 @@ public class DeleteStickerPackService {
         if (stickerPackIdentifier == null) {
             return CallbackResult.failure(new DeleteStickerException(
                     applicationTranslate.translate(R.string.error_invalid_identifier)
-                            .log(TAG_LOG, Level.ERROR).get(), DeleteErrorCode.ERROR_PACK_DELETE_DB
+                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_DELETE_DB
             ));
         }
 
         if (stickersFileNameToDelete == null || stickersFileNameToDelete.isEmpty()) {
             throw new DeleteStickerException(
                     applicationTranslate.translate(R.string.error_sticker_file_not_found)
-                            .log(TAG_LOG, Level.ERROR).get(), DeleteErrorCode.ERROR_PACK_DELETE_DB
+                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_DELETE_DB
             );
         }
 
@@ -104,7 +104,7 @@ public class DeleteStickerPackService {
             return CallbackResult.failure(new DeleteStickerException(
                     applicationTranslate.translate(R.string.error_unknown)
                             .log(TAG_LOG, Level.ERROR, exception).get(), exception,
-                    DeleteErrorCode.ERROR_STICKER_DELETE_DB
+                    ErrorCode.ERROR_STICKER_DELETE_DB
             ));
         }
     }

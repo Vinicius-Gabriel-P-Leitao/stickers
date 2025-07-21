@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import br.arch.sticker.core.error.code.UpdateErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.UpdateStickerException;
 import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
 import br.arch.sticker.domain.data.database.repository.UpdateStickerPackRepo;
@@ -34,7 +34,7 @@ public class UpdateStickerPackService {
 
         String message = "Falha ao atualizar o nome do pacote de figurinhas.";
         Log.w(TAG_LOG, message);
-        throw new UpdateStickerException(message, UpdateErrorCode.ERROR_EMPTY_STICKERPACK);
+        throw new UpdateStickerException(message, ErrorCode.ERROR_EMPTY_STICKERPACK);
     }
 
     public boolean cleanStickerPackUrl(String stickerPackIdentifier) throws UpdateStickerException {
@@ -51,6 +51,6 @@ public class UpdateStickerPackService {
 
         String message = "Falha ao atualizar o nome do pacote de figurinhas.";
         Log.w(TAG_LOG, message);
-        throw new UpdateStickerException(message, UpdateErrorCode.ERROR_EMPTY_STICKERPACK);
+        throw new UpdateStickerException(message, ErrorCode.ERROR_EMPTY_STICKERPACK);
     }
 }

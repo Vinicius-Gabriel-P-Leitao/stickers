@@ -10,16 +10,16 @@ package br.arch.sticker.core.error.throwable.media;
 
 import androidx.annotation.NonNull;
 
-import br.arch.sticker.core.error.code.MediaConversionErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 
 // @formatter:off
 public class MediaConversionException extends AppCoreStateException {
-    public MediaConversionException(@NonNull String message, MediaConversionErrorCode errorCode) {
+    public MediaConversionException(@NonNull String message, ErrorCode errorCode) {
         super(message, errorCode);
     }
 
-    public MediaConversionException(@NonNull String message, Throwable cause, MediaConversionErrorCode errorCode) {
+    public MediaConversionException(@NonNull String message, Throwable cause, ErrorCode errorCode) {
         super(message, cause, errorCode);
     }
 }

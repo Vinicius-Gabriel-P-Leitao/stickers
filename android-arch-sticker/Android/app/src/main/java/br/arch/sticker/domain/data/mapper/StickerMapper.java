@@ -6,7 +6,7 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-package br.arch.sticker.domain.data.database.mapper;
+package br.arch.sticker.domain.data.mapper;
 
 import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.FK_STICKER_PACK;
 import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY;

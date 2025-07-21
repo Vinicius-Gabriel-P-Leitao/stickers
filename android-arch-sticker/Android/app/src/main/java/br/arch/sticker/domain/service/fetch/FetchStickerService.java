@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.arch.sticker.BuildConfig;
-import br.arch.sticker.core.error.code.StickerAssetErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.FetchStickerException;
 import br.arch.sticker.domain.data.content.StickerContentProvider;
 import br.arch.sticker.domain.data.model.Sticker;
@@ -59,11 +59,11 @@ public class FetchStickerService {
 
                 if (bytes.length == 0) {
                     if (!TextUtils.equals(sticker.stickerIsValid,
-                            StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.name())) {
+                            ErrorCode.STICKER_FILE_NOT_EXIST.name())) {
                         boolean updated = updateStickerService.updateInvalidSticker(
                                 stickerPackIdentifier,
                                 sticker.imageFileName,
-                                StickerAssetErrorCode.STICKER_FILE_NOT_EXIST);
+                                ErrorCode.STICKER_FILE_NOT_EXIST);
                     }
 
                     continue;
@@ -72,9 +72,9 @@ public class FetchStickerService {
                 sticker.setSize(bytes.length);
             } catch (FetchStickerException exception) {
                 if (!TextUtils.equals(sticker.stickerIsValid,
-                        StickerAssetErrorCode.STICKER_FILE_NOT_EXIST.name())) {
+                        ErrorCode.STICKER_FILE_NOT_EXIST.name())) {
                     updateStickerService.updateInvalidSticker(stickerPackIdentifier,
-                            sticker.imageFileName, StickerAssetErrorCode.STICKER_FILE_NOT_EXIST);
+                            sticker.imageFileName, ErrorCode.STICKER_FILE_NOT_EXIST);
                 }
             }
         }

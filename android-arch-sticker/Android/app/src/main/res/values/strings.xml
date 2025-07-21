@@ -156,6 +156,19 @@
     <string name="error_invalid_path_segments">Path segments must be 3, uri is: %s</string>
     <string name="error_sticker_pack_not_found">Sticker pack not found: %s</string>
     <string name="error_open_file_error">Error opening %s: %s</string>
+    <string name="error_save_sticker_pack_general">Error saving sticker pack.</string>
+    <string name="error_save_sticker_pack_directory_null">The directory for saving sticker packs is null.</string>
+    <string name="error_save_sticker_pack_invalid_id">Invalid sticker pack or null identifier.</string>
+    <string name="error_save_sticker_pack_db">Database error while inserting sticker pack.</string>
+    <string name="error_validate_sticker_pack">Error validating sticker pack!</string>
+    <string name="error_validate_sticker">Error validating sticker!</string>
+    <string name="error_unexpected_save_sticker_pack_db">Unexpected error saving sticker pack to database.</string>
+    <string name="error_insert_sticker_invalid_data">Invalid sticker data or missing pack identifier.</string>
+    <string name="error_insert_sticker_db">Database error while inserting sticker.</string>
+    <string name="error_unexpected_insert_sticker_db">Unexpected error saving sticker to database.</string>
+    <string name="error_create_sticker_placeholder">Error creating placeholder for the sticker pack!</string>
+    <string name="error_cursos_invalid_fields">The cursor has invalid fields.</string>
+
 
     <!-- Debug and Warning Logs -->
     <string name="debug_frame_updated">Frame updated: %1$s.</string>

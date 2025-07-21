@@ -16,7 +16,7 @@ import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import br.arch.sticker.R;
-import br.arch.sticker.core.error.code.DeleteErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.sticker.DeleteStickerException;
 import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
@@ -40,7 +40,7 @@ public class DeleteStickerService {
         if (stickerPackIdentifier == null || fileName == null) {
             throw new DeleteStickerException(
                     applicationTranslate.translate(R.string.error_delete_sticker_pack_id)
-                            .log(TAG_LOG, Level.ERROR).get(), DeleteErrorCode.ERROR_PACK_DELETE_DB
+                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_DELETE_DB
             );
         }
 
@@ -64,7 +64,7 @@ public class DeleteStickerService {
             return CallbackResult.failure(new DeleteStickerException(
                     applicationTranslate.translate(R.string.error_delete_sticker_db)
                             .log(TAG_LOG, Level.ERROR).get(), exception,
-                    DeleteErrorCode.ERROR_PACK_DELETE_DB
+                    ErrorCode.ERROR_PACK_DELETE_DB
             ));
         }
     }

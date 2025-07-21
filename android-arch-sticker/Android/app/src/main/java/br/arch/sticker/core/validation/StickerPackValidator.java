@@ -27,8 +27,7 @@ import java.net.URL;
 import java.util.List;
 
 import br.arch.sticker.R;
-import br.arch.sticker.core.error.code.InvalidUrlErrorCode;
-import br.arch.sticker.core.error.code.StickerPackErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.content.InvalidWebsiteUrlException;
 import br.arch.sticker.core.error.throwable.sticker.FetchStickerException;
 import br.arch.sticker.core.error.throwable.sticker.StickerPackValidatorException;
@@ -63,7 +62,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_identifier)
                             .log(TAG_LOG, Level.ERROR).get(),
-                    StickerPackErrorCode.INVALID_IDENTIFIER
+                    ErrorCode.INVALID_IDENTIFIER
             );
         }
 
@@ -71,7 +70,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_identifier)
                             .log(TAG_LOG, Level.ERROR).get(),
-                    StickerPackErrorCode.INVALID_IDENTIFIER
+                    ErrorCode.INVALID_IDENTIFIER
             );
         }
 
@@ -81,7 +80,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_publisher)
                             .log(TAG_LOG, Level.ERROR, stickerPack.identifier).get(),
-                    StickerPackErrorCode.INVALID_PUBLISHER
+                    ErrorCode.INVALID_PUBLISHER
             );
         }
 
@@ -90,7 +89,7 @@ public class StickerPackValidator {
                     applicationTranslate.translate(R.string.error_invalid_publisher)
                             .log(TAG_LOG, Level.ERROR, CHAR_PUBLISHER_COUNT_MAX,
                                     stickerPack.identifier
-                            ).get(), StickerPackErrorCode.INVALID_PUBLISHER
+                            ).get(), ErrorCode.INVALID_PUBLISHER
             );
         }
 
@@ -98,7 +97,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_empty_pack_name)
                             .log(TAG_LOG, Level.ERROR, stickerPack.identifier).get(),
-                    StickerPackErrorCode.INVALID_STICKERPACK_NAME
+                    ErrorCode.INVALID_STICKERPACK_NAME
             );
         }
 
@@ -107,7 +106,7 @@ public class StickerPackValidator {
                     applicationTranslate.translate(R.string.error_name_length_exceeded,
                             CHAR_NAME_COUNT_MAX
                     ).log(TAG_LOG, Level.ERROR, stickerPack.identifier).get(),
-                    StickerPackErrorCode.INVALID_PUBLISHER
+                    ErrorCode.INVALID_PUBLISHER
             );
         }
 
@@ -115,7 +114,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_thumbnail)
                             .log(TAG_LOG, Level.ERROR, stickerPack.identifier).get(),
-                    StickerPackErrorCode.INVALID_THUMBNAIL
+                    ErrorCode.INVALID_THUMBNAIL
             );
         }
 
@@ -124,7 +123,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_android_url,
                             stickerPack.androidPlayStoreLink
-                    ).log(TAG_LOG, Level.ERROR).get(), StickerPackErrorCode.INVALID_ANDROID_URL_SITE
+                    ).log(TAG_LOG, Level.ERROR).get(), ErrorCode.INVALID_ANDROID_URL_SITE
             );
         }
 
@@ -134,7 +133,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_android_url,
                             PLAY_STORE_DOMAIN
-                    ).log(TAG_LOG, Level.ERROR).get(), StickerPackErrorCode.INVALID_ANDROID_URL_SITE
+                    ).log(TAG_LOG, Level.ERROR).get(), ErrorCode.INVALID_ANDROID_URL_SITE
             );
         }
 
@@ -143,7 +142,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_ios_url,
                             stickerPack.iosAppStoreLink
-                    ).log(TAG_LOG, Level.ERROR).get(), StickerPackErrorCode.INVALID_IOS_URL_SITE
+                    ).log(TAG_LOG, Level.ERROR).get(), ErrorCode.INVALID_IOS_URL_SITE
             );
         }
 
@@ -152,7 +151,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_ios_url,
                             APPLE_STORE_DOMAIN
-                    ).log(TAG_LOG, Level.ERROR).get(), StickerPackErrorCode.INVALID_IOS_URL_SITE
+                    ).log(TAG_LOG, Level.ERROR).get(), ErrorCode.INVALID_IOS_URL_SITE
             );
         }
 
@@ -161,7 +160,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_url,
                             stickerPack.licenseAgreementWebsite
-                    ).log(TAG_LOG, Level.ERROR).get(), StickerPackErrorCode.INVALID_WEBSITE
+                    ).log(TAG_LOG, Level.ERROR).get(), ErrorCode.INVALID_WEBSITE
             );
         }
 
@@ -170,7 +169,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_url,
                             stickerPack.publisherWebsite
-                    ).log(TAG_LOG, Level.ERROR).get(), StickerPackErrorCode.INVALID_WEBSITE
+                    ).log(TAG_LOG, Level.ERROR).get(), ErrorCode.INVALID_WEBSITE
             );
         }
 
@@ -179,7 +178,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_url,
                             stickerPack.publisherWebsite
-                    ).log(TAG_LOG, Level.ERROR).get(), StickerPackErrorCode.INVALID_WEBSITE
+                    ).log(TAG_LOG, Level.ERROR).get(), ErrorCode.INVALID_WEBSITE
             );
         }
 
@@ -188,7 +187,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_email,
                             stickerPack.publisherEmail
-                    ).log(TAG_LOG, Level.ERROR).get(), StickerPackErrorCode.INVALID_EMAIL
+                    ).log(TAG_LOG, Level.ERROR).get(), ErrorCode.INVALID_EMAIL
             );
         }
 
@@ -201,7 +200,7 @@ public class StickerPackValidator {
                         applicationTranslate.translate(R.string.error_invalid_thumbnail)
                                 .log(TAG_LOG, Level.ERROR, TRAY_IMAGE_FILE_SIZE_MAX_KB,
                                         stickerPack.trayImageFile
-                                ).get(), StickerPackErrorCode.INVALID_THUMBNAIL
+                                ).get(), ErrorCode.INVALID_THUMBNAIL
                 );
             }
 
@@ -214,7 +213,7 @@ public class StickerPackValidator {
                         applicationTranslate.translate(R.string.error_invalid_thumbnail,
                                 TRAY_IMAGE_DIMENSION_MIN, TRAY_IMAGE_DIMENSION_MAX,
                                 bitmap.getHeight(), stickerPack.trayImageFile
-                        ).log(TAG_LOG, Level.ERROR).get(), StickerPackErrorCode.INVALID_THUMBNAIL
+                        ).log(TAG_LOG, Level.ERROR).get(), ErrorCode.INVALID_THUMBNAIL
                 );
             }
 
@@ -224,7 +223,7 @@ public class StickerPackValidator {
                         applicationTranslate.translate(R.string.error_invalid_thumbnail,
                                 TRAY_IMAGE_DIMENSION_MIN, TRAY_IMAGE_DIMENSION_MAX,
                                 bitmap.getWidth(), stickerPack.trayImageFile
-                        ).log(TAG_LOG, Level.ERROR).get(), StickerPackErrorCode.INVALID_THUMBNAIL
+                        ).log(TAG_LOG, Level.ERROR).get(), ErrorCode.INVALID_THUMBNAIL
                 );
             }
         } catch (FetchStickerException exception) {
@@ -232,7 +231,7 @@ public class StickerPackValidator {
                     applicationTranslate.translate(R.string.error_invalid_thumbnail,
                             stickerPack.trayImageFile
                     ).log(TAG_LOG, Level.ERROR).get(), exception,
-                    StickerPackErrorCode.INVALID_THUMBNAIL
+                    ErrorCode.INVALID_THUMBNAIL
             );
         }
 
@@ -242,7 +241,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_pack_size,
                             stickers.size(), stickerPack.identifier
-                    ).log(TAG_LOG, Level.ERROR).get(), StickerPackErrorCode.INVALID_STICKERPACK_SIZE
+                    ).log(TAG_LOG, Level.ERROR).get(), ErrorCode.INVALID_STICKERPACK_SIZE
             );
         }
     }
@@ -253,7 +252,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_invalid_characters, string)
                             .log(TAG_LOG, Level.ERROR).get(),
-                    StickerPackErrorCode.INVALID_STICKERPACK_NAME
+                    ErrorCode.INVALID_STICKERPACK_NAME
             );
         }
 
@@ -261,7 +260,7 @@ public class StickerPackValidator {
             throw new StickerPackValidatorException(
                     applicationTranslate.translate(R.string.error_contains_double_dot, string)
                             .log(TAG_LOG, Level.WARN).get(),
-                    StickerPackErrorCode.INVALID_STICKERPACK_NAME
+                    ErrorCode.INVALID_STICKERPACK_NAME
             );
         }
     }
@@ -274,7 +273,7 @@ public class StickerPackValidator {
             throw new InvalidWebsiteUrlException(
                     applicationTranslate.translate(R.string.error_invalid_url, websiteUrl)
                             .log(TAG_LOG, Level.ERROR, exception).get(), exception,
-                    InvalidUrlErrorCode.INVALID_URL, websiteUrl
+                    ErrorCode.INVALID_URL, websiteUrl
             );
         }
 
@@ -294,7 +293,7 @@ public class StickerPackValidator {
             throw new InvalidWebsiteUrlException(
                     applicationTranslate.translate(R.string.error_invalid_url, urlString)
                             .log(TAG_LOG, Level.ERROR, exception).get(), exception,
-                    InvalidUrlErrorCode.INVALID_URL, urlString
+                    ErrorCode.INVALID_URL, urlString
             );
         }
 
