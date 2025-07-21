@@ -84,29 +84,34 @@ public class StickerEditorViewModel extends AndroidViewModel {
             try (MediaMetadataRetriever retriever = new MediaMetadataRetriever()) {
                 retriever.setDataSource(context, videoUri);
 
-                String durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-                String widthStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
-                String heightStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+                String durationStr = retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_DURATION);
+                String widthStr = retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+                String heightStr = retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
 
                 if (durationStr == null) {
-                    Log.w(TAG_LOG, applicationTranslate.translate(R.string.warning_log_unknown, "durationStr").get());
+                    Log.w(TAG_LOG, applicationTranslate.translate(R.string.error_unknown).get());
                     return;
                 }
 
                 if (widthStr == null) {
-                    Log.w(TAG_LOG, applicationTranslate.translate(R.string.warning_log_unknown, "widthStr").get());
+                    Log.w(TAG_LOG, applicationTranslate.translate(R.string.error_unknown).get());
                     return;
                 }
 
                 if (heightStr == null) {
-                    Log.w(TAG_LOG, applicationTranslate.translate(R.string.warning_log_unknown, "heightStr").get());
+                    Log.w(TAG_LOG, applicationTranslate.translate(R.string.error_unknown).get());
                 }
 
                 videoDurationMsLiveData.postValue(Long.parseLong(durationStr));
                 mediaWidth.postValue(widthStr);
                 mediaHeight.postValue(heightStr);
             } catch (Exception exception) {
-                errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_message_failed_to_load_video_metadata).log(TAG_LOG, Level.ERROR, exception).get());
+                errorMessageLiveData.postValue(
+                        applicationTranslate.translate(R.string.error_failed_load_video_metadata)
+                                .log(TAG_LOG, Level.ERROR, exception).get());
             }
         });
     }
@@ -121,30 +126,33 @@ public class StickerEditorViewModel extends AndroidViewModel {
         retriever.setDataSource(context, videoUri);
 
         scheduler.scheduleWithFixedDelay(() -> {
-            if (!isExtracting) {
-                scheduler.shutdown();
-                return;
-            }
+                    if (!isExtracting) {
+                        scheduler.shutdown();
+                        return;
+                    }
 
-            final Long videoDuration = videoDurationMsLiveData.getValue();
-            if (videoDuration == null || videoDuration == 0L) return;
+                    final Long videoDuration = videoDurationMsLiveData.getValue();
+                    if (videoDuration == null || videoDuration == 0L) return;
 
-            int totalFrames = (int) ((videoDuration / 1000f) * FRAMES_PER_SECOND);
+                    int totalFrames = (int) ((videoDuration / 1000f) * FRAMES_PER_SECOND);
 
-            if (nextFrameIndex >= totalFrames) {
-                isExtracting = false;
-                scheduler.shutdown();
-                return;
-            }
+                    if (nextFrameIndex >= totalFrames) {
+                        isExtracting = false;
+                        scheduler.shutdown();
+                        return;
+                    }
 
-            long startMs = (nextFrameIndex * 1000L) / FRAMES_PER_SECOND;
-            long windowDurationMs = batchSize * (1000L / FRAMES_PER_SECOND);
+                    long startMs = (nextFrameIndex * 1000L) / FRAMES_PER_SECOND;
+                    long windowDurationMs = batchSize * (1000L / FRAMES_PER_SECOND);
 
-            extractFramesInWindow(startMs, windowDurationMs, FRAMES_PER_SECOND, nextFrameIndex, batchSize);
+                    extractFramesInWindow(startMs, windowDurationMs, FRAMES_PER_SECOND, nextFrameIndex,
+                            batchSize
+                    );
 
-            nextFrameIndex += batchSize;
+                    nextFrameIndex += batchSize;
 
-        }, 0, 500, TimeUnit.MILLISECONDS);
+                }, 0, 500, TimeUnit.MILLISECONDS
+        );
     }
 
     @Override
@@ -161,7 +169,9 @@ public class StickerEditorViewModel extends AndroidViewModel {
 
             final Long videoDurationMs = videoDurationMsLiveData.getValue();
             if (videoDurationMs == null || videoDurationMs == 0L) {
-                errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_log_timeline_invalid_duration).log(TAG_LOG, Level.ERROR).get());
+                errorMessageLiveData.postValue(
+                        applicationTranslate.translate(R.string.error_invalid_timeline_duration)
+                                .log(TAG_LOG, Level.ERROR).get());
                 return;
             }
 
@@ -181,21 +191,29 @@ public class StickerEditorViewModel extends AndroidViewModel {
                         continue;
                     }
 
-                    Log.d(TAG_LOG, applicationTranslate.translate(R.string.debug_log_extracting_frame_at_index, globalIndex, timeMs).get());
-                    Bitmap frame = retriever.getFrameAtTime(
-                            timeMs * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                    Log.d(TAG_LOG, applicationTranslate.translate(R.string.debug_extracting_frame,
+                                    globalIndex, timeMs
+                            ).get()
+                    );
+                    Bitmap frame = retriever.getFrameAtTime(timeMs * 1000,
+                            MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+                    );
                     if (frame != null) {
                         extractedFrames.put(globalIndex, frame);
                     }
                 }
             } catch (Exception exception) {
-                errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_message_extracting_frames).log(TAG_LOG, Level.ERROR, exception).get());
+                errorMessageLiveData.postValue(
+                        applicationTranslate.translate(R.string.error_extracting_frames)
+                                .log(TAG_LOG, Level.ERROR, exception).get());
             }
 
             if (!extractedFrames.isEmpty()) {
                 cachedFrames.putAll(extractedFrames);
                 extractFrameResult.postValue(extractedFrames);
-                Log.d(TAG_LOG, applicationTranslate.translate(R.string.debug_log_extracted_frames).get());
+                Log.d(TAG_LOG,
+                        applicationTranslate.translate(R.string.debug_extracted_frames).get()
+                );
             }
         });
     }

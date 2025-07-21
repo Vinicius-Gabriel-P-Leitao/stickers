@@ -15,9 +15,9 @@ import br.arch.sticker.core.error.ErrorCodeProvider;
 
 // @formatter:off
 public enum BaseErrorCode implements ErrorCodeProvider {
-    ERROR_UNKNOWN(R.string.throw_unknown_error),
-    ERROR_BASE_ACTIVITY(R.string.throw_base_activity),
-    ERROR_OPERATION_NOT_POSSIBLE(R.string.throw_operation_not_possible);
+    ERROR_UNKNOWN(R.string.error_unknown),
+    ERROR_BASE_ACTIVITY(R.string.error_base_activity),
+    ERROR_OPERATION_NOT_POSSIBLE(R.string.error_operation_failed);
 
     private final int message;
 

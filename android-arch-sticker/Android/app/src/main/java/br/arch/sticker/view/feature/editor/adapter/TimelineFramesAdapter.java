@@ -47,7 +47,8 @@ public class TimelineFramesAdapter extends RecyclerView.Adapter<FrameViewHolder>
     @NonNull
     @Override
     public FrameViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.frames_timeline_video, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.frames_timeline_video, parent, false);
         return new FrameViewHolder(view);
     }
 
@@ -56,7 +57,8 @@ public class TimelineFramesAdapter extends RecyclerView.Adapter<FrameViewHolder>
         Bitmap frame = frames.get(position);
 
         if (frame != null) {
-            Glide.with(holder.imageView.getContext()).asBitmap().load(frame).centerCrop().into(holder.imageView);
+            Glide.with(holder.imageView.getContext()).asBitmap().load(frame).centerCrop()
+                    .into(holder.imageView);
         } else {
             holder.imageView.setImageResource(R.drawable.background_invalid_pack);
         }
@@ -82,9 +84,9 @@ public class TimelineFramesAdapter extends RecyclerView.Adapter<FrameViewHolder>
                 frames.set(index, frame);
                 notifyItemChanged(index);
 
-                Log.d(TAG_LOG, applicationTranslate.translate(R.string.debug_log_frame_update_editor, index).get());
-            } else {
-                Log.w(TAG_LOG, applicationTranslate.translate(R.string.error_log_out_of_range_index).get());
+                Log.d(TAG_LOG,
+                        applicationTranslate.translate(R.string.debug_frame_updated, index).get()
+                );
             }
         }
     }

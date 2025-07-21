@@ -28,13 +28,13 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
 import androidx.core.view.ViewCompat;
 
-import br.arch.sticker.R;
-import br.arch.sticker.view.core.base.BaseActivity;
-import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
-import br.arch.sticker.view.core.usecase.activity.StickerPackCreationBaseActivity;
-
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+
+import br.arch.sticker.R;
+import br.arch.sticker.view.core.base.BaseActivity;
+import br.arch.sticker.view.core.usecase.activity.StickerPackCreationBaseActivity;
+import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
 
 public class StickerPackMetadataActivity extends BaseActivity {
 
@@ -46,19 +46,27 @@ public class StickerPackMetadataActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stickerpack_info);
 
-        final String trayIconUriString = getIntent().getStringExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_TRAY_ICON);
-        final String website = getIntent().getStringExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_WEBSITE);
-        final String email = getIntent().getStringExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_EMAIL);
-        final String privacyPolicy = getIntent().getStringExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_PRIVACY_POLICY);
-        final String licenseAgreement = getIntent().getStringExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_LICENSE_AGREEMENT);
+        final String trayIconUriString = getIntent().getStringExtra(
+                StickerPackDetailsActivity.EXTRA_STICKER_PACK_TRAY_ICON);
+        final String website = getIntent().getStringExtra(
+                StickerPackDetailsActivity.EXTRA_STICKER_PACK_WEBSITE);
+        final String email = getIntent().getStringExtra(
+                StickerPackDetailsActivity.EXTRA_STICKER_PACK_EMAIL);
+        final String privacyPolicy = getIntent().getStringExtra(
+                StickerPackDetailsActivity.EXTRA_STICKER_PACK_PRIVACY_POLICY);
+        final String licenseAgreement = getIntent().getStringExtra(
+                StickerPackDetailsActivity.EXTRA_STICKER_PACK_LICENSE_AGREEMENT);
         final TextView trayIcon = findViewById(R.id.tray_icon);
 
         try {
-            final InputStream inputStream = getContentResolver().openInputStream(Uri.parse(trayIconUriString));
+            final InputStream inputStream = getContentResolver().openInputStream(
+                    Uri.parse(trayIconUriString));
             final Drawable emailDrawable = getDrawableForAllAPIs(R.drawable.sticker_3rdparty_email);
 
             final BitmapDrawable trayDrawable = new BitmapDrawable(getResources(), inputStream);
-            trayDrawable.setBounds(new Rect(0, 0, emailDrawable.getIntrinsicWidth(), emailDrawable.getIntrinsicHeight()));
+            trayDrawable.setBounds(new Rect(0, 0, emailDrawable.getIntrinsicWidth(),
+                    emailDrawable.getIntrinsicHeight()
+            ));
 
             if (Build.VERSION.SDK_INT > 17) {
                 trayIcon.setCompoundDrawablesRelative(trayDrawable, null, null, null);
@@ -70,7 +78,9 @@ public class StickerPackMetadataActivity extends BaseActivity {
                 }
             }
         } catch (FileNotFoundException exception) {
-            Log.e(TAG_LOG, "Não foi possível encontrar o uri para a thumbnail:" + trayIconUriString);
+            Log.e(TAG_LOG,
+                    "Não foi possível encontrar o uri para a thumbnail:" + trayIconUriString
+            );
         }
 
         setupTextView(website, R.id.view_webpage);
@@ -98,7 +108,9 @@ public class StickerPackMetadataActivity extends BaseActivity {
     private void launchEmailClient(String email) {
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", email, null));
         emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
-        startActivity(Intent.createChooser(emailIntent, getResources().getString(R.string.dialog_info_send_email_to_prompt)));
+        startActivity(Intent.createChooser(emailIntent,
+                getResources().getString(R.string.dialog_info_send_email_prompt)
+        ));
     }
 
     private void launchWebpage(String website) {

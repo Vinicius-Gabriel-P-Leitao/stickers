@@ -10,6 +10,7 @@ package br.arch.sticker.view.feature.preview.viewmodel;
 
 import static br.arch.sticker.core.validation.StickerPackValidator.STICKER_SIZE_MAX;
 import static br.arch.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
+import static br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.*;
 import static br.arch.sticker.domain.util.StickerPackPlaceholder.PLACEHOLDER_ANIMATED;
 import static br.arch.sticker.domain.util.StickerPackPlaceholder.PLACEHOLDER_STATIC;
 
@@ -44,6 +45,7 @@ import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.service.delete.DeleteStickerAssetService;
 import br.arch.sticker.domain.service.delete.DeleteStickerPackService;
 import br.arch.sticker.domain.service.update.UpdateStickerPackService;
+import br.arch.sticker.domain.util.ApplicationTranslate;
 import br.arch.sticker.view.core.util.convert.ConvertThumbnail;
 import br.arch.sticker.view.core.util.event.GenericEvent;
 
@@ -53,6 +55,7 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
     private final DeleteStickerAssetService deleteStickerAssetService;
     private final UpdateStickerPackService updateStickerPackService;
     private final DeleteStickerPackService deleteStickerPackService;
+    private final ApplicationTranslate applicationTranslate;
     private final Context context;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -67,6 +70,7 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         this.deleteStickerPackService = new DeleteStickerPackService(this.context);
         this.updateStickerPackService = new UpdateStickerPackService(this.context);
         this.deleteStickerAssetService = new DeleteStickerAssetService(this.context);
+        this.applicationTranslate = new ApplicationTranslate(this.context.getResources());
     }
 
     public LiveData<GenericEvent<FixActionStickerPack>> getStickerMutableLiveData() {
@@ -130,7 +134,8 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
             executor.submit(() -> {
                 String stickerPackIdentifier = delete.stickerPack.identifier;
 
-                CallbackResult<Boolean> resultAsset = deleteStickerAssetService.deleteAllStickerAssetsByPack(stickerPackIdentifier);
+                CallbackResult<Boolean> resultAsset = deleteStickerAssetService.deleteAllStickerAssetsByPack(
+                        stickerPackIdentifier);
                 if (resultAsset.isFailure()) {
                     errorMessageLiveData.postValue(resultAsset.getError().getMessage());
                     progressLiveData.postValue(false);
@@ -139,7 +144,8 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
                     errorMessageLiveData.postValue(resultAsset.getWarningMessage());
                 }
 
-                CallbackResult<Boolean> resultDB = deleteStickerPackService.deleteStickerPack(stickerPackIdentifier);
+                CallbackResult<Boolean> resultDB = deleteStickerPackService.deleteStickerPack(
+                        stickerPackIdentifier);
                 if (resultDB.isFailure()) {
                     errorMessageLiveData.postValue(resultDB.getError().getMessage());
                     progressLiveData.postValue(false);
@@ -161,38 +167,46 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
                                 !PLACEHOLDER_STATIC.equals(name) && !name.isBlank()).findFirst();
 
                 stickerFileName.ifPresentOrElse(name -> {
-                    File filesDir = new File(new File(context.getFilesDir(), STICKERS_ASSET), newThumbnail.stickerPack.identifier);
-                    File thumbnailSticker = new File(filesDir, name);
+                            File filesDir = new File(new File(context.getFilesDir(), STICKERS_ASSET),
+                                    newThumbnail.stickerPack.identifier
+                            );
+                            File thumbnailSticker = new File(filesDir, name);
 
-                    CallbackResult<Boolean> thumbnail = ConvertThumbnail.createThumbnail(thumbnailSticker, filesDir);
+                            CallbackResult<Boolean> thumbnail = ConvertThumbnail.createThumbnail(
+                                    thumbnailSticker, filesDir);
 
-                    if (thumbnail.isFailure()) {
-                        Log.e(TAG_LOG, "Error: " + thumbnail.getError());
-                        errorMessageLiveData.postValue(thumbnail.getError().getMessage());
-                        progressLiveData.postValue(false);
-                        return;
-                    }
+                            if (thumbnail.isFailure()) {
+                                Log.e(TAG_LOG, "Error: " + thumbnail.getError());
+                                errorMessageLiveData.postValue(thumbnail.getError().getMessage());
+                                progressLiveData.postValue(false);
+                                return;
+                            }
 
-                    if (thumbnail.isWarning()) {
-                        Log.e(TAG_LOG, "Warning: " + thumbnail.getWarningMessage());
-                        errorMessageLiveData.postValue(thumbnail.getWarningMessage());
-                        progressLiveData.postValue(false);
-                        return;
-                    }
+                            if (thumbnail.isWarning()) {
+                                Log.e(TAG_LOG, "Warning: " + thumbnail.getWarningMessage());
+                                errorMessageLiveData.postValue(thumbnail.getWarningMessage());
+                                progressLiveData.postValue(false);
+                                return;
+                            }
 
-                    Log.e(TAG_LOG, "Success: " + thumbnail.getData());
-                    fixCompletedLiveData.postValue(newThumbnail);
-                    progressLiveData.postValue(false);
-                }, () -> {
-                    errorMessageLiveData.postValue(context.getString(R.string.error_message_file_to_make_thumbnail_not_exist));
-                    progressLiveData.postValue(false);
-                });
+                            Log.e(TAG_LOG, "Success: " + thumbnail.getData());
+                            fixCompletedLiveData.postValue(newThumbnail);
+                            progressLiveData.postValue(false);
+                        }, () -> {
+                            errorMessageLiveData.postValue(
+                                    applicationTranslate.translate(R.string.error_thumbnail_file_not_found)
+                                            .get());
+                            progressLiveData.postValue(false);
+                        }
+                );
             });
         }
 
         if (action instanceof FixActionStickerPack.RenameStickerPack renameStickerPack) {
             if (renameStickerPack.newName == null) {
-                errorMessageLiveData.postValue(context.getString(R.string.error_message_stickerpack_name_must_be_entered));
+                errorMessageLiveData.postValue(applicationTranslate.translate(
+                                R.string.error_unable_update_stickerpack_name).log(TAG_LOG, Level.ERROR)
+                        .get());
                 progressLiveData.postValue(false);
                 return;
             }
@@ -200,13 +214,15 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
             String newNameStickerPack = renameStickerPack.newName;
 
             executor.submit(() -> {
-                if (updateStickerPackService.updateStickerFileName(renameStickerPack.stickerPack.identifier, newNameStickerPack)) {
+                if (updateStickerPackService.updateStickerFileName(
+                        renameStickerPack.stickerPack.identifier, newNameStickerPack)) {
                     fixCompletedLiveData.postValue(renameStickerPack);
                     progressLiveData.postValue(false);
                     return;
                 }
 
-                errorMessageLiveData.postValue(context.getString(R.string.error_message_unable_to_update_stickerpack_name));
+                errorMessageLiveData.postValue(
+                        context.getString(R.string.error_unable_update_stickerpack_name));
                 progressLiveData.postValue(false);
             });
         }
@@ -214,7 +230,9 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         if (action instanceof FixActionStickerPack.ResizeStickerPack resizeStickerPack) {
             List<Sticker> stickerList = resizeStickerPack.stickerPack.getStickers();
             if (stickerList.isEmpty() || stickerList.size() <= STICKER_SIZE_MAX) {
-                errorMessageLiveData.postValue(context.getString(R.string.error_message_list_sticker_in_pack_invalid_size));
+                errorMessageLiveData.postValue(
+                        applicationTranslate.translate(R.string.error_invalid_sticker_list_empty)
+                                .log(TAG_LOG, Level.ERROR).get());
                 progressLiveData.postValue(false);
                 return;
             }
@@ -227,9 +245,9 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
 
                     if (STICKER_SIZE_MAX < stickersToDelete.size()) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                            subbedList = stickersToDelete.subList(STICKER_SIZE_MAX, stickersToDelete.size())
-                                    .stream().map(Sticker::getImageFileName)
-                                    .collect(Collectors.toList());
+                            subbedList = stickersToDelete.subList(STICKER_SIZE_MAX,
+                                    stickersToDelete.size()
+                            ).stream().map(Sticker::getImageFileName).collect(Collectors.toList());
                         } else {
                             for (int counter = STICKER_SIZE_MAX;
                                  counter < stickersToDelete.size(); counter++) {
@@ -238,7 +256,8 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
                         }
                     }
 
-                    CallbackResult<Boolean> resultAsset = deleteStickerAssetService.deleteListStickerAssetsByPack(stickerPackIdentifier, subbedList);
+                    CallbackResult<Boolean> resultAsset = deleteStickerAssetService.deleteListStickerAssetsByPack(
+                            stickerPackIdentifier, subbedList);
                     if (resultAsset.isFailure()) {
                         errorMessageLiveData.postValue(resultAsset.getError().getMessage());
                         progressLiveData.postValue(false);
@@ -247,7 +266,8 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
                         errorMessageLiveData.postValue(resultAsset.getWarningMessage());
                     }
 
-                    CallbackResult<Boolean> deletedSticker = deleteStickerPackService.deleteSpareStickerPack(stickerPackIdentifier, subbedList);
+                    CallbackResult<Boolean> deletedSticker = deleteStickerPackService.deleteSpareStickerPack(
+                            stickerPackIdentifier, subbedList);
                     if (deletedSticker.isFailure()) {
                         errorMessageLiveData.postValue(deletedSticker.getError().getMessage());
                         return;
@@ -258,8 +278,8 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
                     fixCompletedLiveData.postValue(resizeStickerPack);
                 } catch (Exception exception) {
                     Log.e(TAG_LOG, "Exception: " + exception);
-                    errorMessageLiveData.postValue(context.getString(R.string.throw_unknown_error) +
-                            exception.getMessage());
+                    errorMessageLiveData.postValue(
+                            context.getString(R.string.error_unknown) + exception.getMessage());
                 } finally {
                     progressLiveData.postValue(false);
                 }
@@ -269,13 +289,16 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         if (action instanceof FixActionStickerPack.CleanUpUrl cleanUpUrl) {
 
             executor.submit(() -> {
-                if (updateStickerPackService.cleanStickerPackUrl(cleanUpUrl.stickerPack.identifier)) {
+                if (updateStickerPackService.cleanStickerPackUrl(
+                        cleanUpUrl.stickerPack.identifier)) {
                     fixCompletedLiveData.postValue(cleanUpUrl);
                     progressLiveData.postValue(false);
                     return;
                 }
 
-                errorMessageLiveData.postValue(context.getString(R.string.error_message_unable_to_update_stickerpack_name));
+                errorMessageLiveData.postValue(applicationTranslate.translate(
+                                R.string.error_unable_update_stickerpack_name).log(TAG_LOG, Level.ERROR)
+                        .get());
                 progressLiveData.postValue(false);
             });
         }
@@ -287,19 +310,15 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         executor.shutdownNow();
     }
 
-    public sealed interface FixActionStickerPack permits FixActionStickerPack.Delete,
-            FixActionStickerPack.NewThumbnail,
-            FixActionStickerPack.RenameStickerPack,
-            FixActionStickerPack.ResizeStickerPack,
-            FixActionStickerPack.CleanUpUrl {
+    public sealed interface FixActionStickerPack permits FixActionStickerPack.Delete, FixActionStickerPack.NewThumbnail, FixActionStickerPack.RenameStickerPack, FixActionStickerPack.ResizeStickerPack, FixActionStickerPack.CleanUpUrl {
         record Delete(StickerPack stickerPack) implements FixActionStickerPack {
         }
 
         record NewThumbnail(StickerPack stickerPack) implements FixActionStickerPack {
         }
 
-        record RenameStickerPack(StickerPack stickerPack, String newName) implements
-                FixActionStickerPack {
+        record RenameStickerPack(StickerPack stickerPack,
+                                 String newName) implements FixActionStickerPack {
             public RenameStickerPack withNewName(@Nullable String newName) {
                 return new RenameStickerPack(stickerPack, newName);
             }

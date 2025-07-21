@@ -24,7 +24,7 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/input_name_stickerpack"
+        android:hint="@string/input_stickerpack_name"
         android:textColorHint="@color/catppuccin_subtext0">
 
         <com.google.android.material.textfield.TextInputEditText

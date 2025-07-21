@@ -91,7 +91,9 @@ public class StickerEditorActivity extends BaseActivity {
 
         final Uri uri = getIntent().getData();
         if (uri == null) {
-            Toast.makeText(this, getString(R.string.error_message_no_media_received), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_select_at_least_one_media),
+                    Toast.LENGTH_SHORT
+            ).show();
             finish();
             return;
         }
@@ -104,14 +106,17 @@ public class StickerEditorActivity extends BaseActivity {
         Button buttonConfirm = findViewById(R.id.button_confirm);
 
         recyclerTimeline = findViewById(R.id.recycler_timeline);
-        recyclerTimeline.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerTimeline.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         buttonConfirm.setOnClickListener(view -> {
             Rect crop = getCropRectFromTransformedTexture();
             if (crop != null) {
-                Log.d(TAG_LOG, getString(R.string.debug_log_actual_video_crop, crop.toShortString()));
+                Log.d(TAG_LOG, getString(R.string.debug_video_crop, crop.toShortString()));
             } else {
-                Toast.makeText(this, getString(R.string.error_message_calculation_clipping), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.error_calculation_clipping),
+                        Toast.LENGTH_SHORT
+                ).show();
             }
         });
 
@@ -162,7 +167,9 @@ public class StickerEditorActivity extends BaseActivity {
             MimeTypesSupported mediaType = MimeTypesSupported.fromMimeType(mimeType);
 
             if (mediaType == null) {
-                Toast.makeText(this, getString(R.string.error_message_unsupported_mimetype, mimeType), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.error_unsupported_mimetype, mimeType),
+                        Toast.LENGTH_SHORT
+                ).show();
                 return;
             }
 
@@ -192,11 +199,13 @@ public class StickerEditorActivity extends BaseActivity {
             mediaHeight = String.valueOf(bitmap.getHeight());
 
             GestureController gestureController = new GestureController(imageView);
-            imageView.setOnTouchListener((view, motionEvent) -> gestureController.onTouch(motionEvent));
+            imageView.setOnTouchListener(
+                    (view, motionEvent) -> gestureController.onTouch(motionEvent));
 
             imageView.setImageBitmap(bitmap);
         } catch (IOException exception) {
-            Toast.makeText(this, getString(R.string.error_message_error_loading_image), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_loading_image), Toast.LENGTH_SHORT)
+                    .show();
         }
     }
 
@@ -214,12 +223,15 @@ public class StickerEditorActivity extends BaseActivity {
 
             textureView = (TextureView) playerView.getVideoSurfaceView();
             if (textureView == null) {
-                Toast.makeText(this, getString(R.string.error_message_invalid_view_render_video), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.error_invalid_video_surface),
+                        Toast.LENGTH_SHORT
+                ).show();
                 return;
             }
 
             GestureController gestureController = new GestureController(textureView);
-            textureView.setOnTouchListener((view, motionEvent) -> gestureController.onTouch(motionEvent));
+            textureView.setOnTouchListener(
+                    (view, motionEvent) -> gestureController.onTouch(motionEvent));
 
             startVideoTimeline(uri);
             return;
@@ -235,7 +247,9 @@ public class StickerEditorActivity extends BaseActivity {
             return;
         }
 
-        Toast.makeText(this, getString(R.string.error_message_unsupported_mimetype, mimeType), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.error_unsupported_mimetype, mimeType),
+                Toast.LENGTH_SHORT
+        ).show();
     }
 
     private void startVideoTimeline(Uri videoUri) {
@@ -247,49 +261,56 @@ public class StickerEditorActivity extends BaseActivity {
         stickerEditorViewModel.loadVideoMetadata(videoUri);
 
         stickerEditorViewModel.getMediaWidth().observe(this, width -> {
-            if (width != null) {
-                mediaWidth = width;
-            }
-        });
+                    if (width != null) {
+                        mediaWidth = width;
+                    }
+                }
+        );
 
         stickerEditorViewModel.getMediaHeight().observe(this, height -> {
-            if (height != null) {
-                mediaHeight = height;
-            }
-        });
+                    if (height != null) {
+                        mediaHeight = height;
+                    }
+                }
+        );
 
         stickerEditorViewModel.getVideoDurationMsLiveData().observe(this, duration -> {
-            if (duration != null) {
-                videoDurationMs = duration;
-            }
+                    if (duration != null) {
+                        videoDurationMs = duration;
+                    }
 
-            if (videoDurationMs == 0) {
-                    Toast.makeText(this, applicationTranslate.translate(R.string.error_log_timeline_invalid_duration).log(TAG_LOG, Level.ERROR).get(), Toast.LENGTH_SHORT).show();
-                return;
-            }
+                    if (videoDurationMs == 0) {
+                        Toast.makeText(this,
+                                applicationTranslate.translate(R.string.error_invalid_timeline_duration)
+                                        .log(TAG_LOG, Level.ERROR).get(), Toast.LENGTH_SHORT
+                        ).show();
+                        return;
+                    }
 
-            int totalFrames = (int) (videoDurationMs / 1000f * FRAMES_PER_SECOND);
-            final List<Bitmap> frames = new ArrayList<>(Collections.nCopies(totalFrames, null));
+                    int totalFrames = (int) (videoDurationMs / 1000f * FRAMES_PER_SECOND);
+                    final List<Bitmap> frames = new ArrayList<>(Collections.nCopies(totalFrames, null));
 
-            TimelineFramesAdapter adapter = new TimelineFramesAdapter(this, frames, position -> {
-                long seekMs = (position * 1000L) / FRAMES_PER_SECOND;
-                if (player != null) {
-                    player.seekTo(seekMs);
+                    TimelineFramesAdapter adapter = new TimelineFramesAdapter(this, frames, position -> {
+                        long seekMs = (position * 1000L) / FRAMES_PER_SECOND;
+                        if (player != null) {
+                            player.seekTo(seekMs);
+                        }
+                    }
+                    );
+
+                    recyclerTimeline.setAdapter(adapter);
+                    recyclerTimeline.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                        @Override
+                        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                            super.onScrolled(recyclerView, dx, dy);
+                            onTimelineChanged();
+                        }
+                    });
+
+                    stickerEditorViewModel.startIncrementalExtraction(videoUri);
+                    stickerEditorViewModel.getExtractFrameResult().observe(this, adapter::updateFrames);
                 }
-            });
-
-            recyclerTimeline.setAdapter(adapter);
-            recyclerTimeline.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-                    onTimelineChanged();
-                }
-            });
-
-            stickerEditorViewModel.startIncrementalExtraction(videoUri);
-            stickerEditorViewModel.getExtractFrameResult().observe(this, adapter::updateFrames);
-        });
+        );
 
         recyclerTimeline.post(this::onTimelineChanged);
     }
@@ -299,7 +320,8 @@ public class StickerEditorActivity extends BaseActivity {
             runOnUiThread(() -> {
                 float aroundSeconds = Math.round(seconds * 10) / 10f;
 
-                timelineTitle.setText(getString(R.string.timeline_title_seconds, String.valueOf(aroundSeconds)));
+                timelineTitle.setText(
+                        getString(R.string.timeline_seconds, String.valueOf(aroundSeconds)));
 
                 loopDurationMs = (long) (aroundSeconds * 1000);
                 loopEndMs = Math.min(videoDurationMs, loopStartMs + loopDurationMs);
@@ -342,11 +364,11 @@ public class StickerEditorActivity extends BaseActivity {
         Rect textureScreenRect = new Rect();
         textureView.getGlobalVisibleRect(textureScreenRect);
 
-        RectF cropRectInTexture = new RectF(
-                cropScreenRect.left - textureScreenRect.left,
+        RectF cropRectInTexture = new RectF(cropScreenRect.left - textureScreenRect.left,
                 cropScreenRect.top - textureScreenRect.top,
                 cropScreenRect.right - textureScreenRect.left,
-                cropScreenRect.bottom - textureScreenRect.top);
+                cropScreenRect.bottom - textureScreenRect.top
+        );
 
         Matrix inverseMatrix = new Matrix();
         if (!transformMatrix.invert(inverseMatrix)) return null;

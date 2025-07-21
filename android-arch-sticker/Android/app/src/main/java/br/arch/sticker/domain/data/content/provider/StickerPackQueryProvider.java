@@ -46,19 +46,19 @@ public class StickerPackQueryProvider {
             List<StickerPack> stickerPackList = stickerPackQueryHelper.fetchListStickerPackFromDatabase();
             if (stickerPackList.isEmpty()) {
                 return new MatrixCursor(new String[]{
-                        applicationTranslate.translate(R.string.throw_empty_sticker_pack_list)
+                        applicationTranslate.translate(R.string.error_sticker_pack_not_found)
                                 .log(TAG_LOG, Level.WARN).get()});
             }
 
             return stickerPackQueryHelper.fetchListStickerPackData(uri, stickerPackList);
         } catch (SQLException sqlException) {
-            Log.e(TAG_LOG, applicationTranslate.translate(R.string.throw_database_error_all_packs)
+            Log.e(TAG_LOG, applicationTranslate.translate(R.string.error_sticker_pack_not_found)
                     .log(TAG_LOG, Level.ERROR, sqlException).get(), sqlException
             );
             throw sqlException;
         } catch (RuntimeException exception) {
             throw new RuntimeException(
-                    applicationTranslate.translate(R.string.throw_unexpected_error_all_packs)
+                    applicationTranslate.translate(R.string.error_unknown)
                             .log(TAG_LOG, Level.ERROR, exception).get(), exception
             );
         }
@@ -68,7 +68,7 @@ public class StickerPackQueryProvider {
         final String stickerPackIdentifier = uri.getLastPathSegment();
         if (TextUtils.isEmpty(stickerPackIdentifier)) {
             return new MatrixCursor(new String[]{
-                    applicationTranslate.translate(R.string.throw_invalid_identifier)
+                    applicationTranslate.translate(R.string.error_invalid_identifier)
                             .log(TAG_LOG, Level.ERROR, uri).get()});
         }
 
@@ -77,22 +77,21 @@ public class StickerPackQueryProvider {
                     stickerPackIdentifier, isFiltered);
             if (stickerPack == null) {
                 return new MatrixCursor(new String[]{
-                        applicationTranslate.translate(R.string.warn_log_no_sticker_pack_found,
+                        applicationTranslate.translate(R.string.error_sticker_pack_not_found,
                                 stickerPackIdentifier
                         ).log(TAG_LOG, Level.WARN).get()});
             }
 
             return stickerPackQueryHelper.fetchStickerPackData(uri, stickerPack);
         } catch (SQLException sqlException) {
-            Log.e(TAG_LOG, resources.getString(R.string.throw_database_error_single_pack,
+            Log.e(TAG_LOG, resources.getString(R.string.error_sticker_pack_not_found,
                             stickerPackIdentifier
                     ), sqlException
             );
             throw sqlException;
         } catch (RuntimeException exception) {
-            throw new RuntimeException(
-                    applicationTranslate.translate(R.string.throw_unexpected_error_all_packs)
-                            .log(TAG_LOG, Level.ERROR, exception).get(), exception
+            throw new RuntimeException(applicationTranslate.translate(R.string.error_unknown)
+                    .log(TAG_LOG, Level.ERROR, exception).get(), exception
             );
         }
     }

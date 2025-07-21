@@ -56,13 +56,15 @@ public class InvalidStickerDialogController {
             alertStickerDialog.setVisibilityFixButton(View.VISIBLE);
             alertStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
 
-            alertStickerDialog.setTextFixButton(alertStickerContext.getString(R.string.dialog_delete));
+            alertStickerDialog.setTextFixButton(
+                    alertStickerContext.getString(R.string.dialog_delete));
             alertStickerDialog.setOnFixClick(view -> {
                 viewModel.onFixActionConfirmed(delete);
                 alertStickerDialog.dismiss();
             });
 
-            alertStickerDialog.setTextIgnoreButton(alertStickerContext.getString(R.string.dialog_ignore));
+            alertStickerDialog.setTextIgnoreButton(
+                    alertStickerContext.getString(R.string.dialog_cancel));
             alertStickerDialog.setOnIgnoreClick(view -> alertStickerDialog.dismiss());
 
             alertStickerDialog.show();
@@ -71,33 +73,41 @@ public class InvalidStickerDialogController {
         if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile resizeFile) {
             int resourceString = resizeFile.codeProvider().getMessageResId();
 
-            inputAlertStickerDialog.setTitleText(alertInputStickerContext.getString(R.string.dialog_delete));
-            inputAlertStickerDialog.setMessageText(alertInputStickerContext.getString(resourceString));
+            inputAlertStickerDialog.setTitleText(
+                    alertInputStickerContext.getString(R.string.dialog_delete));
+            inputAlertStickerDialog.setMessageText(
+                    alertInputStickerContext.getString(resourceString));
             inputAlertStickerDialog.setVisibilityFixButton(View.VISIBLE);
             inputAlertStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
 
-            inputAlertStickerDialog.setTextInput(alertInputStickerContext.getString(R.string.input_refactor_quality_sticker));
-            inputAlertStickerDialog.setTextFixButton(alertInputStickerContext.getString(R.string.dialog_refactor));
+            inputAlertStickerDialog.setTextInput(
+                    alertInputStickerContext.getString(R.string.input_quality_sticker));
+            inputAlertStickerDialog.setTextFixButton(
+                    alertInputStickerContext.getString(R.string.dialog_refactor));
             inputAlertStickerDialog.setOnFixClick(view -> {
                 String input = inputAlertStickerDialog.getUserInput();
 
                 if (input.isEmpty()) {
-                    inputAlertStickerDialog.showError(alertInputStickerContext.getString(R.string.error_message_quality_sticker_empty));
+                    inputAlertStickerDialog.showError(
+                            alertInputStickerContext.getString(R.string.error_quality_empty));
                     return;
                 }
 
                 try {
                     int value = Integer.parseInt(input);
                     if (value > MAX_QUALITY) {
-                        inputAlertStickerDialog.showError(alertInputStickerContext.getString(R.string.error_message_quality_sticker_length));
+                        inputAlertStickerDialog.showError(alertInputStickerContext.getString(
+                                R.string.error_invalid_quality_number));
                         return;
                     }
 
-                    PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile newAction = resizeFile.withQuality(value);
+                    PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile newAction = resizeFile.withQuality(
+                            value);
                     viewModel.onFixActionConfirmed(newAction);
                     inputAlertStickerDialog.dismiss();
                 } catch (NumberFormatException numberFormatException) {
-                    inputAlertStickerDialog.showError(alertInputStickerContext.getString(R.string.error_message_quality_invalid_number));
+                    inputAlertStickerDialog.showError(alertInputStickerContext.getString(
+                            R.string.error_invalid_quality_number));
                 }
             });
 

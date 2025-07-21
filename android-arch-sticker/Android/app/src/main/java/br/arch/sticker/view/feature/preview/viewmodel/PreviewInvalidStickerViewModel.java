@@ -112,7 +112,7 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
             stickerMutableLiveData.setValue(new GenericEvent<>(action));
         } catch (IllegalArgumentException argumentException) {
             errorMessageLiveData.postValue(
-                    applicationTranslate.translate(R.string.throw_unknown_error_code,
+                    applicationTranslate.translate(R.string.error_unknown_code,
                             sticker.stickerIsValid
                     ).log(TAG_LOG, Level.ERROR, argumentException).get());
         } catch (FetchStickerPackException exception) {
@@ -153,7 +153,7 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
                     fixCompletedLiveData.postValue(delete);
                 } catch (Exception exception) {
                     errorMessageLiveData.postValue(
-                            applicationTranslate.translate(R.string.throw_unknown_error)
+                            applicationTranslate.translate(R.string.error_unknown)
                                     .log(TAG_LOG, Level.ERROR, exception).get());
                 } finally {
                     progressLiveData.postValue(false);
@@ -164,7 +164,7 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
         if (action instanceof FixActionSticker.ResizeFile resizeFile) {
             if (resizeFile.quality == null) {
                 errorMessageLiveData.postValue(applicationTranslate.translate(
-                                R.string.error_message_file_quality_must_be_entered)
+                                R.string.error_quality_not_entered)
                         .log(TAG_LOG, Level.ERROR).get());
 
                 progressLiveData.postValue(false);
@@ -202,7 +202,7 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
 
                                 if (!updated) {
                                     errorMessageLiveData.postValue(applicationTranslate.translate(
-                                                    R.string.error_message_unable_to_implement_update_sticker)
+                                                    R.string.error_unable_update_sticker)
                                             .log(TAG_LOG, Level.ERROR).get());
                                     progressLiveData.postValue(false);
                                     return;

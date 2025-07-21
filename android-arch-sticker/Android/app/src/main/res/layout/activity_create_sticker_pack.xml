@@ -2,11 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    tools:context=".view.core.usecase.activity.StickerPackCreationBaseActivity"
     android:layout_height="match_parent"
     android:background="@color/catppuccin_base"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    tools:context=".view.core.usecase.activity.StickerPackCreationBaseActivity">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:contentDescription="@string/description_list_sticker_add_pack"
+            android:contentDescription="@string/description_sticker_add_list"
             android:paddingStart="8dp"
             android:paddingTop="8dp"
             android:paddingEnd="8dp"
@@ -50,7 +50,7 @@
             android:layout_gravity="bottom|center"
             android:layout_margin="24dp"
             android:backgroundTint="@color/catppuccin_mauve"
-            android:contentDescription="@string/button_open_media_getter"
+            android:contentDescription="@string/description_media_selection"
             android:src="@drawable/ic_add_circle_24px"
             android:tint="@color/catppuccin_base" />
     </FrameLayout>

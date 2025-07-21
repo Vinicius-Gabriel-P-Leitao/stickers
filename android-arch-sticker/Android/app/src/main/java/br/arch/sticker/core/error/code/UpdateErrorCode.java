@@ -14,8 +14,7 @@ import br.arch.sticker.R;
 import br.arch.sticker.core.error.ErrorCodeProvider;
 
 public enum UpdateErrorCode implements ErrorCodeProvider {
-    ERROR_EMPTY_STICKERPACK(R.string.throw_empty_stickerpack),
-    ERROR_CONTENT_PROVIDER(R.string.throw_stickerpack_content_provider);
+    ERROR_EMPTY_STICKERPACK(R.string.error_empty_stickerpack);
 
     private final int message;
 

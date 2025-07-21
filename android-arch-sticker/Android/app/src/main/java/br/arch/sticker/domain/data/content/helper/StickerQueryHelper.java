@@ -69,7 +69,7 @@ public class StickerQueryHelper {
                 stickerPackIdentifier);
         if (cursor == null) {
             throw new ContentProviderException(
-                    applicationTranslate.translate(R.string.throw_null_cursor_searching_stickerpack)
+                    applicationTranslate.translate(R.string.error_null_cursor)
                             .log(TAG_LOG, ApplicationTranslate.LoggableString.Level.ERROR).get());
         }
 

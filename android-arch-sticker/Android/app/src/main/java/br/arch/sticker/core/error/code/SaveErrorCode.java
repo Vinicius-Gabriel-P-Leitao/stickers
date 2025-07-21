@@ -15,11 +15,11 @@ import br.arch.sticker.core.error.ErrorCodeProvider;
 
 // @formatter:off
 public enum SaveErrorCode implements ErrorCodeProvider {
-    ERROR_PACK_SAVE_DB(R.string.throw_save_stickerpack_in_db),
-    ERROR_PACK_SAVE_SERVICE(R.string.throw_save_stickerpack_service),
-    ERROR_PACK_SAVE_UTIL(R.string.throw_save_stickerpack_util),
-    ERROR_PACK_SAVE_UI(R.string.throw_save_stickerpack_ui),
-    ERROR_PACK_SAVE_THUMBNAIL(R.string.throw_save_stickerpack_thumbnail);
+    ERROR_PACK_SAVE_DB(R.string.error_save_stickerpack_db),
+    ERROR_PACK_SAVE_SERVICE(R.string.error_save_stickerpack_service),
+    ERROR_PACK_SAVE_UTIL(R.string.error_save_stickerpack_util),
+    ERROR_PACK_SAVE_UI(R.string.error_save_stickerpack_ui),
+    ERROR_PACK_SAVE_THUMBNAIL(R.string.error_save_thumbnail);
 
     private final int message;
 

@@ -13,7 +13,7 @@
         android:layout_marginTop="2dp"
         android:background="@drawable/background_recyclerview"
         android:clipToPadding="false"
-        android:contentDescription="@string/description_recycle_select_medias"
+        android:contentDescription="@string/description_media_selection"
         android:paddingTop="30dp"
         android:paddingBottom="72dp" />
 
@@ -55,7 +55,7 @@
         android:layout_margin="16dp"
         android:backgroundTint="@color/catppuccin_surface0"
         android:elevation="6dp"
-        android:text="@string/button_select_medias"
+        android:text="@string/button_select_media"
         android:textColor="@color/catppuccin_text" />
 
 </FrameLayout>

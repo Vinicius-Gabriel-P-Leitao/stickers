@@ -60,7 +60,7 @@ public class StickerAssetProvider {
 
         if (pathSegments.size() != 3) {
             throw new ContentProviderException(
-                    applicationTranslate.translate(R.string.throw_invalid_path_segments, uri)
+                    applicationTranslate.translate(R.string.error_invalid_path_segments, uri)
                             .log(TAG_LOG, Level.ERROR).get());
         }
 
@@ -69,13 +69,13 @@ public class StickerAssetProvider {
 
         if (TextUtils.isEmpty(stickerPackIdentifier)) {
             throw new ContentProviderException(
-                    applicationTranslate.translate(R.string.throw_empty_identifier, uri)
+                    applicationTranslate.translate(R.string.error_invalid_identifier, uri)
                             .log(TAG_LOG, Level.ERROR).get());
         }
 
         if (TextUtils.isEmpty(fileName)) {
             throw new ContentProviderException(
-                    applicationTranslate.translate(R.string.throw_empty_file_name, uri)
+                    applicationTranslate.translate(R.string.error_invalid_sticker_filename, uri)
                             .log(TAG_LOG, Level.ERROR).get());
         }
 
@@ -83,16 +83,15 @@ public class StickerAssetProvider {
         final File stickerFile = new File(stickerDirectory, fileName);
 
         if (!stickerDirectory.exists() || !stickerDirectory.isDirectory()) {
-
             throw new FileNotFoundException(
-                    applicationTranslate.translate(R.string.throw_sticker_directory_not_found,
+                    applicationTranslate.translate(R.string.error_could_not_extract_path,
                             stickerDirectory.getPath()
                     ).log(TAG_LOG, Level.ERROR).get());
         }
 
         if (!stickerFile.exists() || !stickerFile.isFile()) {
             throw new FileNotFoundException(
-                    applicationTranslate.translate(R.string.throw_file_not_found_or_invalid,
+                    applicationTranslate.translate(R.string.error_file_not_found,
                             stickerFile.getAbsolutePath()
                     ).log(TAG_LOG, Level.ERROR).get());
         }
@@ -105,13 +104,13 @@ public class StickerAssetProvider {
                 stickerPackIdentifier)) {
             if (cursor == null) {
                 throw new ContentProviderException(
-                        applicationTranslate.translate(R.string.throw_null_cursor)
+                        applicationTranslate.translate(R.string.error_null_cursor)
                                 .log(TAG_LOG, Level.ERROR).get());
             }
 
             if (!cursor.moveToFirst()) {
                 throw new ContentProviderException(
-                        applicationTranslate.translate(R.string.throw_sticker_pack_not_found,
+                        applicationTranslate.translate(R.string.error_sticker_pack_not_found,
                                 stickerPackIdentifier
                         ).log(TAG_LOG, Level.ERROR).get());
             }
@@ -120,7 +119,10 @@ public class StickerAssetProvider {
                     cursor.getInt(cursor.getColumnIndexOrThrow(ANIMATED_STICKER_PACK)) != 0;
             if (isWhatsApp) {
                 if (!fileName.toLowerCase(Locale.ROOT).endsWith(".webp")) {
-                    Log.w(TAG_LOG, context.getString(R.string.warn_log_non_webp_file, fileName));
+                    Log.w(TAG_LOG,
+                            applicationTranslate.translate(R.string.warn_non_webp_file, fileName)
+                                    .get()
+                    );
                     return null;
                 }
 
@@ -130,30 +132,30 @@ public class StickerAssetProvider {
                     );
                 } catch (StickerFileException | InternalAppException exception) {
                     throw new ContentProviderException(
-                            applicationTranslate.translate(R.string.throw_invalid_sticker,
-                                    stickerFile.getAbsolutePath(), fileName
-                            ).log(TAG_LOG, Level.WARN, exception.getMessage()).get(), exception
+                            applicationTranslate.translate(R.string.error_invalid_sticker)
+                                    .log(TAG_LOG, Level.WARN, stickerFile.getAbsolutePath(),
+                                            fileName, exception.getMessage()
+                                    ).get(), exception
                     );
                 }
             } else {
-                Log.d(TAG_LOG, (context.getString(R.string.debug_log_validation_skipped,
+                Log.d(TAG_LOG, (applicationTranslate.translate(R.string.debug_validation_skipped,
                                 stickerFile.getAbsolutePath()
-                        ))
+                        ).get())
                 );
             }
 
             return this.openAssetFileSafely(stickerFile, "sticker");
         } catch (SQLException sqlException) {
             throw new ContentProviderException(
-                    applicationTranslate.translate(R.string.throw_database_error,
+                    applicationTranslate.translate(R.string.error_sticker_pack_not_found,
                             stickerPackIdentifier
                     ).log(TAG_LOG, Level.ERROR, sqlException).get(), sqlException
             );
         } catch (RuntimeException exception) {
             throw new ContentProviderException(
-                    applicationTranslate.translate(R.string.throw_unexpected_error,
-                            stickerPackIdentifier
-                    ).log(TAG_LOG, Level.ERROR, exception).get(), exception
+                    applicationTranslate.translate(R.string.error_unknown, stickerPackIdentifier)
+                            .log(TAG_LOG, Level.ERROR, exception).get(), exception
             );
         }
     }
@@ -168,7 +170,7 @@ public class StickerAssetProvider {
             );
         } catch (IOException exception) {
             throw new ContentProviderException(
-                    applicationTranslate.translate(R.string.throw_open_file_error, type,
+                    applicationTranslate.translate(R.string.error_open_file_error, type,
                             file.getAbsolutePath()
                     ).log(TAG_LOG, Level.ERROR).get(), exception
             );

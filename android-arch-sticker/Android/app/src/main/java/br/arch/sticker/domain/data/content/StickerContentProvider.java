@@ -8,7 +8,7 @@
 
 package br.arch.sticker.domain.data.content;
 
-import static br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.*;
+import static br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -16,7 +16,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -58,7 +57,6 @@ public class StickerContentProvider extends ContentProvider {
     private ApplicationTranslate applicationTranslate;
     private StickerQueryProvider stickerQueryProvider;
     private StickerAssetProvider stickerAssetProvider;
-    private Resources resources;
     private Context context;
 
     @Override
@@ -73,12 +71,10 @@ public class StickerContentProvider extends ContentProvider {
         context = getContext();
         if (context == null) {
             Log.e(TAG_LOG, "Context is null!");
-            return false;
+            throw new ContentProviderException("Context is null!");
         }
 
-        resources = context.getResources();
-
-        applicationTranslate = new ApplicationTranslate(resources);
+        applicationTranslate = new ApplicationTranslate(context.getResources());
 
         stickerPackQueryProvider = new StickerPackQueryProvider(context);
         stickerQueryProvider = new StickerQueryProvider(context);
@@ -106,7 +102,7 @@ public class StickerContentProvider extends ContentProvider {
             return stickerQueryProvider.fetchStickerListForPack(uri);
         } else {
             throw new ContentProviderException(
-                    applicationTranslate.translate(R.string.throw_unknown_uri, uri)
+                    applicationTranslate.translate(R.string.error_invalid_url, uri)
                             .log(TAG_LOG, Level.ERROR).get());
         }
     }
@@ -114,21 +110,21 @@ public class StickerContentProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, String[] selectionArgs) {
         throw new UnsupportedOperationException(
-                applicationTranslate.translate(R.string.throw_unsupported_operation)
+                applicationTranslate.translate(R.string.error_operation_failed)
                         .log(TAG_LOG, Level.ERROR).get());
     }
 
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
         throw new UnsupportedOperationException(
-                applicationTranslate.translate(R.string.throw_unsupported_operation)
+                applicationTranslate.translate(R.string.error_operation_failed)
                         .log(TAG_LOG, Level.ERROR).get());
     }
 
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         throw new UnsupportedOperationException(
-                applicationTranslate.translate(R.string.throw_unsupported_operation)
+                applicationTranslate.translate(R.string.error_operation_failed)
                         .log(TAG_LOG, Level.ERROR).get());
     }
 
@@ -150,7 +146,8 @@ public class StickerContentProvider extends ContentProvider {
                 try {
                     return context.getAssets().openFd("sticker_warning.webp");
                 } catch (IOException ioException) {
-                    Log.w(TAG_LOG, resources.getString(R.string.warn_log_fallback_not_found),
+                    Log.w(TAG_LOG,
+                            applicationTranslate.translate(R.string.warn_fallback_not_found).get(),
                             ioException
                     );
                     throw new RuntimeException(ioException);
@@ -179,7 +176,7 @@ public class StickerContentProvider extends ContentProvider {
             case STICKER_PACK_TRAY_ICON_CODE -> "image/jpg";
 
             default -> throw new ContentProviderException(
-                    applicationTranslate.translate(R.string.throw_unknown_uri, uri)
+                    applicationTranslate.translate(R.string.error_invalid_url, uri)
                             .log(TAG_LOG, Level.ERROR).get());
         };
     }
@@ -188,16 +185,22 @@ public class StickerContentProvider extends ContentProvider {
     private String getAuthority() {
         final String authority = BuildConfig.CONTENT_PROVIDER_AUTHORITY;
 
+        Context context = getContext();
+        if (context == null) {
+            Log.e(TAG_LOG, "Context is null!");
+            throw new ContentProviderException("Context is null!");
+        }
+
         String packageName = context.getPackageName();
         if (packageName == null) {
             throw new ContentProviderException(
-                    applicationTranslate.translate(R.string.throw_package_name_unavailable)
+                    applicationTranslate.translate(R.string.error_invalid_pack_name)
                             .log(TAG_LOG, Level.ERROR).get());
         }
 
         if (!authority.startsWith(packageName)) {
             throw new ContentProviderException(
-                    applicationTranslate.translate(R.string.throw_invalid_authority, authority,
+                    applicationTranslate.translate(R.string.error_invalid_authority, authority,
                             context.getPackageName()
                     ).log(TAG_LOG, Level.ERROR).get());
         }

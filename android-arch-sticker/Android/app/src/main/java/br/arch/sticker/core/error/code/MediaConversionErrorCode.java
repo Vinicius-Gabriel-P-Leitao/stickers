@@ -15,8 +15,8 @@ import br.arch.sticker.core.error.ErrorCodeProvider;
 
 // @formatter:off
 public enum MediaConversionErrorCode implements ErrorCodeProvider {
-    ERROR_NATIVE_CONVERSION(R.string.throw_error_in_native_conversion),
-    ERROR_PACK_CONVERSION_MEDIA(R.string.throw_error_conversion_media);
+    ERROR_NATIVE_CONVERSION(R.string.error_native_conversion),
+    ERROR_PACK_CONVERSION_MEDIA(R.string.error_media_conversion);
 
     private final int message;
 

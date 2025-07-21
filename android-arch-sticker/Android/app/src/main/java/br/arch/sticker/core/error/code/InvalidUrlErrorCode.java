@@ -14,7 +14,7 @@ import br.arch.sticker.R;
 import br.arch.sticker.core.error.ErrorCodeProvider;
 
 public enum InvalidUrlErrorCode implements ErrorCodeProvider {
-    INVALID_URL(R.string.throw_invalid_url);
+    INVALID_URL(R.string.error_invalid_url);
 
     private final int message;
 

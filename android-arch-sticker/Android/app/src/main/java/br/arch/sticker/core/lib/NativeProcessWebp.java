@@ -59,7 +59,7 @@ public class NativeProcessWebp {
                         throw new MediaConversionException(
                                 exception.getMessage() != null
                                     ? exception.getMessage()
-                                    : applicationTranslate.translate(R.string.throw_pausing_thread_native).log(TAG_LOG, Level.ERROR, exception).get(),
+                                    : applicationTranslate.translate(R.string.error_pausing_thread).log(TAG_LOG, Level.ERROR, exception).get(),
                                 exception.getCause(),
                                 MediaConversionErrorCode.ERROR_NATIVE_CONVERSION);
                     }
@@ -67,13 +67,13 @@ public class NativeProcessWebp {
                     callback.onSuccess(outputFile);
                 } else {
                     callback.onError(new MediaConversionException(
-                            applicationTranslate.translate(R.string.throw_convertsion_failed_generated).log(TAG_LOG, Level.ERROR).get(),
+                            applicationTranslate.translate(R.string.error_conversion_failed).log(TAG_LOG, Level.ERROR).get(),
                             MediaConversionErrorCode.ERROR_NATIVE_CONVERSION));
                 }
             } catch (Exception exception) {
                 callback.onError(
                         new MediaConversionException(
-                                applicationTranslate.translate(R.string.throw_unexpected_error_during_native_conversion).log(TAG_LOG, Level.ERROR, exception).get(),
+                                applicationTranslate.translate(R.string.error_native_conversion).log(TAG_LOG, Level.ERROR, exception).get(),
                                 MediaConversionErrorCode.ERROR_NATIVE_CONVERSION));
             }
         });

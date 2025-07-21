@@ -17,17 +17,17 @@ import br.arch.sticker.core.error.ErrorCodeProvider;
 
 // @formatter:off
 public enum StickerPackErrorCode implements ErrorCodeProvider{
-    INVALID_IDENTIFIER(R.string.throw_identifier_stickerpack_invalid),
-    DUPLICATE_IDENTIFIER(R.string.throw_suplicate_stickerpack_identifier),
-    INVALID_PUBLISHER(R.string.throw_publisher_stickerpack_invalid),
-    INVALID_STICKERPACK_NAME(R.string.throw_name_stickerpack_invalid),
-    INVALID_STICKERPACK_SIZE(R.string.throw_stickerpack_size_invalid),
-    INVALID_THUMBNAIL(R.string.throw_thumbnail_stickerpack_invalid),
-    INVALID_ANDROID_URL_SITE(R.string.throw_url_android_stickerpack_invalid),
-    INVALID_IOS_URL_SITE(R.string.throw_url_ios_stickerpack_invalid),
-    INVALID_WEBSITE(R.string.throw_stickerpack_website_invalid),
-    INVALID_EMAIL(R.string.throw_stickerpack_email_invalid),
-    INVALID_STICKER_ACCESSIBILITY(R.string.throw_invalid_size_acessibility);
+    INVALID_IDENTIFIER(R.string.error_invalid_identifier),
+    DUPLICATE_IDENTIFIER(R.string.error_duplicate_identifier),
+    INVALID_PUBLISHER(R.string.error_invalid_publisher),
+    INVALID_STICKERPACK_NAME(R.string.error_invalid_pack_name),
+    INVALID_STICKERPACK_SIZE(R.string.error_invalid_stickerpack_size),
+    INVALID_THUMBNAIL(R.string.error_invalid_thumbnail),
+    INVALID_ANDROID_URL_SITE(R.string.error_invalid_android_url),
+    INVALID_IOS_URL_SITE(R.string.error_invalid_ios_url),
+    INVALID_WEBSITE(R.string.error_invalid_website),
+    INVALID_EMAIL(R.string.error_invalid_email),
+    INVALID_STICKER_ACCESSIBILITY(R.string.error_accessibility_text_length);
 
     private final int message;
 

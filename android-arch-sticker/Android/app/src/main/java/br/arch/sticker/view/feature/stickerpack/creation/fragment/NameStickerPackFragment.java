@@ -60,7 +60,8 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (charSequence.length() > CHAR_NAME_COUNT_MAX) {
-                    textInputEditText.setError(getString(R.string.input_name_cannot_exceed_stickerpack_size));
+                    textInputEditText.setError(
+                            getString(R.string.input_name_cannot_exceed_stickerpack_size));
                 } else {
                     textInputEditText.setError(null);
                 }
@@ -75,7 +76,7 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
             textInputEditText.setFocusable(true);
             textInputEditText.setFocusableInTouchMode(true);
 
-            String msgErrorNamePackEmpty = getResources().getString(R.string.error_message_name_pack_empty);
+            String msgErrorNamePackEmpty = getResources().getString(R.string.error_empty_pack_name);
             if (textInputEditText.getText() == null) {
                 textInputEditText.setError(msgErrorNamePackEmpty);
                 return;
@@ -89,7 +90,8 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
             }
 
             if (inputText.length() > CHAR_NAME_COUNT_MAX) {
-                textInputEditText.setError(getString(R.string.error_message_name_stickerpack_length));
+                textInputEditText.setError(
+                        getString(R.string.error_name_length_exceeded));
                 return;
             }
 

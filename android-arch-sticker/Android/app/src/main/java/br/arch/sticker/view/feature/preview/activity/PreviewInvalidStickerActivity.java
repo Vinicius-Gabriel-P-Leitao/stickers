@@ -81,14 +81,17 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
         }
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                goToEntryActivity();
-            }
-        });
+                    @Override
+                    public void handleOnBackPressed() {
+                        goToEntryActivity();
+                    }
+                }
+        );
 
-        invalidStickerPackViewModel = new ViewModelProvider(this).get(PreviewInvalidStickerPackViewModel.class);
-        invalidStickerViewModel = new ViewModelProvider(this).get(PreviewInvalidStickerViewModel.class);
+        invalidStickerPackViewModel = new ViewModelProvider(this).get(
+                PreviewInvalidStickerPackViewModel.class);
+        invalidStickerViewModel = new ViewModelProvider(this).get(
+                PreviewInvalidStickerViewModel.class);
 
         observeInvalidStickerPackViewModel();
         observeInvalidStickerViewModel();
@@ -109,12 +112,14 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
 
         try {
             FetchStickerPackService fetchStickerPackService = new FetchStickerPackService(this);
-            StickerPackValidationResult result = fetchStickerPackService.fetchStickerPackFromContentProvider(stickerPackIdentifier);
+            StickerPackValidationResult result = fetchStickerPackService.fetchStickerPackFromContentProvider(
+                    stickerPackIdentifier);
             List<Sticker> invalidStickers = result.invalidSticker();
 
             if (invalidStickers.isEmpty()) {
-                Toast.makeText(this, getString(R.string.error_message_invalid_not_found), Toast.LENGTH_SHORT)
-                        .show();
+                Toast.makeText(this, getString(R.string.error_sticker_pack_not_found),
+                        Toast.LENGTH_SHORT
+                ).show();
                 return;
             }
 
@@ -128,7 +133,7 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
 
                 ErrorCodeProvider errorCode = exception.getErrorCode();
                 int resId = (errorCode !=
-                        null) ? errorCode.getMessageResId() : R.string.throw_unknown_error;
+                        null) ? errorCode.getMessageResId() : R.string.error_unknown;
                 textInvalidTitle.setText(getString(resId));
 
                 buttonFixInvalid.setOnClickListener(new View.OnClickListener() {
@@ -140,7 +145,9 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
                         if (now - lastClickTime < 1000) return;
                         lastClickTime = now;
 
-                        invalidStickerPackViewModel.handleFixStickerPackClick(recoveredPack, exception.getErrorCode());
+                        invalidStickerPackViewModel.handleFixStickerPackClick(recoveredPack,
+                                exception.getErrorCode()
+                        );
                     }
                 });
 
@@ -148,7 +155,7 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
                 return;
             }
 
-            Toast.makeText(this, getString(R.string.error_message_loading_sticker_pack), Toast.LENGTH_SHORT)
+            Toast.makeText(this, getString(R.string.error_loading_stickerpack), Toast.LENGTH_SHORT)
                     .show();
         }
     }
@@ -162,10 +169,11 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
     protected void onResume() {
         super.onResume();
         if (stickerArrayList != null && !stickerArrayList.isEmpty()) {
-            loadListInvalidStickersAsyncTask = new PreviewInvalidStickerActivity.LoadListInvalidStickersAsyncTask(this);
+            loadListInvalidStickersAsyncTask = new PreviewInvalidStickerActivity.LoadListInvalidStickersAsyncTask(
+                    this);
             loadListInvalidStickersAsyncTask.execute(stickerArrayList.toArray(new Sticker[0]));
         } else {
-            Log.w(TAG_LOG, getString(R.string.error_message_sticker_list_empty));
+            Log.w(TAG_LOG, getString(R.string.error_empty_sticker_list));
         }
     }
 
@@ -194,13 +202,16 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
 
     private void showInvalidStickerList(List<Sticker> stickerList) {
         if (stickerList == null || stickerList.isEmpty()) {
-            Toast.makeText(this, getString(R.string.error_message_invalid_sticker_list_empty), Toast.LENGTH_LONG)
-                    .show();
-            Log.w(TAG_LOG, getString(R.string.error_message_invalid_sticker_list_empty));
+            Toast.makeText(this, getString(R.string.error_empty_sticker_list),
+                    Toast.LENGTH_LONG
+            ).show();
+            Log.w(TAG_LOG, getString(R.string.error_empty_sticker_list));
             return;
         }
 
-        previewInvalidStickerAdapter = new PreviewInvalidStickerAdapter(stickerPackIdentifier, stickerList, this);
+        previewInvalidStickerAdapter = new PreviewInvalidStickerAdapter(stickerPackIdentifier,
+                stickerList, this
+        );
         recyclerViewInvalidStickers.setAdapter(previewInvalidStickerAdapter);
         decorateRecyclerView();
     }
@@ -216,17 +227,20 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
         observeErrorMessage(invalidStickerPackViewModel.getErrorMessageLiveData());
 
         invalidStickerPackViewModel.getStickerMutableLiveData().observe(this, fixAction -> {
-            PreviewInvalidStickerPackViewModel.FixActionStickerPack action = fixAction.getContentIfNotHandled();
-            if (action != null) {
-                InvalidStickerPackDialogController controller = new InvalidStickerPackDialogController(this, invalidStickerPackViewModel);
-                controller.showFixAction(action);
-            }
-        });
+                    PreviewInvalidStickerPackViewModel.FixActionStickerPack action = fixAction.getContentIfNotHandled();
+                    if (action != null) {
+                        InvalidStickerPackDialogController controller = new InvalidStickerPackDialogController(
+                                this, invalidStickerPackViewModel);
+                        controller.showFixAction(action);
+                    }
+                }
+        );
 
         invalidStickerPackViewModel.getFixCompletedLiveData().observe(this, fixAction -> {
-            // NOTE: Caso queira tratamento especial para um erro é só fazer instanceof
-            goToEntryActivity();
-        });
+                    // NOTE: Caso queira tratamento especial para um erro é só fazer instanceof
+                    goToEntryActivity();
+                }
+        );
     }
 
     private void observeInvalidStickerViewModel() {
@@ -234,46 +248,53 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
         observeErrorMessage(invalidStickerViewModel.getErrorMessageLiveData());
 
         invalidStickerViewModel.getStickerMutableLiveData().observe(this, fixAction -> {
-            PreviewInvalidStickerViewModel.FixActionSticker action = fixAction.getContentIfNotHandled();
-            if (action != null) {
-                InvalidStickerDialogController controller = new InvalidStickerDialogController(this, invalidStickerViewModel);
-                controller.showFixAction(action);
-            }
-        });
+                    PreviewInvalidStickerViewModel.FixActionSticker action = fixAction.getContentIfNotHandled();
+                    if (action != null) {
+                        InvalidStickerDialogController controller = new InvalidStickerDialogController(this,
+                                invalidStickerViewModel
+                        );
+                        controller.showFixAction(action);
+                    }
+                }
+        );
 
         invalidStickerViewModel.getFixCompletedLiveData().observe(this, fixAction -> {
-            if (fixAction instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete deleteAction) {
-                Sticker stickerDeleted = deleteAction.sticker();
-                previewInvalidStickerAdapter.removeSticker(stickerDeleted);
-                stickerArrayList.remove(stickerDeleted);
-            }
+                    if (fixAction instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete deleteAction) {
+                        Sticker stickerDeleted = deleteAction.sticker();
+                        previewInvalidStickerAdapter.removeSticker(stickerDeleted);
+                        stickerArrayList.remove(stickerDeleted);
+                    }
 
-            if (fixAction instanceof PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile resizeFileAction) {
-                Sticker stickerResized = resizeFileAction.sticker();
-                previewInvalidStickerAdapter.removeSticker(stickerResized);
-                stickerArrayList.remove(stickerResized);
-            }
-        });
+                    if (fixAction instanceof PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile resizeFileAction) {
+                        Sticker stickerResized = resizeFileAction.sticker();
+                        previewInvalidStickerAdapter.removeSticker(stickerResized);
+                        stickerArrayList.remove(stickerResized);
+                    }
+                }
+        );
     }
 
     private void observeProgressBar(LiveData<Boolean> liveData) {
         liveData.observe(this, isLoading -> {
-            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        });
+                    progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+                }
+        );
     }
 
     private void observeErrorMessage(LiveData<String> liveData) {
         liveData.observe(this, message -> {
-            if (message != null) {
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-            }
-        });
+                    if (message != null) {
+                        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
     }
 
     private void decorateRecyclerView() {
         linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewInvalidStickers.getContext(), linearLayoutManager.getOrientation());
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
+                recyclerViewInvalidStickers.getContext(), linearLayoutManager.getOrientation());
 
         recyclerViewInvalidStickers.addItemDecoration(dividerItemDecoration);
         recyclerViewInvalidStickers.setLayoutManager(linearLayoutManager);
@@ -282,10 +303,12 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
     }
 
     private void recalculateColumnCount() {
-        final int previewSize = getResources().getDimensionPixelSize(R.dimen.sticker_pack_list_item_preview_image_size);
+        final int previewSize = getResources().getDimensionPixelSize(
+                R.dimen.sticker_pack_list_item_preview_image_size);
         int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
 
-        InvalidStickerListViewHolder viewHolder = (InvalidStickerListViewHolder) recyclerViewInvalidStickers.findViewHolderForAdapterPosition(firstVisibleItemPosition);
+        InvalidStickerListViewHolder viewHolder = (InvalidStickerListViewHolder) recyclerViewInvalidStickers.findViewHolderForAdapterPosition(
+                firstVisibleItemPosition);
 
         if (viewHolder != null) {
             final int widthOfImageRow = viewHolder.stickerPreview.getMeasuredWidth();
@@ -298,7 +321,9 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
                 minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) /
                         (maxNumberOfImagesInARow - 1);
             }
-            previewInvalidStickerAdapter.setImageRowSpec(maxNumberOfImagesInARow, minMarginBetweenImages);
+            previewInvalidStickerAdapter.setImageRowSpec(maxNumberOfImagesInARow,
+                    minMarginBetweenImages
+            );
         }
     }
 
@@ -309,7 +334,8 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
         private final Handler handler = new Handler(Looper.getMainLooper());
 
         LoadListInvalidStickersAsyncTask(PreviewInvalidStickerActivity stickerPackLibraryActivity) {
-            this.stickerPackListActivityWeakReference = new WeakReference<>(stickerPackLibraryActivity);
+            this.stickerPackListActivityWeakReference = new WeakReference<>(
+                    stickerPackLibraryActivity);
         }
 
         public void execute(Sticker[] stickers) {

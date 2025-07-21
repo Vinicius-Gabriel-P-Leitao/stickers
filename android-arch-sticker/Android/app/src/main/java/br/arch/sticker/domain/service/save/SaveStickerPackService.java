@@ -14,6 +14,7 @@ import static br.arch.sticker.view.core.util.convert.ConvertThumbnail.THUMBNAIL_
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -60,8 +61,8 @@ public class SaveStickerPackService {
         this.stickerPackPlaceholder = new StickerPackPlaceholder(this.context);
         this.saveStickerAssetService = new SaveStickerAssetService(this.context);
 
-        SQLiteDatabase database = StickerDatabaseHelper.getInstance(
-                this.context).getWritableDatabase();
+        SQLiteDatabase database = StickerDatabaseHelper.getInstance(this.context)
+                .getWritableDatabase();
         this.insertStickerPackRepo = new InsertStickerPackRepo(database);
     }
 
@@ -72,17 +73,21 @@ public class SaveStickerPackService {
                 String finalName = name.trim() + " - [" + uuid.substring(0, 8) + "]";
 
                 StickerPack stickerPack = new StickerPack(uuid, finalName, "vinicius",
-                        THUMBNAIL_FILE, "", "", "", "", "1", false, isAnimated);
+                        THUMBNAIL_FILE, "", "", "", "", "1", false, isAnimated
+                );
 
                 List<Sticker> stickerList = new ArrayList<>();
                 for (File file : files) {
-                    boolean exists = stickerList.stream().anyMatch(
-                            sticker -> sticker.imageFileName.equals(file.getName()));
+                    boolean exists = stickerList.stream()
+                            .anyMatch(sticker -> sticker.imageFileName.equals(file.getName()));
                     if (!exists) {
-                        String accessibility = isAnimated ? "Pacote animado com nome " + finalName : "Pacote estático com nome " + finalName;
+                        String accessibility = isAnimated ?
+                                "Pacote animado com nome " + finalName :
+                                "Pacote estático com nome " + finalName;
 
                         stickerList.add(new Sticker(file.getName().trim(), "\uD83D\uDDFF", "",
-                                accessibility, uuid));
+                                accessibility, uuid
+                        ));
                     }
                 }
 
@@ -92,12 +97,14 @@ public class SaveStickerPackService {
                 Log.e(TAG_LOG, "ERRO: " + Arrays.toString(exception.getStackTrace()));
                 return CallbackResult.failure(
                         new StickerPackSaveException("Erro ao salvar pacote de figurinhas.",
-                                exception, BaseErrorCode.ERROR_UNKNOWN));
+                                exception, BaseErrorCode.ERROR_UNKNOWN
+                        ));
             }
         });
     }
 
-    public CallbackResult<StickerPack> persistPackToStorage(@NonNull Context context, @NonNull StickerPack stickerPack) throws StickerPackSaveException {
+    public CallbackResult<StickerPack> persistPackToStorage(@NonNull Context context, @NonNull StickerPack stickerPack)
+            throws StickerPackSaveException {
         File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
         CallbackResult<Boolean> createdMainDirectory, copyStickerPack;
 
@@ -121,19 +128,22 @@ public class SaveStickerPackService {
         if (createdStickerPackDirectory.getData() == null) {
             return CallbackResult.failure(new StickerPackSaveException(
                     "O diretório para salvar os pacotes está como nulo.",
-                    SaveErrorCode.ERROR_PACK_SAVE_SERVICE));
+                    SaveErrorCode.ERROR_PACK_SAVE_SERVICE
+            ));
         }
 
         List<Sticker> stickerList = new ArrayList<>(stickerPack.getStickers());
         while (stickerList.size() < STICKER_SIZE_MIN) {
             Sticker placeholder = stickerPackPlaceholder.makeStickerPlaceholder(stickerPack,
-                    createdStickerPackDirectory.getData());
+                    createdStickerPackDirectory.getData()
+            );
             stickerList.add(placeholder);
         }
         stickerPack.setStickers(stickerList);
 
         copyStickerPack = saveStickerAssetService.saveStickerFromCache(stickerPack,
-                createdStickerPackDirectory.getData());
+                createdStickerPackDirectory.getData()
+        );
         if (!copyStickerPack.isSuccess()) {
             if (copyStickerPack.isDebug())
                 return CallbackResult.debug(copyStickerPack.getDebugMessage());
@@ -146,14 +156,16 @@ public class SaveStickerPackService {
             stickerPackValidator.verifyStickerPackValidity(stickerPack);
         } catch (StickerPackValidatorException | StickerValidatorException |
                  InvalidWebsiteUrlException exception) {
-            Log.e(TAG_LOG,
-                    exception.getMessage() != null ? exception.getMessage() : "Erro ao validar pacote!");
+            Log.e(TAG_LOG, exception.getMessage() !=
+                    null ? exception.getMessage() : "Erro ao validar pacote!"
+            );
         }
 
         for (Sticker sticker : stickerList) {
             try {
                 stickerValidator.verifyStickerValidity(stickerPack.identifier, sticker,
-                        stickerPack.animatedStickerPack);
+                        stickerPack.animatedStickerPack
+                );
             } catch (StickerValidatorException | StickerFileException exception) {
                 if (exception instanceof StickerFileException fileException) {
                     if (Objects.equals(sticker.imageFileName, fileException.getFileName())) {
@@ -161,11 +173,38 @@ public class SaveStickerPackService {
                     }
                 }
 
-                Log.e(TAG_LOG,
-                        exception.getMessage() != null ? exception.getMessage() : "Erro ao validar sticker!");
+                Log.e(TAG_LOG, exception.getMessage() !=
+                        null ? exception.getMessage() : "Erro ao validar sticker!"
+                );
             }
         }
 
-        return insertStickerPackRepo.insertStickerPack(stickerPack);
+        if (stickerPack.identifier == null) {
+            return CallbackResult.failure(new StickerPackSaveException(
+                    "Pacote de figurinhas inválido ou identificador nulo.",
+                    SaveErrorCode.ERROR_PACK_SAVE_DB
+            ));
+        }
+        try {
+            return insertStickerPackRepo.insertStickerPack(stickerPack);
+        } catch (SQLiteException sqLiteException) {
+            Log.e(TAG_LOG, "Erro de banco ao inserir pacote: " + sqLiteException.getMessage(),
+                    sqLiteException
+            );
+
+            return CallbackResult.failure(
+                    new StickerPackSaveException("Erro de banco ao inserir pacote.",
+                            sqLiteException, SaveErrorCode.ERROR_PACK_SAVE_DB
+                    ));
+        } catch (StickerPackSaveException exception) {
+            Log.e(TAG_LOG, "Erro inesperado ao inserir pacote: " + exception.getMessage(),
+                    exception
+            );
+
+            return CallbackResult.failure(new StickerPackSaveException(
+                    "Erro inesperado ao salvar pacote de figurinhas no banco de dados.", exception,
+                    SaveErrorCode.ERROR_PACK_SAVE_DB
+            ));
+        }
     }
 }

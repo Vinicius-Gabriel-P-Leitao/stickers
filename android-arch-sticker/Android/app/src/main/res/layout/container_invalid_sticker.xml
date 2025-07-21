@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="3"
-            android:text="@string/description_sticker_invalid"
+            android:text="@string/error_invalid_sticker"
             android:textColor="@color/catppuccin_lavender"
             android:textSize="14sp" />
     </LinearLayout>

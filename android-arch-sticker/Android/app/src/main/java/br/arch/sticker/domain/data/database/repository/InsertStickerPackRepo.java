@@ -25,9 +25,8 @@ import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.TABLE_S
 import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.TABLE_STICKER_PACK;
 
 import android.content.ContentValues;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -38,8 +37,6 @@ import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
 
 public class InsertStickerPackRepo {
-    private final static String TAG_LOG = InsertStickerPackRepo.class.getSimpleName();
-
     private final SQLiteDatabase database;
 
     public InsertStickerPackRepo(SQLiteDatabase database) {
@@ -47,40 +44,28 @@ public class InsertStickerPackRepo {
     }
 
     @NonNull
-    public CallbackResult<StickerPack> insertStickerPack(StickerPack stickerPack) throws StickerPackSaveException {
-        if (stickerPack == null || stickerPack.identifier == null) {
-            return CallbackResult.failure(new StickerPackSaveException("Pacote de figurinhas inválido ou identificador nulo.", SaveErrorCode.ERROR_PACK_SAVE_DB));
-        }
+    public CallbackResult<StickerPack> insertStickerPack(StickerPack stickerPack)
+            throws SQLException {
+        ContentValues stickerPackValues = writeStickerPackToContentValues(stickerPack);
+        long result = database.insertOrThrow(TABLE_STICKER_PACK, null, stickerPackValues);
 
-        try {
-            ContentValues stickerPackValues = writeStickerPackToContentValues(stickerPack);
-            long result = database.insert(TABLE_STICKER_PACK, null, stickerPackValues);
-
-            if (result != -1) {
-                for (Sticker sticker : stickerPack.getStickers()) {
-                    ContentValues stickerValues = InsertStickerRepo.writeStickerToContentValues(sticker);
-                    database.insert(TABLE_STICKER, null, stickerValues);
-                }
-
-                return CallbackResult.success(stickerPack);
-            } else {
-                return CallbackResult.failure(new StickerPackSaveException("Erro ao inserir pacote.", SaveErrorCode.ERROR_PACK_SAVE_DB));
+        if (result != -1) {
+            for (Sticker sticker : stickerPack.getStickers()) {
+                ContentValues stickerValues = InsertStickerRepo.writeStickerToContentValues(
+                        sticker);
+                database.insertOrThrow(TABLE_STICKER, null, stickerValues);
             }
-        } catch (SQLiteException sqLiteException) {
-            Log.e(TAG_LOG, "Erro de banco ao inserir pacote: " +
-                    sqLiteException.getMessage(), sqLiteException);
 
-            return CallbackResult.failure(new StickerPackSaveException("Erro de banco ao inserir pacote.", sqLiteException, SaveErrorCode.ERROR_PACK_SAVE_DB));
-        } catch (Exception exception) {
-            Log.e(TAG_LOG,
-                    "Erro inesperado ao inserir pacote: " + exception.getMessage(), exception);
-
-            return CallbackResult.failure(new StickerPackSaveException("Erro inesperado ao salvar pacote de figurinhas no banco de dados.", exception, SaveErrorCode.ERROR_PACK_SAVE_DB));
+            return CallbackResult.success(stickerPack);
+        } else {
+            return CallbackResult.failure(new StickerPackSaveException("Erro ao inserir pacote.",
+                    SaveErrorCode.ERROR_PACK_SAVE_DB
+            ));
         }
     }
 
     @NonNull
-    public static ContentValues writeStickerPackToContentValues(StickerPack stickerPack) {
+    private static ContentValues writeStickerPackToContentValues(StickerPack stickerPack) {
         ContentValues stickerPackValues = new ContentValues();
         stickerPackValues.put(STICKER_PACK_IDENTIFIER_IN_QUERY, stickerPack.identifier);
         stickerPackValues.put(STICKER_PACK_NAME_IN_QUERY, stickerPack.name);
@@ -100,5 +85,4 @@ public class InsertStickerPackRepo {
 
         return stickerPackValues;
     }
-
 }

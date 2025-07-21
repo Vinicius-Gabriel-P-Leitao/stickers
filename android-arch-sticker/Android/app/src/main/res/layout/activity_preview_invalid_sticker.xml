@@ -5,8 +5,8 @@
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.feature.preview.activity.PreviewInvalidStickerActivity"
-    android:background="@color/catppuccin_base">
+    android:background="@color/catppuccin_base"
+    tools:context=".view.feature.preview.activity.PreviewInvalidStickerActivity">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/header_container"
@@ -35,7 +35,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/message_invalid_pack"
                 android:textColor="@color/catppuccin_text"
                 android:textSize="20sp"
                 android:textStyle="bold" />

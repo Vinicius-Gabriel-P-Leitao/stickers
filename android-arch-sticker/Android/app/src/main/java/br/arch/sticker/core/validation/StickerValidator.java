@@ -55,7 +55,7 @@ public class StickerValidator {
 
         if (!sticker.stickerIsValid.isEmpty()) {
             throw new StickerFileException(
-                    applicationTranslate.translate(R.string.throw_sticker_invalid)
+                    applicationTranslate.translate(R.string.error_invalid_sticker)
                             .log(TAG_LOG, Level.ERROR).get(), StickerAssetErrorCode.ERROR_FILE_SIZE,
                     stickerPackIdentifier, null
             );
@@ -63,7 +63,7 @@ public class StickerValidator {
 
         if (TextUtils.isEmpty(sticker.imageFileName)) {
             throw new StickerValidatorException(
-                    applicationTranslate.translate(R.string.throw_sticker_path_invalid,
+                    applicationTranslate.translate(R.string.error_sticker_file_not_found,
                             stickerPackIdentifier
                     ).log(TAG_LOG, Level.ERROR).get(), StickerAssetErrorCode.INVALID_STICKER_PATH,
                     stickerPackIdentifier, null
@@ -73,7 +73,7 @@ public class StickerValidator {
         final String accessibilityText = sticker.accessibilityText;
         if (isInvalidAccessibilityText(accessibilityText, animatedStickerPack)) {
             throw new StickerValidatorException(
-                    applicationTranslate.translate(R.string.throw_accessibility_text_exceeds_limit,
+                    applicationTranslate.translate(R.string.error_accessibility_text_length,
                             stickerPackIdentifier, sticker.imageFileName
                     ).log(TAG_LOG, Level.ERROR).get(),
                     StickerPackErrorCode.INVALID_STICKER_ACCESSIBILITY, stickerPackIdentifier,
@@ -93,7 +93,7 @@ public class StickerValidator {
             if (!animatedStickerPack &&
                     stickerInBytes.length > STATIC_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
                 throw new StickerFileException(applicationTranslate.translate(
-                        R.string.throw_static_sticker_file_size_exceeds_limit,
+                        R.string.error_sticker_file_size,
                         STATIC_STICKER_FILE_LIMIT_KB,
                         Math.toIntExact(stickerInBytes.length / KB_IN_BYTES), stickerPackIdentifier,
                         fileName
@@ -105,7 +105,7 @@ public class StickerValidator {
             if (animatedStickerPack &&
                     stickerInBytes.length > ANIMATED_STICKER_FILE_LIMIT_KB * KB_IN_BYTES) {
                 throw new StickerFileException(applicationTranslate.translate(
-                        R.string.throw_animated_sticker_file_size_exceeds_limit,
+                        R.string.error_sticker_file_size,
                         ANIMATED_STICKER_FILE_LIMIT_KB,
                         Math.toIntExact(stickerInBytes.length / KB_IN_BYTES), stickerPackIdentifier,
                         fileName
@@ -120,7 +120,7 @@ public class StickerValidator {
                 );
                 if (webPImage.getHeight() != IMAGE_HEIGHT) {
                     throw new StickerFileException(
-                            applicationTranslate.translate(R.string.throw_sticker_height_invalid,
+                            applicationTranslate.translate(R.string.error_invalid_sticker_size,
                                     IMAGE_HEIGHT, webPImage.getHeight(), stickerPackIdentifier,
                                     fileName
                             ).log(TAG_LOG, Level.ERROR).get(),
@@ -131,7 +131,7 @@ public class StickerValidator {
 
                 if (webPImage.getWidth() != IMAGE_WIDTH) {
                     throw new StickerFileException(
-                            applicationTranslate.translate(R.string.throw_sticker_width_invalid,
+                            applicationTranslate.translate(R.string.error_invalid_sticker_size,
                                     IMAGE_WIDTH, webPImage.getWidth(), stickerPackIdentifier,
                                     fileName
                             ).log(TAG_LOG, Level.ERROR).get(),
@@ -143,7 +143,7 @@ public class StickerValidator {
                 if (animatedStickerPack) {
                     if (webPImage.getFrameCount() <= 1) {
                         throw new StickerFileException(applicationTranslate.translate(
-                                R.string.throw_animated_sticker_not_animated, stickerPackIdentifier,
+                                R.string.error_sticker_type_mismatch, stickerPackIdentifier,
                                 fileName
                         ).log(TAG_LOG, Level.ERROR).get(), StickerAssetErrorCode.ERROR_STICKER_TYPE,
                                 stickerPackIdentifier, fileName
@@ -156,7 +156,7 @@ public class StickerValidator {
 
                     if (webPImage.getDuration() > ANIMATED_STICKER_TOTAL_DURATION_MAX) {
                         throw new StickerFileException(applicationTranslate.translate(
-                                R.string.throw_animated_sticker_duration_exceeds_limit,
+                                R.string.error_animated_sticker_duration,
                                 ANIMATED_STICKER_TOTAL_DURATION_MAX, webPImage.getDuration(),
                                 stickerPackIdentifier, fileName
                         ).log(TAG_LOG, Level.ERROR).get(),
@@ -166,7 +166,7 @@ public class StickerValidator {
                     }
                 } else if (webPImage.getFrameCount() > 1) {
                     throw new StickerFileException(applicationTranslate.translate(
-                            R.string.throw_static_sticker_has_animation,
+                            R.string.error_sticker_type_mismatch,
                             stickerPackIdentifier, fileName
                     ).log(TAG_LOG, Level.ERROR).get(), StickerAssetErrorCode.ERROR_STICKER_TYPE,
                             stickerPackIdentifier, fileName
@@ -175,7 +175,7 @@ public class StickerValidator {
 
             } catch (IllegalArgumentException exception) {
                 throw new StickerFileException(
-                        applicationTranslate.translate(R.string.throw_webp_processing_error,
+                        applicationTranslate.translate(R.string.error_webp_processing_error,
                                 stickerPackIdentifier, fileName
                         ).log(TAG_LOG, Level.ERROR, exception).get(),
                         StickerAssetErrorCode.ERROR_FILE_TYPE,
@@ -184,7 +184,7 @@ public class StickerValidator {
             }
         } catch (FetchStickerException exception) {
             throw new InternalAppException(
-                    applicationTranslate.translate(R.string.throw_sticker_file_cannot_open,
+                    applicationTranslate.translate(R.string.error_file_not_found,
                             stickerPackIdentifier, fileName
                     ).log(TAG_LOG, Level.ERROR, exception).get(), exception,
                     BaseErrorCode.ERROR_OPERATION_NOT_POSSIBLE
@@ -195,9 +195,8 @@ public class StickerValidator {
     private void checkFrameDurationsForAnimatedSticker(@NonNull final int[] frameDurations, @NonNull final String identifier, @NonNull final String fileName) {
         for (int frameDuration : frameDurations) {
             if (frameDuration < ANIMATED_STICKER_FRAME_DURATION_MIN) {
-
                 throw new StickerFileException(applicationTranslate.translate(
-                        R.string.throw_animated_sticker_frame_duration_too_short,
+                        R.string.error_animated_sticker_duration,
                         ANIMATED_STICKER_FRAME_DURATION_MIN, identifier, fileName
                 ).log(TAG_LOG, Level.ERROR).get(), StickerAssetErrorCode.ERROR_STICKER_DURATION,
                         identifier, fileName

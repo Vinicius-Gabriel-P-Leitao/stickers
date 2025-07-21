@@ -61,13 +61,16 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.BottomSheetStyle);
 
-        StickerPackCreationViewModel = new ViewModelProvider(requireActivity()).get(StickerPackCreationViewModel.class);
+        StickerPackCreationViewModel = new ViewModelProvider(requireActivity()).get(
+                StickerPackCreationViewModel.class);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.dialog_fragment_recyclerview_select_media, container, false);
+        return inflater.inflate(R.layout.dialog_fragment_recyclerview_select_media, container,
+                false
+        );
     }
 
     @Override
@@ -86,7 +89,8 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
             }
 
             dismiss();
-        });
+        }
+        );
 
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
         recyclerView.setLayoutManager(layoutManager);
@@ -97,8 +101,9 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
             final Set<Uri> selectedUris = mediaListAdapter.getSelectedMediaPaths();
 
             if (selectedUris.isEmpty()) {
-                Toast.makeText(getContext(), getString(R.string.error_message_select_least_media), Toast.LENGTH_SHORT)
-                        .show();
+                Toast.makeText(getContext(), getString(R.string.error_select_at_least_one_media),
+                        Toast.LENGTH_SHORT
+                ).show();
                 return;
             }
 
@@ -112,36 +117,48 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
             StickerPackCreationViewModel.startConversions(selectedUris);
         });
 
-        StickerPackCreationViewModel.getMimeTypesSupported().observe(getViewLifecycleOwner(), mimeTypesSupported -> {
-            List<Uri> uris = UriDetailsResolver.fetchMediaUri(requireContext(), mimeTypesSupported.getMimeTypes());
-            mediaListAdapter.submitList(new ArrayList<>(uris));
-        });
+        StickerPackCreationViewModel.getMimeTypesSupported()
+                .observe(getViewLifecycleOwner(), mimeTypesSupported -> {
+                            List<Uri> uris = UriDetailsResolver.fetchMediaUri(requireContext(),
+                                    mimeTypesSupported.getMimeTypes()
+                            );
+                            mediaListAdapter.submitList(new ArrayList<>(uris));
+                        }
+                );
 
-        StickerPackCreationViewModel.getStickerPackResult().observe(getViewLifecycleOwner(), result -> {
-            if (result != null) {
-                if (result.isSuccess()) {
-                    StickerPackCreationViewModel.setStickerPackPreview(result.getData());
-                    progressBar.setVisibility(View.GONE);
+        StickerPackCreationViewModel.getStickerPackResult()
+                .observe(getViewLifecycleOwner(), result -> {
+                            if (result != null) {
+                                if (result.isSuccess()) {
+                                    StickerPackCreationViewModel.setStickerPackPreview(result.getData());
+                                    progressBar.setVisibility(View.GONE);
 
-                    dismiss();
-                }
+                                    dismiss();
+                                }
 
-                if (result.isWarning()) {
-                    Toast.makeText(getContext(), result.getWarningMessage(), Toast.LENGTH_SHORT).show();
-                    progressBar.setVisibility(View.GONE);
-                }
+                                if (result.isWarning()) {
+                                    Toast.makeText(getContext(), result.getWarningMessage(),
+                                            Toast.LENGTH_SHORT
+                                    ).show();
+                                    progressBar.setVisibility(View.GONE);
+                                }
 
-                if (result.isFailure()) {
-                    if (result.getError() instanceof AppCoreStateException appCoreStateException) {
-                        String errorMessage = getString(appCoreStateException.getErrorCode().getMessageResId());
-                        Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                    }
+                                if (result.isFailure()) {
+                                    if (result.getError() instanceof AppCoreStateException appCoreStateException) {
+                                        String errorMessage = getString(
+                                                appCoreStateException.getErrorCode().getMessageResId());
+                                        Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT)
+                                                .show();
+                                    }
 
-                    Toast.makeText(getContext(), result.getError().getMessage(), Toast.LENGTH_SHORT).show();
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        });
+                                    Toast.makeText(getContext(), result.getError().getMessage(),
+                                            Toast.LENGTH_SHORT
+                                    ).show();
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            }
+                        }
+                );
     }
 
     @NonNull
@@ -164,8 +181,9 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
     public void onCancel(@NonNull DialogInterface dialog) {
         super.onCancel(dialog);
         StickerPackCreationViewModel.setCancelConversions();
-        Toast.makeText(requireActivity(), getString(R.string.error_message_process_canceled), Toast.LENGTH_SHORT)
-                .show();
+        Toast.makeText(requireActivity(), getString(R.string.error_process_canceled),
+                Toast.LENGTH_SHORT
+        ).show();
     }
 
     @Override

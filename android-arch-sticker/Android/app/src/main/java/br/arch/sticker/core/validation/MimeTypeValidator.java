@@ -9,8 +9,6 @@
 package br.arch.sticker.core.validation;
 
 public class MimeTypeValidator {
-    private static final String TAG_LOG = MimeTypeValidator.class.getSimpleName();
-
     public static boolean validateUniqueMimeType(String mimeType, String[] mimeTypesList) {
         for (String type : mimeTypesList) {
             if (type.equals(mimeType)) {
