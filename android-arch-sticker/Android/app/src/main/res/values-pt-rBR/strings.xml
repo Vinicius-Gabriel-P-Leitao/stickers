@@ -168,6 +168,16 @@
     <string name="error_unexpected_insert_sticker_db">Erro inesperado ao salvar figurinha no banco de dados.</string>
     <string name="error_create_sticker_placeholder">Erro ao criar placeholder para o pacote de figurinhas!</string>
     <string name="error_cursos_invalid_fields">O cursor está com campos inválidos.</string>
+    <string name="error_fetch_content_provider">Não foi possível buscar no content provider, %1$s</string>
+    <string name="error_no_sticker_pack_found">Nenhum pacote de figurinhas encontrado no content provider</string>
+    <string name="error_empty_sticker_pack">Deve haver pelo menos um pacote de adesivos no aplicativo</string>
+    <string name="error_duplicate_sticker_pack_id">Os identificadores dos pacotes de figurinhas devem ser únicos, há mais de um pacote com identificador: %1$s</string>
+    <string name="error_invalid_sticker_pack_empty_stickers">Pacote de figurinhas inválido: não restaram stickers após a validação.</string>
+    <string name="error_create_placeholder">Não foi possível criar placeholder.</string>
+    <string name="error_update_sticker_filename">Erro ao atualizar nome da figurinha.</string>
+    <string name="error_mark_sticker_invalid">Erro ao marcar figurinha como inválida.</string>
+    <string name="error_update_sticker_pack_name">Erro ao atualizar nome do pacote de figurinhas.</string>
+    <string name="error_clean_sticker_pack_url">Erro ao dar clean nas URL do pacote de figurinhas.</string>
 
     <!-- Debug and Warning Logs -->
     <string name="debug_frame_updated">Frame atualizado: %1$s.</string>
@@ -182,6 +192,10 @@
     <string name="warn_no_sticker_deleted">Nenhuma figurinha deletada para o arquivo: %1$s</string>
     <string name="information_sticker_deleted_success">Figurinha deletada com sucesso</string>
     <string name="information_sticker_is_valid">A figurinha é valida!</string>
+    <string name="warn_no_sticker_updated">Nenhum registro atualizado ao renomear figurinha.</string>
+    <string name="warn_no_sticker_marked_invalid">Nenhum registro marcado como inválido. Verifique o identificador e nome do arquivo.</string>
+    <string name="warn_no_sticker_pack_updated">Nenhum registro atualizado ao renomear pacote de figurinhas.</string>
+    <string name="warn_no_sticker_pack_url_cleaned">Nenhum registro atualizado ao dar clean pacote de figurinhas.</string>
 
     <!-- Timeline and Miscellaneous -->
     <string name="timeline_seconds">%1$s segundos</string>

@@ -43,42 +43,30 @@ public class InsertStickerPackRepo {
     @NonNull
     public CallbackResult<StickerPack> insertStickerPack(StickerPack stickerPack) {
         try {
-            ContentValues stickerPackValues = StickerPackMapper.writeStickerPackToContentValues(
-                    stickerPack);
-            long resultStickerPack = database.insertOrThrow(TABLE_STICKER_PACK, null,
-                    stickerPackValues
-            );
+            ContentValues stickerPackValues = StickerPackMapper.writeStickerPackToContentValues(stickerPack);
+            long resultStickerPack = database.insertOrThrow(TABLE_STICKER_PACK, null, stickerPackValues);
 
             if (resultStickerPack != -1) {
                 for (Sticker sticker : stickerPack.getStickers()) {
-                    ContentValues stickerValues = StickerMapper.writeStickerToContentValues(
-                            sticker);
-                    long resultSticker = database.insertOrThrow(TABLE_STICKER, null, stickerValues);
-
-                    if (resultSticker != -1) {
-                        return CallbackResult.warning(applicationTranslate.translate(
-                                        R.string.error_save_sticker_pack_general).log(TAG_LOG, Level.WARN)
-                                .get());
-                    }
+                    ContentValues stickerValues = StickerMapper.writeStickerToContentValues(sticker);
+                    database.insertOrThrow(TABLE_STICKER, null, stickerValues);
                 }
 
                 return CallbackResult.success(stickerPack);
             } else {
                 return CallbackResult.failure(new StickerPackSaveException(
-                        applicationTranslate.translate(R.string.error_save_sticker_pack_general)
-                                .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_SAVE_DB
+                        applicationTranslate.translate(R.string.error_save_sticker_pack_general).log(TAG_LOG, Level.ERROR).get(),
+                        ErrorCode.ERROR_PACK_SAVE_DB
                 ));
             }
         } catch (SQLiteException sqLiteException) {
             return CallbackResult.failure(new StickerPackSaveException(
-                    applicationTranslate.translate(R.string.error_save_sticker_pack_db)
-                            .log(TAG_LOG, Level.ERROR, sqLiteException).get(), sqLiteException,
-                    ErrorCode.ERROR_PACK_SAVE_DB
+                    applicationTranslate.translate(R.string.error_save_sticker_pack_db).log(TAG_LOG, Level.ERROR, sqLiteException).get(),
+                    sqLiteException, ErrorCode.ERROR_PACK_SAVE_DB
             ));
         } catch (Exception exception) {
             return CallbackResult.failure(new StickerPackSaveException(
-                    applicationTranslate.translate(R.string.error_unexpected_save_sticker_pack_db)
-                            .log(TAG_LOG, Level.ERROR, exception).get(),
+                    applicationTranslate.translate(R.string.error_unexpected_save_sticker_pack_db).log(TAG_LOG, Level.ERROR, exception).get(),
                     ErrorCode.ERROR_PACK_SAVE_DB
             ));
         }

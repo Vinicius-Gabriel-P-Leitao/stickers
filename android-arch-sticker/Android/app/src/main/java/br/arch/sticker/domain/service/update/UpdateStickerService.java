@@ -24,7 +24,7 @@ public class UpdateStickerService {
     public UpdateStickerService(Context paramContext) {
         Context context = paramContext.getApplicationContext();
         SQLiteDatabase database = StickerDatabaseHelper.getInstance(context).getWritableDatabase();
-        this.updateStickerRepo = new UpdateStickerRepo(database);
+        this.updateStickerRepo = new UpdateStickerRepo(database, context.getResources());
     }
 
     public boolean updateStickerFileName(String stickerPackIdentifier, String newFileName, String oldFileName)

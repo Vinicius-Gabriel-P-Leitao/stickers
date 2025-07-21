@@ -168,7 +168,16 @@
     <string name="error_unexpected_insert_sticker_db">Unexpected error saving sticker to database.</string>
     <string name="error_create_sticker_placeholder">Error creating placeholder for the sticker pack!</string>
     <string name="error_cursos_invalid_fields">The cursor has invalid fields.</string>
-
+    <string name="error_fetch_content_provider">Unable to fetch from content provider, %1$s</string>
+    <string name="error_no_sticker_pack_found">No sticker pack found in content provider</string>
+    <string name="error_empty_sticker_pack">There must be at least one sticker pack in the application</string>
+    <string name="error_duplicate_sticker_pack_id">Sticker pack identifiers must be unique, more than one pack with identifier: %1$s</string>
+    <string name="error_invalid_sticker_pack_empty_stickers">Invalid sticker pack: no stickers remained after validation.</string>
+    <string name="error_create_placeholder">Unable to create placeholder.</string>
+    <string name="error_update_sticker_filename">Error updating sticker file name.</string>
+    <string name="error_mark_sticker_invalid">Error marking sticker as invalid.</string>
+    <string name="error_update_sticker_pack_name">Error updating sticker pack name: %1$s</string>
+    <string name="error_clean_sticker_pack_url">Error cleaning sticker pack URLs: %1$s</string>
 
     <!-- Debug and Warning Logs -->
     <string name="debug_frame_updated">Frame updated: %1$s.</string>
@@ -183,6 +192,10 @@
     <string name="warn_no_sticker_deleted">No sticker deleted for file: %1$s</string>
     <string name="information_sticker_deleted_success">Sticker deleted successfully</string>
     <string name="information_sticker_is_valid">The sticker is valid!</string>
+    <string name="warn_no_sticker_updated">No record updated when renaming sticker.</string>
+    <string name="warn_no_sticker_marked_invalid">No record marked as invalid. Check the identifier and file name.</string>
+    <string name="warn_no_sticker_pack_updated">No record updated when renaming sticker pack.</string>
+    <string name="warn_no_sticker_pack_url_cleaned">No record updated when cleaning sticker pack URLs.</string>
 
     <!-- Timeline and Miscellaneous -->
     <string name="timeline_seconds">%1$s seconds</string>

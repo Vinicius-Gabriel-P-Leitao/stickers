@@ -74,17 +74,13 @@ public class SaveStickerPackService {
                 String uuid = UUID.randomUUID().toString();
                 String finalName = name.trim() + " - [" + uuid.substring(0, 8) + "]";
 
-                StickerPack stickerPack = new StickerPack(uuid, finalName, "vinicius", THUMBNAIL_FILE, "", "", "", "",
-                        "1", false, isAnimated
-                );
+                StickerPack stickerPack = new StickerPack(uuid, finalName, "vinicius", THUMBNAIL_FILE, "", "", "", "", "1", false, isAnimated);
 
                 List<Sticker> stickerList = new ArrayList<>();
                 for (File file : files) {
-                    boolean exists = stickerList.stream()
-                            .anyMatch(sticker -> sticker.imageFileName.equals(file.getName()));
+                    boolean exists = stickerList.stream().anyMatch(sticker -> sticker.imageFileName.equals(file.getName()));
                     if (!exists) {
-                        String accessibility = isAnimated ?
-                                "Pacote animado com nome " + finalName : "Pacote estático com nome " + finalName;
+                        String accessibility = isAnimated ? "Pacote animado com nome " + finalName : "Pacote estático com nome " + finalName;
 
                         stickerList.add(new Sticker(file.getName().trim(), "\uD83D\uDDFF", "", accessibility, uuid));
                     }
@@ -94,8 +90,8 @@ public class SaveStickerPackService {
                 return persistPackToStorage(context, stickerPack);
             } catch (Exception exception) {
                 return CallbackResult.failure(new StickerPackSaveException(
-                        applicationTranslate.translate(R.string.error_save_sticker_pack_general)
-                                .log(TAG_LOG, Level.ERROR, exception).get(), exception, ERROR_UNKNOWN
+                        applicationTranslate.translate(R.string.error_save_sticker_pack_general).log(TAG_LOG, Level.ERROR, exception).get(),
+                        exception, ERROR_UNKNOWN
                 ));
             }
         });
@@ -108,13 +104,11 @@ public class SaveStickerPackService {
 
         createdMainDirectory = StickerPackDirectory.createMainDirectory(mainDirectory);
         if (!createdMainDirectory.isSuccess() && !createdMainDirectory.isDebug()) {
-            if (createdMainDirectory.isWarning())
-                return CallbackResult.warning(createdMainDirectory.getWarningMessage());
+            if (createdMainDirectory.isWarning()) return CallbackResult.warning(createdMainDirectory.getWarningMessage());
             return CallbackResult.failure(createdMainDirectory.getError());
         }
 
-        CallbackResult<File> createdStickerPackDirectory = StickerPackDirectory.createStickerPackDirectory(
-                mainDirectory, stickerPack.identifier);
+        CallbackResult<File> createdStickerPackDirectory = StickerPackDirectory.createStickerPackDirectory(mainDirectory, stickerPack.identifier);
         if (!createdStickerPackDirectory.isSuccess() && !createdStickerPackDirectory.isWarning()) {
             if (createdStickerPackDirectory.isDebug()) {
                 Log.d(TAG_LOG, createdStickerPackDirectory.getDebugMessage());
@@ -125,23 +119,19 @@ public class SaveStickerPackService {
 
         if (createdStickerPackDirectory.getData() == null) {
             return CallbackResult.failure(new StickerPackSaveException(
-                    applicationTranslate.translate(R.string.error_save_sticker_pack_directory_null)
-                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_SAVE_SERVICE
+                    applicationTranslate.translate(R.string.error_save_sticker_pack_directory_null).log(TAG_LOG, Level.ERROR).get(),
+                    ErrorCode.ERROR_PACK_SAVE_SERVICE
             ));
         }
 
         List<Sticker> stickerList = new ArrayList<>(stickerPack.getStickers());
         while (stickerList.size() < STICKER_SIZE_MIN) {
-            Sticker placeholder = stickerPackPlaceholder.makeStickerPlaceholder(stickerPack,
-                    createdStickerPackDirectory.getData()
-            );
+            Sticker placeholder = stickerPackPlaceholder.makeStickerPlaceholder(stickerPack, createdStickerPackDirectory.getData());
             stickerList.add(placeholder);
         }
         stickerPack.setStickers(stickerList);
 
-        copyStickerPack = saveStickerAssetService.saveStickerFromCache(stickerPack,
-                createdStickerPackDirectory.getData()
-        );
+        copyStickerPack = saveStickerAssetService.saveStickerFromCache(stickerPack, createdStickerPackDirectory.getData());
         if (!copyStickerPack.isSuccess()) {
             if (copyStickerPack.isDebug()) return CallbackResult.debug(copyStickerPack.getDebugMessage());
             if (copyStickerPack.isWarning()) return CallbackResult.warning(copyStickerPack.getWarningMessage());
@@ -151,16 +141,15 @@ public class SaveStickerPackService {
         try {
             stickerPackValidator.verifyStickerPackValidity(stickerPack);
         } catch (StickerPackValidatorException | StickerValidatorException | InvalidWebsiteUrlException exception) {
-            Log.e(TAG_LOG, exception.getMessage() != null ? exception.getMessage() : applicationTranslate.translate(
-                    R.string.error_validate_sticker_pack).get()
+            Log.e(TAG_LOG,
+                    exception.getMessage() != null ? exception.getMessage() : applicationTranslate.translate(R.string.error_validate_sticker_pack)
+                            .get()
             );
         }
 
         for (Sticker sticker : stickerList) {
             try {
-                stickerValidator.verifyStickerValidity(stickerPack.identifier, sticker,
-                        stickerPack.animatedStickerPack
-                );
+                stickerValidator.verifyStickerValidity(stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
             } catch (StickerValidatorException | StickerFileException exception) {
                 if (exception instanceof StickerFileException fileException) {
                     if (Objects.equals(sticker.imageFileName, fileException.getFileName())) {
@@ -168,16 +157,17 @@ public class SaveStickerPackService {
                     }
                 }
 
-                Log.e(TAG_LOG, exception.getMessage() != null ? exception.getMessage() : applicationTranslate.translate(
-                        R.string.error_validate_sticker).get()
+                Log.e(TAG_LOG,
+                        exception.getMessage() != null ? exception.getMessage() : applicationTranslate.translate(R.string.error_validate_sticker)
+                                .get()
                 );
             }
         }
 
         if (stickerPack.identifier == null) {
             return CallbackResult.failure(new StickerPackSaveException(
-                    applicationTranslate.translate(R.string.error_save_sticker_pack_invalid_id)
-                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_SAVE_DB
+                    applicationTranslate.translate(R.string.error_save_sticker_pack_invalid_id).log(TAG_LOG, Level.ERROR).get(),
+                    ErrorCode.ERROR_PACK_SAVE_DB
             ));
         }
 

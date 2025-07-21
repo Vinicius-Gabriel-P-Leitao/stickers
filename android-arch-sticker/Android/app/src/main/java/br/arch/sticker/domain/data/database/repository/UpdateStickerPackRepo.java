@@ -8,29 +8,29 @@
 
 package br.arch.sticker.domain.data.database.repository;
 
-import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY;
-import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.AVOID_CACHE;
-import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.IOS_APP_DOWNLOAD_LINK_IN_QUERY;
-import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.LICENSE_AGREEMENT_WEBSITE;
-import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.PRIVACY_POLICY_WEBSITE;
-import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.PUBLISHER_EMAIL;
-import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.PUBLISHER_WEBSITE;
 import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY;
 import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.STICKER_PACK_NAME_IN_QUERY;
 import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.TABLE_STICKER_PACK;
 
 import android.content.ContentValues;
+import android.content.res.Resources;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+
+import br.arch.sticker.R;
+import br.arch.sticker.domain.data.mapper.StickerPackMapper;
+import br.arch.sticker.domain.util.ApplicationTranslate;
 
 public class UpdateStickerPackRepo {
     private final static String TAG_LOG = UpdateStickerPackRepo.class.getSimpleName();
 
     private final SQLiteDatabase database;
+    private final ApplicationTranslate applicationTranslate;
 
-    public UpdateStickerPackRepo(SQLiteDatabase database) {
+    public UpdateStickerPackRepo(SQLiteDatabase database, Resources resources) {
         this.database = database;
+        this.applicationTranslate = new ApplicationTranslate(resources);
     }
 
     public boolean updateStickerPackName(String stickerPackIdentifier, String newName) {
@@ -44,26 +44,19 @@ public class UpdateStickerPackRepo {
             int rowsUpdated = database.update(TABLE_STICKER_PACK, contentValues, whereClause, whereArgs);
 
             if (rowsUpdated == 0) {
-                Log.w(TAG_LOG, "Nenhum registro atualizado ao renomear pacote de figurinhas.");
+                Log.w(TAG_LOG, applicationTranslate.translate(R.string.warn_no_sticker_pack_updated).get());
+                return false;
             }
 
             return rowsUpdated > 0;
         } catch (SQLException | IllegalStateException exception) {
-            Log.e(TAG_LOG, "Erro ao atualizar nome do pacote de figurinhas: " +
-                    exception.getMessage(), exception);
+            Log.e(TAG_LOG, applicationTranslate.translate(R.string.error_update_sticker_pack_name).get(), exception);
             return false;
         }
     }
 
     public boolean cleanStickerPackUrl(String stickerPackIdentifier) {
-        ContentValues contentValueStickerPack = new ContentValues();
-        contentValueStickerPack.put(PUBLISHER_EMAIL, "");
-        contentValueStickerPack.put(PUBLISHER_WEBSITE, "");
-        contentValueStickerPack.put(PRIVACY_POLICY_WEBSITE, "");
-        contentValueStickerPack.put(LICENSE_AGREEMENT_WEBSITE, "");
-        contentValueStickerPack.put(AVOID_CACHE, "");
-        contentValueStickerPack.put(ANDROID_APP_DOWNLOAD_LINK_IN_QUERY, "");
-        contentValueStickerPack.put(IOS_APP_DOWNLOAD_LINK_IN_QUERY, "");
+        ContentValues contentValueStickerPack = StickerPackMapper.writeCleanUrlStickerPackToContentValues();
 
         String whereClause = STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?";
         String[] whereArgs = {stickerPackIdentifier};
@@ -72,13 +65,13 @@ public class UpdateStickerPackRepo {
             int rowsUpdated = database.update(TABLE_STICKER_PACK, contentValueStickerPack, whereClause, whereArgs);
 
             if (rowsUpdated == 0) {
-                Log.w(TAG_LOG, "Nenhum registro atualizado ao dar clean pacote de figurinhas.");
+                Log.w(TAG_LOG, applicationTranslate.translate(R.string.error_clean_sticker_pack_url).get());
+                return false;
             }
 
             return rowsUpdated > 0;
         } catch (SQLException | IllegalStateException exception) {
-            Log.e(TAG_LOG, "Erro ao dar clean nas URL do pacote de figurinhas: " +
-                    exception.getMessage(), exception);
+            Log.e(TAG_LOG, applicationTranslate.translate(R.string.error_clean_sticker_pack_url).get(), exception);
             return false;
         }
     }

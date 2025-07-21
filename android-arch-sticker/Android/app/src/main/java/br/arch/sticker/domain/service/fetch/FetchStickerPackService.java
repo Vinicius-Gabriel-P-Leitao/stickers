@@ -13,11 +13,11 @@ package br.arch.sticker.domain.service.fetch;
 
 import static br.arch.sticker.core.validation.StickerPackValidator.STICKER_SIZE_MIN;
 import static br.arch.sticker.domain.data.content.StickerContentProvider.AUTHORITY_URI;
+import static br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.*;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import br.arch.sticker.BuildConfig;
+import br.arch.sticker.R;
 import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.content.InvalidWebsiteUrlException;
 import br.arch.sticker.core.error.throwable.sticker.FetchStickerPackException;
@@ -42,6 +43,7 @@ import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.ListStickerPackValidationResult;
 import br.arch.sticker.domain.dto.StickerPackValidationResult;
 import br.arch.sticker.domain.service.update.UpdateStickerService;
+import br.arch.sticker.domain.util.ApplicationTranslate;
 import br.arch.sticker.domain.util.StickerPackPlaceholder;
 
 public class FetchStickerPackService {
@@ -50,6 +52,7 @@ public class FetchStickerPackService {
     private final StickerPackPlaceholder stickerPackPlaceholder;
     private final StickerPackValidator stickerPackValidator;
     private final UpdateStickerService updateStickerService;
+    private final ApplicationTranslate applicationTranslate;
     private final FetchStickerService fetchStickerService;
     private final StickerValidator stickerValidator;
     private final Context context;
@@ -61,6 +64,8 @@ public class FetchStickerPackService {
         this.stickerPackValidator = new StickerPackValidator(this.context);
         this.updateStickerService = new UpdateStickerService(this.context);
         this.stickerPackPlaceholder = new StickerPackPlaceholder(this.context);
+
+        this.applicationTranslate = new ApplicationTranslate(this.context.getResources());
     }
 
     @NonNull
@@ -68,8 +73,8 @@ public class FetchStickerPackService {
         final Cursor cursor = context.getContentResolver().query(AUTHORITY_URI, null, null, null, null);
         if (cursor == null) {
             throw new FetchStickerPackException(
-                    "Não foi possível buscar no content provider, " + BuildConfig.CONTENT_PROVIDER_AUTHORITY,
-                    ErrorCode.ERROR_CONTENT_PROVIDER
+                    applicationTranslate.translate(R.string.error_fetch_content_provider, BuildConfig.CONTENT_PROVIDER_AUTHORITY)
+                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_CONTENT_PROVIDER
             );
         }
 
@@ -82,24 +87,22 @@ public class FetchStickerPackService {
             allStickerPacks = new ArrayList<>(buildListStickerPack(cursor));
         } else {
             cursor.close();
-            throw new FetchStickerPackException("Nenhum pacote de figurinhas encontrado no content provider",
+            throw new FetchStickerPackException(applicationTranslate.translate(R.string.error_no_sticker_pack_found).log(TAG_LOG, Level.ERROR).get(),
                     ErrorCode.ERROR_CONTENT_PROVIDER
             );
         }
 
         if (allStickerPacks.isEmpty()) {
-            throw new FetchStickerPackException("Deve haver pelo menos um pacote de adesivos no aplicativo",
+            throw new FetchStickerPackException(applicationTranslate.translate(R.string.error_empty_sticker_pack).log(TAG_LOG, Level.ERROR).get(),
                     ErrorCode.ERROR_EMPTY_STICKERPACK
             );
         }
 
         for (StickerPack stickerPack : allStickerPacks) {
-            Log.d(TAG_LOG, "ID" + stickerPack.identifier);
             if (!stickerPackIdentifierSet.add(stickerPack.identifier)) {
-                throw new StickerPackValidatorException(String.format(
-                        "Os identificadores dos pacotes de figurinhas devem ser únicos, há mais de um pacote com identificador: %s",
-                        stickerPack.identifier
-                ), ErrorCode.DUPLICATE_IDENTIFIER
+                throw new StickerPackValidatorException(
+                        applicationTranslate.translate(R.string.error_duplicate_sticker_pack_id, stickerPack.identifier).log(TAG_LOG, Level.ERROR)
+                                .get(), ErrorCode.DUPLICATE_IDENTIFIER
                 );
             }
         }
@@ -118,9 +121,7 @@ public class FetchStickerPackService {
                     }
 
                     try {
-                        stickerValidator.verifyStickerValidity(stickerPack.identifier, sticker,
-                                stickerPack.animatedStickerPack
-                        );
+                        stickerValidator.verifyStickerValidity(stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
                         return false;
                     } catch (StickerFileException | StickerValidatorException exception) {
                         String packId, fileName, errorCodeName;
@@ -167,15 +168,13 @@ public class FetchStickerPackService {
         return new ListStickerPackValidationResult(allStickerPacks, invalidPacks, validPacksWithInvalidStickers);
     }
 
-    public StickerPackValidationResult fetchStickerPackFromContentProvider(String stickerPackIdentifier)
-            throws FetchStickerPackException {
-        final Cursor cursor = context.getContentResolver()
-                .query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null, null);
+    public StickerPackValidationResult fetchStickerPackFromContentProvider(String stickerPackIdentifier) throws FetchStickerPackException {
+        final Cursor cursor = context.getContentResolver().query(Uri.withAppendedPath(AUTHORITY_URI, stickerPackIdentifier), null, null, null, null);
 
         if (cursor == null || cursor.getCount() == 0) {
-            throw new FetchStickerPackException(String.format("Não foi possível buscar no content provider, %s",
-                    BuildConfig.CONTENT_PROVIDER_AUTHORITY
-            ), ErrorCode.ERROR_CONTENT_PROVIDER
+            throw new FetchStickerPackException(
+                    applicationTranslate.translate(R.string.error_fetch_content_provider, BuildConfig.CONTENT_PROVIDER_AUTHORITY)
+                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_CONTENT_PROVIDER
             );
         }
 
@@ -184,7 +183,7 @@ public class FetchStickerPackService {
             stickerPack = buildStickerPackWithStickers(cursor);
         } else {
             cursor.close();
-            throw new FetchStickerPackException("Nenhum pacote de figurinhas encontrado no content provider",
+            throw new FetchStickerPackException(applicationTranslate.translate(R.string.error_no_sticker_pack_found).log(TAG_LOG, Level.ERROR).get(),
                     ErrorCode.ERROR_EMPTY_STICKERPACK
             );
         }
@@ -201,23 +200,19 @@ public class FetchStickerPackService {
                 }
 
                 try {
-                    stickerValidator.verifyStickerValidity(stickerPack.identifier, sticker,
-                            stickerPack.animatedStickerPack
-                    );
+                    stickerValidator.verifyStickerValidity(stickerPack.identifier, sticker, stickerPack.animatedStickerPack);
                     return false;
                 } catch (StickerFileException | StickerValidatorException exception) {
                     invalidStickers.add(sticker);
 
                     if (exception instanceof StickerFileException stickerFileException) {
-                        boolean updated = updateStickerService.updateInvalidSticker(
-                                stickerFileException.getStickerPackIdentifier(), stickerFileException.getFileName(),
-                                stickerFileException.getErrorCode()
+                        boolean updated = updateStickerService.updateInvalidSticker(stickerFileException.getStickerPackIdentifier(),
+                                stickerFileException.getFileName(), stickerFileException.getErrorCode()
                         );
                     }
 
                     if (exception instanceof StickerValidatorException stickerValidatorException) {
-                        boolean updated = updateStickerService.updateInvalidSticker(
-                                stickerValidatorException.getStickerPackIdentifier(),
+                        boolean updated = updateStickerService.updateInvalidSticker(stickerValidatorException.getStickerPackIdentifier(),
                                 stickerValidatorException.getFileName(), stickerValidatorException.getErrorCode()
                         );
                     }
@@ -228,7 +223,7 @@ public class FetchStickerPackService {
 
             if (stickerPack.getStickers().isEmpty()) {
                 throw new FetchStickerPackException(
-                        "Pacote de figurinhas inválido: não restaram stickers após a validação.",
+                        applicationTranslate.translate(R.string.error_invalid_sticker_pack_empty_stickers).log(TAG_LOG, Level.ERROR).get(),
                         ErrorCode.ERROR_EMPTY_STICKERPACK, new Object[]{stickerPack}
                 );
             }
@@ -236,7 +231,7 @@ public class FetchStickerPackService {
             return new StickerPackValidationResult(stickerPack, invalidStickers);
         } catch (StickerPackValidatorException | InvalidWebsiteUrlException exception) {
             throw new FetchStickerPackException(
-                    exception.getMessage() != null ? exception.getMessage() : "Pacote de figurinhas invalido",
+                    exception.getMessage() != null ? exception.getMessage() : applicationTranslate.translate(R.string.error_invalid_pack).get(),
                     exception.getCause(), exception.getErrorCode(), new Object[]{stickerPack}
             );
         }
@@ -263,7 +258,9 @@ public class FetchStickerPackService {
         if (stickers.size() < STICKER_SIZE_MIN) {
             Sticker placeholderSticker = stickerPackPlaceholder.makeAndSaveStickerPlaceholder(stickerPack);
             if (placeholderSticker == null) {
-                throw new StickerPackSaveException("Não foi possivel criar placeholder.", ErrorCode.ERROR_PACK_SAVE_DB);
+                throw new StickerPackSaveException(applicationTranslate.translate(R.string.error_create_placeholder).log(TAG_LOG, Level.ERROR).get(),
+                        ErrorCode.ERROR_PACK_SAVE_DB
+                );
             }
 
             stickers.add(placeholderSticker);

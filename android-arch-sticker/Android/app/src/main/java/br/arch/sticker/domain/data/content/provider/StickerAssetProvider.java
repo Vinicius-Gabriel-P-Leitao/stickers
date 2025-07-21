@@ -100,7 +100,7 @@ public class StickerAssetProvider {
             return openAssetFileSafely(stickerFile, "thumbnail");
         }
 
-        try (Cursor cursor = selectStickerPackRepo.getStickerPackIsAnimated(
+        try (Cursor cursor = selectStickerPackRepo.selectStickerPackIsAnimated(
                 stickerPackIdentifier)) {
             if (cursor == null) {
                 throw new ContentProviderException(

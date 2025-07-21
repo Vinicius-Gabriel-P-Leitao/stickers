@@ -65,7 +65,7 @@ public class StickerQueryHelper {
     }
 
     public List<Sticker> fetchStickerListFromDatabase(String stickerPackIdentifier) {
-        Cursor cursor = selectStickerPackRepo.getStickerByStickerPackIdentifier(
+        Cursor cursor = selectStickerPackRepo.selectStickerByStickerPackIdentifier(
                 stickerPackIdentifier);
         if (cursor == null) {
             throw new ContentProviderException(
