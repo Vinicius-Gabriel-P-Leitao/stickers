@@ -8,9 +8,5 @@
 
 package br.arch.sticker.core.error;
 
-import androidx.annotation.StringRes;
-
-public interface ErrorCodeProvider {
-    @StringRes
-    int getMessageResId();
+public enum ErrorCode {
 }
