@@ -14,7 +14,7 @@ import br.arch.sticker.R;
 
 // @formatter: off
 public enum ErrorCode {
-    ERROR_CURSOR_NULL(R.string.error_cursos_invalid_fields),
+    ERROR_CURSOR_NULL(R.string.error_cursor_invalid_fields),
     ERROR_CONTENT_PROVIDER(R.string.error_content_provider),
     ERROR_EMPTY_STICKERPACK(R.string.error_empty_stickerpack),
     ERROR_PACK_DELETE_DB(R.string.error_delete_stickerpack_db),

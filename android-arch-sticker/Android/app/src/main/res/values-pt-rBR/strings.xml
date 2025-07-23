@@ -123,7 +123,7 @@
     <string name="error_delete_sticker_list_db">Erro ao deletar lista de figurinhas do banco de dados.</string>
     <string name="error_invalid_stickerpack_size">Figurinhas do pacote estão vazias ou abaixo do tamanho mínimo.</string>
     <string name="error_unable_update_stickerpack_name">Não foi possível atualizar o nome do pacote.</string>
-    <string name="error_thumbnail_file_not_found">Arquivo para criar thumbnail não existe.</string>
+    <string name="error_file_to_thumbnail_not_found">Arquivo para criar thumbnail não existe.</string>
     <string name="error_process_canceled">Processo cancelado.</string>
     <string name="error_select_at_least_one_media">Selecione pelo menos uma mídia.</string>
     <string name="error_max_media_selected">Número máximo de mídias selecionadas.</string>
@@ -167,7 +167,7 @@
     <string name="error_insert_sticker_db">Erro no banco ao inserir figurinha.</string>
     <string name="error_unexpected_insert_sticker_db">Erro inesperado ao salvar figurinha no banco de dados.</string>
     <string name="error_create_sticker_placeholder">Erro ao criar placeholder para o pacote de figurinhas!</string>
-    <string name="error_cursos_invalid_fields">O cursor está com campos inválidos.</string>
+    <string name="error_cursor_invalid_fields">O cursor está com campos inválidos.</string>
     <string name="error_fetch_content_provider">Não foi possível buscar no content provider, %1$s</string>
     <string name="error_no_sticker_pack_found">Nenhum pacote de figurinhas encontrado no content provider</string>
     <string name="error_empty_sticker_pack">Deve haver pelo menos um pacote de adesivos no aplicativo</string>
@@ -178,6 +178,27 @@
     <string name="error_mark_sticker_invalid">Erro ao marcar figurinha como inválida.</string>
     <string name="error_update_sticker_pack_name">Erro ao atualizar nome do pacote de figurinhas.</string>
     <string name="error_clean_sticker_pack_url">Erro ao dar clean nas URL do pacote de figurinhas.</string>
+    <string name="error_delete_sticker_file">Falha ao deletar arquivo: %1$s</string>
+    <string name="error_delete_sticker_pack_directory">Falha ao deletar diretório: %1$s</string>
+    <string name="error_sticker_pack_directory_not_found">Diretório não encontrado: %1$s</string>
+    <string name="error_unexpected_delete_sticker_pack">Status de erro inesperado ao deletar pacote de figurinhas.</string>
+    <string name="error_read_sticker_file">Não foi possível ler arquivo da figurinha: %1$s</string>
+    <string name="error_sticker_file_not_found_param">Arquivo de figurinha não encontrado: %1$s</string>
+    <string name="error_io_sticker_file">Erro ao ler arquivo da figurinha: %1$s</string>
+    <string name="error_no_write_permission">Sem permissão de escrita no diretório destino: %1$s</string>
+    <string name="error_create_thumbnail">Falha ao criar thumbnail.</string>
+    <string name="error_null_or_empty_filename">Nome do arquivo do sticker é nulo ou vazio.</string>
+    <string name="error_copy_file">Erro ao copiar arquivo: %1$s</string>
+    <string name="error_thumbnail_file_not_found">Arquivo para thumbnail não encontrado.</string>
+    <string name="error_decode_bitmap">Erro ao decodificar o bitmap.</string>
+    <string name="error_update_sticker_pack">Falha ao atualizar o nome do pacote de figurinhas.</string>
+    <string name="error_update_urls_sticker_pack">Falha ao atualizar as url do pacote de figurinhas.</string>
+
+
+    <string name="warn_invalid_parameters_rename_sticker">Parâmetros inválidos para renomear figurinha. Algum campo está vazio.</string>
+    <string name="warn_invalid_parameters_mark_invalid">Parâmetros inválidos para marcar figurinha inválida.</string>
+    <string name="debug_update_sticker_filename">Atualizando nome de figurinha: pack=\'%1$s', old='%2$s', new='%3$s'</string>
+    <string name="debug_mark_sticker_invalid">Marcando figurinha como inválida: pack=\'%1$s', file='%2$s', erro='%3$s'</string>
 
     <!-- Debug and Warning Logs -->
     <string name="debug_frame_updated">Frame atualizado: %1$s.</string>
@@ -196,6 +217,12 @@
     <string name="warn_no_sticker_marked_invalid">Nenhum registro marcado como inválido. Verifique o identificador e nome do arquivo.</string>
     <string name="warn_no_sticker_pack_updated">Nenhum registro atualizado ao renomear pacote de figurinhas.</string>
     <string name="warn_no_sticker_pack_url_cleaned">Nenhum registro atualizado ao dar clean pacote de figurinhas.</string>
+    <string name="information_sticker_file_deleted">Arquivo deletado: %1$s</string>
+    <string name="information_sticker_pack_directory_deleted">Pasta deletada: %1$s</string>
+    <string name="warn_invalid_parameters_rename_pack">Parâmetros inválidos para renomear pacote de figurinha. Algum campo está vazio.</string>
+    <string name="warn_invalid_parameters_clean_urls">Parâmetros inválidos para limpar urls do pacote de figurinha. O campo de stickerPackIdentifier.</string>
+    <string name="debug_update_sticker_pack_name">Atualizando nome do pacote de figurinhas: pack=\'%1$s', new='%2$s'</string>
+    <string name="debug_clean_sticker_pack_urls">Atualizando nome do pacote de figurinhas: pack=\'%1$s'</string>
 
     <!-- Timeline and Miscellaneous -->
     <string name="timeline_seconds">%1$s segundos</string>

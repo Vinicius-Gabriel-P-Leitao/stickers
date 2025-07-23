@@ -49,8 +49,7 @@ public abstract class StickerPackAddActivity extends BaseActivity implements Sti
             //if neither WhatsApp Consumer or WhatsApp Business is installed, then tell user to install the apps.
             if (whatsappWhitelistValidator.isWhatsAppConsumerAppInstalled(getPackageManager()) &&
                     whatsappWhitelistValidator.isWhatsAppSmbAppInstalled(getPackageManager())) {
-                Toast.makeText(this, R.string.dialog_add_stickerpack_fail_prompt, Toast.LENGTH_LONG)
-                        .show();
+                Toast.makeText(this, R.string.dialog_add_stickerpack_fail_prompt, Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -67,17 +66,13 @@ public abstract class StickerPackAddActivity extends BaseActivity implements Sti
                         WhatsappWhitelistValidator.CONSUMER_WHATSAPP_PACKAGE_NAME
                 );
             } else if (!stickerPackWhitelistedInWhatsAppSmb) {
-                launchIntentToAddPackToSpecificPackage(stickerPackIdentifier, stickerPackName,
-                        WhatsappWhitelistValidator.SMB_WHATSAPP_PACKAGE_NAME
-                );
+                launchIntentToAddPackToSpecificPackage(stickerPackIdentifier, stickerPackName, WhatsappWhitelistValidator.SMB_WHATSAPP_PACKAGE_NAME);
             } else {
-                Toast.makeText(this, R.string.dialog_add_stickerpack_fail_prompt, Toast.LENGTH_LONG)
-                        .show();
+                Toast.makeText(this, R.string.dialog_add_stickerpack_fail_prompt, Toast.LENGTH_LONG).show();
             }
         } catch (Exception exception) {
             Log.e(TAG_LOG, "Erro ao adicionar pacote de figurinhas ao WhatsApp", exception);
-            Toast.makeText(this, R.string.dialog_add_stickerpack_fail_prompt, Toast.LENGTH_LONG)
-                    .show();
+            Toast.makeText(this, R.string.dialog_add_stickerpack_fail_prompt, Toast.LENGTH_LONG).show();
         }
 
     }
@@ -89,9 +84,7 @@ public abstract class StickerPackAddActivity extends BaseActivity implements Sti
         try {
             startActivityForResult(intent, ADD_PACK);
         } catch (ActivityNotFoundException exception) {
-            Toast.makeText(this, R.string.dialog_add_stickerpack_fail_prompt,
-                    Toast.LENGTH_LONG
-            ).show();
+            Toast.makeText(this, R.string.dialog_add_stickerpack_fail_prompt, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -100,12 +93,9 @@ public abstract class StickerPackAddActivity extends BaseActivity implements Sti
         Intent intent = createIntentToAddStickerPack(identifier, stickerPackName);
 
         try {
-            startActivityForResult(
-                    Intent.createChooser(intent, getString(R.string.add_to_whatsapp)), ADD_PACK);
+            startActivityForResult(Intent.createChooser(intent, getString(R.string.add_to_whatsapp)), ADD_PACK);
         } catch (ActivityNotFoundException exception) {
-            Toast.makeText(this, R.string.dialog_add_stickerpack_fail_prompt,
-                    Toast.LENGTH_LONG
-            ).show();
+            Toast.makeText(this, R.string.dialog_add_stickerpack_fail_prompt, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -113,9 +103,7 @@ public abstract class StickerPackAddActivity extends BaseActivity implements Sti
     private Intent createIntentToAddStickerPack(String identifier, String stickerPackName) {
         Intent intent = new Intent();
         intent.setAction("com.whatsapp.intent.action.ENABLE_STICKER_PACK");
-        intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_AUTHORITY,
-                BuildConfig.CONTENT_PROVIDER_AUTHORITY
-        );
+        intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_AUTHORITY, BuildConfig.CONTENT_PROVIDER_AUTHORITY);
         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_ID, identifier);
         intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_NAME, stickerPackName);
         return intent;
@@ -131,19 +119,16 @@ public abstract class StickerPackAddActivity extends BaseActivity implements Sti
                     if (validationError != null) {
                         if (BuildConfig.DEBUG) {
                             //validation error should be shown to developer only, not users.
-                            MessageDialogFragment.newInstance(R.string.title_validation_error,
-                                    validationError
-                            ).show(getSupportFragmentManager(), "validation error");
+                            MessageDialogFragment.newInstance(R.string.title_validation_error, validationError)
+                                    .show(getSupportFragmentManager(), "validation error");
                         }
                         Log.e(TAG_LOG, "Validation failed:" + validationError);
                     }
                 } else {
                     AlertStickerDialog dialog = new AlertStickerDialog(this);
-                    dialog.setMessageText(
-                            getString(R.string.dialog_add_stickerpack_fail_prompt));
+                    dialog.setMessageText(getString(R.string.dialog_add_stickerpack_fail_prompt));
 
-                    dialog.setTextFixButton(getString(
-                            R.string.dialog_add_stickerpack_fail_prompt));
+                    dialog.setTextFixButton(getString(R.string.dialog_add_stickerpack_fail_prompt));
                     dialog.setOnFixClick(view -> launchWhatsAppPlayStorePage());
 
                     dialog.setTextIgnoreButton(getString(android.R.string.ok));
@@ -158,22 +143,22 @@ public abstract class StickerPackAddActivity extends BaseActivity implements Sti
     private void launchWhatsAppPlayStorePage() {
         final PackageManager packageManager = getPackageManager();
 
-        final boolean whatsAppInstalled = WhatsappWhitelistValidator.isPackageInstalled(
-                WhatsappWhitelistValidator.CONSUMER_WHATSAPP_PACKAGE_NAME, packageManager);
+        final boolean whatsAppInstalled = WhatsappWhitelistValidator.isPackageInstalled(WhatsappWhitelistValidator.CONSUMER_WHATSAPP_PACKAGE_NAME,
+                packageManager
+        );
 
-        final boolean smbAppInstalled = WhatsappWhitelistValidator.isPackageInstalled(
-                WhatsappWhitelistValidator.SMB_WHATSAPP_PACKAGE_NAME, packageManager);
+        final boolean smbAppInstalled = WhatsappWhitelistValidator.isPackageInstalled(WhatsappWhitelistValidator.SMB_WHATSAPP_PACKAGE_NAME,
+                packageManager
+        );
 
         final String playPackageLinkPrefix = "http://play.google.com/store/apps/details?id=";
 
         if (whatsAppInstalled && smbAppInstalled) {
             launchPlayStoreWithUri("https://play.google.com/store/apps/developer?id=WhatsApp+LLC");
         } else if (whatsAppInstalled) {
-            launchPlayStoreWithUri(playPackageLinkPrefix +
-                    WhatsappWhitelistValidator.CONSUMER_WHATSAPP_PACKAGE_NAME);
+            launchPlayStoreWithUri(playPackageLinkPrefix + WhatsappWhitelistValidator.CONSUMER_WHATSAPP_PACKAGE_NAME);
         } else if (smbAppInstalled) {
-            launchPlayStoreWithUri(
-                    playPackageLinkPrefix + WhatsappWhitelistValidator.SMB_WHATSAPP_PACKAGE_NAME);
+            launchPlayStoreWithUri(playPackageLinkPrefix + WhatsappWhitelistValidator.SMB_WHATSAPP_PACKAGE_NAME);
         }
 
     }

@@ -123,7 +123,7 @@
     <string name="error_delete_sticker_list_db">Error deleting sticker list from the database.</string>
     <string name="error_invalid_stickerpack_size">Pack stickers are empty or below the minimum size.</string>
     <string name="error_unable_update_stickerpack_name">Unable to update pack name.</string>
-    <string name="error_thumbnail_file_not_found">File for creating thumbnail does not exist.</string>
+    <string name="error_file_to_thumbnail_not_found">File for creating thumbnail does not exist.</string>
     <string name="error_process_canceled">Process canceled.</string>
     <string name="error_select_at_least_one_media">Select at least one media.</string>
     <string name="error_max_media_selected">Maximum number of media selected.</string>
@@ -167,7 +167,7 @@
     <string name="error_insert_sticker_db">Database error while inserting sticker.</string>
     <string name="error_unexpected_insert_sticker_db">Unexpected error saving sticker to database.</string>
     <string name="error_create_sticker_placeholder">Error creating placeholder for the sticker pack!</string>
-    <string name="error_cursos_invalid_fields">The cursor has invalid fields.</string>
+    <string name="error_cursor_invalid_fields">The cursor has invalid fields.</string>
     <string name="error_fetch_content_provider">Unable to fetch from content provider, %1$s</string>
     <string name="error_no_sticker_pack_found">No sticker pack found in content provider</string>
     <string name="error_empty_sticker_pack">There must be at least one sticker pack in the application</string>
@@ -178,6 +178,26 @@
     <string name="error_mark_sticker_invalid">Error marking sticker as invalid.</string>
     <string name="error_update_sticker_pack_name">Error updating sticker pack name: %1$s</string>
     <string name="error_clean_sticker_pack_url">Error cleaning sticker pack URLs: %1$s</string>
+    <string name="error_delete_sticker_file">Failed to delete file: %1$s</string>
+    <string name="error_delete_sticker_pack_directory">Failed to delete directory: %1$s</string>
+    <string name="error_sticker_pack_directory_not_found">Directory not found: %1$s</string>
+    <string name="error_unexpected_delete_sticker_pack">Unexpected status when deleting sticker pack.</string>
+    <string name="error_read_sticker_file">Unable to read sticker file: %1$s</string>
+    <string name="error_sticker_file_not_found_param">Sticker file not found: %1$s</string>
+    <string name="error_io_sticker_file">Error reading sticker file: %1$s</string>
+    <string name="error_no_write_permission">No write permission in destination directory: %1$s</string>
+    <string name="error_create_thumbnail">Failed to create thumbnail: %1$s</string>
+    <string name="error_null_or_empty_filename">Sticker file name is null or empty</string>
+    <string name="error_copy_file">Error copying file: %1$s</string>
+    <string name="error_thumbnail_file_not_found">Thumbnail file not found: %1$s</string>
+    <string name="error_decode_bitmap">Error decoding the bitmap.</string>
+    <string name="error_update_sticker_pack">Failed to update the sticker pack name.</string>
+    <string name="error_update_urls_sticker_pack">Unexpected error during native conversion.</string>
+
+    <string name="warn_invalid_parameters_rename_sticker">Invalid parameters for renaming sticker. Some field is empty.</string>
+    <string name="warn_invalid_parameters_mark_invalid">Invalid parameters for marking sticker as invalid.</string>
+    <string name="debug_update_sticker_filename">Updating sticker filename: pack=\'%1$s', old='%2$s', new='%3$s'</string>
+    <string name="debug_mark_sticker_invalid">Marking sticker as invalid: pack=\'%1$s', file='%2$s', error='%3$s'</string>
 
     <!-- Debug and Warning Logs -->
     <string name="debug_frame_updated">Frame updated: %1$s.</string>
@@ -196,6 +216,12 @@
     <string name="warn_no_sticker_marked_invalid">No record marked as invalid. Check the identifier and file name.</string>
     <string name="warn_no_sticker_pack_updated">No record updated when renaming sticker pack.</string>
     <string name="warn_no_sticker_pack_url_cleaned">No record updated when cleaning sticker pack URLs.</string>
+    <string name="information_sticker_file_deleted">File deleted: %1$s</string>
+    <string name="information_sticker_pack_directory_deleted">Directory deleted: %1$s</string>
+    <string name="warn_invalid_parameters_rename_pack">Invalid parameters for renaming sticker pack. Some field is empty.</string>
+    <string name="warn_invalid_parameters_clean_urls">Invalid parameters for cleaning sticker pack URLs. The stickerPackIdentifier field is empty.</string>
+    <string name="debug_update_sticker_pack_name">Updating sticker pack name: pack=\'%1$s', new='%2$s'</string>
+    <string name="debug_clean_sticker_pack_urls">Updating sticker pack name: pack=\'%1$s'</string>
 
     <!-- Timeline and Miscellaneous -->
     <string name="timeline_seconds">%1$s seconds</string>

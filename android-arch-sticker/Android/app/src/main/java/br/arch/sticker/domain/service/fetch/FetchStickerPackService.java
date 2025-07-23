@@ -206,13 +206,13 @@ public class FetchStickerPackService {
                     invalidStickers.add(sticker);
 
                     if (exception instanceof StickerFileException stickerFileException) {
-                        boolean updated = updateStickerService.updateInvalidSticker(stickerFileException.getStickerPackIdentifier(),
-                                stickerFileException.getFileName(), stickerFileException.getErrorCode()
+                        updateStickerService.updateInvalidSticker(stickerFileException.getStickerPackIdentifier(), stickerFileException.getFileName(),
+                                stickerFileException.getErrorCode()
                         );
                     }
 
                     if (exception instanceof StickerValidatorException stickerValidatorException) {
-                        boolean updated = updateStickerService.updateInvalidSticker(stickerValidatorException.getStickerPackIdentifier(),
+                        updateStickerService.updateInvalidSticker(stickerValidatorException.getStickerPackIdentifier(),
                                 stickerValidatorException.getFileName(), stickerValidatorException.getErrorCode()
                         );
                     }

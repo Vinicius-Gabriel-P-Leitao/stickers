@@ -9,7 +9,9 @@
 package br.arch.sticker.view.core.util.convert;
 
 import static br.arch.sticker.core.error.ErrorCode.ERROR_PACK_SAVE_THUMBNAIL;
+import static br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
@@ -20,25 +22,32 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import br.arch.sticker.R;
 import br.arch.sticker.core.error.throwable.sticker.StickerPackSaveException;
 import br.arch.sticker.core.pattern.CallbackResult;
+import br.arch.sticker.domain.util.ApplicationTranslate;
 
 public class ConvertThumbnail {
+    private final static String TAG_LOG = ConvertThumbnail.class.getSimpleName();
+
     public static final String THUMBNAIL_FILE = "thumbnail.jpg";
 
     @NonNull
-    public static CallbackResult<Boolean> createThumbnail(@NonNull File originalFile, @NonNull File destinationDir) {
+    public static CallbackResult<Boolean> createThumbnail(Context context, @NonNull File originalFile, @NonNull File destinationDir) {
         if (!originalFile.exists()) {
             return CallbackResult.failure(new StickerPackSaveException(
-                    String.format("Arquivo para thumbnail não encontrado: %s", originalFile.getAbsolutePath()),
-                    ERROR_PACK_SAVE_THUMBNAIL
+                    ApplicationTranslate.translate(context, R.string.error_thumbnail_file_not_found)
+                            .log(TAG_LOG, Level.ERROR, originalFile.getAbsolutePath()).get(), ERROR_PACK_SAVE_THUMBNAIL
             ));
         }
 
         try {
             Bitmap bitmap = BitmapFactory.decodeFile(originalFile.getAbsolutePath());
             if (bitmap == null) {
-                return CallbackResult.warning("Erro ao decodificar o bitmap.");
+                return CallbackResult.failure(new StickerPackSaveException(
+                        ApplicationTranslate.translate(context, R.string.error_decode_bitmap).log(TAG_LOG, Level.ERROR).get(),
+                        ERROR_PACK_SAVE_THUMBNAIL
+                ));
             }
 
             File thumbnailFile = new File(destinationDir, THUMBNAIL_FILE);

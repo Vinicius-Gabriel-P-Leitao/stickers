@@ -42,28 +42,17 @@ public class FetchStickerService {
         this.fetchStickerAssetService = new FetchStickerAssetService(this.context);
     }
 
-    private static Uri buildStickerUri(String stickerPackIdentifier) {
-        return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(
-                BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(
-                StickerContentProvider.STICKERS).appendPath(stickerPackIdentifier).build();
-    }
-
     @NonNull
     public List<Sticker> fetchListStickerForPack(String stickerPackIdentifier) {
         final List<Sticker> stickers = fetchListStickerFromContentProvider(stickerPackIdentifier);
 
         for (Sticker sticker : stickers) {
             try {
-                byte[] bytes = fetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier,
-                        sticker.imageFileName);
+                byte[] bytes = fetchStickerAssetService.fetchStickerAsset(stickerPackIdentifier, sticker.imageFileName);
 
                 if (bytes.length == 0) {
-                    if (!TextUtils.equals(sticker.stickerIsValid,
-                            ErrorCode.STICKER_FILE_NOT_EXIST.name())) {
-                        boolean updated = updateStickerService.updateInvalidSticker(
-                                stickerPackIdentifier,
-                                sticker.imageFileName,
-                                ErrorCode.STICKER_FILE_NOT_EXIST);
+                    if (!TextUtils.equals(sticker.stickerIsValid, ErrorCode.STICKER_FILE_NOT_EXIST.name())) {
+                        updateStickerService.updateInvalidSticker(stickerPackIdentifier, sticker.imageFileName, ErrorCode.STICKER_FILE_NOT_EXIST);
                     }
 
                     continue;
@@ -71,10 +60,8 @@ public class FetchStickerService {
 
                 sticker.setSize(bytes.length);
             } catch (FetchStickerException exception) {
-                if (!TextUtils.equals(sticker.stickerIsValid,
-                        ErrorCode.STICKER_FILE_NOT_EXIST.name())) {
-                    updateStickerService.updateInvalidSticker(stickerPackIdentifier,
-                            sticker.imageFileName, ErrorCode.STICKER_FILE_NOT_EXIST);
+                if (!TextUtils.equals(sticker.stickerIsValid, ErrorCode.STICKER_FILE_NOT_EXIST.name())) {
+                    updateStickerService.updateInvalidSticker(stickerPackIdentifier, sticker.imageFileName, ErrorCode.STICKER_FILE_NOT_EXIST);
                 }
             }
         }
@@ -89,9 +76,7 @@ public class FetchStickerService {
 
         List<Sticker> stickers = new ArrayList<>();
 
-        Cursor cursor = null;
-        try {
-            cursor = context.getContentResolver().query(uri, projection, null, null, null);
+        try (Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null)) {
             if (cursor != null && cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 do {
@@ -108,12 +93,13 @@ public class FetchStickerService {
                     stickers.add(new Sticker(name, emojis, stickerIsValid, accessibilityText, stickerPackIdentifier));
                 } while (cursor.moveToNext());
             }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
         }
 
         return stickers;
+    }
+
+    private static Uri buildStickerUri(String stickerPackIdentifier) {
+        return new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
+                .appendPath(StickerContentProvider.STICKERS).appendPath(stickerPackIdentifier).build();
     }
 }

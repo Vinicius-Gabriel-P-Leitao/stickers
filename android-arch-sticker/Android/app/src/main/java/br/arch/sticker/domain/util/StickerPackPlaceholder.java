@@ -47,8 +47,7 @@ public class StickerPackPlaceholder {
 
         Resources resources = this.context.getResources();
         this.applicationTranslate = new ApplicationTranslate(resources);
-        this.insertStickerPackRepo = new InsertStickerRepo(
-                StickerDatabaseHelper.getInstance(this.context).getWritableDatabase(), resources);
+        this.insertStickerPackRepo = new InsertStickerRepo(StickerDatabaseHelper.getInstance(this.context).getWritableDatabase(), resources);
     }
 
     public Sticker makeAndSaveStickerPlaceholder(StickerPack stickerPack) {
@@ -59,17 +58,14 @@ public class StickerPackPlaceholder {
         isCreatingPlaceholder = true;
 
         try {
-            File stickerDir = new File(context.getFilesDir(),
-                    new File(STICKERS_ASSET, stickerPack.identifier).toString()
-            );
+            File stickerDir = new File(context.getFilesDir(), new File(STICKERS_ASSET, stickerPack.identifier).toString());
 
             if (!stickerDir.exists()) {
                 stickerDir.mkdirs();
             }
 
             Sticker stickerPlaceholder = this.makeStickerPlaceholder(stickerPack, stickerDir);
-            CallbackResult<Sticker> insertedSticker = insertStickerPackRepo.insertSticker(
-                    stickerPlaceholder, stickerPack.identifier);
+            CallbackResult<Sticker> insertedSticker = insertStickerPackRepo.insertSticker(stickerPlaceholder, stickerPack.identifier);
 
             if (insertedSticker.isFailure()) {
                 isCreatingPlaceholder = false;
@@ -85,8 +81,7 @@ public class StickerPackPlaceholder {
         String fileName = stickerPack.animatedStickerPack ? PLACEHOLDER_ANIMATED : PLACEHOLDER_STATIC;
 
         String accessibility = stickerPack.animatedStickerPack ?
-                "Pacote animado com nome " + stickerPack.name :
-                "Pacote estático com nome " + stickerPack.name;
+                "Pacote animado com nome " + stickerPack.name : "Pacote estático com nome " + stickerPack.name;
 
         File destFile = new File(outputFile, fileName);
         try (AssetFileDescriptor assetFileDescriptor = context.getAssets()
@@ -101,13 +96,10 @@ public class StickerPackPlaceholder {
 
             outputStream.flush();
 
-            return new Sticker(fileName.trim(), "\uD83D\uDDFF", "", accessibility,
-                    stickerPack.identifier
-            );
+            return new Sticker(fileName.trim(), "\uD83D\uDDFF", "", accessibility, stickerPack.identifier);
         } catch (IOException exception) {
             throw new StickerPackSaveException(
-                    applicationTranslate.translate(R.string.error_create_sticker_placeholder)
-                            .log(TAG_LOG, Level.ERROR, exception).get(), exception,
+                    applicationTranslate.translate(R.string.error_create_sticker_placeholder).log(TAG_LOG, Level.ERROR, exception).get(), exception,
                     ErrorCode.ERROR_PACK_SAVE_SERVICE
             );
         }
