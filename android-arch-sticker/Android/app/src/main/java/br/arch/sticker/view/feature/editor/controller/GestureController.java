@@ -19,7 +19,11 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
+import br.arch.sticker.R;
+
 public class GestureController {
+    private final static String TAG_LOG = GestureController.class.getSimpleName();
+
     private final View view;
     private final GestureDetector gestureDetector;
     private final ScaleGestureDetector scaleDetector;
@@ -39,7 +43,8 @@ public class GestureController {
                 applyMatrix();
                 return true;
             }
-        });
+        }
+        );
 
         gestureDetector = new GestureDetector(view.getContext(), new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -49,7 +54,8 @@ public class GestureController {
                 applyMatrix();
                 return true;
             }
-        });
+        }
+        );
     }
 
     public boolean onTouch(MotionEvent event) {
@@ -73,7 +79,7 @@ public class GestureController {
             return;
         }
 
-        Log.w("GestureController", "View não suportada para transformação.");
+        Log.e(TAG_LOG, view.getContext().getString(R.string.warn_unsupported_view_transformation));
     }
 }
 

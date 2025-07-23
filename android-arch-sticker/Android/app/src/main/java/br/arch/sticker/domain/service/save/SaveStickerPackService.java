@@ -102,13 +102,15 @@ public class SaveStickerPackService {
         File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
         CallbackResult<Boolean> createdMainDirectory, copyStickerPack;
 
-        createdMainDirectory = StickerPackDirectory.createMainDirectory(mainDirectory);
+        createdMainDirectory = StickerPackDirectory.createMainDirectory(context, mainDirectory);
         if (!createdMainDirectory.isSuccess() && !createdMainDirectory.isDebug()) {
             if (createdMainDirectory.isWarning()) return CallbackResult.warning(createdMainDirectory.getWarningMessage());
             return CallbackResult.failure(createdMainDirectory.getError());
         }
 
-        CallbackResult<File> createdStickerPackDirectory = StickerPackDirectory.createStickerPackDirectory(mainDirectory, stickerPack.identifier);
+        CallbackResult<File> createdStickerPackDirectory = StickerPackDirectory.createStickerPackDirectory(context, mainDirectory,
+                stickerPack.identifier
+        );
         if (!createdStickerPackDirectory.isSuccess() && !createdStickerPackDirectory.isWarning()) {
             if (createdStickerPackDirectory.isDebug()) {
                 Log.d(TAG_LOG, createdStickerPackDirectory.getDebugMessage());

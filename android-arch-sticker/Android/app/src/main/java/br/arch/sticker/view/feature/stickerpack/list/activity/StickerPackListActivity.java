@@ -99,13 +99,9 @@ public class StickerPackListActivity extends StickerPackAddActivity {
 
             dialog.setTextFixButton(getString(R.string.dialog_fix_stickers));
             dialog.setOnFixClick(fragment -> {
-                Intent intent = new Intent(fragment.getContext(),
-                        PreviewInvalidStickerActivity.class
-                );
+                Intent intent = new Intent(fragment.getContext(), PreviewInvalidStickerActivity.class);
                 intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPack.identifier);
-                intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKER_LIST,
-                        (ArrayList<? extends Parcelable>) stickers
-                );
+                intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKER_LIST, (ArrayList<? extends Parcelable>) stickers);
 
                 fragment.getContext().startActivity(intent);
                 dialog.dismiss();
@@ -116,19 +112,14 @@ public class StickerPackListActivity extends StickerPackAddActivity {
 
         @Override
         public void onStickerPackClicked(StickerPack stickerPack, List<Sticker> stickers, StickerPackListItem.Status status) {
-            if (status == StickerPackListItem.Status.VALID ||
-                    status == StickerPackListItem.Status.WITH_INVALID_STICKER) {
-                Intent intent = new Intent(StickerPackListActivity.this,
-                        StickerPackDetailsActivity.class
-                );
+            if (status == StickerPackListItem.Status.VALID || status == StickerPackListItem.Status.WITH_INVALID_STICKER) {
+                Intent intent = new Intent(StickerPackListActivity.this, StickerPackDetailsActivity.class);
 
                 intent.putExtra(StickerPackDetailsActivity.EXTRA_SHOW_UP_BUTTON, true);
                 intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_DATA, stickerPack);
 
                 if (status == StickerPackListItem.Status.WITH_INVALID_STICKER) {
-                    intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKERS,
-                            new ArrayList<>(stickers)
-                    );
+                    intent.putParcelableArrayListExtra(EXTRA_INVALID_STICKERS, new ArrayList<>(stickers));
                 }
 
                 StickerPackListActivity.this.startActivity(intent);
@@ -143,9 +134,7 @@ public class StickerPackListActivity extends StickerPackAddActivity {
 
             dialog.setTextFixButton(getString(R.string.dialog_fix_stickerpack));
             dialog.setOnFixClick(fragment -> {
-                Intent intent = new Intent(fragment.getContext(),
-                        PreviewInvalidStickerActivity.class
-                );
+                Intent intent = new Intent(fragment.getContext(), PreviewInvalidStickerActivity.class);
                 intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPackIdentifier);
 
                 fragment.getContext().startActivity(intent);
@@ -173,18 +162,15 @@ public class StickerPackListActivity extends StickerPackAddActivity {
         packRecyclerView = findViewById(R.id.recycler_valid_packs);
         stickerPackListViewmodel = new ViewModelProvider(this).get(StickerPackListViewModel.class);
 
-        ArrayList<StickerPack> validStickerPackList = getIntent().getParcelableArrayListExtra(
-                EXTRA_STICKER_PACK_LIST_DATA);
+        ArrayList<StickerPack> validStickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_STICKER_PACK_LIST_DATA);
         if (validStickerPackList == null) validStickerPackList = new ArrayList<>();
 
-        ArrayList<StickerPack> invalidStickerPackList = getIntent().getParcelableArrayListExtra(
-                EXTRA_INVALID_STICKER_PACK_LIST_DATA);
+        ArrayList<StickerPack> invalidStickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_INVALID_STICKER_PACK_LIST_DATA);
         if (invalidStickerPackList == null) invalidStickerPackList = new ArrayList<>();
 
         ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers = getIntent().getParcelableArrayListExtra(
                 EXTRA_INVALID_STICKER_MAP_DATA);
-        if (stickerPackWithInvalidStickers == null)
-            stickerPackWithInvalidStickers = new ArrayList<>();
+        if (stickerPackWithInvalidStickers == null) stickerPackWithInvalidStickers = new ArrayList<>();
 
         unifiedList = new ArrayList<>();
         for (StickerPack stickerPack : validStickerPackList) {
@@ -192,36 +178,27 @@ public class StickerPackListActivity extends StickerPackAddActivity {
         }
 
         for (StickerPack stickerPack : invalidStickerPackList) {
-            unifiedList.add(
-                    new StickerPackListItem(stickerPack, StickerPackListItem.Status.INVALID));
+            unifiedList.add(new StickerPackListItem(stickerPack, StickerPackListItem.Status.INVALID));
         }
 
         for (StickerPackWithInvalidStickers withInvalidStickers : stickerPackWithInvalidStickers) {
-            unifiedList.add(new StickerPackListItem(withInvalidStickers,
-                    StickerPackListItem.Status.WITH_INVALID_STICKER
-            ));
+            unifiedList.add(new StickerPackListItem(withInvalidStickers, StickerPackListItem.Status.WITH_INVALID_STICKER));
         }
 
         showStickerPack(unifiedList);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(
-                    getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list,
-                            unifiedList.size()
-                    ));
+            getSupportActionBar().setTitle(getResources().getQuantityString(R.plurals.title_activity_sticker_packs_list, unifiedList.size()));
         }
 
         buttonCreateStickerPackage = findViewById(R.id.button_redirect_create_stickers);
 
         buttonCreateStickerPackage.setOnClickListener(view -> {
-            final ObjectAnimator rotation = ObjectAnimator.ofFloat(buttonCreateStickerPackage,
-                    "rotation", 0f, 360f
-            );
+            final ObjectAnimator rotation = ObjectAnimator.ofFloat(buttonCreateStickerPackage, "rotation", 0f, 360f);
             rotation.setDuration(500);
             rotation.start();
 
-            FormatStickerPopupWindow.popUpButtonChooserStickerModel(this,
-                    buttonCreateStickerPackage,
+            FormatStickerPopupWindow.popUpButtonChooserStickerModel(this, buttonCreateStickerPackage,
                     new FormatStickerPopupWindow.OnOptionClickListener() {
                         @Override
                         public void onStaticStickerSelected() {
@@ -245,8 +222,7 @@ public class StickerPackListActivity extends StickerPackAddActivity {
 
         stickerPackListViewmodel.getErrorMessageLiveData().observe(this, errorMessage -> {
                     if (errorMessage != null && !errorMessage.isEmpty()) {
-                        Toast.makeText(this, "Erro ao deletar pacote: " + errorMessage, Toast.LENGTH_LONG)
-                                .show();
+                        Toast.makeText(this, "Erro ao deletar pacote: " + errorMessage, Toast.LENGTH_LONG).show();
                     }
                 }
         );
@@ -277,25 +253,20 @@ public class StickerPackListActivity extends StickerPackAddActivity {
     }
 
     private void showStickerPack(List<StickerPackListItem> stickerPackListItems) {
-        stickerPackListAdapter = new StickerPackListAdapter(this, stickerPackListItems,
-                onEventClickedListener
-        );
+        stickerPackListAdapter = new StickerPackListAdapter(this, stickerPackListItems, onEventClickedListener);
         packRecyclerView.setAdapter(stickerPackListAdapter);
 
         packLayoutManager = new LinearLayoutManager(this);
         packLayoutManager.setOrientation(RecyclerView.VERTICAL);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
-                packRecyclerView.getContext(), packLayoutManager.getOrientation());
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(packRecyclerView.getContext(), packLayoutManager.getOrientation());
 
         packRecyclerView.addItemDecoration(dividerItemDecoration);
         packRecyclerView.setLayoutManager(packLayoutManager);
-        packRecyclerView.getViewTreeObserver()
-                .addOnGlobalLayoutListener(this::recalculateColumnCount);
+        packRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(this::recalculateColumnCount);
     }
 
     private void recalculateColumnCount() {
-        final int previewSize = getResources().getDimensionPixelSize(
-                R.dimen.sticker_pack_list_item_preview_image_size);
+        final int previewSize = getResources().getDimensionPixelSize(R.dimen.sticker_pack_list_item_preview_image_size);
         int firstVisibleItemPosition = packLayoutManager.findFirstVisibleItemPosition();
 
         StickerPackListViewHolder viewHolder = (StickerPackListViewHolder) packRecyclerView.findViewHolderForAdapterPosition(
@@ -309,8 +280,7 @@ public class StickerPackListActivity extends StickerPackAddActivity {
 
             int minMarginBetweenImages = 0;
             if (maxNumberOfImagesInARow > 1) {
-                minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) /
-                        (maxNumberOfImagesInARow - 1);
+                minMarginBetweenImages = (widthOfImageRow - maxNumberOfImagesInARow * previewSize) / (maxNumberOfImagesInARow - 1);
             }
 
             stickerPackListAdapter.setImageRowSpec(maxNumberOfImagesInARow, minMarginBetweenImages);
@@ -318,9 +288,7 @@ public class StickerPackListActivity extends StickerPackAddActivity {
     }
 
     private void openCreateStickerPackActivity(String format) {
-        final Intent intent = new Intent(StickerPackListActivity.this,
-                StickerPackCreationActivity.class
-        );
+        final Intent intent = new Intent(StickerPackListActivity.this, StickerPackCreationActivity.class);
         intent.putExtra(StickerPackCreationActivity.EXTRA_STICKER_FORMAT, format);
 
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -338,10 +306,8 @@ public class StickerPackListActivity extends StickerPackAddActivity {
         private final WhatsappWhitelistValidator whatsappWhitelistValidator;
 
         LoadListStickerPackAsyncTask(StickerPackListActivity stickerPackLibraryActivity) {
-            this.stickerPackListActivityWeakReference = new WeakReference<>(
-                    stickerPackLibraryActivity);
-            this.whatsappWhitelistValidator = new WhatsappWhitelistValidator(
-                    stickerPackLibraryActivity);
+            this.stickerPackListActivityWeakReference = new WeakReference<>(stickerPackLibraryActivity);
+            this.whatsappWhitelistValidator = new WhatsappWhitelistValidator(stickerPackLibraryActivity);
         }
 
         public void execute(StickerPackListItem[] stickerPackArray) {
@@ -357,13 +323,11 @@ public class StickerPackListActivity extends StickerPackAddActivity {
                             stickerPackListItem.status() == StickerPackListItem.Status.INVALID) {
 
                         StickerPack stickerPack = (StickerPack) stickerPackListItem.stickerPack();
-                        stickerPack.setIsWhitelisted(
-                                whatsappWhitelistValidator.isWhitelisted(stickerPack.identifier));
+                        stickerPack.setIsWhitelisted(whatsappWhitelistValidator.isWhitelisted(stickerPack.identifier));
                     }
                 }
 
-                List<StickerPackListItem> resultList = new ArrayList<>(
-                        Arrays.asList(stickerPackArray));
+                List<StickerPackListItem> resultList = new ArrayList<>(Arrays.asList(stickerPackArray));
                 handler.post(() -> {
                     StickerPackListActivity uiActivity = stickerPackListActivityWeakReference.get();
                     if (uiActivity != null) {

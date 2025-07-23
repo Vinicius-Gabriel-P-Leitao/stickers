@@ -11,6 +11,8 @@
 
 package br.arch.sticker.view.core.usecase.activity;
 
+import static br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.*;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -26,6 +28,7 @@ import androidx.annotation.Nullable;
 import br.arch.sticker.BuildConfig;
 import br.arch.sticker.R;
 import br.arch.sticker.core.validation.WhatsappWhitelistValidator;
+import br.arch.sticker.domain.util.ApplicationTranslate;
 import br.arch.sticker.view.core.base.BaseActivity;
 import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.core.usecase.definition.StickerPackHandler;
@@ -35,11 +38,13 @@ public abstract class StickerPackAddActivity extends BaseActivity implements Sti
     private static final int ADD_PACK = 200;
     private static final String TAG_LOG = StickerPackAddActivity.class.getSimpleName();
 
+    private ApplicationTranslate applicationTranslate;
     private WhatsappWhitelistValidator whatsappWhitelistValidator;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        applicationTranslate = new ApplicationTranslate(getResources());
         whatsappWhitelistValidator = new WhatsappWhitelistValidator(this);
     }
 
@@ -71,8 +76,9 @@ public abstract class StickerPackAddActivity extends BaseActivity implements Sti
                 Toast.makeText(this, R.string.dialog_add_stickerpack_fail_prompt, Toast.LENGTH_LONG).show();
             }
         } catch (Exception exception) {
-            Log.e(TAG_LOG, "Erro ao adicionar pacote de figurinhas ao WhatsApp", exception);
-            Toast.makeText(this, R.string.dialog_add_stickerpack_fail_prompt, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, applicationTranslate.translate(R.string.dialog_add_stickerpack_fail_prompt).log(TAG_LOG, Level.ERROR).get(),
+                    Toast.LENGTH_LONG
+            ).show();
         }
 
     }

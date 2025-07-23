@@ -45,7 +45,8 @@ public class VideoConverter {
                     public void onError(Exception exception) {
                         future.completeExceptionally(exception);
                     }
-                });
+                }
+        );
 
         return future;
     }

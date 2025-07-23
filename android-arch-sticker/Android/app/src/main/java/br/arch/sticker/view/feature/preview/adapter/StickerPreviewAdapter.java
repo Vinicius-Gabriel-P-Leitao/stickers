@@ -187,8 +187,7 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static ArrayList<Sticker> filterValidStickers(@NonNull StickerPack stickerPack) {
         ArrayList<Sticker> result = new ArrayList<>();
         for (Sticker sticker : stickerPack.getStickers()) {
-            if (!PLACEHOLDER_ANIMATED.equals(sticker.imageFileName)
-                    && !PLACEHOLDER_STATIC.equals(sticker.imageFileName)) {
+            if (!PLACEHOLDER_ANIMATED.equals(sticker.imageFileName) && !PLACEHOLDER_STATIC.equals(sticker.imageFileName)) {
                 result.add(sticker);
             }
         }
@@ -206,7 +205,8 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             final int recyclerViewWidth = recyclerView.getWidth();
             final int recyclerViewHeight = recyclerView.getHeight();
 
-            final StickerPreviewViewHolder clickedViewHolder = (StickerPreviewViewHolder) recyclerView.findViewHolderForAdapterPosition(selectedPosition);
+            final StickerPreviewViewHolder clickedViewHolder = (StickerPreviewViewHolder) recyclerView.findViewHolderForAdapterPosition(
+                    selectedPosition);
 
             if (clickedViewHolder == null) {
                 hideExpandedStickerPreview();
@@ -227,7 +227,9 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             // If the bottom or right sides are clipped, we need to move the top left positions
             // so that those sides are no longer clipped.
-            final float adjustmentX = Math.max(expandedViewLeftX + expandedStickerPreview.getWidth() - recyclerViewWidth - recyclerViewRightMargin, 0);
+            final float adjustmentX = Math.max(expandedViewLeftX + expandedStickerPreview.getWidth() - recyclerViewWidth - recyclerViewRightMargin,
+                    0
+            );
             final float adjustmentY = Math.max(expandedViewTopY + expandedStickerPreview.getHeight() - recyclerViewHeight, 0);
 
             expandedViewLeftX -= adjustmentX;
@@ -258,7 +260,8 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             if (extension.equals("webp") && android.os.Build.VERSION.SDK_INT >= 28) {
                 try {
-                    Drawable drawable = Drawable.createFromStream(expandedStickerPreview.getContext().getContentResolver().openInputStream(stickerAssetUri), null);
+                    Drawable drawable = Drawable.createFromStream(
+                            expandedStickerPreview.getContext().getContentResolver().openInputStream(stickerAssetUri), null);
                     if (drawable instanceof android.graphics.drawable.AnimatedImageDrawable) {
                         isAnimatedWebp = true;
                     }
@@ -267,16 +270,19 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 }
             }
 
-            MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
+            MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(
+                    new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
 
             RequestOptions requestOptions = new RequestOptions().override(300, 300);
             RequestManager glide = Glide.with(expandedStickerPreview.getContext());
 
             if (extension.equals("webp") && isAnimatedWebp) {
                 expandedStickerPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                glide.load(stickerAssetUri).apply(requestOptions).error(R.drawable.sticker_3rdparty_warning).transform(WebpDrawable.class, new WebpDrawableTransformation(commonTransform)).into(expandedStickerPreview);
+                glide.load(stickerAssetUri).apply(requestOptions).error(R.drawable.sticker_3rdparty_warning)
+                        .transform(WebpDrawable.class, new WebpDrawableTransformation(commonTransform)).into(expandedStickerPreview);
             } else {
-                glide.asBitmap().load(stickerAssetUri).apply(requestOptions).error(R.drawable.sticker_3rdparty_warning).centerCrop().transform(commonTransform).into(expandedStickerPreview);
+                glide.asBitmap().load(stickerAssetUri).apply(requestOptions).error(R.drawable.sticker_3rdparty_warning).centerCrop()
+                        .transform(commonTransform).into(expandedStickerPreview);
             }
 
             expandedStickerPreview.setVisibility(View.VISIBLE);

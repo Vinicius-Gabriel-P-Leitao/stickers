@@ -80,16 +80,14 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
         int resId = (code != null) ? code.getMessageResId() : R.string.error_unknown;
 
         if (!stickerList.isEmpty()) {
-            viewHolder.stickerPreview.setImageURI(
-                    BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
+            viewHolder.stickerPreview.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
             viewHolder.textErrorMessage.setText(context.getString(resId));
         }
 
         if (stickerPack != null) {
-            viewHolder.stickerPreview.setImageURI(
-                    BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
-            viewHolder.textErrorMessage.setText(TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(
-                    R.string.information_sticker_is_valid) : context.getString(resId));
+            viewHolder.stickerPreview.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
+            viewHolder.textErrorMessage.setText(
+                    TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(R.string.information_sticker_is_valid) : context.getString(resId));
             viewHolder.buttonFix.setVisibility(TextUtils.isEmpty(sticker.stickerIsValid) ? View.GONE : View.VISIBLE);
         }
 
@@ -117,8 +115,7 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
     private static ArrayList<Sticker> filterValidStickers(@NonNull List<Sticker> rawList) {
         ArrayList<Sticker> result = new ArrayList<>();
         for (Sticker sticker : rawList) {
-            if (!PLACEHOLDER_ANIMATED.equals(sticker.imageFileName) &&
-                    !PLACEHOLDER_STATIC.equals(sticker.imageFileName)) {
+            if (!PLACEHOLDER_ANIMATED.equals(sticker.imageFileName) && !PLACEHOLDER_STATIC.equals(sticker.imageFileName)) {
                 result.add(sticker);
             }
         }

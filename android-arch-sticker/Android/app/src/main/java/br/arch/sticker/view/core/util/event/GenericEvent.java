@@ -12,20 +12,17 @@ public class GenericEvent<T> {
     private final T content;
     private boolean hasBeenHandled = false;
 
-    public GenericEvent(T content)
-        {
-            this.content = content;
-        }
+    public GenericEvent(T content) {
+        this.content = content;
+    }
 
-    public T getContentIfNotHandled()
-        {
-            if (hasBeenHandled) return null;
-            hasBeenHandled = true;
-            return content;
-        }
+    public T getContentIfNotHandled() {
+        if (hasBeenHandled) return null;
+        hasBeenHandled = true;
+        return content;
+    }
 
-    public T peekContent()
-        {
-            return content;
-        }
+    public T peekContent() {
+        return content;
+    }
 }

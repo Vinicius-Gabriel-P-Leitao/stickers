@@ -193,12 +193,12 @@
     <string name="error_decode_bitmap">Erro ao decodificar o bitmap.</string>
     <string name="error_update_sticker_pack">Falha ao atualizar o nome do pacote de figurinhas.</string>
     <string name="error_update_urls_sticker_pack">Falha ao atualizar as url do pacote de figurinhas.</string>
-
-
-    <string name="warn_invalid_parameters_rename_sticker">Parâmetros inválidos para renomear figurinha. Algum campo está vazio.</string>
-    <string name="warn_invalid_parameters_mark_invalid">Parâmetros inválidos para marcar figurinha inválida.</string>
-    <string name="debug_update_sticker_filename">Atualizando nome de figurinha: pack=\'%1$s', old='%2$s', new='%3$s'</string>
-    <string name="debug_mark_sticker_invalid">Marcando figurinha como inválida: pack=\'%1$s', file='%2$s', erro='%3$s'</string>
+    <string name="error_create_main_directory">Falha ao criar o diretório principal.</string>
+    <string name="error_create_sticker_pack_directory">Falha ao criar a pasta: %1$s</string>
+    <string name="error_null_arguments">Arguments não podem ser nulos</string>
+    <string name="error_gallery_permission_denied">Galeria não foi liberada.</string>
+    <string name="error_decode_image">Falha ao decodificar a imagem do caminho: %1$s</string>
+    <string name="warn_unsupported_view_transformation">View não suportada para transformação.</string> 
 
     <!-- Debug and Warning Logs -->
     <string name="debug_frame_updated">Frame atualizado: %1$s.</string>
@@ -223,6 +223,12 @@
     <string name="warn_invalid_parameters_clean_urls">Parâmetros inválidos para limpar urls do pacote de figurinha. O campo de stickerPackIdentifier.</string>
     <string name="debug_update_sticker_pack_name">Atualizando nome do pacote de figurinhas: pack=\'%1$s', new='%2$s'</string>
     <string name="debug_clean_sticker_pack_urls">Atualizando nome do pacote de figurinhas: pack=\'%1$s'</string>
+    <string name="warn_invalid_parameters_rename_sticker">Parâmetros inválidos para renomear figurinha. Algum campo está vazio.</string>
+    <string name="warn_invalid_parameters_mark_invalid">Parâmetros inválidos para marcar figurinha inválida.</string>
+    <string name="debug_update_sticker_filename">Atualizando nome de figurinha: pack=\'%1$s', old='%2$s', new='%3$s'</string>
+    <string name="debug_mark_sticker_invalid">Marcando figurinha como inválida: pack=\'%1$s', file='%2$s', erro='%3$s'</string>
+    <string name="debug_main_directory_exists">O diretório principal já existe: %1$s</string>
+    <string name="debug_sticker_pack_directory_exists">Pasta já existe: %1$s</string>
 
     <!-- Timeline and Miscellaneous -->
     <string name="timeline_seconds">%1$s segundos</string>

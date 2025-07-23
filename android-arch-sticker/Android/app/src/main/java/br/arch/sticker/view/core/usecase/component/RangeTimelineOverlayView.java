@@ -93,11 +93,13 @@ public class RangeTimelineOverlayView extends View {
 
         canvas.drawRoundRect(left, halfStroke, right, bottom, dpToPx(8), dpToPx(8), selectionPaint);
 
-        canvas.drawRoundRect(leftHandleX - handleWidth /
-                3f, halfStroke, leftHandleX, bottom, handleCornerRadius, handleCornerRadius, handleBackgroundPaint);
+        canvas.drawRoundRect(leftHandleX - handleWidth / 3f, halfStroke, leftHandleX, bottom, handleCornerRadius, handleCornerRadius,
+                handleBackgroundPaint
+        );
 
-        canvas.drawRoundRect(rightHandleX, halfStroke,
-                rightHandleX + handleWidth / 3f, bottom, handleCornerRadius, handleCornerRadius, handleBackgroundPaint);
+        canvas.drawRoundRect(rightHandleX, halfStroke, rightHandleX + handleWidth / 3f, bottom, handleCornerRadius, handleCornerRadius,
+                handleBackgroundPaint
+        );
 
         final float centerY = getHeight() / 2f;
         final float handleTop = centerY - handleLineHeight / 2f;

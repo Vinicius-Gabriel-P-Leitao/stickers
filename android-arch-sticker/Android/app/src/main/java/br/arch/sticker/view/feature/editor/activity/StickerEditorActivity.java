@@ -91,9 +91,7 @@ public class StickerEditorActivity extends BaseActivity {
 
         final Uri uri = getIntent().getData();
         if (uri == null) {
-            Toast.makeText(this, getString(R.string.error_select_at_least_one_media),
-                    Toast.LENGTH_SHORT
-            ).show();
+            Toast.makeText(this, getString(R.string.error_select_at_least_one_media), Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -106,17 +104,14 @@ public class StickerEditorActivity extends BaseActivity {
         Button buttonConfirm = findViewById(R.id.button_confirm);
 
         recyclerTimeline = findViewById(R.id.recycler_timeline);
-        recyclerTimeline.setLayoutManager(
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerTimeline.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         buttonConfirm.setOnClickListener(view -> {
             Rect crop = getCropRectFromTransformedTexture();
             if (crop != null) {
                 Log.d(TAG_LOG, getString(R.string.debug_video_crop, crop.toShortString()));
             } else {
-                Toast.makeText(this, getString(R.string.error_calculation_clipping),
-                        Toast.LENGTH_SHORT
-                ).show();
+                Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -167,9 +162,7 @@ public class StickerEditorActivity extends BaseActivity {
             MimeTypesSupported mediaType = MimeTypesSupported.fromMimeType(mimeType);
 
             if (mediaType == null) {
-                Toast.makeText(this, getString(R.string.error_unsupported_mimetype, mimeType),
-                        Toast.LENGTH_SHORT
-                ).show();
+                Toast.makeText(this, getString(R.string.error_unsupported_mimetype, mimeType), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -199,13 +192,11 @@ public class StickerEditorActivity extends BaseActivity {
             mediaHeight = String.valueOf(bitmap.getHeight());
 
             GestureController gestureController = new GestureController(imageView);
-            imageView.setOnTouchListener(
-                    (view, motionEvent) -> gestureController.onTouch(motionEvent));
+            imageView.setOnTouchListener((view, motionEvent) -> gestureController.onTouch(motionEvent));
 
             imageView.setImageBitmap(bitmap);
         } catch (IOException exception) {
-            Toast.makeText(this, getString(R.string.error_loading_image), Toast.LENGTH_SHORT)
-                    .show();
+            Toast.makeText(this, getString(R.string.error_loading_image), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -223,15 +214,12 @@ public class StickerEditorActivity extends BaseActivity {
 
             textureView = (TextureView) playerView.getVideoSurfaceView();
             if (textureView == null) {
-                Toast.makeText(this, getString(R.string.error_invalid_video_surface),
-                        Toast.LENGTH_SHORT
-                ).show();
+                Toast.makeText(this, getString(R.string.error_invalid_video_surface), Toast.LENGTH_SHORT).show();
                 return;
             }
 
             GestureController gestureController = new GestureController(textureView);
-            textureView.setOnTouchListener(
-                    (view, motionEvent) -> gestureController.onTouch(motionEvent));
+            textureView.setOnTouchListener((view, motionEvent) -> gestureController.onTouch(motionEvent));
 
             startVideoTimeline(uri);
             return;
@@ -247,9 +235,7 @@ public class StickerEditorActivity extends BaseActivity {
             return;
         }
 
-        Toast.makeText(this, getString(R.string.error_unsupported_mimetype, mimeType),
-                Toast.LENGTH_SHORT
-        ).show();
+        Toast.makeText(this, getString(R.string.error_unsupported_mimetype, mimeType), Toast.LENGTH_SHORT).show();
     }
 
     private void startVideoTimeline(Uri videoUri) {
@@ -280,9 +266,8 @@ public class StickerEditorActivity extends BaseActivity {
                     }
 
                     if (videoDurationMs == 0) {
-                        Toast.makeText(this,
-                                applicationTranslate.translate(R.string.error_invalid_timeline_duration)
-                                        .log(TAG_LOG, Level.ERROR).get(), Toast.LENGTH_SHORT
+                        Toast.makeText(this, applicationTranslate.translate(R.string.error_invalid_timeline_duration).log(TAG_LOG, Level.ERROR).get(),
+                                Toast.LENGTH_SHORT
                         ).show();
                         return;
                     }
@@ -320,8 +305,7 @@ public class StickerEditorActivity extends BaseActivity {
             runOnUiThread(() -> {
                 float aroundSeconds = Math.round(seconds * 10) / 10f;
 
-                timelineTitle.setText(
-                        getString(R.string.timeline_seconds, String.valueOf(aroundSeconds)));
+                timelineTitle.setText(getString(R.string.timeline_seconds, String.valueOf(aroundSeconds)));
 
                 loopDurationMs = (long) (aroundSeconds * 1000);
                 loopEndMs = Math.min(videoDurationMs, loopStartMs + loopDurationMs);
@@ -350,8 +334,7 @@ public class StickerEditorActivity extends BaseActivity {
     private @Nullable Rect getCropRectFromTransformedTexture() {
         View cropArea = findViewById(R.id.crop_area);
 
-        if (textureView == null || cropArea == null || mediaWidth == null || mediaHeight == null)
-            return null;
+        if (textureView == null || cropArea == null || mediaWidth == null || mediaHeight == null) return null;
 
         int videoWidth = Integer.parseInt(mediaWidth);
         int videoHeight = Integer.parseInt(mediaHeight);
@@ -364,10 +347,8 @@ public class StickerEditorActivity extends BaseActivity {
         Rect textureScreenRect = new Rect();
         textureView.getGlobalVisibleRect(textureScreenRect);
 
-        RectF cropRectInTexture = new RectF(cropScreenRect.left - textureScreenRect.left,
-                cropScreenRect.top - textureScreenRect.top,
-                cropScreenRect.right - textureScreenRect.left,
-                cropScreenRect.bottom - textureScreenRect.top
+        RectF cropRectInTexture = new RectF(cropScreenRect.left - textureScreenRect.left, cropScreenRect.top - textureScreenRect.top,
+                cropScreenRect.right - textureScreenRect.left, cropScreenRect.bottom - textureScreenRect.top
         );
 
         Matrix inverseMatrix = new Matrix();

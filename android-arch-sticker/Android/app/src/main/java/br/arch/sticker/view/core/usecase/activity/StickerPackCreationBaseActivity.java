@@ -201,10 +201,6 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            Uri selectedUri = data.getData();
-            Log.d(TAG_LOG, "URI selecionada: " + selectedUri);
-        }
     }
 
     public final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -287,7 +283,7 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
 
         permissionRequestViewModel.getPermissionDenied().observe(this, denied -> {
                     if (denied != null && denied) {
-                        Toast.makeText(this, "Galeria não foi liberada.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(R.string.error_gallery_permission_denied), Toast.LENGTH_SHORT).show();
                         permissionRequestDialog.dismiss();
                     }
                 }

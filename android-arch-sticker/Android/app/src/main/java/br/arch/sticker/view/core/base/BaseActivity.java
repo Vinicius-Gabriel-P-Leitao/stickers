@@ -23,6 +23,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
+import br.arch.sticker.R;
 import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 
 public abstract class BaseActivity extends AppCompatActivity {
@@ -52,7 +53,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             Bundle args = getArguments();
             if (args == null) {
-                throw new AppCoreStateException("Arguments não podem ser nulos", ERROR_BASE_ACTIVITY);
+                throw new AppCoreStateException(getString(R.string.error_null_arguments), ERROR_BASE_ACTIVITY);
             }
 
             @StringRes final int title = args.getInt(ARG_TITLE_ID, 0);
@@ -60,7 +61,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
             Activity activity = getActivity();
             if (activity == null) {
-                throw new AppCoreStateException("Arguments não podem ser nulos", ERROR_BASE_ACTIVITY);
+                throw new AppCoreStateException(getString(R.string.error_null_arguments), ERROR_BASE_ACTIVITY);
             }
 
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity()).setMessage(message)

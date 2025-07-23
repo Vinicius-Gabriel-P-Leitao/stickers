@@ -32,56 +32,52 @@ public class StickerPackListViewModel extends AndroidViewModel {
     private final MutableLiveData<Pair<Boolean, String>> deletedStickerPack = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessageLiveData = new MutableLiveData<>();
 
-    public StickerPackListViewModel(@NonNull Application application)
-        {
-            super(application);
-            Context context = getApplication().getApplicationContext();
-            this.deleteStickerPackService = new DeleteStickerPackService(context);
-            this.deleteStickerPackPathService = new DeleteStickerPackPathService(context);
-        }
+    public StickerPackListViewModel(@NonNull Application application) {
+        super(application);
+        Context context = getApplication().getApplicationContext();
+        this.deleteStickerPackService = new DeleteStickerPackService(context);
+        this.deleteStickerPackPathService = new DeleteStickerPackPathService(context);
+    }
 
-    public MutableLiveData<Pair<Boolean, String>> getDeletedStickerPack()
-        {
-            return deletedStickerPack;
-        }
+    public MutableLiveData<Pair<Boolean, String>> getDeletedStickerPack() {
+        return deletedStickerPack;
+    }
 
-    public MutableLiveData<String> getErrorMessageLiveData()
-        {
-            return errorMessageLiveData;
-        }
+    public MutableLiveData<String> getErrorMessageLiveData() {
+        return errorMessageLiveData;
+    }
 
-    public void startDeleted(String stickerPackIdentifier)
-        {
-            executor.submit(() -> {
-                CallbackResult<Boolean> resultAsset = deleteStickerPackService.deleteStickerPack(stickerPackIdentifier);
-                if (resultAsset.isFailure()) {
-                    errorMessageLiveData.postValue(resultAsset.getError().getMessage());
-                    return;
-                }
+    public void startDeleted(String stickerPackIdentifier) {
+        executor.submit(() -> {
+            CallbackResult<Boolean> resultAsset = deleteStickerPackService.deleteStickerPack(stickerPackIdentifier);
+            if (resultAsset.isFailure()) {
+                errorMessageLiveData.postValue(resultAsset.getError().getMessage());
+                return;
+            }
 
-                if (resultAsset.isWarning()) {
-                    errorMessageLiveData.postValue(resultAsset.getWarningMessage());
-                    return;
-                }
+            if (resultAsset.isWarning()) {
+                errorMessageLiveData.postValue(resultAsset.getWarningMessage());
+                return;
+            }
 
-                CallbackResult<Boolean> resultDB = deleteStickerPackPathService.deleteStickerPackPath(stickerPackIdentifier);
-                if (resultDB.isFailure()) {
-                    errorMessageLiveData.postValue(resultDB.getError().getMessage());
-                    return;
-                }
+            CallbackResult<Boolean> resultDB = deleteStickerPackPathService.deleteStickerPackPath(stickerPackIdentifier);
+            if (resultDB.isFailure()) {
+                errorMessageLiveData.postValue(resultDB.getError().getMessage());
+                return;
+            }
 
-                if (resultDB.isWarning()) {
-                    errorMessageLiveData.postValue(resultDB.getWarningMessage());
-                    return;
-                }
+            if (resultDB.isWarning()) {
+                errorMessageLiveData.postValue(resultDB.getWarningMessage());
+                return;
+            }
 
-                deletedStickerPack.postValue(new Pair<>((resultDB.getData() && resultAsset.getData()), stickerPackIdentifier));
-            });
-        }
+            deletedStickerPack.postValue(new Pair<>((resultDB.getData() && resultAsset.getData()), stickerPackIdentifier));
+        });
+    }
 
     @Override
     protected void onCleared() {
         super.onCleared();
         executor.shutdownNow();
-        }
+    }
 }
