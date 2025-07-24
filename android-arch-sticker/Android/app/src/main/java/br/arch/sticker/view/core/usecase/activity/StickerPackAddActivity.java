@@ -134,7 +134,7 @@ public abstract class StickerPackAddActivity extends BaseActivity implements Sti
                     AlertStickerDialog dialog = new AlertStickerDialog(this);
                     dialog.setMessageText(getString(R.string.dialog_add_stickerpack_fail_prompt));
 
-                    dialog.setTextFixButton(getString(R.string.dialog_add_stickerpack_fail_prompt));
+                    dialog.setTextFixButton(getString(R.string.dialog_add_stickerpack_update_link));
                     dialog.setOnFixClick(view -> launchWhatsAppPlayStorePage());
 
                     dialog.setTextIgnoreButton(getString(android.R.string.ok));

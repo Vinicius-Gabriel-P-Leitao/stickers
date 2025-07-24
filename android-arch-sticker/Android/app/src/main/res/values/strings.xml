@@ -146,7 +146,7 @@
     <string name="error_conversion_failed">Conversion failed or file not generated.</string>
     <string name="error_unexpected_conversion">Unexpected error during native conversion.</string>
     <string name="error_unknown_code">Unknown error code: %1$s.</string>
-    <string name="error_invalid_characters">%s contains invalid characters, allowed characters are a to z, A to Z, _, \' - . and space character</string>
+    <string name="error_invalid_characters">%s contains invalid characters, allowed characters are a to z, A to Z, _,  - . and space character</string>
     <string name="error_contains_double_dot">%s cannot contain ..</string>
     <string name="error_delete_sticker_pack_id">Error finding the package ID to delete the sticker.</string>
     <string name="error_delete_sticker_db">Database error while trying to delete the sticker.</string>
@@ -198,8 +198,6 @@
     <string name="error_null_arguments">Arguments cannot be null</string>
     <string name="error_gallery_permission_denied">Gallery permission was not granted.</string>
     <string name="error_decode_image">Failed to decode image from path: %1$s</string>
-    <string name="warn_unsupported_view_transformation">View not supported for transformation.</string>
-
     <!-- Debug and Warning Logs -->
     <string name="debug_frame_updated">Frame updated: %1$s.</string>
     <string name="debug_extracted_frames">Extracted %1$s frames.</string>
@@ -221,14 +219,16 @@
     <string name="information_sticker_pack_directory_deleted">Directory deleted: %1$s</string>
     <string name="warn_invalid_parameters_rename_pack">Invalid parameters for renaming sticker pack. Some field is empty.</string>
     <string name="warn_invalid_parameters_clean_urls">Invalid parameters for cleaning sticker pack URLs. The stickerPackIdentifier field is empty.</string>
-    <string name="debug_update_sticker_pack_name">Updating sticker pack name: pack=\'%1$s', new='%2$s'</string>
-    <string name="debug_clean_sticker_pack_urls">Updating sticker pack name: pack=\'%1$s'</string>
+    <string name="debug_update_sticker_pack_name">Updating sticker pack name: pack=%1$s, new=%2$s</string>
+    <string name="debug_clean_sticker_pack_urls">Updating sticker pack name: pack=%1$s</string>
     <string name="warn_invalid_parameters_rename_sticker">Invalid parameters for renaming sticker. Some field is empty.</string>
     <string name="warn_invalid_parameters_mark_invalid">Invalid parameters for marking sticker as invalid.</string>
-    <string name="debug_update_sticker_filename">Updating sticker filename: pack=\'%1$s', old='%2$s', new='%3$s'</string>
-    <string name="debug_mark_sticker_invalid">Marking sticker as invalid: pack=\'%1$s', file='%2$s', error='%3$s'</string>
+    <string name="debug_update_sticker_filename">Updating sticker filename: pack=%1$s, old=%2$s, new=%3$s</string>
+    <string name="debug_mark_sticker_invalid">Marking sticker as invalid: pack=%1$s, file=%2$s, error=%3$s</string>
     <string name="debug_main_directory_exists">mainDirectory already exists: %1$s</string>
     <string name="debug_sticker_pack_directory_exists">Directory already exists: %1$s</string>
+    <string name="warn_unsupported_view_transformation">View not supported for transformation.</string>
+
 
     <!-- Timeline and Miscellaneous -->
     <string name="timeline_seconds">%1$s seconds</string>

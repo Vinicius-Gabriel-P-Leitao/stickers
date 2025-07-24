@@ -31,6 +31,7 @@ public class GestureController {
     private float translateX = 0f;
     private float translateY = 0f;
     private float scaleFactor = 1.0f;
+    private float minScaleFactor = 1.0f;
 
     public GestureController(View view) {
         this.view = view;
@@ -40,6 +41,7 @@ public class GestureController {
             public boolean onScale(@NonNull ScaleGestureDetector detector) {
                 scaleFactor *= detector.getScaleFactor();
                 scaleFactor = Math.max(1.0f, Math.min(scaleFactor, 5.0f));
+
                 applyMatrix();
                 return true;
             }
@@ -51,6 +53,7 @@ public class GestureController {
             public boolean onScroll(MotionEvent motionEvent1, @NonNull MotionEvent motionEvent2, float distanceX, float distanceY) {
                 translateX -= distanceX;
                 translateY -= distanceY;
+
                 applyMatrix();
                 return true;
             }
@@ -61,6 +64,7 @@ public class GestureController {
     public boolean onTouch(MotionEvent event) {
         boolean handled = scaleDetector.onTouchEvent(event);
         handled = gestureDetector.onTouchEvent(event) || handled;
+
         return handled;
     }
 

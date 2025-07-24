@@ -11,7 +11,8 @@
         android:top="10dp">
         <shape android:shape="rectangle">
             <corners android:radius="0dp" />
-            <solid android:color="@color/catppuccin_surface1" />
+            <corners android:radius="8dp" />
+            <solid android:color="@color/catppuccin_crust" />
             <size android:width="2dp" />
         </shape>
     </item>
@@ -21,7 +22,7 @@
         android:right="10dp">
         <shape android:shape="rectangle">
             <corners android:radius="8dp" />
-            <solid android:color="@color/catppuccin_surface1" />
+            <solid android:color="@color/catppuccin_crust" />
             <size android:width="2dp" />
         </shape>
     </item>
@@ -31,7 +32,7 @@
         android:right="0dp">
         <shape android:shape="rectangle">
             <corners android:radius="8dp" />
-            <solid android:color="@color/catppuccin_surface1" />
+            <solid android:color="@color/catppuccin_crust" />
             <size android:width="2dp" />
         </shape>
     </item>

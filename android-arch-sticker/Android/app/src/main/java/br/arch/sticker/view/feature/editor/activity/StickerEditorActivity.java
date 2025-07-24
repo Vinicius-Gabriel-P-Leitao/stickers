@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,7 +24,6 @@ import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,13 +47,14 @@ import java.util.List;
 
 import br.arch.sticker.R;
 import br.arch.sticker.domain.util.ApplicationTranslate;
+import br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
 import br.arch.sticker.view.core.base.BaseActivity;
+import br.arch.sticker.view.core.usecase.component.GestureImageView;
 import br.arch.sticker.view.core.usecase.component.RangeTimelineOverlayView;
 import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 import br.arch.sticker.view.feature.editor.adapter.TimelineFramesAdapter;
 import br.arch.sticker.view.feature.editor.controller.GestureController;
 import br.arch.sticker.view.feature.editor.viewmodel.StickerEditorViewModel;
-import br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
 
 public class StickerEditorActivity extends BaseActivity {
     private final static String TAG_LOG = StickerEditorActivity.class.getSimpleName();
@@ -62,12 +63,13 @@ public class StickerEditorActivity extends BaseActivity {
     private StickerEditorViewModel stickerEditorViewModel;
     private ApplicationTranslate applicationTranslate;
     private RangeTimelineOverlayView rangeTimeline;
+    private GestureImageView gestureImageView;
     private RecyclerView recyclerTimeline;
     private TextureView textureView;
-    private FrameLayout timeline;
     private TextView timelineTitle;
+    private Button buttonConfirm;
+    private FrameLayout timeline;
     private PlayerView playerView;
-    private ImageView imageView;
     private ExoPlayer player;
 
     private String mediaWidth;
@@ -97,23 +99,16 @@ public class StickerEditorActivity extends BaseActivity {
         }
 
         timeline = findViewById(R.id.timeline);
-        imageView = findViewById(R.id.image_view);
+        gestureImageView = findViewById(R.id.image_view);
         playerView = findViewById(R.id.player_view);
         rangeTimeline = findViewById(R.id.range_timeline);
         timelineTitle = findViewById(R.id.timeline_title);
-        Button buttonConfirm = findViewById(R.id.button_confirm);
+        buttonConfirm = findViewById(R.id.button_confirm);
 
         recyclerTimeline = findViewById(R.id.recycler_timeline);
         recyclerTimeline.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        buttonConfirm.setOnClickListener(view -> {
-            Rect crop = getCropRectFromTransformedTexture();
-            if (crop != null) {
-                Log.d(TAG_LOG, getString(R.string.debug_video_crop, crop.toShortString()));
-            } else {
-                Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
-            }
-        });
+        processUris(uri);
 
         Handler handler = new Handler(Looper.getMainLooper());
         Runnable loopChecker = new Runnable() {
@@ -131,9 +126,6 @@ public class StickerEditorActivity extends BaseActivity {
         };
 
         handler.post(loopChecker);
-
-        processUris(uri);
-        getVideoSeconds();
     }
 
     @Override
@@ -172,29 +164,33 @@ public class StickerEditorActivity extends BaseActivity {
                     break;
                 case ANIMATED:
                     handleAnimated(uri, mimeType);
+                    getVideoSeconds();
                     break;
             }
+
+            buttonConfirm.setOnClickListener(view -> {
+                Rect crop = getCropRectFromTransformedTexture(mimeType);
+                if (crop != null) {
+                    Log.d(TAG_LOG, getString(R.string.debug_video_crop, crop.toShortString()));
+                } else {
+                    Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
+                }
+            });
         } catch (IllegalArgumentException exception) {
+            // TODO: Tratar erro de forma melhor
             Toast.makeText(this, exception.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
     private void handleImage(Uri uri) {
-        imageView.setVisibility(View.VISIBLE);
+        gestureImageView.setVisibility(View.VISIBLE);
 
         playerView.setVisibility(View.GONE);
         timeline.setVisibility(View.GONE);
 
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-
-            mediaWidth = String.valueOf(bitmap.getWidth());
-            mediaHeight = String.valueOf(bitmap.getHeight());
-
-            GestureController gestureController = new GestureController(imageView);
-            imageView.setOnTouchListener((view, motionEvent) -> gestureController.onTouch(motionEvent));
-
-            imageView.setImageBitmap(bitmap);
+            gestureImageView.setImageBitmap(bitmap);
         } catch (IOException exception) {
             Toast.makeText(this, getString(R.string.error_loading_image), Toast.LENGTH_SHORT).show();
         }
@@ -203,7 +199,7 @@ public class StickerEditorActivity extends BaseActivity {
     @SuppressLint("ClickableViewAccessibility")
     @OptIn(markerClass = UnstableApi.class)
     private void handleAnimated(Uri uri, String mimeType) {
-        imageView.setVisibility(View.GONE);
+        gestureImageView.setVisibility(View.GONE);
 
         if ("video/mp4".equalsIgnoreCase(mimeType)) {
             playerView.setVisibility(View.VISIBLE);
@@ -226,12 +222,12 @@ public class StickerEditorActivity extends BaseActivity {
         }
 
         if ("image/gif".equalsIgnoreCase(mimeType)) {
-            imageView.setVisibility(View.VISIBLE);
+            gestureImageView.setVisibility(View.VISIBLE);
 
             playerView.setVisibility(View.GONE);
             timeline.setVisibility(View.GONE);
 
-            Glide.with(this).asGif().load(uri).into(imageView);
+            Glide.with(this).asGif().load(uri).into(gestureImageView);
             return;
         }
 
@@ -301,17 +297,15 @@ public class StickerEditorActivity extends BaseActivity {
     }
 
     private void getVideoSeconds() {
-        rangeTimeline.setOnRangeChangeListener(seconds -> {
-            runOnUiThread(() -> {
-                float aroundSeconds = Math.round(seconds * 10) / 10f;
+        rangeTimeline.setOnRangeChangeListener(seconds -> runOnUiThread(() -> {
+            float aroundSeconds = Math.round(seconds * 10) / 10f;
 
-                timelineTitle.setText(getString(R.string.timeline_seconds, String.valueOf(aroundSeconds)));
+            timelineTitle.setText(getString(R.string.timeline_seconds, String.valueOf(aroundSeconds)));
 
-                loopDurationMs = (long) (aroundSeconds * 1000);
-                loopEndMs = Math.min(videoDurationMs, loopStartMs + loopDurationMs);
-                onTimelineChanged();
-            });
-        });
+            loopDurationMs = (long) (aroundSeconds * 1000);
+            loopEndMs = Math.min(videoDurationMs, loopStartMs + loopDurationMs);
+            onTimelineChanged();
+        }));
     }
 
     private void onTimelineChanged() {
@@ -331,40 +325,82 @@ public class StickerEditorActivity extends BaseActivity {
         }
     }
 
-    private @Nullable Rect getCropRectFromTransformedTexture() {
+    private @Nullable Rect getCropRectFromTransformedTexture(String mimeType) {
         View cropArea = findViewById(R.id.crop_area);
 
-        if (textureView == null || cropArea == null || mediaWidth == null || mediaHeight == null) return null;
+        if ("video/mp4".equalsIgnoreCase(mimeType)) {
+            if (textureView == null || cropArea == null || mediaWidth == null || mediaHeight == null) return null;
 
-        int videoWidth = Integer.parseInt(mediaWidth);
-        int videoHeight = Integer.parseInt(mediaHeight);
+            int intMediaWidth = Integer.parseInt(mediaWidth);
+            int intMediaHeight = Integer.parseInt(mediaHeight);
 
-        Matrix transformMatrix = textureView.getTransform(null);
+            Matrix transformMatrix = textureView.getTransform(null);
 
-        Rect cropScreenRect = new Rect();
-        cropArea.getGlobalVisibleRect(cropScreenRect);
+            Rect cropScreenRect = new Rect();
+            cropArea.getGlobalVisibleRect(cropScreenRect);
 
-        Rect textureScreenRect = new Rect();
-        textureView.getGlobalVisibleRect(textureScreenRect);
+            Rect textureScreenRect = new Rect();
+            textureView.getGlobalVisibleRect(textureScreenRect);
 
-        RectF cropRectInTexture = new RectF(cropScreenRect.left - textureScreenRect.left, cropScreenRect.top - textureScreenRect.top,
-                cropScreenRect.right - textureScreenRect.left, cropScreenRect.bottom - textureScreenRect.top
-        );
+            RectF cropRectInTexture = new RectF(cropScreenRect.left - textureScreenRect.left, cropScreenRect.top - textureScreenRect.top,
+                    cropScreenRect.right - textureScreenRect.left, cropScreenRect.bottom - textureScreenRect.top
+            );
 
-        Matrix inverseMatrix = new Matrix();
-        if (!transformMatrix.invert(inverseMatrix)) return null;
+            Matrix inverseMatrix = new Matrix();
+            if (!transformMatrix.invert(inverseMatrix)) return null;
 
-        inverseMatrix.mapRect(cropRectInTexture);
+            inverseMatrix.mapRect(cropRectInTexture);
 
-        float scaleX = (float) videoWidth / textureView.getWidth();
-        float scaleY = (float) videoHeight / textureView.getHeight();
+            float scaleX = (float) intMediaWidth / textureView.getWidth();
+            float scaleY = (float) intMediaHeight / textureView.getHeight();
 
-        int left = Math.round(cropRectInTexture.left * scaleX);
+            int left = Math.round(cropRectInTexture.left * scaleX);
 
-        int top = Math.round(cropRectInTexture.top * scaleY);
-        int width = Math.round(cropRectInTexture.width() * scaleX);
-        int height = Math.round(cropRectInTexture.height() * scaleY);
+            int top = Math.round(cropRectInTexture.top * scaleY);
+            int width = Math.round(cropRectInTexture.width() * scaleX);
+            int height = Math.round(cropRectInTexture.height() * scaleY);
 
-        return new Rect(left, top, left + width, top + height);
+            return new Rect(left, top, left + width, top + height);
+        }
+
+        if ("image/jpeg".equalsIgnoreCase(mimeType) || "image/gif".equalsIgnoreCase(mimeType) || "image/jpg".equalsIgnoreCase(mimeType) ||
+                "image/png".equalsIgnoreCase(mimeType)) {
+            if (gestureImageView == null || cropArea == null) return null;
+
+            Matrix imageMatrix = gestureImageView.getImageMatrix();
+
+            Drawable drawable = gestureImageView.getDrawable();
+            if (drawable == null) return null;
+
+            int drawableWidth = drawable.getIntrinsicWidth();
+            int drawableHeight = drawable.getIntrinsicHeight();
+
+            Rect cropScreenRect = new Rect();
+            cropArea.getGlobalVisibleRect(cropScreenRect);
+
+            Rect imageViewScreenRect = new Rect();
+            gestureImageView.getGlobalVisibleRect(imageViewScreenRect);
+
+            RectF cropRectInImageView = new RectF(cropScreenRect.left - imageViewScreenRect.left, cropScreenRect.top - imageViewScreenRect.top,
+                    cropScreenRect.right - imageViewScreenRect.left, cropScreenRect.bottom - imageViewScreenRect.top
+            );
+
+            Matrix inverseMatrix = new Matrix();
+            if (!imageMatrix.invert(inverseMatrix)) return null;
+
+            inverseMatrix.mapRect(cropRectInImageView);
+
+            cropRectInImageView.intersect(0, 0, drawableWidth, drawableHeight);
+
+            int left = Math.round(cropRectInImageView.left);
+            int top = Math.round(cropRectInImageView.top);
+            int right = Math.round(cropRectInImageView.right);
+            int bottom = Math.round(cropRectInImageView.bottom);
+
+            return new Rect(left, top, right, bottom);
+        }
+
+        Toast.makeText(this, getString(R.string.error_unsupported_file_type), Toast.LENGTH_SHORT).show();
+        return null;
     }
 }
