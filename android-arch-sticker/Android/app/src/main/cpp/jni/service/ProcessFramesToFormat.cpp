@@ -72,7 +72,8 @@ bool FrameWithBuffer::allocate(ProcessFramesToFormat &processor, int width, int 
 void ProcessFramesToFormat::processFrame(AVFramePtr &rgbFrame, int width, int height, std::vector<FrameWithBuffer> &frames) {
     FrameWithBuffer frameWithBuffer;
 
-    if (!cropFrame(rgbFrame, frameWithBuffer, width, height)) {
+    // NOTE: -1, -1 centraliza
+    if (!cropFrame(rgbFrame, frameWithBuffer, -1, -1, width, height)) {
         std::string msgError = "Erro ao redimensionar/cortar o frame";
         HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
 
@@ -83,7 +84,7 @@ void ProcessFramesToFormat::processFrame(AVFramePtr &rgbFrame, int width, int he
     frames.push_back(std::move(frameWithBuffer));
 }
 
-bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffer &dstFrame, int targetWidth, int targetHeight) {
+bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffer &dstFrame, int cropX, int cropY, int cropWidth, int cropHeight) {
     const AVFrame *frame = srcFrame.get();
     if (!frame) {
         std::string msgError = "Falha ao alocar AVFrame ou os dados são nulos";
@@ -99,62 +100,52 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
     if (srcWidth <= 0 || srcHeight <= 0 || srcFormat == AV_PIX_FMT_NONE) {
         std::string msgError = fmt::format("Dimensões do quadro de origem ({}x{}) ou formato ({}) inválidos",
                                            srcWidth, srcHeight, static_cast<int>(srcFormat));
-
         LOGIRCF("%s", msgError.c_str());
         HandlerJavaException::throwNativeConversionException(
                 env, nativeMediaException, "Dimensões ou formato do quadro de origem inválidos");
-
         return false;
-    }
-
-    if (!dstFrame.allocate(*this, targetWidth, targetHeight, AV_PIX_FMT_RGB24)) {
-        LOGIRCF("Falha ao alocar o quadro de destino");
-        return false;
-    }
-
-    // Preenche o frame com pixel preto
-    for (int orderedY = 0; orderedY < targetHeight; ++orderedY) {
-        uint8_t *row = dstFrame.frame->data[0] + orderedY * dstFrame.frame->linesize[0];
-        std::fill(row, row + targetWidth * 3, 0);
     }
 
     double srcAspect = static_cast<double>(srcWidth) / srcHeight;
-    double dstAspect = static_cast<double>(targetWidth) / targetHeight;
+    double dstAspect = 1.0;
     int scaledWidth, scaledHeight;
 
-    if (srcAspect > dstAspect) {
-        scaledHeight = targetHeight;
-        scaledWidth = static_cast<int>(targetHeight * srcAspect);
+    if (cropWidth <= 0 || cropHeight <= 0) {
+        dstAspect = 1.0;
+        cropWidth = std::min(srcWidth, srcHeight);
+        cropHeight = cropWidth;
     } else {
-        scaledWidth = targetWidth;
-        scaledHeight = static_cast<int>(targetWidth / srcAspect);
+        dstAspect = static_cast<double>(cropWidth) / cropHeight;
     }
 
-    SwsContextPtr swsCtx(sws_getContext(
+    if (srcAspect > dstAspect) {
+        scaledHeight = cropHeight;
+        scaledWidth = static_cast<int>(cropHeight * srcAspect);
+    } else {
+        scaledWidth = cropWidth;
+        scaledHeight = static_cast<int>(cropWidth / srcAspect);
+    }
+
+    SwsContextPtr swsContextPtr(sws_getContext(
             srcWidth, srcHeight, srcFormat,
             scaledWidth, scaledHeight, AV_PIX_FMT_RGB24,
             SWS_BILINEAR, nullptr, nullptr, nullptr));
 
-    if (!swsCtx) {
+    if (!swsContextPtr) {
         std::string msgError = fmt::format(
                 "Falha ao criar SwsContext para %dx%d (%s) para %dx%d (RGB24)",
                 srcWidth, srcHeight, av_get_pix_fmt_name(srcFormat), scaledWidth, scaledHeight);
-
         LOGIRCF("%s", msgError.c_str());
         HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, "Falha ao criar contexto de dimensionamento");
-
         return false;
     }
 
-    // Buffer temporário
     int bufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, scaledWidth, scaledHeight, 1);
     AVBufferPtr tempData(reinterpret_cast<uint8_t *>(av_malloc(bufferSize)));
     if (!tempData) {
         std::string msgError = fmt::format("Falha ao alocar buffer temporário ({} bytes)", bufferSize);
-
         LOGIRCF("%s", msgError.c_str());
         HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, "Falha ao alocar buffer temporário");
-
         return false;
     }
 
@@ -168,25 +159,36 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
         return false;
     }
 
-    if (sws_scale(swsCtx.get(), frame->data, frame->linesize, 0, srcHeight, tempDataPtr,
-                  tempLinesize) <= 0) {
+    if (sws_scale(swsContextPtr.get(), frame->data, frame->linesize, 0, srcHeight, tempDataPtr, tempLinesize) <= 0) {
         std::string msgError = "Falha ao dimensionar o frame";
         HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
 
         return false;
     }
 
-    int cropX = (scaledWidth - targetWidth) / 2;
-    int cropY = (scaledHeight - targetHeight) / 2;
+    // Se cropX/cropY forem inválidos, centraliza
+    if (cropX < 0) cropX = (scaledWidth - cropWidth) / 2;
+    if (cropY < 0) cropY = (scaledHeight - cropHeight) / 2;
 
-    for (int orderedY = 0; orderedY < targetHeight; ++orderedY) {
+    if (!dstFrame.allocate(*this, cropWidth, cropHeight, AV_PIX_FMT_RGB24)) {
+        LOGIRCF("Falha ao alocar o quadro de destino");
+        return false;
+    }
+
+    // Preenche o frame com pixel preto
+    for (int orderedY = 0; orderedY < cropHeight; ++orderedY) {
+        uint8_t *row = dstFrame.frame->data[0] + orderedY * dstFrame.frame->linesize[0];
+        std::fill(row, row + cropWidth * 3, 0);
+    }
+
+    for (int orderedY = 0; orderedY < cropHeight; ++orderedY) {
         int srcY = orderedY + cropY;
         if (srcY < 0 || srcY >= scaledHeight) continue;
 
         uint8_t *dst = dstFrame.frame->data[0] + orderedY * dstFrame.frame->linesize[0];
         uint8_t *src = tempData.get() + srcY * tempLinesize[0] + cropX * 3;
 
-        int copyWidth = std::min(targetWidth, scaledWidth - cropX);
+        int copyWidth = std::min(cropWidth, scaledWidth - cropX);
         if (copyWidth > 0) {
             memcpy(dst, src, copyWidth * 3);
         }

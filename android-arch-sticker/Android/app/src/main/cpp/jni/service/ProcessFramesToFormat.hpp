@@ -36,7 +36,7 @@ private:
     JNIEnv *env;
     jclass nativeMediaException;
 
-    bool cropFrame(const AVFramePtr &srcFrame, FrameWithBuffer &dstFrame, int targetWidth, int targetHeight);
+    bool cropFrame(const AVFramePtr &srcFrame, FrameWithBuffer &dstFrame, int cropX, int cropY, int cropWidth, int cropHeight);
 };
 
 #endif //ANDROID_PROCESSFRAMESTOFORMAT_HPP
