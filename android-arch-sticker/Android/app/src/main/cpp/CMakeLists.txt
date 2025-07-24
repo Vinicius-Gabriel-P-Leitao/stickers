@@ -1,13 +1,17 @@
 cmake_minimum_required(VERSION 3.22.1)
-project("sticker")
+project("ConvertSticker")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 
 file(GLOB_RECURSE SOURCES
-        jni/sticker.cpp
+        jni/ConvertSticker.cpp
+        jni/CropMedia.cpp
+
         jni/service/WebpAnimationConverter.cpp
         jni/service/ProcessWebpToAvFrames.cpp
         jni/service/ProcessFramesToFormat.cpp
+        jni/service/ProcessInputMedia.cpp
+
         jni/exception/HandlerJavaException.cpp
 )
 

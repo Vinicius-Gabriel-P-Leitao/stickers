@@ -72,8 +72,8 @@ public class StickerEditorActivity extends BaseActivity {
     private PlayerView playerView;
     private ExoPlayer player;
 
-    private String mediaWidth;
-    private String mediaHeight;
+    private int videoWidth;
+    private int videoHeight;
     private long loopStartMs = 0;
     private long videoDurationMs;
     private long loopDurationMs = 5000;
@@ -244,14 +244,14 @@ public class StickerEditorActivity extends BaseActivity {
 
         stickerEditorViewModel.getMediaWidth().observe(this, width -> {
                     if (width != null) {
-                        mediaWidth = width;
+                        videoWidth = Integer.parseInt(width);
                     }
                 }
         );
 
         stickerEditorViewModel.getMediaHeight().observe(this, height -> {
                     if (height != null) {
-                        mediaHeight = height;
+                        videoHeight = Integer.parseInt(height);
                     }
                 }
         );
@@ -329,10 +329,7 @@ public class StickerEditorActivity extends BaseActivity {
         View cropArea = findViewById(R.id.crop_area);
 
         if ("video/mp4".equalsIgnoreCase(mimeType)) {
-            if (textureView == null || cropArea == null || mediaWidth == null || mediaHeight == null) return null;
-
-            int intMediaWidth = Integer.parseInt(mediaWidth);
-            int intMediaHeight = Integer.parseInt(mediaHeight);
+            if (textureView == null || cropArea == null || videoWidth == 0 || videoHeight == 0) return null;
 
             Matrix transformMatrix = textureView.getTransform(null);
 
@@ -351,11 +348,10 @@ public class StickerEditorActivity extends BaseActivity {
 
             inverseMatrix.mapRect(cropRectInTexture);
 
-            float scaleX = (float) intMediaWidth / textureView.getWidth();
-            float scaleY = (float) intMediaHeight / textureView.getHeight();
+            float scaleX = (float) videoWidth / textureView.getWidth();
+            float scaleY = (float) videoHeight / textureView.getHeight();
 
             int left = Math.round(cropRectInTexture.left * scaleX);
-
             int top = Math.round(cropRectInTexture.top * scaleY);
             int width = Math.round(cropRectInTexture.width() * scaleX);
             int height = Math.round(cropRectInTexture.height() * scaleY);
@@ -389,8 +385,6 @@ public class StickerEditorActivity extends BaseActivity {
             if (!imageMatrix.invert(inverseMatrix)) return null;
 
             inverseMatrix.mapRect(cropRectInImageView);
-
-            cropRectInImageView.intersect(0, 0, drawableWidth, drawableHeight);
 
             int left = Math.round(cropRectInImageView.left);
             int top = Math.round(cropRectInImageView.top);

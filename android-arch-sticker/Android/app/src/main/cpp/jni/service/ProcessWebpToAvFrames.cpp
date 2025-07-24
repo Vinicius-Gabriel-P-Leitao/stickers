@@ -117,7 +117,8 @@ bool ProcessWebpToAvFrames::decodeWebPAsAVFrames(
         memcpy(frame->data[0], webPDecodeRgb, bufferSize);
         WebPFree(webPDecodeRgb);
 
-        ProcessFramesToFormat::processFrame(env, nativeMediaException, frame, targetWidth, targetHeight, frames);
+        ProcessFramesToFormat processFramesToFormat(env, nativeMediaException);
+        processFramesToFormat.processFrame(frame, targetWidth, targetHeight, frames);
         LOGDW("Frame %d decodificado e redimensionado.", ++frameIndex);
 
     } while (isAnimated && iterator.next());

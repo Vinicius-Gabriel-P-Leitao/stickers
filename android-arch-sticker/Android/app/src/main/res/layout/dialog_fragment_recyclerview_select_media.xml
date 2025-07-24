@@ -57,5 +57,4 @@
         android:elevation="6dp"
         android:text="@string/button_select_media"
         android:textColor="@color/catppuccin_text" />
-
 </FrameLayout>

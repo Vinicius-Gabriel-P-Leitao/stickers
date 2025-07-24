@@ -28,12 +28,13 @@ extern "C" {
 
 #define LOGIRCF(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG_RESIZE_CROP, __VA_ARGS__)
 
-AVFramePtr ProcessFramesToFormat::createAvFrame(
-        JNIEnv *env, jclass exClass, int width, int height, AVPixelFormat format) {
+ProcessFramesToFormat::ProcessFramesToFormat(JNIEnv *env, jclass nativeMediaException) : env(env), nativeMediaException(nativeMediaException) {}
+
+AVFramePtr ProcessFramesToFormat::createAvFrame(int width, int height, AVPixelFormat format) {
     AVFramePtr frame(av_frame_alloc());
     if (!frame) {
         std::string msgError = fmt::format("Falha ao alocar AVFramePtr");
-        HandlerJavaException::throwNativeConversionException(env, exClass, msgError);
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
         return nullptr;
     }
@@ -45,8 +46,7 @@ AVFramePtr ProcessFramesToFormat::createAvFrame(
     return frame;
 }
 
-bool FrameWithBuffer::allocate(JNIEnv *env, jclass exClass, int width, int height,
-                               AVPixelFormat format) {
+bool FrameWithBuffer::allocate(ProcessFramesToFormat &processor, int width, int height, AVPixelFormat format) {
     int bufferSize = av_image_get_buffer_size(format, width, height, 1);
     buffer.reset(reinterpret_cast<uint8_t *>(av_malloc(bufferSize)));
 
@@ -55,7 +55,7 @@ bool FrameWithBuffer::allocate(JNIEnv *env, jclass exClass, int width, int heigh
         return false;
     }
 
-    frame = ProcessFramesToFormat::createAvFrame(env, exClass, width, height, format);
+    frame = processor.createAvFrame(width, height, format);
     if (!frame) {
         LOGIRCF("Erro ao alocar AVFrame");
         return false;
@@ -69,13 +69,25 @@ bool FrameWithBuffer::allocate(JNIEnv *env, jclass exClass, int width, int heigh
     return true;
 }
 
-bool ProcessFramesToFormat::cropFrame(JNIEnv *env, jclass exClass, const AVFramePtr &srcFrame,
-                                      FrameWithBuffer &dstFrame, int targetWidth,
-                                      int targetHeight) {
+void ProcessFramesToFormat::processFrame(AVFramePtr &rgbFrame, int width, int height, std::vector<FrameWithBuffer> &frames) {
+    FrameWithBuffer frameWithBuffer;
+
+    if (!cropFrame(rgbFrame, frameWithBuffer, width, height)) {
+        std::string msgError = "Erro ao redimensionar/cortar o frame";
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
+
+        return;
+    }
+
+    LOGIRCF("Frame %zu adicionado à lista de animação", frames.size());
+    frames.push_back(std::move(frameWithBuffer));
+}
+
+bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffer &dstFrame, int targetWidth, int targetHeight) {
     const AVFrame *frame = srcFrame.get();
     if (!frame) {
         std::string msgError = "Falha ao alocar AVFrame ou os dados são nulos";
-        HandlerJavaException::throwNativeConversionException(env, exClass, msgError);
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
 
         return false;
     }
@@ -85,18 +97,17 @@ bool ProcessFramesToFormat::cropFrame(JNIEnv *env, jclass exClass, const AVFrame
     auto srcFormat = static_cast<AVPixelFormat>(frame->format);
 
     if (srcWidth <= 0 || srcHeight <= 0 || srcFormat == AV_PIX_FMT_NONE) {
-        std::string msgError = fmt::format(
-                "Dimensões do quadro de origem ({}x{}) ou formato ({}) inválidos",
-                srcWidth, srcHeight, static_cast<int>(srcFormat));
+        std::string msgError = fmt::format("Dimensões do quadro de origem ({}x{}) ou formato ({}) inválidos",
+                                           srcWidth, srcHeight, static_cast<int>(srcFormat));
 
         LOGIRCF("%s", msgError.c_str());
-        HandlerJavaException::throwNativeConversionException(env, exClass,
-                                                             "Dimensões ou formato do quadro de origem inválidos");
+        HandlerJavaException::throwNativeConversionException(
+                env, nativeMediaException, "Dimensões ou formato do quadro de origem inválidos");
 
         return false;
     }
 
-    if (!dstFrame.allocate(env, exClass, targetWidth, targetHeight, AV_PIX_FMT_RGB24)) {
+    if (!dstFrame.allocate(*this, targetWidth, targetHeight, AV_PIX_FMT_RGB24)) {
         LOGIRCF("Falha ao alocar o quadro de destino");
         return false;
     }
@@ -130,8 +141,7 @@ bool ProcessFramesToFormat::cropFrame(JNIEnv *env, jclass exClass, const AVFrame
                 srcWidth, srcHeight, av_get_pix_fmt_name(srcFormat), scaledWidth, scaledHeight);
 
         LOGIRCF("%s", msgError.c_str());
-        HandlerJavaException::throwNativeConversionException(env, exClass,
-                                                             "Falha ao criar contexto de dimensionamento");
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, "Falha ao criar contexto de dimensionamento");
 
         return false;
     }
@@ -140,12 +150,10 @@ bool ProcessFramesToFormat::cropFrame(JNIEnv *env, jclass exClass, const AVFrame
     int bufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, scaledWidth, scaledHeight, 1);
     AVBufferPtr tempData(reinterpret_cast<uint8_t *>(av_malloc(bufferSize)));
     if (!tempData) {
-        std::string msgError = fmt::format("Falha ao alocar buffer temporário ({} bytes)",
-                                           bufferSize);
+        std::string msgError = fmt::format("Falha ao alocar buffer temporário ({} bytes)", bufferSize);
 
         LOGIRCF("%s", msgError.c_str());
-        HandlerJavaException::throwNativeConversionException(env, exClass,
-                                                             "Falha ao alocar buffer temporário");
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, "Falha ao alocar buffer temporário");
 
         return false;
     }
@@ -155,7 +163,7 @@ bool ProcessFramesToFormat::cropFrame(JNIEnv *env, jclass exClass, const AVFrame
     if (av_image_fill_arrays(tempDataPtr, tempLinesize, tempData.get(), AV_PIX_FMT_RGB24,
                              scaledWidth, scaledHeight, 1) < 0) {
         std::string msgError = "Falha ao preencher ponteiros do av_image_fill_arrays";
-        HandlerJavaException::throwNativeConversionException(env, exClass, msgError);
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
 
         return false;
     }
@@ -163,7 +171,7 @@ bool ProcessFramesToFormat::cropFrame(JNIEnv *env, jclass exClass, const AVFrame
     if (sws_scale(swsCtx.get(), frame->data, frame->linesize, 0, srcHeight, tempDataPtr,
                   tempLinesize) <= 0) {
         std::string msgError = "Falha ao dimensionar o frame";
-        HandlerJavaException::throwNativeConversionException(env, exClass, msgError);
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
 
         return false;
     }
@@ -187,26 +195,10 @@ bool ProcessFramesToFormat::cropFrame(JNIEnv *env, jclass exClass, const AVFrame
     // Copia as propriedades do frame
     if (av_frame_copy_props(dstFrame.frame.get(), frame) != 0) {
         std::string msgError = "Falha ao copiar propriedades do frame";
-        HandlerJavaException::throwNativeConversionException(env, exClass, msgError);
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
 
         return false;
     }
 
     return true;
-}
-
-void
-ProcessFramesToFormat::processFrame(JNIEnv *env, jclass exClass, AVFramePtr &rgbFrame, int width,
-                                    int height, std::vector<FrameWithBuffer> &frames) {
-    FrameWithBuffer frameWithBuffer;
-
-    if (!cropFrame(env, exClass, rgbFrame, frameWithBuffer, width, height)) {
-        std::string msgError = "Erro ao redimensionar/cortar o frame";
-        HandlerJavaException::throwNativeConversionException(env, exClass, msgError);
-
-        return;
-    }
-
-    LOGIRCF("Frame %zu adicionado à lista de animação", frames.size());
-    frames.push_back(std::move(frameWithBuffer));
 }

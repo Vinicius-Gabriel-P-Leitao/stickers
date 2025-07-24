@@ -15,7 +15,7 @@
 
 class HandlerJavaException {
 public:
-    static void throwNativeConversionException(JNIEnv *env, jclass exClass, const std::string &message);
+    static void throwNativeConversionException(JNIEnv *env, jclass nativeMediaException, const std::string &message);
 
 private:
     static void logException(const std::string &message);

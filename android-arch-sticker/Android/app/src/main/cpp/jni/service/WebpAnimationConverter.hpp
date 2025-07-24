@@ -18,8 +18,9 @@
 
 class WebpAnimationConverter {
 public:
-    static int convertToWebp(JNIEnv *env, const char *outputPath, std::vector<FrameWithBuffer> &frames,
-                             int width, int height, int durationMs, float quality, int lossless);
+    static int convertToWebp(
+            JNIEnv *env, const char *outputPath, std::vector<FrameWithBuffer> &frames,
+            int width, int height, int durationMs, float quality, int lossless);
 
 private:
 };

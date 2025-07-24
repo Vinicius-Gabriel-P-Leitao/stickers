@@ -15,13 +15,13 @@
 #define LOG_TAG_HANDLER "HandlerJavaException"
 #define LOGEH(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG_HANDLER, __VA_ARGS__)
 
-void HandlerJavaException::throwNativeConversionException(JNIEnv *env, jclass exClass, const std::string &message) {
+void HandlerJavaException::throwNativeConversionException(JNIEnv *env, jclass nativeMediaException, const std::string &message) {
 
     if (env->ExceptionCheck()) {
         env->ExceptionClear();
     }
 
-    if (exClass == nullptr) {
+    if (nativeMediaException == nullptr) {
         jclass fallback = env->FindClass("java/lang/RuntimeException");
 
         if (fallback != nullptr) {
@@ -33,7 +33,7 @@ void HandlerJavaException::throwNativeConversionException(JNIEnv *env, jclass ex
         return;
     }
 
-    env->ThrowNew(exClass, message.c_str());
+    env->ThrowNew(nativeMediaException, message.c_str());
     logException(message);
 }
 

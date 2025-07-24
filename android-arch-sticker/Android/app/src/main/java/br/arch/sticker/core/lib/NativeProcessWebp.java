@@ -31,7 +31,7 @@ public class NativeProcessWebp {
     private final static String TAG_LOG = NativeProcessWebp.class.getSimpleName();
 
     static {
-        System.loadLibrary("sticker");
+        System.loadLibrary("ConvertSticker");
     }
 
     private final ApplicationTranslate applicationTranslate;

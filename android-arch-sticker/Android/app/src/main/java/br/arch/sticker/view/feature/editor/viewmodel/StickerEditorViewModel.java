@@ -13,6 +13,10 @@ import static br.arch.sticker.view.feature.editor.activity.StickerEditorActivity
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.util.Log;
@@ -141,7 +145,7 @@ public class StickerEditorViewModel extends AndroidViewModel {
                     long startMs = (nextFrameIndex * 1000L) / FRAMES_PER_SECOND;
                     long windowDurationMs = batchSize * (1000L / FRAMES_PER_SECOND);
 
-                    extractFramesInWindow(startMs, windowDurationMs, FRAMES_PER_SECOND, nextFrameIndex, batchSize);
+                    extractFramesInWindow(startMs, windowDurationMs, nextFrameIndex, batchSize);
 
                     nextFrameIndex += batchSize;
 
@@ -156,7 +160,7 @@ public class StickerEditorViewModel extends AndroidViewModel {
         executorService.shutdownNow();
     }
 
-    private void extractFramesInWindow(long startMs, long windowDurationMs, int framesPerSecond, int frameOffset, int framesPerBatch) {
+    private void extractFramesInWindow(long startMs, long windowDurationMs, int frameOffset, int framesPerBatch) {
         executorService.submit(() -> {
             Map<Integer, Bitmap> extractedFrames = new HashMap<>();
             long endMs = startMs + windowDurationMs;
@@ -173,11 +177,11 @@ public class StickerEditorViewModel extends AndroidViewModel {
                     endMs = videoDurationMs;
                 }
 
-                final long intervalMs = 1000 / framesPerSecond;
+                final long intervalMs = 1000 / FRAMES_PER_SECOND;
                 final long maxTimeMs = Math.min(endMs, startMs + framesPerBatch * intervalMs);
 
                 for (long timeMs = startMs; timeMs < maxTimeMs; timeMs += intervalMs) {
-                    final int frameIndex = (int) (timeMs - startMs) * framesPerSecond / 1000;
+                    final int frameIndex = (int) (timeMs - startMs) * FRAMES_PER_SECOND / 1000;
                     final int globalIndex = frameOffset + frameIndex;
 
                     if (cachedFrames.containsKey(globalIndex)) {
@@ -206,6 +210,24 @@ public class StickerEditorViewModel extends AndroidViewModel {
     private void stopIncrementalExtraction() {
         isExtracting = false;
         scheduler.shutdown();
+    }
+
+    private Bitmap createCroppedBitmap(Bitmap source, Rect cropRect) {
+        if (source == null || cropRect == null) return null;
+
+        int outputWidth = cropRect.width();
+        int outputHeight = cropRect.height();
+
+        Bitmap croppedBitmap = Bitmap.createBitmap(outputWidth, outputHeight, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(croppedBitmap);
+        canvas.drawColor(Color.TRANSPARENT);
+
+        Matrix drawMatrix = new Matrix();
+        drawMatrix.postTranslate(-cropRect.left, -cropRect.top);
+
+        canvas.drawBitmap(source, drawMatrix, null);
+
+        return croppedBitmap;
     }
 }
 

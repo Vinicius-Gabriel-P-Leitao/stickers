@@ -31,7 +31,6 @@ public class GestureController {
     private float translateX = 0f;
     private float translateY = 0f;
     private float scaleFactor = 1.0f;
-    private float minScaleFactor = 1.0f;
 
     public GestureController(View view) {
         this.view = view;
@@ -40,7 +39,12 @@ public class GestureController {
             @Override
             public boolean onScale(@NonNull ScaleGestureDetector detector) {
                 scaleFactor *= detector.getScaleFactor();
-                scaleFactor = Math.max(1.0f, Math.min(scaleFactor, 5.0f));
+                scaleFactor = Math.max(0.5f, Math.min(scaleFactor, 5.0f));
+
+                float focusX = detector.getFocusX();
+                float focusY = detector.getFocusY();
+                translateX = focusX - (focusX - translateX) * detector.getScaleFactor();
+                translateY = focusY - (focusY - translateY) * detector.getScaleFactor();
 
                 applyMatrix();
                 return true;
