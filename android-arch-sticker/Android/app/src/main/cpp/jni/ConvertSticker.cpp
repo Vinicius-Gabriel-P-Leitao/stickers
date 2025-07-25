@@ -116,8 +116,8 @@ JNIEXPORT jboolean JNICALL Java_br_arch_sticker_core_lib_NativeProcessWebp_conve
         ProcessFramesToFormat processFramesToFormat(env, nativeMediaException);
 
         auto frameProcessor = [&processFramesToFormat](
-                JNIEnv *env, jclass clazz, AVFramePtr &frame, int width, int height, std::vector<FrameWithBuffer> &buffers, const ParamsMap &params) {
-            processFramesToFormat.processFrame(frame, -1, -1, width, height, buffers);
+                JNIEnv *env, jclass clazz, AVFramePtr &frame, std::vector<FrameWithBuffer> &buffers, const ParamsMap &params) {
+            processFramesToFormat.processFrame(frame, -1, -1, OUTPUT_SIZE, OUTPUT_SIZE, buffers);
         };
 
         std::vector<FrameWithBuffer> vFramesWithBuffer = pProcessInputMedia.processVideoFrames(inPath.get(), outPath.get(), frameProcessor);

@@ -24,7 +24,7 @@
 using ParamsMap = std::map<std::string, std::any>;
 
 using FrameProcessor = std::function<
-        void(JNIEnv *, jclass, AVFramePtr &, int, int, std::vector<FrameWithBuffer> &, const ParamsMap &)>;
+        void(JNIEnv *, jclass, AVFramePtr &, std::vector<FrameWithBuffer> &, const ParamsMap &)>;
 
 class ProcessInputMedia {
 public:

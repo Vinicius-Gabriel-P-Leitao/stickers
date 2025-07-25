@@ -43,6 +43,14 @@ AVFramePtr ProcessFramesToFormat::createAvFrame(int width, int height, AVPixelFo
     frame->width = width;
     frame->height = height;
 
+    int ret = av_frame_get_buffer(frame.get(), 0);
+    if (ret < 0) {
+        char errBuf[128];
+        av_strerror(ret, errBuf, sizeof(errBuf));
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, fmt::format("Falha ao alocar buffer do AVFrame: {}", errBuf));
+        return nullptr;
+    }
+
     return frame;
 }
 
@@ -72,7 +80,6 @@ bool FrameWithBuffer::allocate(ProcessFramesToFormat &processor, int width, int 
 void ProcessFramesToFormat::processFrame(AVFramePtr &rgbFrame, int cropX, int cropY, int width, int height, std::vector<FrameWithBuffer> &frames) {
     FrameWithBuffer frameWithBuffer;
 
-    // NOTE: -1, -1 centraliza
     if (!cropFrame(rgbFrame, frameWithBuffer, cropX, cropY, width, height)) {
         std::string msgError = "Erro ao redimensionar/cortar o frame";
         HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
@@ -85,10 +92,9 @@ void ProcessFramesToFormat::processFrame(AVFramePtr &rgbFrame, int cropX, int cr
 
 bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffer &dstFrame, int cropX, int cropY, int cropWidth, int cropHeight) {
     const AVFrame *frame = srcFrame.get();
-    if (!frame) {
-        std::string msgError = "Falha ao alocar AVFrame ou os dados são nulos";
-        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
-
+    if (!frame || !frame->data[0]) {
+        LOGIRCF("Falha ao alocar AVFrame ou os dados são nulos");
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, "Falha ao alocar AVFrame ou os dados são nulos");
         return false;
     }
 
@@ -96,106 +102,77 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
     int srcHeight = frame->height;
     auto srcFormat = static_cast<AVPixelFormat>(frame->format);
 
-    if (srcWidth <= 0 || srcHeight <= 0 || srcFormat == AV_PIX_FMT_NONE) {
+    if (srcWidth <= 0 || srcHeight <= 0 || srcFormat != AV_PIX_FMT_RGB24) {
         std::string msgError = fmt::format("Dimensões do quadro de origem ({}x{}) ou formato ({}) inválidos",
-                                           srcWidth, srcHeight, static_cast<int>(srcFormat));
+                                           srcWidth, srcHeight, av_get_pix_fmt_name(srcFormat));
         LOGIRCF("%s", msgError.c_str());
-        HandlerJavaException::throwNativeConversionException(
-                env, nativeMediaException, "Dimensões ou formato do quadro de origem inválidos");
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
         return false;
     }
 
-    double srcAspect = static_cast<double>(srcWidth) / srcHeight;
-    double dstAspect;
-    int scaledWidth, scaledHeight;
-
-    if (cropWidth <= 0 || cropHeight <= 0) {
-        dstAspect = 1.0;
-        cropWidth = std::min(srcWidth, srcHeight);
-        cropHeight = cropWidth;
-    } else {
-        dstAspect = static_cast<double>(cropWidth) / cropHeight;
-    }
-
-    if (srcAspect > dstAspect) {
-        scaledHeight = cropHeight;
-        scaledWidth = static_cast<int>(cropHeight * srcAspect);
-    } else {
-        scaledWidth = cropWidth;
-        scaledHeight = static_cast<int>(cropWidth / srcAspect);
-    }
-
-    SwsContextPtr swsContextPtr(sws_getContext(
-            srcWidth, srcHeight, srcFormat,
-            scaledWidth, scaledHeight, AV_PIX_FMT_RGB24,
-            SWS_BILINEAR, nullptr, nullptr, nullptr));
-
-    if (!swsContextPtr) {
-        std::string msgError = fmt::format("Falha ao criar SwsContext para %dx%d (%s) para %dx%d (RGB24)", srcWidth, srcHeight,
-                                           av_get_pix_fmt_name(srcFormat), scaledWidth, scaledHeight);
+    if (cropX < 0 || cropY < 0 || cropWidth <= 0 || cropHeight <= 0 ||
+        cropX + cropWidth > srcWidth || cropY + cropHeight > srcHeight) {
+        std::string msgError = fmt::format("Área de recorte ({}+{}, {}+{}) fora dos limites do quadro de origem ({}x{})",
+                                           cropX, cropWidth, cropY, cropHeight, srcWidth, srcHeight);
         LOGIRCF("%s", msgError.c_str());
-        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, "Falha ao criar contexto de dimensionamento");
+        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
         return false;
     }
 
-    int bufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, scaledWidth, scaledHeight, 1);
+    int bufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, cropWidth, cropHeight, 1);
     AVBufferPtr tempData(reinterpret_cast<uint8_t *>(av_malloc(bufferSize)));
     if (!tempData) {
-        std::string msgError = fmt::format("Falha ao alocar buffer temporário ({} bytes)", bufferSize);
-        LOGIRCF("%s", msgError.c_str());
+        LOGIRCF("Falha ao alocar buffer temporário");
         HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, "Falha ao alocar buffer temporário");
         return false;
     }
 
     uint8_t *tempDataPtr[AV_NUM_DATA_POINTERS] = {nullptr};
-    int tempLinesize[AV_NUM_DATA_POINTERS] = {0};
-    if (av_image_fill_arrays(tempDataPtr, tempLinesize, tempData.get(), AV_PIX_FMT_RGB24,
-                             scaledWidth, scaledHeight, 1) < 0) {
-        std::string msgError = "Falha ao preencher ponteiros do av_image_fill_arrays";
-        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
-
+    int tempLineSize[AV_NUM_DATA_POINTERS] = {0};
+    if (av_image_fill_arrays(tempDataPtr, tempLineSize, tempData.get(), AV_PIX_FMT_RGB24, cropWidth, cropHeight, 1) < 0) {
+        LOGIRCF("Falha ao preencher ponteiros do av_image_fill_arrays");
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException,
+                                                             "Falha ao preencher ponteiros do av_image_fill_arrays");
         return false;
     }
 
-    if (sws_scale(swsContextPtr.get(), frame->data, frame->linesize, 0, srcHeight, tempDataPtr, tempLinesize) <= 0) {
-        std::string msgError = "Falha ao dimensionar o frame";
-        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
+    for (int orderdY = 0; orderdY < cropHeight; ++orderdY) {
+        uint8_t *dst = tempDataPtr[0] + orderdY * tempLineSize[0];
+        uint8_t *src = frame->data[0] + (orderdY + cropY) * frame->linesize[0] + cropX * 3;
+        memcpy(dst, src, cropWidth * 3);
+    }
 
+    const int OUTPUT_SIZE = 512;
+    SwsContextPtr swsContextPtr(sws_getContext(
+            cropWidth, cropHeight, AV_PIX_FMT_RGB24,
+            OUTPUT_SIZE, OUTPUT_SIZE, AV_PIX_FMT_RGB24,
+            SWS_BILINEAR, nullptr, nullptr, nullptr));
+    if (!swsContextPtr) {
+        LOGIRCF("Falha ao criar SwsContext para redimensionamento");
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, "Falha ao criar contexto de redimensionamento");
         return false;
     }
 
-    if (cropX < 0) cropX = (scaledWidth - cropWidth) / 2;
-    if (cropY < 0) cropY = (scaledHeight - cropHeight) / 2;
-
-    if (!dstFrame.allocate(*this, cropWidth, cropHeight, AV_PIX_FMT_RGB24)) {
+    if (!dstFrame.allocate(*this, OUTPUT_SIZE, OUTPUT_SIZE, AV_PIX_FMT_RGB24)) {
         LOGIRCF("Falha ao alocar o quadro de destino");
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, "Falha ao alocar o quadro de destino");
         return false;
     }
 
-    for (int orderedY = 0; orderedY < cropHeight; ++orderedY) {
-        uint8_t *row = dstFrame.frame->data[0] + orderedY * dstFrame.frame->linesize[0];
-        std::fill(row, row + cropWidth * 3, 0);
-    }
-
-    for (int orderedY = 0; orderedY < cropHeight; ++orderedY) {
-        int srcY = orderedY + cropY;
-        if (srcY < 0 || srcY >= scaledHeight) continue;
-
-        uint8_t *dst = dstFrame.frame->data[0] + orderedY * dstFrame.frame->linesize[0];
-        uint8_t *src = tempData.get() + srcY * tempLinesize[0] + cropX * 3;
-
-        int copyWidth = std::min(cropWidth, scaledWidth - cropX);
-        if (copyWidth > 0) {
-            memcpy(dst, src, copyWidth * 3);
-        }
+    if (sws_scale(swsContextPtr.get(), tempDataPtr, tempLineSize, 0, cropHeight, dstFrame.frame->data, dstFrame.frame->linesize) <= 0) {
+        LOGIRCF("Falha ao redimensionar o frame para 512x512");
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, "Falha ao redimensionar o frame");
+        return false;
     }
 
     if (av_frame_copy_props(dstFrame.frame.get(), frame) != 0) {
-        std::string msgError = "Falha ao copiar propriedades do frame";
-        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
-
+        LOGIRCF("Falha ao copiar propriedades do frame");
+        HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, "Falha ao copiar propriedades do frame");
         return false;
     }
+
+    LOGIRCF("Quadro recortado e redimensionado: cropX=%d, cropY=%d, cropWidth=%d, cropHeight=%d, dstWidth=%d, dstHeight=%d",
+            cropX, cropY, cropWidth, cropHeight, dstFrame.frame->width, dstFrame.frame->height);
 
     return true;
 }

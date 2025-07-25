@@ -38,7 +38,7 @@ extern "C" {
 int WebpAnimationConverter::convertToWebp(
         JNIEnv *env, const char *outputPath, std::vector<FrameWithBuffer> &frames,
         int width, int height, int durationMs, float quality, int lossless) {
-    
+
     LOGDF("[WEBP-CONVERT] Quality recebido: %.2f", quality);
     LOGDF("[WEBP-CONVERT] Lossless recebido: %d", lossless);
 
@@ -92,6 +92,7 @@ int WebpAnimationConverter::convertToWebp(
 
             return 0;
         }
+
         webPPicture.width = width;
         webPPicture.height = height;
         webPPicture.use_argb = 1;

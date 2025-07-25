@@ -172,8 +172,7 @@ public class StickerEditorActivity extends BaseActivity {
                 Rect crop = getCropRectFromTransformedTexture(mimeType);
                 if (crop != null) {
                     Log.d(TAG_LOG,
-                            getString(R.string.debug_video_crop, crop.toShortString()) + "Area total do video: width: " + videoWidth + "heigth" +
-                                    videoHeight
+                            getString(R.string.debug_video_crop, crop.toShortString()) + "Area total do video: width: " + videoWidth + "heigth: " + videoHeight
                     );
 
                     stickerEditorViewModel.createCroppedNative(uri, crop.left, crop.top, crop.width(), crop.height());
