@@ -30,7 +30,7 @@ public:
 
     AVFramePtr createAvFrame(int width, int height, AVPixelFormat format);
 
-    void processFrame(AVFramePtr &rgbFrame, int width, int height, std::vector<FrameWithBuffer> &frames);
+    void processFrame(AVFramePtr &rgbFrame, int cropX, int cropY, int width, int height, std::vector<FrameWithBuffer> &frames);
 
 private:
     JNIEnv *env;

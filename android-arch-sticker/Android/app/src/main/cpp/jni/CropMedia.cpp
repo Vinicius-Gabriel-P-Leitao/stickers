@@ -74,9 +74,22 @@ JNIEXPORT jboolean JNICALL Java_br_arch_sticker_core_lib_NativeCropMedia_cropMed
         ProcessInputMedia pProcessInputMedia(env, nativeMediaException);
         ProcessFramesToFormat processFramesToFormat(env, nativeMediaException);
 
+        ParamsMap params = {
+                {"cropX",      static_cast<int>(x)},
+                {"cropY",      static_cast<int>(y)},
+                {"cropWidth",  static_cast<int>(width)},
+                {"cropHeight", static_cast<int>(height)}
+        };
+
         auto frameProcessor = [&processFramesToFormat](
                 JNIEnv *env, jclass clazz, AVFramePtr &frame, int width, int height, std::vector<FrameWithBuffer> &buffers, const ParamsMap &params) {
-            processFramesToFormat.processFrame(frame, width, height, buffers);
+
+            int cropX = params.count("cropX") ? std::any_cast<int>(params.at("cropX")) : 0;
+            int cropY = params.count("cropY") ? std::any_cast<int>(params.at("cropY")) : 0;
+            int cropWidth = params.count("cropWidth") ? std::any_cast<int>(params.at("cropWidth")) : width;
+            int cropHeight = params.count("cropHeight") ? std::any_cast<int>(params.at("cropHeight")) : height;
+
+            processFramesToFormat.processFrame(frame, cropX, cropY, cropWidth, cropHeight, buffers);
         };
 
         std::vector<FrameWithBuffer> vFramesWithBuffer = pProcessInputMedia.processVideoFrames(inPath.get(), outPath.get(), frameProcessor);
@@ -90,10 +103,10 @@ JNIEXPORT jboolean JNICALL Java_br_arch_sticker_core_lib_NativeCropMedia_cropMed
             }
 
             int result = WebpAnimationConverter::convertToWebp(
-                    env, outPath.get(), vFramesWithBuffer, OUTPUT_SIZE, OUTPUT_SIZE, DURATION_MS, 10, 1);
+                    env, outPath.get(), vFramesWithBuffer, OUTPUT_SIZE, OUTPUT_SIZE, DURATION_MS, 10, 0);
 
             if (!result) {
-                std::string msgError = fmt::format("Falha ao criar a animação WebP");
+                std::string msgError = fmt::format("Falha ao criar a animação WebP.");
                 HandlerJavaException::throwNativeConversionException(env, nativeMediaException, msgError);
 
                 return JNI_FALSE;

@@ -69,14 +69,13 @@ bool FrameWithBuffer::allocate(ProcessFramesToFormat &processor, int width, int 
     return true;
 }
 
-void ProcessFramesToFormat::processFrame(AVFramePtr &rgbFrame, int width, int height, std::vector<FrameWithBuffer> &frames) {
+void ProcessFramesToFormat::processFrame(AVFramePtr &rgbFrame, int cropX, int cropY, int width, int height, std::vector<FrameWithBuffer> &frames) {
     FrameWithBuffer frameWithBuffer;
 
     // NOTE: -1, -1 centraliza
-    if (!cropFrame(rgbFrame, frameWithBuffer, -1, -1, width, height)) {
+    if (!cropFrame(rgbFrame, frameWithBuffer, cropX, cropY, width, height)) {
         std::string msgError = "Erro ao redimensionar/cortar o frame";
         HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);
-
         return;
     }
 
@@ -107,7 +106,7 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
     }
 
     double srcAspect = static_cast<double>(srcWidth) / srcHeight;
-    double dstAspect = 1.0;
+    double dstAspect;
     int scaledWidth, scaledHeight;
 
     if (cropWidth <= 0 || cropHeight <= 0) {
@@ -132,9 +131,8 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
             SWS_BILINEAR, nullptr, nullptr, nullptr));
 
     if (!swsContextPtr) {
-        std::string msgError = fmt::format(
-                "Falha ao criar SwsContext para %dx%d (%s) para %dx%d (RGB24)",
-                srcWidth, srcHeight, av_get_pix_fmt_name(srcFormat), scaledWidth, scaledHeight);
+        std::string msgError = fmt::format("Falha ao criar SwsContext para %dx%d (%s) para %dx%d (RGB24)", srcWidth, srcHeight,
+                                           av_get_pix_fmt_name(srcFormat), scaledWidth, scaledHeight);
         LOGIRCF("%s", msgError.c_str());
         HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, "Falha ao criar contexto de dimensionamento");
         return false;
@@ -166,7 +164,6 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
         return false;
     }
 
-    // Se cropX/cropY forem inválidos, centraliza
     if (cropX < 0) cropX = (scaledWidth - cropWidth) / 2;
     if (cropY < 0) cropY = (scaledHeight - cropHeight) / 2;
 
@@ -175,7 +172,6 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
         return false;
     }
 
-    // Preenche o frame com pixel preto
     for (int orderedY = 0; orderedY < cropHeight; ++orderedY) {
         uint8_t *row = dstFrame.frame->data[0] + orderedY * dstFrame.frame->linesize[0];
         std::fill(row, row + cropWidth * 3, 0);
@@ -194,7 +190,6 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
         }
     }
 
-    // Copia as propriedades do frame
     if (av_frame_copy_props(dstFrame.frame.get(), frame) != 0) {
         std::string msgError = "Falha ao copiar propriedades do frame";
         HandlerJavaException::throwNativeConversionException(this->env, this->nativeMediaException, msgError);

@@ -26,7 +26,7 @@ public class NativeCropMedia {
         void onError(Exception exception);
     }
 
-    private final static String TAG_LOG = NativeProcessWebp.class.getSimpleName();
+    private final static String TAG_LOG = NativeCropMedia.class.getSimpleName();
 
     static {
         System.loadLibrary("CropMedia");
@@ -42,7 +42,7 @@ public class NativeCropMedia {
 
     public native boolean cropMedia(String inputPath, String outputPath, int x, int y, int width, int height);
 
-    public void processWebpAsync(String inputPath, String outputPath, int x, int y, int width, int height, NativeProcessWebp.ConversionCallback callback)
+    public void processWebpAsync(String inputPath, String outputPath, int x, int y, int width, int height, CropCallback callback)
             throws MediaConversionException {
         nativeExecutor.submit(() -> {
             try {

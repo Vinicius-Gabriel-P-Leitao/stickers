@@ -8,6 +8,7 @@
 
 package br.arch.sticker.view.feature.editor.viewmodel;
 
+import static br.arch.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
 import static br.arch.sticker.view.feature.editor.activity.StickerEditorActivity.FRAMES_PER_SECOND;
 
 import android.app.Application;
@@ -25,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,13 +36,17 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import br.arch.sticker.R;
+import br.arch.sticker.core.lib.NativeCropMedia;
 import br.arch.sticker.domain.util.ApplicationTranslate;
 import br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
+import br.arch.sticker.view.core.util.convert.ConvertMediaToStickerFormat;
+import br.arch.sticker.view.core.util.resolver.FileDetailsResolver;
 
 public class StickerEditorViewModel extends AndroidViewModel {
     private static final String TAG_LOG = StickerEditorViewModel.class.getSimpleName();
 
     private final Context context;
+    private final FileDetailsResolver fileDetailsResolver;
     private final ApplicationTranslate applicationTranslate;
 
     private int nextFrameIndex = 0;
@@ -48,7 +54,7 @@ public class StickerEditorViewModel extends AndroidViewModel {
     private MediaMetadataRetriever retriever;
     private volatile boolean isExtracting = false;
     private final Map<Integer, Bitmap> cachedFrames = new ConcurrentHashMap<>();
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private final MutableLiveData<String> mediaWidth = new MutableLiveData<>();
@@ -60,7 +66,8 @@ public class StickerEditorViewModel extends AndroidViewModel {
     public StickerEditorViewModel(@NonNull Application application) {
         super(application);
         this.context = getApplication().getApplicationContext();
-        this.applicationTranslate = new ApplicationTranslate(context.getResources());
+        this.fileDetailsResolver = new FileDetailsResolver(this.context);
+        this.applicationTranslate = new ApplicationTranslate(this.context.getResources());
     }
 
     public MutableLiveData<String> getMediaWidth() {
@@ -84,7 +91,7 @@ public class StickerEditorViewModel extends AndroidViewModel {
     }
 
     public void loadVideoMetadata(Uri videoUri) {
-        executorService.submit(() -> {
+        executor.submit(() -> {
             try (MediaMetadataRetriever retriever = new MediaMetadataRetriever()) {
                 retriever.setDataSource(context, videoUri);
 
@@ -157,11 +164,11 @@ public class StickerEditorViewModel extends AndroidViewModel {
     protected void onCleared() {
         super.onCleared();
         stopIncrementalExtraction();
-        executorService.shutdownNow();
+        executor.shutdownNow();
     }
 
     private void extractFramesInWindow(long startMs, long windowDurationMs, int frameOffset, int framesPerBatch) {
-        executorService.submit(() -> {
+        executor.submit(() -> {
             Map<Integer, Bitmap> extractedFrames = new HashMap<>();
             long endMs = startMs + windowDurationMs;
 
@@ -228,6 +235,36 @@ public class StickerEditorViewModel extends AndroidViewModel {
         canvas.drawBitmap(source, drawMatrix, null);
 
         return croppedBitmap;
+    }
+
+    public void createCroppedNative(Uri uri, int x, int y, int width, int height) {
+
+        executor.submit(() -> {
+            String inputFile = fileDetailsResolver.getAbsolutePath(uri);
+
+            File filesDir = new File(new File(context.getFilesDir(), STICKERS_ASSET), "teste");
+            if (!filesDir.exists()) {
+                filesDir.mkdirs();
+            }
+
+            String inputFileName = new File(inputFile).getName();
+            String outputFile = new File(filesDir, inputFileName).getAbsolutePath();
+            String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFile);
+
+            NativeCropMedia nativeCropMedia = new NativeCropMedia(context.getResources());
+            nativeCropMedia.processWebpAsync(inputFile, finalOutputFileName, x, y, width, height, new NativeCropMedia.CropCallback() {
+                        @Override
+                        public void onSuccess(File file) {
+                            Log.d(TAG_LOG, "Teste success");
+                        }
+
+                        @Override
+                        public void onError(Exception exception) {
+                            Log.d(TAG_LOG, "Teste error");
+                        }
+                    }
+            );
+        });
     }
 }
 

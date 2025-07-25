@@ -31,6 +31,8 @@ extern "C" {
 #define LOG_TAG_WEBP_DECODE "decodeWebP"
 #define LOGDW(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG_WEBP_DECODE, __VA_ARGS__)
 
+#define OUTPUT_SIZE  512
+
 std::vector<uint8_t> ProcessWebpToAvFrames::loadFileToMemory(const std::string &path) {
     std::ifstream file(path, std::ios::binary);
     if (!file) return {};
@@ -118,7 +120,7 @@ bool ProcessWebpToAvFrames::decodeWebPAsAVFrames(
         WebPFree(webPDecodeRgb);
 
         ProcessFramesToFormat processFramesToFormat(env, nativeMediaException);
-        processFramesToFormat.processFrame(frame, targetWidth, targetHeight, frames);
+        processFramesToFormat.processFrame(frame, -1, -1, targetWidth, targetHeight, frames);
         LOGDW("Frame %d decodificado e redimensionado.", ++frameIndex);
 
     } while (isAnimated && iterator.next());
