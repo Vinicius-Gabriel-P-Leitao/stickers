@@ -44,13 +44,14 @@ extern "C" {
 #define DURATION_MS  100
 #define OUTPUT_SIZE  512
 
-ProcessInputMedia::ProcessInputMedia(JNIEnv *env, jclass nativeMediaException) : env(env), nativeMediaException(nativeMediaException) {}
+ProcessInputMedia::ProcessInputMedia() = default;
 
 std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
-        const char *inPath, const char *outPath, const FrameProcessor &frameProcessor, const ParamsMap &params) {
+        const char *inPath, const char *outPath,
+        float startSeconds, float endSeconds, const FrameProcessor &frameProcessor, const ParamsMap &params) {
 
     if (!inPath || !outPath) {
-        throw std::runtime_error("Caminhos de entrada ou saída inválidos");
+        throw std::runtime_error("Caminhos de entrada ou saída inválidos.");
     }
 
     AVFormatContext *formatContextRaw = nullptr;
@@ -78,17 +79,17 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
     AVStream *videoStream = formatContext->streams[videoStreamIndex];
     const AVCodec *codec = avcodec_find_decoder(videoStream->codecpar->codec_id);
     if (!codec) {
-        throw std::runtime_error("Nenhum codec encontrado para o stream de vídeo");
+        throw std::runtime_error("Nenhum codec encontrado para o stream de vídeo.");
     }
 
     AVCodecContextPtr codecContext(avcodec_alloc_context3(codec));
     if (!codecContext) {
-        std::string msgError = "Não foi possível alocar o contexto do codec";
+        std::string msgError = "Não foi possível alocar o contexto do codec.";
         throw std::runtime_error(msgError);
     }
 
     if (avcodec_parameters_to_context(codecContext.get(), videoStream->codecpar) < 0) {
-        throw std::runtime_error("Erro ao configurar o contexto do codec");
+        throw std::runtime_error("Erro ao configurar o contexto do codec.");
     }
 
     int ret = avcodec_open2(codecContext.get(), codec, nullptr);
@@ -99,34 +100,34 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
     }
 
     AVRational frameRate = av_guess_frame_rate(formatContext.get(), videoStream, nullptr);
-    double fpsOriginal = av_q2d(frameRate);
-    int frameInterval = std::max(1, static_cast<int>(std::lround(fpsOriginal / 10.0)));
+    double baseFrameRate = av_q2d(frameRate);
+    int frameInterval = (endSeconds - startSeconds) < 2.0 || baseFrameRate < 5 ? 1 : std::max(1, static_cast<int>(std::lround(baseFrameRate / 10.0)));
     int frameCount = 0;
 
     AVFramePtr decodedFrame(av_frame_alloc(), AVFrameDestroyer());
     if (!decodedFrame) {
-        throw std::runtime_error("Erro ao alocar frame decodificado");
+        throw std::runtime_error("Erro ao alocar frame decodificado.");
     }
 
-    ProcessFramesToFormat processFramesToFormat(env, nativeMediaException);
-    AVFramePtr rgbFrame = processFramesToFormat.createAvFrame(codecContext->width, codecContext->height, AV_PIX_FMT_RGB24);
+    AVFramePtr rgbFrame = ProcessFramesToFormat::createAvFrame(codecContext->width, codecContext->height, AV_PIX_FMT_RGB24);
     if (!rgbFrame) {
-        throw std::runtime_error("Erro ao alocar frame RGB");
+        throw std::runtime_error("Erro ao alocar frame RGB.");
     }
 
     SwsContextPtr swsContextPtr(
             sws_getContext(
                     codecContext->width, codecContext->height, codecContext->pix_fmt,
                     codecContext->width, codecContext->height, AV_PIX_FMT_RGB24,
-                    SWS_BILINEAR, nullptr, nullptr, nullptr)
+                    SWS_BILINEAR, nullptr, nullptr, nullptr
+            )
     );
     if (!swsContextPtr) {
-        throw std::runtime_error("Erro ao criar o contexto de redimensionamento");
+        throw std::runtime_error("Erro ao criar o contexto de redimensionamento.");
     }
 
     AVPacket *packet = av_packet_alloc();
     if (!packet) {
-        throw std::runtime_error("Erro ao alocar packet");
+        throw std::runtime_error("Erro ao alocar packet.");
     }
 
     packet->data = nullptr;
@@ -137,7 +138,12 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
         if (packet->stream_index == videoStreamIndex) {
             if (packet->pts != AV_NOPTS_VALUE) {
                 double seconds = static_cast<double>(packet->pts) * av_q2d(videoStream->time_base);
-                if (seconds > 5.0) {
+                if (seconds < startSeconds) {
+                    av_packet_unref(packet);
+                    continue;
+                }
+
+                if (seconds > endSeconds) {
                     av_packet_unref(packet);
                     break;
                 }
@@ -145,9 +151,10 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
 
             ret = avcodec_send_packet(codecContext.get(), packet);
             if (ret < 0) {
+                av_packet_unref(packet);
+
                 char errBuf[128];
                 av_strerror(ret, errBuf, sizeof(errBuf));
-                av_packet_unref(packet);
                 throw std::runtime_error(fmt::format("Erro ao enviar pacote para o codec: {}", errBuf));
             }
 
@@ -167,10 +174,11 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
                         swsContextPtr.get(),
                         decodedFrame->data, decodedFrame->linesize,
                         0, codecContext->height,
-                        rgbFrame->data, rgbFrame->linesize);
+                        rgbFrame->data, rgbFrame->linesize
+                );
 
                 if (frameCount % frameInterval == 0) {
-                    frameProcessor(this->env, this->nativeMediaException, rgbFrame, vFramesWithBuffer, params);
+                    frameProcessor(rgbFrame, vFramesWithBuffer, params);
                 }
 
                 frameCount++;
@@ -182,7 +190,7 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
 
     av_packet_free(&packet);
     if (vFramesWithBuffer.empty()) {
-        throw std::runtime_error("Nenhum frame capturado para criar a animação");
+        throw std::runtime_error("Nenhum frame capturado para criar a animação.");
     }
 
     return vFramesWithBuffer;

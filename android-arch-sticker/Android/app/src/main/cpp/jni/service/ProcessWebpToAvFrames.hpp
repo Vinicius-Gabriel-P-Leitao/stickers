@@ -18,8 +18,7 @@
 
 class ProcessWebpToAvFrames {
 public:
-    static bool decodeWebPAsAVFrames(
-            JNIEnv *env, const std::string &inputPath, std::vector<FrameWithBuffer> &frames, int targetWidth, int targetHeight);
+    static bool decodeWebPAsAVFrames(const std::string &inputPath, std::vector<FrameWithBuffer> &frames, int targetWidth, int targetHeight);
 
 private:
     static std::vector<uint8_t> loadFileToMemory(const std::string &path);

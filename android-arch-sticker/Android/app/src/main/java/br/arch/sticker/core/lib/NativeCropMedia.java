@@ -40,13 +40,13 @@ public class NativeCropMedia {
         this.applicationTranslate = new ApplicationTranslate(resources);
     }
 
-    public native boolean cropMedia(String inputPath, String outputPath, int x, int y, int width, int height);
+    public native boolean cropMedia(String inputPath, String outputPath, int x, int y, int width, int height, float startSeconds, float endSeconds);
 
-    public void processWebpAsync(String inputPath, String outputPath, int x, int y, int width, int height, CropCallback callback)
+    public void processWebpAsync(String inputPath, String outputPath, int x, int y, int width, int height, float startSeconds, float endSeconds, CropCallback callback)
             throws MediaConversionException {
         nativeExecutor.submit(() -> {
             try {
-                boolean success = cropMedia(inputPath, outputPath, x, y, width, height);
+                boolean success = cropMedia(inputPath, outputPath, x, y, width, height, startSeconds, endSeconds);
                 File outputFile = new File(outputPath);
 
                 if (success && outputFile.exists()) {

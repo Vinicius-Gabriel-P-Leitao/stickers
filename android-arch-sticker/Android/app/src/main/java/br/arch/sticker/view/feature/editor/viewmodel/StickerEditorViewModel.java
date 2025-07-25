@@ -237,7 +237,7 @@ public class StickerEditorViewModel extends AndroidViewModel {
         return croppedBitmap;
     }
 
-    public void createCroppedNative(Uri uri, int x, int y, int width, int height) {
+    public void createCroppedNative(Uri uri, int x, int y, int width, int height, float startSeconds, float endSeconds) {
 
         executor.submit(() -> {
             String inputFile = fileDetailsResolver.getAbsolutePath(uri);
@@ -252,7 +252,8 @@ public class StickerEditorViewModel extends AndroidViewModel {
             String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFile);
 
             NativeCropMedia nativeCropMedia = new NativeCropMedia(context.getResources());
-            nativeCropMedia.processWebpAsync(inputFile, finalOutputFileName, x, y, width, height, new NativeCropMedia.CropCallback() {
+            nativeCropMedia.processWebpAsync(inputFile, finalOutputFileName, x, y, width, height, startSeconds, endSeconds,
+                    new NativeCropMedia.CropCallback() {
                         @Override
                         public void onSuccess(File file) {
                             Log.d(TAG_LOG, "Teste success");

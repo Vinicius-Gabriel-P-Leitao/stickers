@@ -171,11 +171,16 @@ public class StickerEditorActivity extends BaseActivity {
             buttonConfirm.setOnClickListener(view -> {
                 Rect crop = getCropRectFromTransformedTexture(mimeType);
                 if (crop != null) {
+                    float startSeconds = (float) loopStartMs / 1000;
+                    float endSeconds = (float) loopEndMs / 1000;
+
                     Log.d(TAG_LOG,
-                            getString(R.string.debug_video_crop, crop.toShortString()) + "Area total do video: width: " + videoWidth + "heigth: " + videoHeight
+                            getString(R.string.debug_video_crop, crop.toShortString()) + "Area total do video: width: " + videoWidth + " heigth: " +
+                                    videoHeight + " Tempo de inicio: " + startSeconds + " Tempo de finalizar: " + endSeconds +
+                                    " Tempo total: " + videoDurationMs / 1000
                     );
 
-                    stickerEditorViewModel.createCroppedNative(uri, crop.left, crop.top, crop.width(), crop.height());
+                    stickerEditorViewModel.createCroppedNative(uri, crop.left, crop.top, crop.width(), crop.height(), startSeconds, endSeconds);
                 } else {
                     Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
                 }

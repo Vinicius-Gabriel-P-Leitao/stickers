@@ -12,9 +12,8 @@
 #include <memory>
 #include <string>
 #include <fstream>
+#include <format.h>
 #include <android/log.h>
-
-#include "../exception/HandlerJavaException.hpp"
 
 #include "../raii/AVFrameDestroyer.hpp"
 #include "../raii/AVBufferDestroyer.hpp"
@@ -46,14 +45,11 @@ std::vector<uint8_t> ProcessWebpToAvFrames::loadFileToMemory(const std::string &
     return data;
 }
 
-bool ProcessWebpToAvFrames::decodeWebPAsAVFrames(
-        JNIEnv *env, const std::string &inputPath, std::vector<FrameWithBuffer> &frames, int targetWidth, int targetHeight) {
-    jclass nativeMediaException = env->FindClass("br/arch/sticker/core/error/throwable/media/NativeConversionException");
-
+bool
+ProcessWebpToAvFrames::decodeWebPAsAVFrames(const std::string &inputPath, std::vector<FrameWithBuffer> &frames, int targetWidth, int targetHeight) {
     std::vector<uint8_t> fileInMemory = loadFileToMemory(inputPath);
     if (fileInMemory.empty()) {
-        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao ler o arquivo WebP.");
-        return false;
+        throw std::runtime_error("Falha ao ler o arquivo WebP.");
     }
 
     WebPData webpData;
@@ -62,8 +58,7 @@ bool ProcessWebpToAvFrames::decodeWebPAsAVFrames(
 
     WebpDemuxerPtr pWebPDemuxer(WebPDemux(&webpData));
     if (!pWebPDemuxer) {
-        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "WebPDemux falhou.");
-        return false;
+        throw std::runtime_error("WebPDemux falhou.");
     }
 
     uint32_t flags = WebPDemuxGetI(pWebPDemuxer.getPDemuxer(), WEBP_FF_FORMAT_FLAGS);
@@ -71,28 +66,24 @@ bool ProcessWebpToAvFrames::decodeWebPAsAVFrames(
 
     WebpIteratorPtr iterator;
     if (!iterator.init(pWebPDemuxer.getPDemuxer(), 1)) {
-        HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Nenhum frame encontrado no WebP.");
-        return false;
+        throw std::runtime_error("Nenhum frame encontrado no WebP.");
     }
 
     int frameIndex = 0;
     do {
         WebPDecoderConfig config;
         if (!WebPInitDecoderConfig(&config)) {
-            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao inicializar WebPDecoderConfig.");
-            return false;
+            throw std::runtime_error("Falha ao inicializar WebPDecoderConfig.");
         }
 
         if (WebPGetFeatures(iterator->fragment.bytes, iterator->fragment.size, &config.input) != VP8_STATUS_OK) {
-            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Erro ao obter características do WebP.");
-            return false;
+            throw std::runtime_error("Erro ao obter características do WebP.");
         }
 
         config.output.colorspace = MODE_RGB;
         uint8_t *webPDecodeRgb = WebPDecodeRGB(iterator->fragment.bytes, iterator->fragment.size, &config.output.width, &config.output.height);
         if (!webPDecodeRgb) {
-            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao decodificar frame WebP.");
-            return false;
+            throw std::runtime_error("Falha ao decodificar frame WebP.");
         }
 
         int width = config.output.width;
@@ -105,8 +96,7 @@ bool ProcessWebpToAvFrames::decodeWebPAsAVFrames(
 
         if (!frame || !buffer) {
             WebPFree(webPDecodeRgb);
-            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao alocar AVFrame ou buffer.");
-            return false;
+            throw std::runtime_error("Falha ao alocar AVFrame ou buffer.");
         }
 
         frame->format = AV_PIX_FMT_RGB24;
@@ -117,9 +107,8 @@ bool ProcessWebpToAvFrames::decodeWebPAsAVFrames(
         memcpy(frame->data[0], webPDecodeRgb, bufferSize);
         WebPFree(webPDecodeRgb);
 
-        ProcessFramesToFormat processFramesToFormat(env, nativeMediaException);
-        processFramesToFormat.processFrame(frame, -1, -1, targetWidth, targetHeight, frames);
-        LOGDW("Frame %d decodificado e redimensionado.", ++frameIndex);
+        ProcessFramesToFormat::processFrame(frame, frame->width, frame->height, targetWidth, targetHeight, frames);
+        LOGDW("%s", fmt::format("Frame {} decodificado e redimensionado.", ++frameIndex).c_str());
 
     } while (isAnimated && iterator.next());
 

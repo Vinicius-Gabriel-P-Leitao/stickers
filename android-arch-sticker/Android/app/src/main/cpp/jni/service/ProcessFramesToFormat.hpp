@@ -21,22 +21,19 @@ public:
     AVFramePtr frame;
     AVBufferPtr buffer;
 
-    bool allocate(ProcessFramesToFormat &processor, int width, int height, AVPixelFormat format);
+    bool allocateFrameWithBuffer(int width, int height, AVPixelFormat format);
 };
 
 class ProcessFramesToFormat {
 public:
-    ProcessFramesToFormat(JNIEnv *env, jclass nativeMediaException);
+    ProcessFramesToFormat();
 
-    AVFramePtr createAvFrame(int width, int height, AVPixelFormat format);
+    static AVFramePtr createAvFrame(int width, int height, AVPixelFormat format);
 
-    void processFrame(AVFramePtr &rgbFrame, int cropX, int cropY, int width, int height, std::vector<FrameWithBuffer> &frames);
+    static void processFrame(AVFramePtr &rgbFrame, int cropX, int cropY, int width, int height, std::vector<FrameWithBuffer> &frames);
 
 private:
-    JNIEnv *env;
-    jclass nativeMediaException;
-
-    bool cropFrame(const AVFramePtr &srcFrame, FrameWithBuffer &dstFrame, int cropX, int cropY, int cropWidth, int cropHeight);
+    static bool cropFrame(const AVFramePtr &srcFrame, FrameWithBuffer &dstFrame, int cropX, int cropY, int cropWidth, int cropHeight);
 };
 
 #endif //ANDROID_PROCESSFRAMESTOFORMAT_HPP

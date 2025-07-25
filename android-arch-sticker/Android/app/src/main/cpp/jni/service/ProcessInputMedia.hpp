@@ -23,19 +23,15 @@
 
 using ParamsMap = std::map<std::string, std::any>;
 
-using FrameProcessor = std::function<
-        void(JNIEnv *, jclass, AVFramePtr &, std::vector<FrameWithBuffer> &, const ParamsMap &)>;
+using FrameProcessor = std::function<void(AVFramePtr &, std::vector<FrameWithBuffer> &, const ParamsMap &)>;
 
 class ProcessInputMedia {
 public:
-    ProcessInputMedia(JNIEnv *env, jclass nativeMediaException);
+    ProcessInputMedia();
 
-    std::vector<FrameWithBuffer>
-    processVideoFrames(const char *inPath, const char *outPath, const FrameProcessor &frameProcessor, const ParamsMap &params = {});
-
-private:
-    JNIEnv *env;
-    jclass nativeMediaException;
+    static std::vector<FrameWithBuffer>
+    processVideoFrames(const char *inPath, const char *outPath, float startSeconds, float endSeconds,
+                       const FrameProcessor &frameProcessor, const ParamsMap &params = {});
 };
 
 #endif //ANDROID_PROCESSINPUTMEDIA_HPP
