@@ -252,7 +252,9 @@ public class StickerEditorViewModel extends AndroidViewModel {
                 croppedBitmap.compress(Bitmap.CompressFormat.WEBP, 100, fileOutputStream);
                 fileOutputStream.flush();
             }
+            // TODO: Criar live data para falar que salvou
         } catch (IOException exception) {
+            // TODO: Tratar erros
             throw new RuntimeException(exception);
         }
     }
@@ -270,11 +272,13 @@ public class StickerEditorViewModel extends AndroidViewModel {
                     new NativeCropMedia.CropCallback() {
                         @Override
                         public void onSuccess(File file) {
+                            // TODO: Criar live data para falar que salvou
                             Log.d(TAG_LOG, "Teste success");
                         }
 
                         @Override
                         public void onError(Exception exception) {
+                            // TODO: Tratar erros
                             Log.d(TAG_LOG, "Teste error");
                         }
                     }
