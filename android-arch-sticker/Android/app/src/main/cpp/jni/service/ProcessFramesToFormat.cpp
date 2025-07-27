@@ -95,11 +95,11 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
                                              srcWidth, srcHeight, av_get_pix_fmt_name(srcFormat)));
     }
 
-    if (cropX < 0 || cropY < 0 || cropWidth <= 0 || cropHeight <= 0 || cropX + cropWidth > srcWidth || cropY + cropHeight > srcHeight) {
-        throw std::runtime_error(
-                fmt::format("Área de recorte ({}+{}, {}+{}) fora dos limites do quadro de origem ({}x{}).",
-                            cropX, cropWidth, cropY, cropHeight, srcWidth, srcHeight));
-    }
+//    if (cropX < 0 || cropY < 0 || cropWidth <= 0 || cropHeight <= 0 || cropX + cropWidth > srcWidth || cropY + cropHeight > srcHeight) {
+//        throw std::runtime_error(
+//                fmt::format("Área de recorte ({}+{}, {}+{}) fora dos limites do quadro de origem ({}x{}).",
+//                            cropX, cropWidth, cropY, cropHeight, srcWidth, srcHeight));
+//    }
 
     int bufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, cropWidth, cropHeight, 1);
     AVBufferPtr tempData(reinterpret_cast<uint8_t *>(av_malloc(bufferSize)));
@@ -115,8 +115,27 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
 
     for (int orderedY = 0; orderedY < cropHeight; ++orderedY) {
         uint8_t *dst = tempDataPtr[0] + orderedY * tempLineSize[0];
-        uint8_t *src = frame->data[0] + (orderedY + cropY) * frame->linesize[0] + cropX * 3;
-        memcpy(dst, src, cropWidth * 3);
+        int srcY = cropY + orderedY;
+
+        if (srcY < 0 || srcY >= srcHeight) {
+            memset(dst, 0, cropWidth * 3);
+        } else {
+            int copyStartX = std::max(0, cropX);
+            int copyEndX = std::min(srcWidth, cropX + cropWidth);
+
+            int leftPad = copyStartX - cropX;
+            if (leftPad > 0)
+                memset(dst, 0, leftPad * 3);
+
+            if (copyEndX > copyStartX) {
+                uint8_t *srcLine = frame->data[0] + srcY * frame->linesize[0] + copyStartX * 3;
+                memcpy(dst + leftPad * 3, srcLine, (copyEndX - copyStartX) * 3);
+            }
+
+            int rightPad = (cropX + cropWidth) - copyEndX;
+            if (rightPad > 0)
+                memset(dst + (cropWidth - rightPad) * 3, 0, rightPad * 3);
+        }
     }
 
     const int OUTPUT_SIZE = 512;
