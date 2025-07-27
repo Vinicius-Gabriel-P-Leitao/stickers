@@ -20,6 +20,7 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -219,22 +221,26 @@ public class StickerEditorViewModel extends AndroidViewModel {
         scheduler.shutdown();
     }
 
-    private Bitmap createCroppedBitmap(Bitmap source, Rect cropRect) {
-        if (source == null || cropRect == null) return null;
+    public void createCroppedBitmap(Uri uri, Rect cropRect) {
+        if (uri == null || cropRect == null) return;
 
-        int outputWidth = cropRect.width();
-        int outputHeight = cropRect.height();
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
 
-        Bitmap croppedBitmap = Bitmap.createBitmap(outputWidth, outputHeight, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(croppedBitmap);
-        canvas.drawColor(Color.TRANSPARENT);
+            int outputWidth = cropRect.width();
+            int outputHeight = cropRect.height();
 
-        Matrix drawMatrix = new Matrix();
-        drawMatrix.postTranslate(-cropRect.left, -cropRect.top);
+            Bitmap croppedBitmap = Bitmap.createBitmap(outputWidth, outputHeight, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(croppedBitmap);
+            canvas.drawColor(Color.TRANSPARENT);
 
-        canvas.drawBitmap(source, drawMatrix, null);
+            Matrix drawMatrix = new Matrix();
+            drawMatrix.postTranslate(-cropRect.left, -cropRect.top);
 
-        return croppedBitmap;
+            canvas.drawBitmap(bitmap, drawMatrix, null);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     public void createCroppedNative(Uri uri, int x, int y, int width, int height, float startSeconds, float endSeconds) {

@@ -41,6 +41,7 @@ public class GestureImageView extends AppCompatImageView {
     }
 
     private void init() {
+        setScaleType(ScaleType.MATRIX);
         gestureController = new GestureController(this);
 
         setOnTouchListener((view, event) -> {

@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
@@ -44,6 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import br.arch.sticker.R;
 import br.arch.sticker.domain.util.ApplicationTranslate;
@@ -169,21 +169,23 @@ public class StickerEditorActivity extends BaseActivity {
             }
 
             buttonConfirm.setOnClickListener(view -> {
-                Rect crop = getCropRectFromTransformedTexture(mimeType);
-                if (crop != null) {
-                    float startSeconds = (float) loopStartMs / 1000;
-                    float endSeconds = (float) loopEndMs / 1000;
+                getCropRectFromTransformedTexture(mimeType, crop -> {
+                            if (crop != null) {
+                                float startSeconds = (float) loopStartMs / 1000;
+                                float endSeconds = (float) loopEndMs / 1000;
 
-                    Log.d(TAG_LOG,
-                            getString(R.string.debug_video_crop, crop.toShortString()) + "Area total do video: width: " + videoWidth + " heigth: " +
-                                    videoHeight + " Tempo de inicio: " + startSeconds + " Tempo de finalizar: " + endSeconds +
-                                    " Tempo total: " + videoDurationMs / 1000
-                    );
-
-                    stickerEditorViewModel.createCroppedNative(uri, crop.left, crop.top, crop.width(), crop.height(), startSeconds, endSeconds);
-                } else {
-                    Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
-                }
+                                stickerEditorViewModel.createCroppedNative(uri, crop.left, crop.top, crop.width(), crop.height(), startSeconds, endSeconds);
+                            } else {
+                                Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
+                            }
+                        }, crop -> {
+                            if (crop != null) {
+                                stickerEditorViewModel.createCroppedBitmap(uri, crop);
+                            } else {
+                                Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                );
             });
         } catch (IllegalArgumentException exception) {
             // TODO: Tratar erro de forma melhor
@@ -334,11 +336,11 @@ public class StickerEditorActivity extends BaseActivity {
         }
     }
 
-    private @Nullable Rect getCropRectFromTransformedTexture(String mimeType) {
+    private void getCropRectFromTransformedTexture(String mimeType, Consumer<Rect> videoHandler, Consumer<Rect> imageHandler) {
         View cropArea = findViewById(R.id.crop_area);
 
         if ("video/mp4".equalsIgnoreCase(mimeType)) {
-            if (textureView == null || cropArea == null || videoWidth == 0 || videoHeight == 0) return null;
+            if (textureView == null || cropArea == null || videoWidth == 0 || videoHeight == 0) return;
 
             Matrix transformMatrix = textureView.getTransform(null);
 
@@ -353,7 +355,7 @@ public class StickerEditorActivity extends BaseActivity {
             );
 
             Matrix inverseMatrix = new Matrix();
-            if (!transformMatrix.invert(inverseMatrix)) return null;
+            if (!transformMatrix.invert(inverseMatrix)) return;
 
             inverseMatrix.mapRect(cropRectInTexture);
 
@@ -365,20 +367,19 @@ public class StickerEditorActivity extends BaseActivity {
             int width = Math.round(cropRectInTexture.width() * scaleX);
             int height = Math.round(cropRectInTexture.height() * scaleY);
 
-            return new Rect(left, top, left + width, top + height);
+            Rect crop = new Rect(left, top, left + width, top + height);
+            videoHandler.accept(crop);
+            return;
         }
 
         if ("image/jpeg".equalsIgnoreCase(mimeType) || "image/gif".equalsIgnoreCase(mimeType) || "image/jpg".equalsIgnoreCase(mimeType) ||
                 "image/png".equalsIgnoreCase(mimeType)) {
-            if (gestureImageView == null || cropArea == null) return null;
+            if (gestureImageView == null || cropArea == null) return;
 
             Matrix imageMatrix = gestureImageView.getImageMatrix();
 
             Drawable drawable = gestureImageView.getDrawable();
-            if (drawable == null) return null;
-
-            int drawableWidth = drawable.getIntrinsicWidth();
-            int drawableHeight = drawable.getIntrinsicHeight();
+            if (drawable == null) return;
 
             Rect cropScreenRect = new Rect();
             cropArea.getGlobalVisibleRect(cropScreenRect);
@@ -391,7 +392,7 @@ public class StickerEditorActivity extends BaseActivity {
             );
 
             Matrix inverseMatrix = new Matrix();
-            if (!imageMatrix.invert(inverseMatrix)) return null;
+            if (!imageMatrix.invert(inverseMatrix)) return;
 
             inverseMatrix.mapRect(cropRectInImageView);
 
@@ -400,10 +401,11 @@ public class StickerEditorActivity extends BaseActivity {
             int right = Math.round(cropRectInImageView.right);
             int bottom = Math.round(cropRectInImageView.bottom);
 
-            return new Rect(left, top, right, bottom);
+            Rect crop = new Rect(left, top, right, bottom);
+            imageHandler.accept(crop);
+            return;
         }
 
         Toast.makeText(this, getString(R.string.error_unsupported_file_type), Toast.LENGTH_SHORT).show();
-        return null;
     }
 }
