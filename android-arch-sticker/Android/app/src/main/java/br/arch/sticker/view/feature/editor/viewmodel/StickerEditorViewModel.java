@@ -8,7 +8,8 @@
 
 package br.arch.sticker.view.feature.editor.viewmodel;
 
-import static br.arch.sticker.domain.data.content.StickerContentProvider.STICKERS_ASSET;
+import static br.arch.sticker.core.validation.StickerValidator.IMAGE_HEIGHT;
+import static br.arch.sticker.core.validation.StickerValidator.IMAGE_WIDTH;
 import static br.arch.sticker.view.feature.editor.activity.StickerEditorActivity.FRAMES_PER_SECOND;
 
 import android.app.Application;
@@ -28,6 +29,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -227,34 +229,40 @@ public class StickerEditorViewModel extends AndroidViewModel {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
 
-            int outputWidth = cropRect.width();
-            int outputHeight = cropRect.height();
-
-            Bitmap croppedBitmap = Bitmap.createBitmap(outputWidth, outputHeight, Bitmap.Config.ARGB_8888);
+            Bitmap croppedBitmap = Bitmap.createBitmap(IMAGE_WIDTH, IMAGE_HEIGHT, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(croppedBitmap);
-            canvas.drawColor(Color.TRANSPARENT);
+            canvas.drawColor(Color.BLACK);
+
+            float dx = (IMAGE_WIDTH / 2f) - (cropRect.width() / 2f);
+            float dy = (IMAGE_HEIGHT / 2f) - (cropRect.height() / 2f);
 
             Matrix drawMatrix = new Matrix();
-            drawMatrix.postTranslate(-cropRect.left, -cropRect.top);
-
+            drawMatrix.postTranslate(dx - cropRect.left, dy - cropRect.top);
             canvas.drawBitmap(bitmap, drawMatrix, null);
+
+            String inputFile = fileDetailsResolver.getAbsolutePath(uri);
+            String inputFileName = new File(inputFile).getName();
+
+            String outputFile = new File(context.getCacheDir(), inputFileName).getAbsolutePath();
+            String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFile);
+
+            File fileToSave = new File(finalOutputFileName);
+
+            try (FileOutputStream fileOutputStream = new FileOutputStream(fileToSave)) {
+                croppedBitmap.compress(Bitmap.CompressFormat.WEBP, 100, fileOutputStream);
+                fileOutputStream.flush();
+            }
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
     }
 
     public void createCroppedNative(Uri uri, int x, int y, int width, int height, float startSeconds, float endSeconds) {
-
         executor.submit(() -> {
             String inputFile = fileDetailsResolver.getAbsolutePath(uri);
-
-            File filesDir = new File(new File(context.getFilesDir(), STICKERS_ASSET), "teste");
-            if (!filesDir.exists()) {
-                filesDir.mkdirs();
-            }
-
             String inputFileName = new File(inputFile).getName();
-            String outputFile = new File(filesDir, inputFileName).getAbsolutePath();
+
+            String outputFile = new File(context.getCacheDir(), inputFileName).getAbsolutePath();
             String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFile);
 
             NativeCropMedia nativeCropMedia = new NativeCropMedia(context.getResources());
