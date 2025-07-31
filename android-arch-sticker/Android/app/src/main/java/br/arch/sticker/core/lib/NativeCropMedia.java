@@ -9,6 +9,7 @@
 package br.arch.sticker.core.lib;
 
 import android.content.res.Resources;
+import android.util.Log;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -42,10 +43,10 @@ public class NativeCropMedia {
 
     public native boolean cropMedia(String inputPath, String outputPath, int x, int y, int width, int height, float startSeconds, float endSeconds);
 
-    public void processWebpAsync(String inputPath, String outputPath, int x, int y, int width, int height, float startSeconds, float endSeconds, CropCallback callback)
-            throws MediaConversionException {
+    public void processWebpAsync(String inputPath, String outputPath, int x, int y, int width, int height, float startSeconds, float endSeconds, CropCallback callback) throws MediaConversionException {
         nativeExecutor.submit(() -> {
             try {
+                Log.i(TAG_LOG, String.format("X: %s Y: %s Width: %s Height: %s Start: %s End: %s \nInput: %s Output: %s", x, y, width, height, startSeconds, endSeconds, inputPath, outputPath));
                 boolean success = cropMedia(inputPath, outputPath, x, y, width, height, startSeconds, endSeconds);
                 File outputFile = new File(outputPath);
 
@@ -53,22 +54,15 @@ public class NativeCropMedia {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException exception) {
-                        throw new MediaConversionException(exception.getMessage() != null ? exception.getMessage() : applicationTranslate.translate(
-                                R.string.error_pausing_thread).log(TAG_LOG, ApplicationTranslate.LoggableString.Level.ERROR, exception).get(),
-                                exception.getCause(), ErrorCode.ERROR_NATIVE_CONVERSION
-                        );
+                        throw new MediaConversionException(exception.getMessage() != null ? exception.getMessage() : applicationTranslate.translate(R.string.error_pausing_thread).log(TAG_LOG, ApplicationTranslate.LoggableString.Level.ERROR, exception).get(), exception.getCause(), ErrorCode.ERROR_NATIVE_CONVERSION);
                     }
 
                     callback.onSuccess(outputFile);
                 } else {
-                    callback.onError(new MediaConversionException(applicationTranslate.translate(R.string.error_conversion_failed)
-                            .log(TAG_LOG, ApplicationTranslate.LoggableString.Level.ERROR).get(), ErrorCode.ERROR_NATIVE_CONVERSION
-                    ));
+                    callback.onError(new MediaConversionException(applicationTranslate.translate(R.string.error_conversion_failed).log(TAG_LOG, ApplicationTranslate.LoggableString.Level.ERROR).get(), ErrorCode.ERROR_NATIVE_CONVERSION));
                 }
             } catch (Exception exception) {
-                callback.onError(new MediaConversionException(applicationTranslate.translate(R.string.error_native_conversion)
-                        .log(TAG_LOG, ApplicationTranslate.LoggableString.Level.ERROR, exception).get(), ErrorCode.ERROR_NATIVE_CONVERSION
-                ));
+                callback.onError(new MediaConversionException(applicationTranslate.translate(R.string.error_native_conversion).log(TAG_LOG, ApplicationTranslate.LoggableString.Level.ERROR, exception).get(), ErrorCode.ERROR_NATIVE_CONVERSION));
             }
         });
     }

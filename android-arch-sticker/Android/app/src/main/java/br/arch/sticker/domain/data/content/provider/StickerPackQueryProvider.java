@@ -77,14 +77,14 @@ public class StickerPackQueryProvider {
                     stickerPackIdentifier, isFiltered);
             if (stickerPack == null) {
                 return new MatrixCursor(new String[]{
-                        applicationTranslate.translate(R.string.error_sticker_pack_not_found,
+                        applicationTranslate.translate(R.string.error_sticker_pack_not_found_param,
                                 stickerPackIdentifier
                         ).log(TAG_LOG, Level.WARN).get()});
             }
 
             return stickerPackQueryHelper.fetchStickerPackData(uri, stickerPack);
         } catch (SQLException sqlException) {
-            Log.e(TAG_LOG, resources.getString(R.string.error_sticker_pack_not_found,
+            Log.e(TAG_LOG, resources.getString(R.string.error_sticker_pack_not_found_param,
                             stickerPackIdentifier
                     ), sqlException
             );

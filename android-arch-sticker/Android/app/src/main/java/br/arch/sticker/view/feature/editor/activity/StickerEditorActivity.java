@@ -9,6 +9,7 @@
 package br.arch.sticker.view.feature.editor.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -29,6 +30,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
@@ -58,6 +60,7 @@ import br.arch.sticker.view.feature.editor.viewmodel.StickerEditorViewModel;
 
 public class StickerEditorActivity extends BaseActivity {
     private final static String TAG_LOG = StickerEditorActivity.class.getSimpleName();
+    public final static String FILE_STICKER_DATA = "result_save_editor";
     public final static int FRAMES_PER_SECOND = 1;
 
     private StickerEditorViewModel stickerEditorViewModel;
@@ -126,6 +129,18 @@ public class StickerEditorActivity extends BaseActivity {
         };
 
         handler.post(loopChecker);
+
+        stickerEditorViewModel.getFileConverted().observe(this, file -> {
+            Intent intent = new Intent();
+            intent.putExtra(FILE_STICKER_DATA, file.getAbsolutePath());
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            setResult(RESULT_OK, intent);
+            finish();
+        });
+
+        stickerEditorViewModel.getErrorMessageLiveData().observe(this, message -> {
+
+        });
     }
 
     @Override
@@ -340,7 +355,8 @@ public class StickerEditorActivity extends BaseActivity {
         View cropArea = findViewById(R.id.crop_area);
 
         if ("video/mp4".equalsIgnoreCase(mimeType)) {
-            if (textureView == null || cropArea == null || videoWidth == 0 || videoHeight == 0) return;
+            if (textureView == null || cropArea == null || videoWidth == 0 || videoHeight == 0)
+                return;
 
             Matrix transformMatrix = textureView.getTransform(null);
 

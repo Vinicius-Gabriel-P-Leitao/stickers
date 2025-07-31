@@ -117,7 +117,7 @@ public class PreviewInvalidStickerActivity extends BaseActivity implements Previ
             List<Sticker> invalidStickers = result.invalidSticker();
 
             if (invalidStickers.isEmpty()) {
-                Toast.makeText(this, getString(R.string.error_sticker_pack_not_found),
+                Toast.makeText(this, getString(R.string.error_sticker_pack_not_found_param),
                         Toast.LENGTH_SHORT
                 ).show();
                 return;

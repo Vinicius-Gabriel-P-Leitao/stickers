@@ -110,7 +110,7 @@ public class StickerAssetProvider {
 
             if (!cursor.moveToFirst()) {
                 throw new ContentProviderException(
-                        applicationTranslate.translate(R.string.error_sticker_pack_not_found,
+                        applicationTranslate.translate(R.string.error_sticker_pack_not_found_param,
                                 stickerPackIdentifier
                         ).log(TAG_LOG, Level.ERROR).get());
             }
@@ -148,7 +148,7 @@ public class StickerAssetProvider {
             return this.openAssetFileSafely(stickerFile, "sticker");
         } catch (SQLException sqlException) {
             throw new ContentProviderException(
-                    applicationTranslate.translate(R.string.error_sticker_pack_not_found,
+                    applicationTranslate.translate(R.string.error_sticker_pack_not_found_param,
                             stickerPackIdentifier
                     ).log(TAG_LOG, Level.ERROR, sqlException).get(), sqlException
             );

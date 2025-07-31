@@ -8,6 +8,10 @@
 
 package br.arch.sticker.view.feature.stickerpack.creation.fragment;
 
+import static android.app.Activity.RESULT_OK;
+
+import static br.arch.sticker.view.feature.editor.activity.StickerEditorActivity.FILE_STICKER_DATA;
+
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,6 +27,8 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -33,9 +39,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import br.arch.sticker.R;
 import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
@@ -48,9 +59,12 @@ import br.arch.sticker.view.feature.stickerpack.creation.viewmodel.StickerPackCr
 public class MediaPickerFragment extends BottomSheetDialogFragment {
     private MediaPickerAdapter.OnItemClickListener listener;
 
+
     private StickerPackCreationViewModel StickerPackCreationViewModel;
     private MediaPickerAdapter mediaListAdapter;
     private ProgressBar progressBar;
+
+    private ActivityResultLauncher<Intent> launcher;
 
     public void setOnItemClickListener(MediaPickerAdapter.OnItemClickListener listener) {
         this.listener = listener;
@@ -61,16 +75,37 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.BottomSheetStyle);
 
-        StickerPackCreationViewModel = new ViewModelProvider(requireActivity()).get(
-                StickerPackCreationViewModel.class);
+        StickerPackCreationViewModel = new ViewModelProvider(requireActivity()).get(StickerPackCreationViewModel.class);
+
+
+        launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK) {
+                progressBar.setVisibility(View.GONE);
+
+                Intent data = result.getData();
+                if (data != null) {
+                    String fileUri = data.getStringExtra(FILE_STICKER_DATA);
+                    if (fileUri != null) {
+                        try {
+                            File file = new File(fileUri);
+                            List<File> files = new ArrayList<>();
+                            files.add(file);
+
+                            StickerPackCreationViewModel.generateStickerPack(files);
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.dialog_fragment_recyclerview_select_media, container,
-                false
-        );
+        return inflater.inflate(R.layout.dialog_fragment_recyclerview_select_media, container, false);
     }
 
     @Override
@@ -89,8 +124,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
             }
 
             dismiss();
-        }
-        );
+        });
 
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
         recyclerView.setLayoutManager(layoutManager);
@@ -101,15 +135,13 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
             final Set<Uri> selectedUris = mediaListAdapter.getSelectedMediaPaths();
 
             if (selectedUris.isEmpty()) {
-                Toast.makeText(getContext(), getString(R.string.error_select_at_least_one_media),
-                        Toast.LENGTH_SHORT
-                ).show();
+                Toast.makeText(getContext(), getString(R.string.error_select_at_least_one_media), Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (selectedUris.size() == 1) {
                 progressBar.setVisibility(View.VISIBLE);
-                tryLaunchEditorIfReady(selectedUris.iterator().next());
+                tryLaunchEditor(selectedUris.iterator().next());
                 return;
             }
 
@@ -117,48 +149,35 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
             StickerPackCreationViewModel.startConversions(selectedUris);
         });
 
-        StickerPackCreationViewModel.getMimeTypesSupported()
-                .observe(getViewLifecycleOwner(), mimeTypesSupported -> {
-                            List<Uri> uris = UriDetailsResolver.fetchMediaUri(requireContext(),
-                                    mimeTypesSupported.getMimeTypes()
-                            );
-                            mediaListAdapter.submitList(new ArrayList<>(uris));
-                        }
-                );
+        StickerPackCreationViewModel.getMimeTypesSupported().observe(getViewLifecycleOwner(), mimeTypesSupported -> {
+            List<Uri> uris = UriDetailsResolver.fetchMediaUri(requireContext(), mimeTypesSupported.getMimeTypes());
+            mediaListAdapter.submitList(new ArrayList<>(uris));
+        });
 
-        StickerPackCreationViewModel.getStickerPackResult()
-                .observe(getViewLifecycleOwner(), result -> {
-                            if (result != null) {
-                                if (result.isSuccess()) {
-                                    StickerPackCreationViewModel.setStickerPackPreview(result.getData());
-                                    progressBar.setVisibility(View.GONE);
+        StickerPackCreationViewModel.getStickerPackResult().observe(getViewLifecycleOwner(), result -> {
+            if (result != null) {
+                if (result.isSuccess()) {
+                    StickerPackCreationViewModel.setStickerPackPreview(result.getData());
+                    progressBar.setVisibility(View.GONE);
 
-                                    dismiss();
-                                }
+                    dismiss();
+                }
 
-                                if (result.isWarning()) {
-                                    Toast.makeText(getContext(), result.getWarningMessage(),
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-                                    progressBar.setVisibility(View.GONE);
-                                }
+                if (result.isWarning()) {
+                    Toast.makeText(getContext(), result.getWarningMessage(), Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
+                }
 
-                                if (result.isFailure()) {
-                                    if (result.getError() instanceof AppCoreStateException appCoreStateException) {
-                                        Toast.makeText(getContext(), getString(
-                                                        appCoreStateException.getErrorCode().getMessageResId()),
-                                                Toast.LENGTH_SHORT
-                                        ).show();
-                                    }
+                if (result.isFailure()) {
+                    if (result.getError() instanceof AppCoreStateException appCoreStateException) {
+                        Toast.makeText(getContext(), getString(appCoreStateException.getErrorCode().getMessageResId()), Toast.LENGTH_SHORT).show();
+                    }
 
-                                    Toast.makeText(getContext(), result.getError().getMessage(),
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-                                    progressBar.setVisibility(View.GONE);
-                                }
-                            }
-                        }
-                );
+                    Toast.makeText(getContext(), result.getError().getMessage(), Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     @NonNull
@@ -181,9 +200,7 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
     public void onCancel(@NonNull DialogInterface dialog) {
         super.onCancel(dialog);
         StickerPackCreationViewModel.setCancelConversions();
-        Toast.makeText(requireActivity(), getString(R.string.error_process_canceled),
-                Toast.LENGTH_SHORT
-        ).show();
+        Toast.makeText(requireActivity(), getString(R.string.error_process_canceled), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -192,10 +209,10 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
         StickerPackCreationViewModel.setCancelConversions();
     }
 
-    private void tryLaunchEditorIfReady(Uri uri) {
+    private void tryLaunchEditor(Uri uri) {
         Intent intent = new Intent(requireContext(), StickerEditorActivity.class);
         intent.setData(uri);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(intent);
+        launcher.launch(intent);
     }
 }

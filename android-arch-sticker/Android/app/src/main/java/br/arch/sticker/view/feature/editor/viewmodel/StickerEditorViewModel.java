@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 import br.arch.sticker.R;
 import br.arch.sticker.core.lib.NativeCropMedia;
+import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.util.ApplicationTranslate;
 import br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
 import br.arch.sticker.view.core.util.convert.ConvertMediaToStickerFormat;
@@ -63,6 +64,7 @@ public class StickerEditorViewModel extends AndroidViewModel {
 
     private final MutableLiveData<String> mediaWidth = new MutableLiveData<>();
     private final MutableLiveData<String> mediaHeight = new MutableLiveData<>();
+    private final MutableLiveData<File> fileConverted = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessageLiveData = new MutableLiveData<>();
     private final MutableLiveData<Long> videoDurationMsLiveData = new MutableLiveData<>();
     public final MutableLiveData<Map<Integer, Bitmap>> extractFrameResult = new MutableLiveData<>();
@@ -80,6 +82,10 @@ public class StickerEditorViewModel extends AndroidViewModel {
 
     public MutableLiveData<String> getMediaHeight() {
         return mediaHeight;
+    }
+
+    public MutableLiveData<File> getFileConverted() {
+        return fileConverted;
     }
 
     public MutableLiveData<Long> getVideoDurationMsLiveData() {
@@ -121,8 +127,7 @@ public class StickerEditorViewModel extends AndroidViewModel {
                 mediaWidth.postValue(widthStr);
                 mediaHeight.postValue(heightStr);
             } catch (Exception exception) {
-                errorMessageLiveData.postValue(
-                        applicationTranslate.translate(R.string.error_failed_load_video_metadata).log(TAG_LOG, Level.ERROR, exception).get());
+                errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_failed_load_video_metadata).log(TAG_LOG, Level.ERROR, exception).get());
             }
         });
     }
@@ -137,31 +142,30 @@ public class StickerEditorViewModel extends AndroidViewModel {
         retriever.setDataSource(context, videoUri);
 
         scheduler.scheduleWithFixedDelay(() -> {
-                    if (!isExtracting) {
-                        scheduler.shutdown();
-                        return;
-                    }
+            if (!isExtracting) {
+                scheduler.shutdown();
+                return;
+            }
 
-                    final Long videoDuration = videoDurationMsLiveData.getValue();
-                    if (videoDuration == null || videoDuration == 0L) return;
+            final Long videoDuration = videoDurationMsLiveData.getValue();
+            if (videoDuration == null || videoDuration == 0L) return;
 
-                    int totalFrames = (int) ((videoDuration / 1000f) * FRAMES_PER_SECOND);
+            int totalFrames = (int) ((videoDuration / 1000f) * FRAMES_PER_SECOND);
 
-                    if (nextFrameIndex >= totalFrames) {
-                        isExtracting = false;
-                        scheduler.shutdown();
-                        return;
-                    }
+            if (nextFrameIndex >= totalFrames) {
+                isExtracting = false;
+                scheduler.shutdown();
+                return;
+            }
 
-                    long startMs = (nextFrameIndex * 1000L) / FRAMES_PER_SECOND;
-                    long windowDurationMs = batchSize * (1000L / FRAMES_PER_SECOND);
+            long startMs = (nextFrameIndex * 1000L) / FRAMES_PER_SECOND;
+            long windowDurationMs = batchSize * (1000L / FRAMES_PER_SECOND);
 
-                    extractFramesInWindow(startMs, windowDurationMs, nextFrameIndex, batchSize);
+            extractFramesInWindow(startMs, windowDurationMs, nextFrameIndex, batchSize);
 
-                    nextFrameIndex += batchSize;
+            nextFrameIndex += batchSize;
 
-                }, 0, 500, TimeUnit.MILLISECONDS
-        );
+        }, 0, 500, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -178,8 +182,7 @@ public class StickerEditorViewModel extends AndroidViewModel {
 
             final Long videoDurationMs = videoDurationMsLiveData.getValue();
             if (videoDurationMs == null || videoDurationMs == 0L) {
-                errorMessageLiveData.postValue(
-                        applicationTranslate.translate(R.string.error_invalid_timeline_duration).log(TAG_LOG, Level.ERROR).get());
+                errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_invalid_timeline_duration).log(TAG_LOG, Level.ERROR).get());
                 return;
             }
 
@@ -206,8 +209,7 @@ public class StickerEditorViewModel extends AndroidViewModel {
                     }
                 }
             } catch (Exception exception) {
-                errorMessageLiveData.postValue(
-                        applicationTranslate.translate(R.string.error_extracting_frames).log(TAG_LOG, Level.ERROR, exception).get());
+                errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_extracting_frames).log(TAG_LOG, Level.ERROR, exception).get());
             }
 
             if (!extractedFrames.isEmpty()) {
@@ -251,11 +253,11 @@ public class StickerEditorViewModel extends AndroidViewModel {
             try (FileOutputStream fileOutputStream = new FileOutputStream(fileToSave)) {
                 croppedBitmap.compress(Bitmap.CompressFormat.WEBP, 100, fileOutputStream);
                 fileOutputStream.flush();
+
+                fileConverted.postValue(fileToSave);
             }
-            // TODO: Criar live data para falar que salvou
         } catch (IOException exception) {
-            // TODO: Tratar erros
-            throw new RuntimeException(exception);
+            errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_conversion_failed).log(TAG_LOG, Level.ERROR).get());
         }
     }
 
@@ -268,22 +270,19 @@ public class StickerEditorViewModel extends AndroidViewModel {
             String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFile);
 
             NativeCropMedia nativeCropMedia = new NativeCropMedia(context.getResources());
-            nativeCropMedia.processWebpAsync(inputFile, finalOutputFileName, x, y, width, height, startSeconds, endSeconds,
-                    new NativeCropMedia.CropCallback() {
-                        @Override
-                        public void onSuccess(File file) {
-                            // TODO: Criar live data para falar que salvou
-                            Log.d(TAG_LOG, "Teste success");
-                        }
+            nativeCropMedia.processWebpAsync(inputFile, finalOutputFileName, x, y, width, height, startSeconds, endSeconds, new NativeCropMedia.CropCallback() {
+                @Override
+                public void onSuccess(File file) {
+                    fileConverted.postValue(file);
+                }
 
-                        @Override
-                        public void onError(Exception exception) {
-                            // TODO: Tratar erros
-                            Log.d(TAG_LOG, "Teste error");
-                        }
-                    }
-            );
+                @Override
+                public void onError(Exception exception) {
+                    errorMessageLiveData.postValue(applicationTranslate.translate(R.string.error_conversion_failed).log(TAG_LOG, Level.ERROR, exception).get());
+                }
+            });
         });
     }
+
 }
 

@@ -70,6 +70,42 @@
     <string name="dialog_cleanup_urls_title">Clean URLs</string>
     <string name="dialog_cleanup_urls_message">The URLs are invalid. Would you like to clean them?</string>
 
+    <!-- Debug and Warning Logs -->
+    <string name="debug_frame_updated">Frame updated: %1$s.</string>
+    <string name="debug_extracted_frames">Extracted %1$s frames.</string>
+    <string name="debug_extracting_frame">Extracting frame at index %1$s (time: %2$s ms).</string>
+    <string name="debug_video_crop">Current video crop: %1$s.</string>
+    <string name="warn_unknown">Unknown: %1$s.</string>
+    <string name="warn_non_webp_file">File ignored as it is not .webp: %s.</string>
+    <string name="debug_validation_skipped">Validation skipped (not WhatsApp): %s.</string>
+    <string name="warn_no_pack_deleted">No pack deleted. Check the ID.</string>
+    <string name="warn_fallback_not_found">Fallback not found in assets.</string>
+    <string name="warn_no_sticker_deleted">No sticker deleted for file: %1$s</string>
+    <string name="information_sticker_deleted_success">Sticker deleted successfully</string>
+    <string name="information_sticker_is_valid">The sticker is valid!</string>
+    <string name="warn_no_sticker_updated">No record updated when renaming sticker.</string>
+    <string name="warn_no_sticker_marked_invalid">No record marked as invalid. Check the identifier and file name.</string>
+    <string name="warn_no_sticker_pack_updated">No record updated when renaming sticker pack.</string>
+    <string name="warn_no_sticker_pack_url_cleaned">No record updated when cleaning sticker pack URLs.</string>
+    <string name="information_sticker_file_deleted">File deleted: %1$s</string>
+    <string name="information_sticker_pack_directory_deleted">Directory deleted: %1$s</string>
+    <string name="warn_invalid_parameters_rename_pack">Invalid parameters for renaming sticker pack. Some field is empty.</string>
+    <string name="warn_invalid_parameters_clean_urls">Invalid parameters for cleaning sticker pack URLs. The stickerPackIdentifier field is empty.</string>
+    <string name="debug_update_sticker_pack_name">Updating sticker pack name: pack=%1$s, new=%2$s</string>
+    <string name="debug_clean_sticker_pack_urls">Updating sticker pack name: pack=%1$s</string>
+    <string name="warn_invalid_parameters_rename_sticker">Invalid parameters for renaming sticker. Some field is empty.</string>
+    <string name="warn_invalid_parameters_mark_invalid">Invalid parameters for marking sticker as invalid.</string>
+    <string name="debug_update_sticker_filename">Updating sticker filename: pack=%1$s, old=%2$s, new=%3$s</string>
+    <string name="debug_mark_sticker_invalid">Marking sticker as invalid: pack=%1$s, file=%2$s, error=%3$s</string>
+    <string name="debug_main_directory_exists">mainDirectory already exists: %1$s</string>
+    <string name="debug_sticker_pack_directory_exists">Directory already exists: %1$s</string>
+    <string name="warn_unsupported_view_transformation">View not supported for transformation.</string>
+
+
+    <!-- Timeline and Miscellaneous -->
+    <string name="timeline_seconds">%1$s seconds</string>
+    <string name="input_quality_sticker">Image quality (1 to 20)</string>
+
     <!-- Error Messages -->
     <string name="error_play_store_not_found">Google Play is not installed.</string>
     <string name="error_stickerpack_already_added">Pack already added to WhatsApp.</string>
@@ -154,7 +190,8 @@
     <string name="error_webp_processing_error">Error processing the WebP image. Pack identifier: %s, file: %s</string>
     <string name="error_null_cursor">Null cursor when searching for sticker pack.</string>
     <string name="error_invalid_path_segments">Path segments must be 3, uri is: %s</string>
-    <string name="error_sticker_pack_not_found">Sticker pack not found: %s</string>
+    <string name="error_sticker_pack_not_found_param">Sticker pack not found: %s</string>
+    <string name="error_sticker_pack_not_found">Sticker pack not found.</string>
     <string name="error_open_file_error">Error opening %s: %s</string>
     <string name="error_save_sticker_pack_general">Error saving sticker pack.</string>
     <string name="error_save_sticker_pack_directory_null">The directory for saving sticker packs is null.</string>
@@ -198,39 +235,9 @@
     <string name="error_null_arguments">Arguments cannot be null</string>
     <string name="error_gallery_permission_denied">Gallery permission was not granted.</string>
     <string name="error_decode_image">Failed to decode image from path: %1$s</string>
-    <!-- Debug and Warning Logs -->
-    <string name="debug_frame_updated">Frame updated: %1$s.</string>
-    <string name="debug_extracted_frames">Extracted %1$s frames.</string>
-    <string name="debug_extracting_frame">Extracting frame at index %1$s (time: %2$s ms).</string>
-    <string name="debug_video_crop">Current video crop: %1$s.</string>
-    <string name="warn_unknown">Unknown: %1$s.</string>
-    <string name="warn_non_webp_file">File ignored as it is not .webp: %s.</string>
-    <string name="debug_validation_skipped">Validation skipped (not WhatsApp): %s.</string>
-    <string name="warn_no_pack_deleted">No pack deleted. Check the ID.</string>
-    <string name="warn_fallback_not_found">Fallback not found in assets.</string>
-    <string name="warn_no_sticker_deleted">No sticker deleted for file: %1$s</string>
-    <string name="information_sticker_deleted_success">Sticker deleted successfully</string>
-    <string name="information_sticker_is_valid">The sticker is valid!</string>
-    <string name="warn_no_sticker_updated">No record updated when renaming sticker.</string>
-    <string name="warn_no_sticker_marked_invalid">No record marked as invalid. Check the identifier and file name.</string>
-    <string name="warn_no_sticker_pack_updated">No record updated when renaming sticker pack.</string>
-    <string name="warn_no_sticker_pack_url_cleaned">No record updated when cleaning sticker pack URLs.</string>
-    <string name="information_sticker_file_deleted">File deleted: %1$s</string>
-    <string name="information_sticker_pack_directory_deleted">Directory deleted: %1$s</string>
-    <string name="warn_invalid_parameters_rename_pack">Invalid parameters for renaming sticker pack. Some field is empty.</string>
-    <string name="warn_invalid_parameters_clean_urls">Invalid parameters for cleaning sticker pack URLs. The stickerPackIdentifier field is empty.</string>
-    <string name="debug_update_sticker_pack_name">Updating sticker pack name: pack=%1$s, new=%2$s</string>
-    <string name="debug_clean_sticker_pack_urls">Updating sticker pack name: pack=%1$s</string>
-    <string name="warn_invalid_parameters_rename_sticker">Invalid parameters for renaming sticker. Some field is empty.</string>
-    <string name="warn_invalid_parameters_mark_invalid">Invalid parameters for marking sticker as invalid.</string>
-    <string name="debug_update_sticker_filename">Updating sticker filename: pack=%1$s, old=%2$s, new=%3$s</string>
-    <string name="debug_mark_sticker_invalid">Marking sticker as invalid: pack=%1$s, file=%2$s, error=%3$s</string>
-    <string name="debug_main_directory_exists">mainDirectory already exists: %1$s</string>
-    <string name="debug_sticker_pack_directory_exists">Directory already exists: %1$s</string>
-    <string name="warn_unsupported_view_transformation">View not supported for transformation.</string>
-
-
-    <!-- Timeline and Miscellaneous -->
-    <string name="timeline_seconds">%1$s seconds</string>
-    <string name="input_quality_sticker">Image quality (1 to 20)</string>
+    <string name="error_invalid_context">Error validating context.</string>
+    <string name="error_insufficient_to_sticker_pack">Insufficient data to generate packet.</string>
+    <string name="error_converting_uri">Error converting URI: %1$s.</string>
+    <string name="error_process_interruption">Process interruption error.</string>
+    <string name="error_could_not_get_list_paths_files">Could not get a list of paths to files.</string>
 </resources>

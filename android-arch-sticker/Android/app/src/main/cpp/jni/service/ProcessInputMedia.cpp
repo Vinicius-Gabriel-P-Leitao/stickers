@@ -48,7 +48,8 @@ ProcessInputMedia::ProcessInputMedia() = default;
 
 std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
         const char *inPath, const char *outPath,
-        float startSeconds, float endSeconds, const FrameProcessor &frameProcessor, const ParamsMap &params) {
+        float startSeconds, float endSeconds, const FrameProcessor &frameProcessor,
+        const ParamsMap &params) {
 
     if (!inPath || !outPath) {
         throw std::runtime_error("Caminhos de entrada ou saída inválidos.");
@@ -61,7 +62,8 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
 
     AVFormatContextPtr formatContext(formatContextRaw);
     if (avformat_find_stream_info(formatContext.get(), nullptr) < 0) {
-        throw std::runtime_error(fmt::format("Erro ao encontrar informações do stream em: {}", inPath));
+        throw std::runtime_error(
+                fmt::format("Erro ao encontrar informações do stream em: {}", inPath));
     }
 
     int videoStreamIndex = -1;
@@ -73,7 +75,8 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
     }
 
     if (videoStreamIndex == -1) {
-        throw std::runtime_error(fmt::format("Nenhum stream encontrado no vídeo no arquivo: {}", inPath));
+        throw std::runtime_error(
+                fmt::format("Nenhum stream encontrado no vídeo no arquivo: {}", inPath));
     }
 
     AVStream *videoStream = formatContext->streams[videoStreamIndex];
@@ -99,20 +102,12 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
         throw std::runtime_error(fmt::format("Erro ao abrir o codec: {}", errBuf));
     }
 
-    AVRational frameRate = av_guess_frame_rate(formatContext.get(), videoStream, nullptr);
-    double baseFrameRate = av_q2d(frameRate);
-    int frameInterval = (endSeconds - startSeconds) < 2.0 || baseFrameRate < 5 ? 1 : std::max(1, static_cast<int>(std::lround(baseFrameRate / 10.0)));
-    int frameCount = 0;
 
     AVFramePtr decodedFrame(av_frame_alloc(), AVFrameDestroyer());
     if (!decodedFrame) {
         throw std::runtime_error("Erro ao alocar frame decodificado.");
     }
 
-    AVFramePtr rgbFrame = ProcessFramesToFormat::createAvFrame(codecContext->width, codecContext->height, AV_PIX_FMT_RGB24);
-    if (!rgbFrame) {
-        throw std::runtime_error("Erro ao alocar frame RGB.");
-    }
 
     SwsContextPtr swsContextPtr(
             sws_getContext(
@@ -134,28 +129,20 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
     packet->size = 0;
 
     std::vector<FrameWithBuffer> vFramesWithBuffer;
+
+    const double frameInterval = 0.1;
+    double nextTargetTime = startSeconds;
+
     while (av_read_frame(formatContext.get(), packet) >= 0) {
         if (packet->stream_index == videoStreamIndex) {
-            if (packet->pts != AV_NOPTS_VALUE) {
-                double seconds = static_cast<double>(packet->pts) * av_q2d(videoStream->time_base);
-                if (seconds < startSeconds) {
-                    av_packet_unref(packet);
-                    continue;
-                }
-
-                if (seconds > endSeconds) {
-                    av_packet_unref(packet);
-                    break;
-                }
+            if (packet->stream_index != videoStreamIndex) {
+                av_packet_unref(packet);
+                continue;
             }
 
-            ret = avcodec_send_packet(codecContext.get(), packet);
-            if (ret < 0) {
+            if (avcodec_send_packet(codecContext.get(), packet) < 0) {
                 av_packet_unref(packet);
-
-                char errBuf[128];
-                av_strerror(ret, errBuf, sizeof(errBuf));
-                throw std::runtime_error(fmt::format("Erro ao enviar pacote para o codec: {}", errBuf));
+                continue;
             }
 
             while (true) {
@@ -167,21 +154,32 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
                 if (ret < 0) {
                     char errBuf[128];
                     av_strerror(ret, errBuf, sizeof(errBuf));
-                    throw std::runtime_error(fmt::format("Erro ao receber frame decodificado: {}", errBuf));
+                    throw std::runtime_error(fmt::format("Erro ao receber frame: {}", errBuf));
                 }
 
-                sws_scale(
-                        swsContextPtr.get(),
-                        decodedFrame->data, decodedFrame->linesize,
-                        0, codecContext->height,
-                        rgbFrame->data, rgbFrame->linesize
-                );
+                int64_t pts = decodedFrame->best_effort_timestamp;
+                if (pts == AV_NOPTS_VALUE) pts = decodedFrame->pts;
+                double seconds = static_cast<double>(pts) * av_q2d(videoStream->time_base);
 
-                if (frameCount % frameInterval == 0) {
+                if (std::isnan(seconds)) continue;
+
+                const double tolerance = 0.05;
+                if (seconds >= nextTargetTime - tolerance && seconds <= nextTargetTime + tolerance) {
+                    AVFramePtr rgbFrame = ProcessFramesToFormat::createAvFrame(codecContext->width, codecContext->height, AV_PIX_FMT_RGB24);
+
+                    sws_scale(
+                            swsContextPtr.get(),
+                            decodedFrame->data, decodedFrame->linesize, 0, codecContext->height, rgbFrame->data, rgbFrame->linesize
+                    );
+
                     frameProcessor(rgbFrame, vFramesWithBuffer, params);
-                }
 
-                frameCount++;
+                    nextTargetTime += frameInterval;
+                    if (nextTargetTime > endSeconds + tolerance) {
+                        av_packet_unref(packet);
+                        return vFramesWithBuffer;
+                    }
+                }
             }
         }
 
@@ -190,7 +188,7 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
 
     av_packet_free(&packet);
     if (vFramesWithBuffer.empty()) {
-        throw std::runtime_error("Nenhum frame capturado para criar a animação.");
+        throw std::runtime_error(fmt::format("Nenhum frame capturado para criar a animação: {}", vFramesWithBuffer.size()));
     }
 
     return vFramesWithBuffer;

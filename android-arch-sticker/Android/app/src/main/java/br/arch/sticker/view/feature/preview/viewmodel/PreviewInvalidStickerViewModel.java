@@ -174,6 +174,7 @@ public class PreviewInvalidStickerViewModel extends AndroidViewModel {
             String stickerPackIdentifier = resizeFile.stickerPackIdentifier();
             float fileQuality = resizeFile.quality.floatValue();
 
+            // TODO: Passar para outra função quando o arquivo for estático, se não vira animado.
             executor.submit(() -> {
                 File filesDir = new File(new File(context.getFilesDir(), STICKERS_ASSET), stickerPackIdentifier);
                 String inputFile = new File(filesDir, sticker.imageFileName).getAbsolutePath();
