@@ -177,7 +177,7 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
         if (action instanceof FixActionStickerPack.RenameStickerPack renameStickerPack) {
             if (renameStickerPack.newName == null) {
                 errorMessageLiveData.postValue(
-                        applicationTranslate.translate(R.string.error_unable_update_stickerpack_name).log(TAG_LOG, Level.ERROR).get());
+                        applicationTranslate.translate(R.string.error_unable_update_sticker_pack_name).log(TAG_LOG, Level.ERROR).get());
                 progressLiveData.postValue(false);
                 return;
             }
@@ -191,7 +191,7 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
                     return;
                 }
 
-                errorMessageLiveData.postValue(context.getString(R.string.error_unable_update_stickerpack_name));
+                errorMessageLiveData.postValue(context.getString(R.string.error_unable_update_sticker_pack_name));
                 progressLiveData.postValue(false);
             });
         }
@@ -259,7 +259,7 @@ public class PreviewInvalidStickerPackViewModel extends AndroidViewModel {
                 }
 
                 errorMessageLiveData.postValue(
-                        applicationTranslate.translate(R.string.error_unable_update_stickerpack_name).log(TAG_LOG, Level.ERROR).get());
+                        applicationTranslate.translate(R.string.error_unable_update_sticker_pack_name).log(TAG_LOG, Level.ERROR).get());
                 progressLiveData.postValue(false);
             });
         }

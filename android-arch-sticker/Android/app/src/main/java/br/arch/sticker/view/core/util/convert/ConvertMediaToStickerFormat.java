@@ -33,10 +33,10 @@ public class ConvertMediaToStickerFormat {
     private final FileDetailsResolver fileDetailsResolver;
     private final ImageConverter imageConverter;
     private final VideoConverter videoConverter;
+    private final Context context;
 
     public ConvertMediaToStickerFormat(Context paramContext) {
-        Context context = paramContext.getApplicationContext();
-
+        this.context = paramContext.getApplicationContext();
         this.imageConverter = new ImageConverter(context);
         this.videoConverter = new VideoConverter(context);
         this.fileDetailsResolver = new FileDetailsResolver(context);
@@ -63,7 +63,10 @@ public class ConvertMediaToStickerFormat {
 
             try {
                 if (MimeTypeValidator.validateUniqueMimeType(mimeType, MimeTypesSupported.IMAGE.getMimeTypes())) {
-                    File file = imageConverter.convertImageToWebPAsyncFuture(filePath, outputFileName);
+                    String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFileName);
+                    File outputFile = new File(context.getCacheDir(), finalOutputFileName);
+
+                    File file = imageConverter.convertImageToWebp(filePath, outputFile, 80);
                     future.complete(file);
                     return future;
                 }

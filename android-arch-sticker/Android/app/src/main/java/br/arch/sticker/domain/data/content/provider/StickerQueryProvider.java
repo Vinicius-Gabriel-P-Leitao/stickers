@@ -52,7 +52,7 @@ public class StickerQueryProvider {
                     stickerPackIdentifier);
             return stickerQueryHelper.fetchStickerData(uri, stickerPack);
         } catch (RuntimeException exception) {
-            Log.e(TAG_LOG, applicationTranslate.translate(R.string.error_loading_stickerpack,
+            Log.e(TAG_LOG, applicationTranslate.translate(R.string.error_loading_sticker_pack,
                             stickerPackIdentifier
                     ).get(), exception
             );

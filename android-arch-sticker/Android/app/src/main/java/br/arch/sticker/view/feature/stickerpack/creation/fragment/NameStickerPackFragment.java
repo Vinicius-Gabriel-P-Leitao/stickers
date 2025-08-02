@@ -61,7 +61,7 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (charSequence.length() > CHAR_NAME_COUNT_MAX) {
                     textInputEditText.setError(
-                            getString(R.string.input_name_cannot_exceed_stickerpack_size));
+                            getString(R.string.input_name_cannot_exceed_sticker_pack_size));
                 } else {
                     textInputEditText.setError(null);
                 }

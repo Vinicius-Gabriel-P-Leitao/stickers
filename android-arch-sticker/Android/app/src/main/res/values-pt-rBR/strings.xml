@@ -13,7 +13,7 @@
     <string name="add_to_whatsapp">Adicionar ao WhatsApp</string>
     <string name="add_button_content_description">Adicionar pacote ao WhatsApp</string>
     <string name="title_activity_sticker_pack_details">Detalhes do pacote</string>
-    <string name="title_activity_stickerpack_info">Informações</string>
+    <string name="title_activity_sticker_pack_info">Informações</string>
     <string name="title_activity_preview_invalid_sticker">Figurinhas invalidas</string>
     <string name="info_screen_tray_icon">Thumbnail</string>
     <string name="view_webpage">Ver página</string>
@@ -21,7 +21,7 @@
     <string name="privacy_policy">Política de privacidade</string>
     <string name="license_agreement">Contrato de licença</string>
     <string name="sticker_animation_indicator">Pacote de figurinhas animadas</string>
-    <string name="details_stickerpack_already_added">Pacote de figurinhas adicionado ao WhatsApp</string>
+    <string name="details_sticker_pack_already_added">Pacote de figurinhas adicionado ao WhatsApp</string>
     <string name="sticker_tap_to_preview">Toque para visualizar a figurinha</string>
     <string name="button_create_sticker_pack">Criar novo pacote</string>
     <string name="menu_option_static_stickers">Estáticas</string>
@@ -32,13 +32,13 @@
     <string name="preview_sticker_description">Thumbnail do pacote</string>
     <string name="button_open_media_picker">Abrir galeria e nome do pacote</string>
     <string name="description_image_thumbnail">Thumbnail da imagem na galeria</string>
-    <string name="input_stickerpack_name">Nome do pacote</string>
+    <string name="input_sticker_pack_name">Nome do pacote</string>
     <string name="button_open_gallery_description">Buscar imagens ou vídeos na galeria</string>
     <string name="title_activity_sticker_creator">Criar pacote</string>
     <string name="title_activity_first_pack_creator">Criar primeiro pacote</string>
 
     <!-- Dialog Titles and Messages -->
-    <string name="input_name_cannot_exceed_stickerpack_size">Não pode passar de 20.</string>
+    <string name="input_name_cannot_exceed_sticker_pack_size">Não pode passar de 20.</string>
     <string name="dialog_message_delete_pack">Deletar pacote.</string>
     <string name="dialog_permission_title">Permissão necessária</string>
     <string name="dialog_permission_message">É necessário acesso à galeria.</string>
@@ -52,12 +52,12 @@
     <string name="dialog_refactor">Refatorar</string>
     <string name="dialog_rename">Renomear</string>
     <string name="dialog_info_send_email_prompt">Enviar e-mail com…</string>
-    <string name="dialog_add_stickerpack_fail_prompt">Não foi possível adicionar o pacote. Atualize o WhatsApp para a versão mais recente.</string>
-    <string name="dialog_add_stickerpack_update_link">Atualizar</string>
-    <string name="dialog_metadata_stickerpack">Importar mídia</string>
-    <string name="dialog_invalid_stickerpack_title">Pacote inválido</string>
-    <string name="dialog_invalid_stickerpack_message">O pacote é inválido. Corrija ou exclua.</string>
-    <string name="dialog_fix_stickerpack">Corrigir pacote</string>
+    <string name="dialog_add_sticker_pack_fail_prompt">Não foi possível adicionar o pacote. Atualize o WhatsApp para a versão mais recente.</string>
+    <string name="dialog_add_sticker_pack_update_link">Atualizar</string>
+    <string name="dialog_metadata_sticker_pack">Importar mídia</string>
+    <string name="dialog_invalid_sticker_pack_title">Pacote inválido</string>
+    <string name="dialog_invalid_sticker_pack_message">O pacote é inválido. Corrija ou exclua.</string>
+    <string name="dialog_fix_sticker_pack">Corrigir pacote</string>
     <string name="dialog_fix_stickers">Corrigir figurinhas</string>
     <string name="dialog_invalid_stickers_title">Figurinhas inválidas</string>
     <string name="dialog_invalid_stickers_message">O pacote contém figurinhas inválidas.</string>
@@ -107,7 +107,7 @@
 
     <!-- Error Messages -->
     <string name="error_play_store_not_found">Google Play não está instalado.</string>
-    <string name="error_stickerpack_already_added">Pacote já adicionado ao WhatsApp.</string>
+    <string name="error_sticker_pack_already_added">Pacote já adicionado ao WhatsApp.</string>
     <string name="error_empty_pack_name">Preencha o nome do pacote.</string>
     <string name="error_invalid_pack">Pacote inválido.</string>
     <string name="error_invalid_sticker">Figurinha inválida.</string>
@@ -126,10 +126,9 @@
     <string name="error_invalid_website">Site do pacote inválido: %s.</string>
     <string name="error_invalid_email">E-mail do pacote inválido: %s.</string>
     <string name="error_name_length_exceeded">Nome do pacote não pode exceder %s caracteres.</string>
-    <string name="error_save_stickerpack_db">Erro ao salvar pacote no banco de dados.</string>
-    <string name="error_save_stickerpack_service">Erro ao salvar pacote na camada de serviço.</string>
-    <string name="error_save_stickerpack_util">Erro ao salvar pacote na camada de utilitário.</string>
-    <string name="error_save_stickerpack_ui">Erro ao salvar pacote na interface.</string>
+    <string name="error_save_sticker_pack_service">Erro ao salvar pacote na camada de serviço.</string>
+    <string name="error_save_sticker_pack_util">Erro ao salvar pacote na camada de utilitário.</string>
+    <string name="error_save_sticker_pack_ui">Erro ao salvar pacote na interface.</string>
     <string name="error_save_thumbnail">Erro ao salvar thumbnail.</string>
     <string name="error_native_conversion">Erro na conversão nativa.</string>
     <string name="error_media_conversion">Erro ao converter mídia.</string>
@@ -140,24 +139,24 @@
     <string name="error_unknown">Erro desconhecido.</string>
     <string name="error_operation_failed">Operação não pôde ser executada.</string>
     <string name="error_base_activity">Erro na tela principal.</string>
-    <string name="error_delete_stickerpack_db">Erro ao deletar pacote no banco de dados.</string>
-    <string name="error_delete_stickerpack_service">Erro ao deletar pacote na camada de serviço.</string>
-    <string name="error_delete_stickerpack_util">Erro ao deletar pacote na camada de utilitário.</string>
-    <string name="error_delete_stickerpack_ui">Erro ao deletar pacote na interface.</string>
+    <string name="error_delete_sticker_pack_db">Erro ao deletar pacote no banco de dados.</string>
+    <string name="error_delete_sticker_pack_service">Erro ao deletar pacote na camada de serviço.</string>
+    <string name="error_delete_sticker_pack_util">Erro ao deletar pacote na camada de utilitário.</string>
+    <string name="error_delete_sticker_pack_ui">Erro ao deletar pacote na interface.</string>
     <string name="error_sticker_file_not_found">Arquivo da figurinha não existe.</string>
-    <string name="error_empty_stickerpack">Pacote de figurinhas vazio.</string>
+    <string name="error_empty_stickers_sticker_pack">Pacote de figurinhas vazio.</string>
     <string name="error_content_provider">Erro ao buscar no provedor de conteúdo.</string>
     <string name="error_invalid_sticker_list_empty">Lista de figurinhas inválidas está vazia ou nula.</string>
     <string name="error_empty_sticker_list">Lista de figurinhas está vazia ou nula.</string>
-    <string name="error_loading_stickerpack">Erro ao carregar pacote de figurinhas.</string>
+    <string name="error_loading_sticker_pack">Erro ao carregar pacote de figurinhas.</string>
     <string name="error_invalid_not_found">Nenhuma figurinha inválida encontrada.</string>
     <string name="error_main_path_not_found">Pasta principal de figurinhas não encontrada.</string>
-    <string name="error_unable_delete_stickerpack_folder">Não foi possível deletar a pasta do pacote.</string>
+    <string name="error_unable_delete_sticker_pack_folder">Não foi possível deletar a pasta do pacote.</string>
     <string name="error_quality_not_entered">Qualidade do arquivo deve ser informada.</string>
     <string name="error_pack_name_not_entered">Nome do pacote deve ser informado.</string>
     <string name="error_delete_sticker_list_db">Erro ao deletar lista de figurinhas do banco de dados.</string>
-    <string name="error_invalid_stickerpack_size">Figurinhas do pacote estão vazias ou abaixo do tamanho mínimo.</string>
-    <string name="error_unable_update_stickerpack_name">Não foi possível atualizar o nome do pacote.</string>
+    <string name="error_invalid_sticker_pack_size">Figurinhas do pacote estão vazias ou abaixo do tamanho mínimo.</string>
+    <string name="error_unable_update_sticker_pack_name">Não foi possível atualizar o nome do pacote.</string>
     <string name="error_file_to_thumbnail_not_found">Arquivo para criar thumbnail não existe.</string>
     <string name="error_process_canceled">Processo cancelado.</string>
     <string name="error_select_at_least_one_media">Selecione pelo menos uma mídia.</string>

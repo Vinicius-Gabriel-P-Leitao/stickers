@@ -86,7 +86,7 @@ public class DeleteStickerAssetService {
         }
 
         if (!stickerPackDirectory.delete()) {
-            return CallbackResult.failure(new DeleteStickerException(context.getString(R.string.error_unable_delete_stickerpack_folder),
+            return CallbackResult.failure(new DeleteStickerException(context.getString(R.string.error_unable_delete_sticker_pack_folder),
                     ErrorCode.ERROR_PACK_DELETE_SERVICE
             ));
         }

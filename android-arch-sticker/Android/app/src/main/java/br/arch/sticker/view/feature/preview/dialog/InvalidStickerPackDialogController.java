@@ -99,7 +99,7 @@ public class InvalidStickerPackDialogController {
         }
 
         if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.ResizeStickerPack resizeStickerPack) {
-            alertStickerDialog.setTitleText(alertStickerContext.getString(R.string.dialog_fix_stickerpack));
+            alertStickerDialog.setTitleText(alertStickerContext.getString(R.string.dialog_fix_sticker_pack));
             alertStickerDialog.setMessageText(alertStickerContext.getString(R.string.dialog_remove_extra_stickers_message));
             alertStickerDialog.setVisibilityFixButton(View.VISIBLE);
             alertStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);

@@ -7,7 +7,7 @@
     </plurals>
 
     <!-- UI Labels and Descriptions -->
-    <string name="input_name_cannot_exceed_stickerpack_size">Cannot exceed 20.</string>
+    <string name="input_name_cannot_exceed_sticker_pack_size">Cannot exceed 20.</string>
     <string name="dialog_button_icon">Alert icon dialog!</string>
     <string name="tray_image_content_description">Sticker pack thumbnail</string>
     <string name="more_info_button">More Information</string>
@@ -15,14 +15,14 @@
     <string name="add_button_content_description">Add pack to WhatsApp</string>
     <string name="title_activity_sticker_pack_details">Pack Details</string>
     <string name="title_activity_preview_invalid_sticker">Invalid stickers</string>
-    <string name="title_activity_stickerpack_info">Information</string>
+    <string name="title_activity_sticker_pack_info">Information</string>
     <string name="info_screen_tray_icon">Thumbnail</string>
     <string name="view_webpage">View Webpage</string>
     <string name="send_email">Send Email</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="license_agreement">License Agreement</string>
     <string name="sticker_animation_indicator">Animated Sticker Pack</string>
-    <string name="details_stickerpack_already_added">Sticker pack added to WhatsApp</string>
+    <string name="details_sticker_pack_already_added">Sticker pack added to WhatsApp</string>
     <string name="sticker_tap_to_preview">Tap to preview sticker</string>
     <string name="button_create_sticker_pack">Create New Pack</string>
     <string name="menu_option_static_stickers">Static</string>
@@ -33,7 +33,7 @@
     <string name="preview_sticker_description">Pack thumbnail</string>
     <string name="button_open_media_picker">Open gallery and pack name</string>
     <string name="description_image_thumbnail">Image thumbnail in gallery</string>
-    <string name="input_stickerpack_name">Pack Name</string>
+    <string name="input_sticker_pack_name">Pack Name</string>
     <string name="button_open_gallery_description">Browse images or videos in gallery</string>
     <string name="title_activity_sticker_creator">Create Pack</string>
     <string name="title_activity_first_pack_creator">Create First Pack</string>
@@ -52,12 +52,12 @@
     <string name="dialog_refactor">Refactor</string>
     <string name="dialog_rename">Rename</string>
     <string name="dialog_info_send_email_prompt">Send email with…</string>
-    <string name="dialog_add_stickerpack_fail_prompt">Unable to add pack. Update WhatsApp to the latest version.</string>
-    <string name="dialog_add_stickerpack_update_link">Update</string>
-    <string name="dialog_metadata_stickerpack">Import Media</string>
-    <string name="dialog_invalid_stickerpack_title">Invalid Pack</string>
-    <string name="dialog_invalid_stickerpack_message">The pack is invalid. Fix or delete it.</string>
-    <string name="dialog_fix_stickerpack">Fix Pack</string>
+    <string name="dialog_add_sticker_pack_fail_prompt">Unable to add pack. Update WhatsApp to the latest version.</string>
+    <string name="dialog_add_sticker_pack_update_link">Update</string>
+    <string name="dialog_metadata_sticker_pack">Import Media</string>
+    <string name="dialog_invalid_sticker_pack_title">Invalid Pack</string>
+    <string name="dialog_invalid_sticker_pack_message">The pack is invalid. Fix or delete it.</string>
+    <string name="dialog_fix_sticker_pack">Fix Pack</string>
     <string name="dialog_fix_stickers">Fix Stickers</string>
     <string name="dialog_invalid_stickers_title">Invalid Stickers</string>
     <string name="dialog_invalid_stickers_message">The pack contains invalid stickers.</string>
@@ -108,7 +108,7 @@
 
     <!-- Error Messages -->
     <string name="error_play_store_not_found">Google Play is not installed.</string>
-    <string name="error_stickerpack_already_added">Pack already added to WhatsApp.</string>
+    <string name="error_sticker_pack_already_added">Pack already added to WhatsApp.</string>
     <string name="error_empty_pack_name">Enter the pack name.</string>
     <string name="error_invalid_pack">Invalid pack.</string>
     <string name="error_invalid_sticker">Invalid sticker.</string>
@@ -127,10 +127,9 @@
     <string name="error_invalid_website">Invalid pack website: %s.</string>
     <string name="error_invalid_email">Invalid pack email: %s.</string>
     <string name="error_name_length_exceeded">Pack name cannot exceed 20 characters.</string>
-    <string name="error_save_stickerpack_db">Error saving pack to the database.</string>
-    <string name="error_save_stickerpack_service">Error saving pack in the service layer.</string>
-    <string name="error_save_stickerpack_util">Error saving pack in the utility layer.</string>
-    <string name="error_save_stickerpack_ui">Error saving pack in the interface.</string>
+    <string name="error_save_sticker_pack_service">Error saving pack in the service layer.</string>
+    <string name="error_save_sticker_pack_util">Error saving pack in the utility layer.</string>
+    <string name="error_save_sticker_pack_ui">Error saving pack in the interface.</string>
     <string name="error_save_thumbnail">Error saving thumbnail.</string>
     <string name="error_native_conversion">Error in native conversion.</string>
     <string name="error_media_conversion">Error converting media.</string>
@@ -141,24 +140,24 @@
     <string name="error_unknown">Unknown error.</string>
     <string name="error_operation_failed">Operation could not be performed.</string>
     <string name="error_base_activity">Error in the main screen.</string>
-    <string name="error_delete_stickerpack_db">Error deleting pack from the database.</string>
-    <string name="error_delete_stickerpack_service">Error deleting pack in the service layer.</string>
-    <string name="error_delete_stickerpack_util">Error deleting pack in the utility layer.</string>
-    <string name="error_delete_stickerpack_ui">Error deleting pack in the interface.</string>
+    <string name="error_delete_sticker_pack_db">Error deleting pack from the database.</string>
+    <string name="error_delete_sticker_pack_service">Error deleting pack in the service layer.</string>
+    <string name="error_delete_sticker_pack_util">Error deleting pack in the utility layer.</string>
+    <string name="error_delete_sticker_pack_ui">Error deleting pack in the interface.</string>
     <string name="error_sticker_file_not_found">Sticker file does not exist.</string>
-    <string name="error_empty_stickerpack">Empty sticker pack.</string>
+    <string name="error_empty_stickers_sticker_pack">Empty sticker pack.</string>
     <string name="error_content_provider">Error fetching from content provider.</string>
     <string name="error_invalid_sticker_list_empty">Invalid sticker list is empty or null.</string>
     <string name="error_empty_sticker_list">Sticker list is empty or null.</string>
-    <string name="error_loading_stickerpack">Error loading sticker pack.</string>
+    <string name="error_loading_sticker_pack">Error loading sticker pack.</string>
     <string name="error_invalid_not_found">No invalid stickers found.</string>
     <string name="error_main_path_not_found">Main sticker folder not found.</string>
-    <string name="error_unable_delete_stickerpack_folder">Unable to delete pack folder.</string>
+    <string name="error_unable_delete_sticker_pack_folder">Unable to delete pack folder.</string>
     <string name="error_quality_not_entered">File quality must be specified.</string>
     <string name="error_pack_name_not_entered">Pack name must be specified.</string>
     <string name="error_delete_sticker_list_db">Error deleting sticker list from the database.</string>
-    <string name="error_invalid_stickerpack_size">Pack stickers are empty or below the minimum size.</string>
-    <string name="error_unable_update_stickerpack_name">Unable to update pack name.</string>
+    <string name="error_invalid_sticker_pack_size">Pack stickers are empty or below the minimum size.</string>
+    <string name="error_unable_update_sticker_pack_name">Unable to update pack name.</string>
     <string name="error_file_to_thumbnail_not_found">File for creating thumbnail does not exist.</string>
     <string name="error_process_canceled">Process canceled.</string>
     <string name="error_select_at_least_one_media">Select at least one media.</string>
@@ -240,4 +239,5 @@
     <string name="error_converting_uri">Error converting URI: %1$s.</string>
     <string name="error_process_interruption">Process interruption error.</string>
     <string name="error_could_not_get_list_paths_files">Could not get a list of paths to files.</string>
+    <string name="title_activity_editor" translatable="false">Editor</string>
 </resources>

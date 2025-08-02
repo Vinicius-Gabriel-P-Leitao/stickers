@@ -45,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="@string/dialog_fix_stickerpack"
+                android:text="@string/dialog_fix_sticker_pack"
                 android:textColor="@color/catppuccin_crust"
                 app:backgroundTint="@color/catppuccin_lavender"
                 app:cornerRadius="12dp" />

@@ -37,7 +37,7 @@
 
         <activity
             android:name=".view.feature.stickerpack.metadata.activity.StickerPackMetadataActivity"
-            android:label="@string/title_activity_stickerpack_info"
+            android:label="@string/title_activity_sticker_pack_info"
             android:parentActivityName=".view.feature.stickerpack.details.activity.StickerPackDetailsActivity"
             tools:ignore="UnusedAttribute">
             <meta-data

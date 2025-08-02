@@ -41,7 +41,7 @@
         android:layout_height="40dp"
         android:background="@drawable/background_rounded_button_open_gallery"
         android:backgroundTint="@color/catppuccin_surface1"
-        android:contentDescription="@string/dialog_fix_stickerpack"
+        android:contentDescription="@string/dialog_fix_sticker_pack"
         android:padding="4dp"
         android:scaleType="fitXY"
         android:src="@drawable/ic_build_24dp"

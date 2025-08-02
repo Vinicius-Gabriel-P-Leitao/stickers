@@ -129,10 +129,10 @@ public class StickerPackListActivity extends StickerPackAddActivity {
             final String stickerPackIdentifier = stickerPack.identifier;
 
             final AlertStickerDialog dialog = new AlertStickerDialog(StickerPackListActivity.this);
-            dialog.setTitleText(getString(R.string.dialog_invalid_stickerpack_title));
-            dialog.setMessageText(getString(R.string.dialog_invalid_stickerpack_message));
+            dialog.setTitleText(getString(R.string.dialog_invalid_sticker_pack_title));
+            dialog.setMessageText(getString(R.string.dialog_invalid_sticker_pack_message));
 
-            dialog.setTextFixButton(getString(R.string.dialog_fix_stickerpack));
+            dialog.setTextFixButton(getString(R.string.dialog_fix_sticker_pack));
             dialog.setOnFixClick(fragment -> {
                 Intent intent = new Intent(fragment.getContext(), PreviewInvalidStickerActivity.class);
                 intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPackIdentifier);

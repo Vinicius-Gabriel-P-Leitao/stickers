@@ -8,6 +8,7 @@
 
 package br.arch.sticker.view.feature.stickerpack.creation.fragment;
 
+import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 import static br.arch.sticker.view.feature.editor.activity.StickerEditorActivity.FILE_STICKER_DATA;
@@ -19,6 +20,8 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,13 +96,23 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
 
                             StickerPackCreationViewModel.generateStickerPack(files);
                         } catch (Exception exception) {
+                            // TODO: Tratar erro melhor
                             exception.printStackTrace();
                         }
                     }
                 }
             }
-        });
 
+            if (result.getResultCode() == RESULT_CANCELED) {
+                progressBar.setVisibility(View.GONE);
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (getDialog() != null) {
+                        getDialog().cancel();
+                    }
+                });
+            }
+        });
     }
 
     @Nullable

@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="@string/dialog_metadata_stickerpack"
+        android:text="@string/dialog_metadata_sticker_pack"
         android:background="@android:color/transparent"
         android:textColor="@color/catppuccin_text"
         android:textSize="20sp"
@@ -24,7 +24,7 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/input_stickerpack_name"
+        android:hint="@string/input_sticker_pack_name"
         android:textColorHint="@color/catppuccin_subtext0">
 
         <com.google.android.material.textfield.TextInputEditText

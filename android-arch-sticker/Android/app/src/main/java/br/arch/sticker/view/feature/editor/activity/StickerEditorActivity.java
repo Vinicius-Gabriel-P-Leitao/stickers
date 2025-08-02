@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -57,6 +58,7 @@ import br.arch.sticker.view.core.usecase.definition.MimeTypesSupported;
 import br.arch.sticker.view.feature.editor.adapter.TimelineFramesAdapter;
 import br.arch.sticker.view.feature.editor.controller.GestureController;
 import br.arch.sticker.view.feature.editor.viewmodel.StickerEditorViewModel;
+import br.arch.sticker.view.main.EntryActivity;
 
 public class StickerEditorActivity extends BaseActivity {
     private final static String TAG_LOG = StickerEditorActivity.class.getSimpleName();
@@ -83,12 +85,24 @@ public class StickerEditorActivity extends BaseActivity {
     private long loopEndMs = loopDurationMs;
 
     @Override
+    public boolean onSupportNavigateUp() {
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        setResult(RESULT_CANCELED, intent);
+        finish();
+        return true;
+    }
+
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sticker_editor);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().hide();
+            getSupportActionBar().show();
+            getSupportActionBar().setTitle(R.string.title_activity_editor);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getColor(R.color.catppuccin_base)));
         }
 
         applicationTranslate = new ApplicationTranslate(getResources());
@@ -146,6 +160,8 @@ public class StickerEditorActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        finish();
+
         if (player != null) {
             player.setPlayWhenReady(false);
             playerView.setPlayer(null);
@@ -164,48 +180,42 @@ public class StickerEditorActivity extends BaseActivity {
     }
 
     private void processUris(Uri uri) {
-        try {
-            String mimeType = getContentResolver().getType(uri);
-            MimeTypesSupported mediaType = MimeTypesSupported.fromMimeType(mimeType);
+        String mimeType = getContentResolver().getType(uri);
+        MimeTypesSupported mediaType = MimeTypesSupported.fromMimeType(mimeType);
 
-            if (mediaType == null) {
-                Toast.makeText(this, getString(R.string.error_unsupported_mimetype, mimeType), Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            switch (mediaType) {
-                case IMAGE:
-                    handleImage(uri);
-                    break;
-                case ANIMATED:
-                    handleAnimated(uri, mimeType);
-                    getVideoSeconds();
-                    break;
-            }
-
-            buttonConfirm.setOnClickListener(view -> {
-                getCropRectFromTransformedTexture(mimeType, crop -> {
-                            if (crop != null) {
-                                float startSeconds = (float) loopStartMs / 1000;
-                                float endSeconds = (float) loopEndMs / 1000;
-
-                                stickerEditorViewModel.createCroppedNative(uri, crop.left, crop.top, crop.width(), crop.height(), startSeconds, endSeconds);
-                            } else {
-                                Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
-                            }
-                        }, crop -> {
-                            if (crop != null) {
-                                stickerEditorViewModel.createCroppedBitmap(uri, crop);
-                            } else {
-                                Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                );
-            });
-        } catch (IllegalArgumentException exception) {
-            // TODO: Tratar erro de forma melhor
-            Toast.makeText(this, exception.getMessage(), Toast.LENGTH_SHORT).show();
+        if (mediaType == null) {
+            Toast.makeText(this, getString(R.string.error_unsupported_mimetype, mimeType), Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        switch (mediaType) {
+            case IMAGE:
+                handleImage(uri);
+                break;
+            case ANIMATED:
+                handleAnimated(uri, mimeType);
+                getVideoSeconds();
+                break;
+        }
+
+        buttonConfirm.setOnClickListener(view -> {
+            getCropRectFromTransformedTexture(mimeType, crop -> {
+                if (crop != null) {
+                    float startSeconds = (float) loopStartMs / 1000;
+                    float endSeconds = (float) loopEndMs / 1000;
+
+                    stickerEditorViewModel.createCroppedNative(uri, crop.left, crop.top, crop.width(), crop.height(), startSeconds, endSeconds);
+                } else {
+                    Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
+                }
+            }, crop -> {
+                if (crop != null) {
+                    stickerEditorViewModel.createCroppedBitmap(uri, crop);
+                } else {
+                    Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
     }
 
     private void handleImage(Uri uri) {
@@ -269,55 +279,49 @@ public class StickerEditorActivity extends BaseActivity {
         stickerEditorViewModel.loadVideoMetadata(videoUri);
 
         stickerEditorViewModel.getMediaWidth().observe(this, width -> {
-                    if (width != null) {
-                        videoWidth = Integer.parseInt(width);
-                    }
-                }
-        );
+            if (width != null) {
+                videoWidth = Integer.parseInt(width);
+            }
+        });
 
         stickerEditorViewModel.getMediaHeight().observe(this, height -> {
-                    if (height != null) {
-                        videoHeight = Integer.parseInt(height);
-                    }
-                }
-        );
+            if (height != null) {
+                videoHeight = Integer.parseInt(height);
+            }
+        });
 
         stickerEditorViewModel.getVideoDurationMsLiveData().observe(this, duration -> {
-                    if (duration != null) {
-                        videoDurationMs = duration;
-                    }
+            if (duration != null) {
+                videoDurationMs = duration;
+            }
 
-                    if (videoDurationMs == 0) {
-                        Toast.makeText(this, applicationTranslate.translate(R.string.error_invalid_timeline_duration).log(TAG_LOG, Level.ERROR).get(),
-                                Toast.LENGTH_SHORT
-                        ).show();
-                        return;
-                    }
+            if (videoDurationMs == 0) {
+                Toast.makeText(this, applicationTranslate.translate(R.string.error_invalid_timeline_duration).log(TAG_LOG, Level.ERROR).get(), Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                    int totalFrames = (int) (videoDurationMs / 1000f * FRAMES_PER_SECOND);
-                    final List<Bitmap> frames = new ArrayList<>(Collections.nCopies(totalFrames, null));
+            int totalFrames = (int) (videoDurationMs / 1000f * FRAMES_PER_SECOND);
+            final List<Bitmap> frames = new ArrayList<>(Collections.nCopies(totalFrames, null));
 
-                    TimelineFramesAdapter adapter = new TimelineFramesAdapter(this, frames, position -> {
-                        long seekMs = (position * 1000L) / FRAMES_PER_SECOND;
-                        if (player != null) {
-                            player.seekTo(seekMs);
-                        }
-                    }
-                    );
-
-                    recyclerTimeline.setAdapter(adapter);
-                    recyclerTimeline.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                        @Override
-                        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                            super.onScrolled(recyclerView, dx, dy);
-                            onTimelineChanged();
-                        }
-                    });
-
-                    stickerEditorViewModel.startIncrementalExtraction(videoUri);
-                    stickerEditorViewModel.getExtractFrameResult().observe(this, adapter::updateFrames);
+            TimelineFramesAdapter adapter = new TimelineFramesAdapter(this, frames, position -> {
+                long seekMs = (position * 1000L) / FRAMES_PER_SECOND;
+                if (player != null) {
+                    player.seekTo(seekMs);
                 }
-        );
+            });
+
+            recyclerTimeline.setAdapter(adapter);
+            recyclerTimeline.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    onTimelineChanged();
+                }
+            });
+
+            stickerEditorViewModel.startIncrementalExtraction(videoUri);
+            stickerEditorViewModel.getExtractFrameResult().observe(this, adapter::updateFrames);
+        });
 
         recyclerTimeline.post(this::onTimelineChanged);
     }
@@ -355,8 +359,7 @@ public class StickerEditorActivity extends BaseActivity {
         View cropArea = findViewById(R.id.crop_area);
 
         if ("video/mp4".equalsIgnoreCase(mimeType)) {
-            if (textureView == null || cropArea == null || videoWidth == 0 || videoHeight == 0)
-                return;
+            if (textureView == null || cropArea == null || videoWidth == 0 || videoHeight == 0) return;
 
             Matrix transformMatrix = textureView.getTransform(null);
 
@@ -366,9 +369,7 @@ public class StickerEditorActivity extends BaseActivity {
             Rect textureScreenRect = new Rect();
             textureView.getGlobalVisibleRect(textureScreenRect);
 
-            RectF cropRectInTexture = new RectF(cropScreenRect.left - textureScreenRect.left, cropScreenRect.top - textureScreenRect.top,
-                    cropScreenRect.right - textureScreenRect.left, cropScreenRect.bottom - textureScreenRect.top
-            );
+            RectF cropRectInTexture = new RectF(cropScreenRect.left - textureScreenRect.left, cropScreenRect.top - textureScreenRect.top, cropScreenRect.right - textureScreenRect.left, cropScreenRect.bottom - textureScreenRect.top);
 
             Matrix inverseMatrix = new Matrix();
             if (!transformMatrix.invert(inverseMatrix)) return;
@@ -388,8 +389,7 @@ public class StickerEditorActivity extends BaseActivity {
             return;
         }
 
-        if ("image/jpeg".equalsIgnoreCase(mimeType) || "image/gif".equalsIgnoreCase(mimeType) || "image/jpg".equalsIgnoreCase(mimeType) ||
-                "image/png".equalsIgnoreCase(mimeType)) {
+        if ("image/jpeg".equalsIgnoreCase(mimeType) || "image/jpg".equalsIgnoreCase(mimeType) || "image/png".equalsIgnoreCase(mimeType) || "image/gif".equalsIgnoreCase(mimeType)) {
             if (gestureImageView == null || cropArea == null) return;
 
             Matrix imageMatrix = gestureImageView.getImageMatrix();
@@ -403,9 +403,7 @@ public class StickerEditorActivity extends BaseActivity {
             Rect imageViewScreenRect = new Rect();
             gestureImageView.getGlobalVisibleRect(imageViewScreenRect);
 
-            RectF cropRectInImageView = new RectF(cropScreenRect.left - imageViewScreenRect.left, cropScreenRect.top - imageViewScreenRect.top,
-                    cropScreenRect.right - imageViewScreenRect.left, cropScreenRect.bottom - imageViewScreenRect.top
-            );
+            RectF cropRectInImageView = new RectF(cropScreenRect.left - imageViewScreenRect.left, cropScreenRect.top - imageViewScreenRect.top, cropScreenRect.right - imageViewScreenRect.left, cropScreenRect.bottom - imageViewScreenRect.top);
 
             Matrix inverseMatrix = new Matrix();
             if (!imageMatrix.invert(inverseMatrix)) return;
@@ -418,6 +416,12 @@ public class StickerEditorActivity extends BaseActivity {
             int bottom = Math.round(cropRectInImageView.bottom);
 
             Rect crop = new Rect(left, top, right, bottom);
+
+            if ("image/gif".equalsIgnoreCase(mimeType)) {
+                videoHandler.accept(crop);
+                return;
+            }
+
             imageHandler.accept(crop);
             return;
         }

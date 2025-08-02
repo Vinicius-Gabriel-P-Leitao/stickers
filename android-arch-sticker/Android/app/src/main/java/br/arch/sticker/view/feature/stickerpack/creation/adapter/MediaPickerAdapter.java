@@ -73,8 +73,7 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
     @NonNull
     @Override
     public MediaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context)
-                .inflate(R.layout.container_thumbnail_media, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.container_thumbnail_media, parent, false);
         return new MediaViewHolder(view);
     }
 
@@ -84,16 +83,12 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
         String fileName = getFileNameFromUri(holder.itemView.getContext(), uri);
 
         if (fileName.isBlank()) {
-            Toast.makeText(context, context.getString(R.string.error_file_not_found),
-                            Toast.LENGTH_SHORT
-                    )
-                    .show();
+            Toast.makeText(context, context.getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
 
         RequestManager glide = Glide.with(holder.imageView.getContext());
-        MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(
-                new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
+        MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
         RequestBuilder<?> requestBuilder = null;
 
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
@@ -110,16 +105,12 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
         }
 
         if (requestBuilder == null) {
-            // TODO: Fazer carregar um placeholder
-            Toast.makeText(context, context.getString(R.string.error_unsupported_media_type),
-                            Toast.LENGTH_LONG
-                    )
-                    .show();
+            holder.radioCheckBox.setVisibility(View.GONE);
+            holder.imageView.setImageResource(R.drawable.sticker_3rdparty_warning);
             return;
         }
 
-        requestBuilder.override(300, 300).centerCrop().transform(commonTransform)
-                .into(holder.imageView);
+        requestBuilder.override(300, 300).centerCrop().transform(commonTransform).into(holder.imageView);
 
         holder.radioCheckBox.setChecked(selectedItems.contains(position));
         if (selectedItems.contains(position)) {
@@ -140,11 +131,7 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
             if (adapterPosition == RecyclerView.NO_POSITION) return;
 
             if (selectedItems.size() > STICKER_SIZE_MAX) {
-                Toast.makeText(context,
-                                context.getString(R.string.error_max_media_selected),
-                                Toast.LENGTH_SHORT
-                        )
-                        .show();
+                Toast.makeText(context, context.getString(R.string.error_max_media_selected), Toast.LENGTH_SHORT).show();
             }
 
             if (selectedItems.size() < STICKER_SIZE_MAX) {
@@ -188,11 +175,7 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
         }
 
         if (uri.getPath() == null) {
-            Toast.makeText(context,
-                            context.getString(R.string.error_could_not_extract_path, uri),
-                            Toast.LENGTH_SHORT
-                    )
-                    .show();
+            Toast.makeText(context, context.getString(R.string.error_could_not_extract_path, uri), Toast.LENGTH_SHORT).show();
             return "";
         }
 
