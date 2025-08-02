@@ -238,4 +238,5 @@
     <string name="error_converting_uri">Erro ao converter URI: %1$s.</string>
     <string name="error_process_interruption">Erro de interrupção do processo.</string>
     <string name="error_could_not_get_list_paths_files">Não foi possível obter uma lista de caminho para os arquivos.</string>
+    <string name="description_editor_gesture_image_view">Área de envio da imagem para editar.</string>
 </resources>

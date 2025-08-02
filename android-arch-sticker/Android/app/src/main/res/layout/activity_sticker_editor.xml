@@ -50,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
-                android:contentDescription="TODO"
+                android:contentDescription="@string/description_editor_gesture_image_view"
                 android:scaleType="matrix"
                 android:visibility="gone" />
 
@@ -87,7 +87,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Selecione uma mídia"
+                android:text="@string/error_select_at_least_one_media"
                 android:textColor="#AAAAAA"
                 android:textSize="16sp"
                 android:visibility="gone" />
@@ -120,7 +120,6 @@
             android:layout_gravity="top|center_horizontal"
             android:layout_marginBottom="4dp"
             android:background="@android:color/transparent"
-            android:text="5s"
             android:textColor="@color/catppuccin_text"
             android:textSize="16sp"
             android:textStyle="bold" />

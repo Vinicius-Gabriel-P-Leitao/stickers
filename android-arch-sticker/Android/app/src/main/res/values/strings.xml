@@ -240,4 +240,5 @@
     <string name="error_process_interruption">Process interruption error.</string>
     <string name="error_could_not_get_list_paths_files">Could not get a list of paths to files.</string>
     <string name="title_activity_editor" translatable="false">Editor</string>
+    <string name="description_editor_gesture_image_view">Image upload area for editing.</string>
 </resources>
