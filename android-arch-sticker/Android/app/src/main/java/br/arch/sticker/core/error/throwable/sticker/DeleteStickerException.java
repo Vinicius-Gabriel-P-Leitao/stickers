@@ -11,16 +11,16 @@ package br.arch.sticker.core.error.throwable.sticker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import br.arch.sticker.core.error.ErrorCodeProvider;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 
 // @formatter:off
 public class DeleteStickerException extends AppCoreStateException {
-    public DeleteStickerException(@NonNull String message, ErrorCodeProvider errorCode) {
+    public DeleteStickerException(@NonNull String message, ErrorCode errorCode) {
         super(message, errorCode);
     }
 
-    public DeleteStickerException(@NonNull String message, @Nullable Throwable cause, ErrorCodeProvider errorCode) {
+    public DeleteStickerException(@NonNull String message, @Nullable Throwable cause, ErrorCode errorCode) {
         super(message, cause, errorCode);
     }
 }

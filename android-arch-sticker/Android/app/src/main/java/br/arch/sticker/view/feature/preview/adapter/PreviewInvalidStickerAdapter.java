@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.arch.sticker.R;
-import br.arch.sticker.core.error.code.StickerAssetErrorCode;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.util.BuildStickerUri;
 import br.arch.sticker.domain.data.model.Sticker;
 import br.arch.sticker.domain.data.model.StickerPack;
@@ -76,8 +76,8 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
         final Context context = viewHolder.itemView.getContext();
         final Sticker sticker = stickerList.get(position);
 
-        StickerAssetErrorCode code = StickerAssetErrorCode.fromName(sticker.stickerIsValid);
-        int resId = (code != null) ? code.getMessageResId() : R.string.throw_unknown_error;
+        ErrorCode code = ErrorCode.fromName(sticker.stickerIsValid);
+        int resId = (code != null) ? code.getMessageResId() : R.string.error_unknown;
 
         if (!stickerList.isEmpty()) {
             viewHolder.stickerPreview.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
@@ -86,7 +86,8 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
 
         if (stickerPack != null) {
             viewHolder.stickerPreview.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPackIdentifier, sticker.imageFileName));
-            viewHolder.textErrorMessage.setText(TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(R.string.throw_sticker_is_valid) : context.getString(resId));
+            viewHolder.textErrorMessage.setText(
+                    TextUtils.isEmpty(sticker.stickerIsValid) ? context.getString(R.string.information_sticker_is_valid) : context.getString(resId));
             viewHolder.buttonFix.setVisibility(TextUtils.isEmpty(sticker.stickerIsValid) ? View.GONE : View.VISIBLE);
         }
 
@@ -114,8 +115,7 @@ public class PreviewInvalidStickerAdapter extends RecyclerView.Adapter<InvalidSt
     private static ArrayList<Sticker> filterValidStickers(@NonNull List<Sticker> rawList) {
         ArrayList<Sticker> result = new ArrayList<>();
         for (Sticker sticker : rawList) {
-            if (!PLACEHOLDER_ANIMATED.equals(sticker.imageFileName) &&
-                    !PLACEHOLDER_STATIC.equals(sticker.imageFileName)) {
+            if (!PLACEHOLDER_ANIMATED.equals(sticker.imageFileName) && !PLACEHOLDER_STATIC.equals(sticker.imageFileName)) {
                 result.add(sticker);
             }
         }

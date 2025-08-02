@@ -12,7 +12,7 @@ import android.content.Context;
 import android.view.View;
 
 import br.arch.sticker.R;
-import br.arch.sticker.view.core.usecase.component.AlertInputStickerDialog;
+import br.arch.sticker.view.core.usecase.component.InputAlertStickerDialog;
 import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerViewModel;
 
@@ -22,12 +22,12 @@ public class InvalidStickerDialogController {
     private final PreviewInvalidStickerViewModel viewModel;
 
     private final AlertStickerDialog alertStickerDialog;
-    private final AlertInputStickerDialog alertInputStickerDialog;
+    private final InputAlertStickerDialog inputAlertStickerDialog;
 
     public InvalidStickerDialogController(Context context, PreviewInvalidStickerViewModel viewModel) {
         this.viewModel = viewModel;
         this.alertStickerDialog = new AlertStickerDialog(context);
-        this.alertInputStickerDialog = new AlertInputStickerDialog(context);
+        this.inputAlertStickerDialog = new InputAlertStickerDialog(context);
     }
 
     private void resetDialogs() {
@@ -36,17 +36,17 @@ public class InvalidStickerDialogController {
         alertStickerDialog.setOnIgnoreClick(null);
         alertStickerDialog.setOnFixClick(null);
 
-        alertInputStickerDialog.setVisibilityIgnoreButton(View.GONE);
-        alertInputStickerDialog.setVisibilityFixButton(View.GONE);
-        alertInputStickerDialog.setOnFixClick(null);
-        alertInputStickerDialog.setTextInput(null);
+        inputAlertStickerDialog.setVisibilityIgnoreButton(View.GONE);
+        inputAlertStickerDialog.setVisibilityFixButton(View.GONE);
+        inputAlertStickerDialog.setOnFixClick(null);
+        inputAlertStickerDialog.setTextInput(null);
     }
 
     public void showFixAction(PreviewInvalidStickerViewModel.FixActionSticker action) {
         resetDialogs();
 
         Context alertStickerContext = alertStickerDialog.getContext();
-        Context alertInputStickerContext = alertInputStickerDialog.getContext();
+        Context alertInputStickerContext = inputAlertStickerDialog.getContext();
 
         if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete delete) {
             int resourceString = delete.codeProvider().getMessageResId();
@@ -62,7 +62,7 @@ public class InvalidStickerDialogController {
                 alertStickerDialog.dismiss();
             });
 
-            alertStickerDialog.setTextIgnoreButton(alertStickerContext.getString(R.string.dialog_ignore));
+            alertStickerDialog.setTextIgnoreButton(alertStickerContext.getString(R.string.dialog_cancel));
             alertStickerDialog.setOnIgnoreClick(view -> alertStickerDialog.dismiss());
 
             alertStickerDialog.show();
@@ -71,37 +71,37 @@ public class InvalidStickerDialogController {
         if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile resizeFile) {
             int resourceString = resizeFile.codeProvider().getMessageResId();
 
-            alertInputStickerDialog.setTitleText(alertInputStickerContext.getString(R.string.dialog_delete));
-            alertInputStickerDialog.setMessageText(alertInputStickerContext.getString(resourceString));
-            alertInputStickerDialog.setVisibilityFixButton(View.VISIBLE);
-            alertInputStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
+            inputAlertStickerDialog.setTitleText(alertInputStickerContext.getString(R.string.dialog_delete));
+            inputAlertStickerDialog.setMessageText(alertInputStickerContext.getString(resourceString));
+            inputAlertStickerDialog.setVisibilityFixButton(View.VISIBLE);
+            inputAlertStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
 
-            alertInputStickerDialog.setTextInput(alertInputStickerContext.getString(R.string.input_refactor_quality_sticker));
-            alertInputStickerDialog.setTextFixButton(alertInputStickerContext.getString(R.string.dialog_refactor));
-            alertInputStickerDialog.setOnFixClick(view -> {
-                String input = alertInputStickerDialog.getUserInput();
+            inputAlertStickerDialog.setTextInput(alertInputStickerContext.getString(R.string.input_quality_sticker));
+            inputAlertStickerDialog.setTextFixButton(alertInputStickerContext.getString(R.string.dialog_refactor));
+            inputAlertStickerDialog.setOnFixClick(view -> {
+                String input = inputAlertStickerDialog.getUserInput();
 
                 if (input.isEmpty()) {
-                    alertInputStickerDialog.showError(alertInputStickerContext.getString(R.string.error_message_quality_sticker_empty));
+                    inputAlertStickerDialog.showError(alertInputStickerContext.getString(R.string.error_quality_empty));
                     return;
                 }
 
                 try {
                     int value = Integer.parseInt(input);
                     if (value > MAX_QUALITY) {
-                        alertInputStickerDialog.showError(alertInputStickerContext.getString(R.string.error_message_quality_sticker_length));
+                        inputAlertStickerDialog.showError(alertInputStickerContext.getString(R.string.error_invalid_quality_number));
                         return;
                     }
 
                     PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile newAction = resizeFile.withQuality(value);
                     viewModel.onFixActionConfirmed(newAction);
-                    alertInputStickerDialog.dismiss();
+                    inputAlertStickerDialog.dismiss();
                 } catch (NumberFormatException numberFormatException) {
-                    alertInputStickerDialog.showError(alertInputStickerContext.getString(R.string.error_message_quality_invalid_number));
+                    inputAlertStickerDialog.showError(alertInputStickerContext.getString(R.string.error_invalid_quality_number));
                 }
             });
 
-            alertInputStickerDialog.show();
+            inputAlertStickerDialog.show();
         }
     }
 }

@@ -37,7 +37,7 @@
 
         <activity
             android:name=".view.feature.stickerpack.metadata.activity.StickerPackMetadataActivity"
-            android:label="@string/title_activity_stickerpack_info"
+            android:label="@string/title_activity_sticker_pack_info"
             android:parentActivityName=".view.feature.stickerpack.details.activity.StickerPackDetailsActivity"
             tools:ignore="UnusedAttribute">
             <meta-data
@@ -63,7 +63,10 @@
                 android:value=".view.feature.preview.activity.PreviewInvalidStickerActivity" />
         </activity>
 
-        <activity android:name=".view.feature.editor.activity.StickerEditorActivity">
+        <activity
+            android:name=".view.feature.editor.activity.StickerEditorActivity"
+            android:hardwareAccelerated="true"
+            android:theme="@style/VideoEditorTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.feature.editor.activity.StickerEditorActivity" />
@@ -92,7 +95,6 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
-
 
     <!-- to be able to query the whitelist status in WhatsApp
      https://developer.android.com/training/basics/intents/package-visibility#package-name -->

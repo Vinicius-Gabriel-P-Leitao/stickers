@@ -11,18 +11,16 @@ package br.arch.sticker.core.error.throwable.sticker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import br.arch.sticker.core.error.ErrorCodeProvider;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 
 public class StickerPackValidatorException extends AppCoreStateException {
 
-    public StickerPackValidatorException(@NonNull String message, @NonNull ErrorCodeProvider stickerPackErrorCode)
-        {
-            super(message, stickerPackErrorCode);
-        }
+    public StickerPackValidatorException(@NonNull String message, @NonNull ErrorCode stickerPackErrorCode) {
+        super(message, stickerPackErrorCode);
+    }
 
-    public StickerPackValidatorException(String message, @Nullable Throwable cause, @NonNull ErrorCodeProvider stickerPackErrorCode)
-        {
-            super(message, cause, stickerPackErrorCode);
-        }
+    public StickerPackValidatorException(String message, @Nullable Throwable cause, @NonNull ErrorCode stickerPackErrorCode) {
+        super(message, cause, stickerPackErrorCode);
+    }
 }

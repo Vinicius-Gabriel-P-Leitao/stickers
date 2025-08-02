@@ -120,69 +120,74 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
 
         stickerPackCreationViewModel.getStickerPackPreview().observe(this, this::setupStickerPackView);
         permissionSettingsViewModel.getOpenSettingsRequested().observe(this, requested -> {
-            if (Boolean.TRUE.equals(requested)) {
-                permissionSettingsDialog.dismiss();
+                    if (Boolean.TRUE.equals(requested)) {
+                        permissionSettingsDialog.dismiss();
 
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                Uri uri = Uri.fromParts("package", getPackageName(), null);
-                intent.setData(uri);
-                startActivity(intent);
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", getPackageName(), null);
+                        intent.setData(uri);
+                        startActivity(intent);
 
-                permissionSettingsViewModel.resetOpenSettingsRequested();
-            }
-        });
-
-        permissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-            boolean allGranted = true;
-            List<String> deniedPermissions = new ArrayList<>();
-
-            for (Map.Entry<String, Boolean> entry : result.entrySet()) {
-                String permission = entry.getKey();
-                boolean isGranted = entry.getValue();
-                Log.i(TAG_LOG, permission + ": " + isGranted);
-
-                if (!isGranted) {
-                    allGranted = false;
-                    deniedPermissions.add(permission);
-                }
-            }
-
-            if (allGranted) {
-                permissionRequestViewModel.setPermissionGranted();
-            } else {
-                boolean permanentlyDenied = false;
-                for (String permission : deniedPermissions) {
-                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-                        permanentlyDenied = true;
-                        break;
+                        permissionSettingsViewModel.resetOpenSettingsRequested();
                     }
                 }
+        );
 
-                if (permanentlyDenied) {
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        permissionSettingsViewModel.getOpenSettingsRequested().observe(this, granted -> {
-                            if (Boolean.TRUE.equals(granted)) {
-                                permissionRequestViewModel.setPermissionGranted();
-                                permissionSettingsViewModel.getOpenSettingsRequested().removeObservers(this);
-                            }
-                        });
+        permissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                    boolean allGranted = true;
+                    List<String> deniedPermissions = new ArrayList<>();
 
-                        permissionSettingsViewModel.getPermissionDenied().observe(this, denied -> {
-                            permissionRequestViewModel.setPermissionDenied();
-                            permissionSettingsViewModel.getPermissionDenied().removeObservers(this);
-                        });
+                    for (Map.Entry<String, Boolean> entry : result.entrySet()) {
+                        String permission = entry.getKey();
+                        boolean isGranted = entry.getValue();
+                        Log.i(TAG_LOG, permission + ": " + isGranted);
 
-                        permissionSettingsDialog = new PermissionSettingsDialog(this);
-                        permissionSettingsDialog.showSettingsDialog();
-                        if (permissionRequestDialog != null) {
-                            permissionRequestDialog.dismiss();
+                        if (!isGranted) {
+                            allGranted = false;
+                            deniedPermissions.add(permission);
                         }
-                    }, 250);
-                } else {
-                    permissionRequestViewModel.setPermissionDenied();
+                    }
+
+                    if (allGranted) {
+                        permissionRequestViewModel.setPermissionGranted();
+                    } else {
+                        boolean permanentlyDenied = false;
+                        for (String permission : deniedPermissions) {
+                            if (!ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+                                permanentlyDenied = true;
+                                break;
+                            }
+                        }
+
+                        if (permanentlyDenied) {
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                        permissionSettingsViewModel.getOpenSettingsRequested().observe(this, granted -> {
+                                                    if (Boolean.TRUE.equals(granted)) {
+                                                        permissionRequestViewModel.setPermissionGranted();
+                                                        permissionSettingsViewModel.getOpenSettingsRequested().removeObservers(this);
+                                                    }
+                                                }
+                                        );
+
+                                        permissionSettingsViewModel.getPermissionDenied().observe(this, denied -> {
+                                                    permissionRequestViewModel.setPermissionDenied();
+                                                    permissionSettingsViewModel.getPermissionDenied().removeObservers(this);
+                                                }
+                                        );
+
+                                        permissionSettingsDialog = new PermissionSettingsDialog(this);
+                                        permissionSettingsDialog.showSettingsDialog();
+                                        if (permissionRequestDialog != null) {
+                                            permissionRequestDialog.dismiss();
+                                        }
+                                    }, 250
+                            );
+                        } else {
+                            permissionRequestViewModel.setPermissionDenied();
+                        }
+                    }
                 }
-            }
-        });
+        );
 
         setupUI(savedInstanceState);
     }
@@ -196,10 +201,6 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            Uri selectedUri = data.getData();
-            Log.d(TAG_LOG, "URI selecionada: " + selectedUri);
-        }
     }
 
     public final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -243,9 +244,10 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
 
     public void openMetadataGetter() {
         nameStickerPackViewModel.getNameStickerPack().observe(this, name -> {
-            setNamePack(name);
-            openGallery(name);
-        });
+                    setNamePack(name);
+                    openGallery(name);
+                }
+        );
 
         NameStickerPackViewModel.launchNameStickerPack(this);
     }
@@ -265,25 +267,27 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
 
         permissionRequestViewModel.setPermissions(DefinePermissionsToRequest.getPermissionsToRequest(this));
         permissionRequestViewModel.getPermissionGranted().observe(this, granted -> {
-            if (granted != null && granted) {
-                if (namePack == null || namePack.isEmpty()) {
-                    openMetadataGetter();
-                    permissionRequestDialog.dismiss();
-                } else {
-                    openGallery(namePack);
-                    permissionRequestDialog.dismiss();
+                    if (granted != null && granted) {
+                        if (namePack == null || namePack.isEmpty()) {
+                            openMetadataGetter();
+                            permissionRequestDialog.dismiss();
+                        } else {
+                            openGallery(namePack);
+                            permissionRequestDialog.dismiss();
 
-                    Log.e(TAG_LOG, namePack);
+                            Log.e(TAG_LOG, namePack);
+                        }
+                    }
                 }
-            }
-        });
+        );
 
         permissionRequestViewModel.getPermissionDenied().observe(this, denied -> {
-            if (denied != null && denied) {
-                Toast.makeText(this, "Galeria não foi liberada.", Toast.LENGTH_SHORT).show();
-                permissionRequestDialog.dismiss();
-            }
-        });
+                    if (denied != null && denied) {
+                        Toast.makeText(this, getString(R.string.error_gallery_permission_denied), Toast.LENGTH_SHORT).show();
+                        permissionRequestDialog.dismiss();
+                    }
+                }
+        );
 
         permissionRequestDialog = new PermissionRequestDialog(this, permissionLauncher);
         permissionRequestDialog.showPermissionDialog();
@@ -315,7 +319,8 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
             stickerPreviewAdapter = new StickerPreviewAdapter(getLayoutInflater(), R.drawable.sticker_error,
                     getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
                     getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack, new ArrayList<>(),
-                    expandedStickerView);
+                    expandedStickerView
+            );
 
             recyclerView.setAdapter(stickerPreviewAdapter);
         }

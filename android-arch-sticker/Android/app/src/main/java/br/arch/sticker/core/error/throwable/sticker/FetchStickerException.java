@@ -8,19 +8,15 @@
 
 package br.arch.sticker.core.error.throwable.sticker;
 
-import java.util.Objects;
-
-import br.arch.sticker.core.error.ErrorCodeProvider;
+import br.arch.sticker.core.error.ErrorCode;
 import br.arch.sticker.core.error.throwable.base.AppCoreStateException;
 
 public class FetchStickerException extends AppCoreStateException {
-    public FetchStickerException(String message, ErrorCodeProvider errorCode)
-        {
-            super(message, errorCode);
-        }
+    public FetchStickerException(String message, ErrorCode errorCode) {
+        super(message, errorCode);
+    }
 
-    public FetchStickerException(String message, Throwable cause, ErrorCodeProvider errorCode)
-        {
-            super(message, cause, errorCode);
-        }
+    public FetchStickerException(String message, Throwable cause, ErrorCode errorCode) {
+        super(message, cause, errorCode);
+    }
 }

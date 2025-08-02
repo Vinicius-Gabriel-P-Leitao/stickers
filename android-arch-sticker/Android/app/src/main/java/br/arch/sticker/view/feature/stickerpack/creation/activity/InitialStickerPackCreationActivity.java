@@ -35,20 +35,24 @@ public class InitialStickerPackCreationActivity extends StickerPackCreationBaseA
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showUpButton);
-            getSupportActionBar().setTitle(R.string.title_activity_pack_creator_first);
+            getSupportActionBar().setTitle(R.string.title_activity_first_pack_creator);
         }
 
-        stickerPackCreationViewModel.getStickerPackPreview().observe(this, this::setStateSupportActionBar);
+        stickerPackCreationViewModel.getStickerPackPreview()
+                .observe(this, this::setStateSupportActionBar);
 
         ImageButton buttonSelectMedia = findViewById(R.id.button_select_media);
         buttonSelectMedia.setOnClickListener(view -> {
-            ObjectAnimator rotation = ObjectAnimator.ofFloat(buttonSelectMedia, "rotation", 0f, 360f);
+            ObjectAnimator rotation = ObjectAnimator.ofFloat(buttonSelectMedia, "rotation", 0f,
+                    360f
+            );
             rotation.setDuration(500);
             rotation.start();
 
             if (getIntent().getBooleanExtra(DATABASE_EMPTY, false)) {
                 FormatStickerPopupWindow.popUpButtonChooserStickerModel(
-                        this, buttonSelectMedia, new FormatStickerPopupWindow.OnOptionClickListener() {
+                        this, buttonSelectMedia,
+                        new FormatStickerPopupWindow.OnOptionClickListener() {
                             @Override
                             public void onStaticStickerSelected() {
                                 setFormat(STATIC_STICKER);
@@ -62,7 +66,8 @@ public class InitialStickerPackCreationActivity extends StickerPackCreationBaseA
                                 stickerPackCreationViewModel.setFragmentVisibility(true);
                                 createStickerPackFlow();
                             }
-                        });
+                        }
+                );
             }
         });
     }

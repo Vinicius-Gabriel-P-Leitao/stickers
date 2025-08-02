@@ -88,7 +88,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sticker_pack_details);
+        setContentView(R.layout.activity_stickerpack_details);
 
         boolean showUpButton = getIntent().getBooleanExtra(EXTRA_SHOW_UP_BUTTON, false);
         stickerPack = getIntent().getParcelableExtra(EXTRA_STICKER_PACK_DATA);
@@ -121,12 +121,12 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
                     expandedStickerView,
                     ()-> {
                         AlertStickerDialog dialog = new AlertStickerDialog(this);
-                        dialog.setTitleText(this.getString(R.string.dialog_title_invalid_stickers));
-                        dialog.setMessageText(this.getString(R.string.dialog_message_invalid_stickers));
+                        dialog.setTitleText(this.getString(R.string.dialog_invalid_stickers_title));
+                        dialog.setMessageText(this.getString(R.string.dialog_invalid_stickers_message));
 
                         dialog.setVisibilityIgnoreButton(View.GONE);
 
-                        dialog.setTextFixButton(this.getString(R.string.dialog_button_fix_stickers));
+                        dialog.setTextFixButton(this.getString(R.string.dialog_fix_stickers));
                         dialog.setOnFixClick(fragment -> {
                             Intent intent = new Intent(fragment.getContext(), PreviewInvalidStickerActivity.class);
                             intent.putExtra(EXTRA_INVALID_STICKER_PACK, stickerPack.identifier);
@@ -169,7 +169,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showUpButton);
             getSupportActionBar().setTitle(showUpButton ? getResources().getString(
-                    R.string.title_activity_sticker_pack_details_multiple_stickerpack) : getResources().getQuantityString(
+                    R.string.title_activity_sticker_pack_details) : getResources().getQuantityString(
                     R.plurals.title_activity_sticker_packs_list, 1));
         }
 

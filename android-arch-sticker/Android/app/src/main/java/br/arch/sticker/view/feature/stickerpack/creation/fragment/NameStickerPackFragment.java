@@ -48,7 +48,7 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         viewModel = new ViewModelProvider(requireActivity()).get(NameStickerPackViewModel.class);
 
-        View view = inflater.inflate(R.layout.dialog_metadata_pack, container, false);
+        View view = inflater.inflate(R.layout.dialog_metadata_stickerpack, container, false);
 
         ImageButton buttonGrantPermission = view.findViewById(R.id.open_gallery);
         TextInputEditText textInputEditText = view.findViewById(R.id.et_user_input);
@@ -60,7 +60,8 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (charSequence.length() > CHAR_NAME_COUNT_MAX) {
-                    textInputEditText.setError(getString(R.string.input_name_cannot_exceed_stickerpack_size));
+                    textInputEditText.setError(
+                            getString(R.string.input_name_cannot_exceed_sticker_pack_size));
                 } else {
                     textInputEditText.setError(null);
                 }
@@ -75,7 +76,7 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
             textInputEditText.setFocusable(true);
             textInputEditText.setFocusableInTouchMode(true);
 
-            String msgErrorNamePackEmpty = getResources().getString(R.string.error_message_name_pack_empty);
+            String msgErrorNamePackEmpty = getResources().getString(R.string.error_empty_pack_name);
             if (textInputEditText.getText() == null) {
                 textInputEditText.setError(msgErrorNamePackEmpty);
                 return;
@@ -89,7 +90,8 @@ public class NameStickerPackFragment extends BottomSheetDialogFragment {
             }
 
             if (inputText.length() > CHAR_NAME_COUNT_MAX) {
-                textInputEditText.setError(getString(R.string.error_message_name_stickerpack_length));
+                textInputEditText.setError(
+                        getString(R.string.error_name_length_exceeded));
                 return;
             }
 

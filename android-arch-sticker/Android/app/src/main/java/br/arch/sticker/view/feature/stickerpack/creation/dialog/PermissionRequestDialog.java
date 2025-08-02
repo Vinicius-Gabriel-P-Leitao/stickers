@@ -29,57 +29,56 @@ public class PermissionRequestDialog {
     private final AlertStickerDialog dialog;
     private final AppCompatActivity activity;
 
-    public PermissionRequestDialog(AppCompatActivity activity, ActivityResultLauncher<String[]> permissionLauncher)
-        {
-            this.activity = activity;
-            this.permissionLauncher = permissionLauncher;
-            this.dialog = new AlertStickerDialog(activity);
-            this.permissionRequestViewModel = new ViewModelProvider(activity).get(PermissionRequestViewModel.class);
+    public PermissionRequestDialog(AppCompatActivity activity, ActivityResultLauncher<String[]> permissionLauncher) {
+        this.activity = activity;
+        this.permissionLauncher = permissionLauncher;
+        this.dialog = new AlertStickerDialog(activity);
+        this.permissionRequestViewModel = new ViewModelProvider(activity).get(
+                PermissionRequestViewModel.class);
 
+    }
+
+    public void showPermissionDialog() {
+        dialog.setTitleText(activity.getString(R.string.dialog_permission_title));
+        dialog.setMessageText(activity.getString(R.string.dialog_permission_message));
+
+        dialog.setTextFixButton(activity.getString(R.string.dialog_permission_accept));
+        dialog.setOnFixClick(view -> requestPermissionsLogic());
+
+        dialog.setTextIgnoreButton(activity.getString(R.string.dialog_cancel));
+        dialog.setOnIgnoreClick(view -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private void requestPermissionsLogic() {
+        String[] permissionsToRequest = permissionRequestViewModel.getPermissionsToRequest()
+                .getValue();
+        if (permissionsToRequest == null || permissionsToRequest.length == 0) {
+            permissionRequestViewModel.setPermissionGranted();
+            dialog.dismiss();
+            return;
         }
 
-    public void showPermissionDialog()
-        {
-            dialog.setTitleText(activity.getString(R.string.dialog_permission_title));
-            dialog.setMessageText(activity.getString(R.string.dialog_message_permission));
-
-            dialog.setTextFixButton(activity.getString(R.string.dialog_button_permission_accept));
-            dialog.setOnFixClick(view -> requestPermissionsLogic());
-
-            dialog.setTextIgnoreButton(activity.getString(R.string.dialog_button_permission_cancel));
-            dialog.setOnIgnoreClick(view -> dialog.dismiss());
-
-            dialog.show();
-        }
-
-    private void requestPermissionsLogic()
-        {
-            String[] permissionsToRequest = permissionRequestViewModel.getPermissionsToRequest().getValue();
-            if (permissionsToRequest == null || permissionsToRequest.length == 0) {
-                permissionRequestViewModel.setPermissionGranted();
-                dialog.dismiss();
-                return;
-            }
-
-            List<String> permissionsNotGranted = new ArrayList<>();
-            for (String permission : permissionsToRequest) {
-                if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
-                    permissionsNotGranted.add(permission);
-                }
-            }
-
-            if (permissionsNotGranted.isEmpty()) {
-                permissionRequestViewModel.setPermissionGranted();
-                dialog.dismiss();
-            } else {
-                permissionLauncher.launch(permissionsNotGranted.toArray(new String[0]));
+        List<String> permissionsNotGranted = new ArrayList<>();
+        for (String permission : permissionsToRequest) {
+            if (ContextCompat.checkSelfPermission(activity, permission) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                permissionsNotGranted.add(permission);
             }
         }
 
-    public void dismiss()
-        {
-           if (dialog != null && dialog.isShowing()) {
-                dialog.dismiss();
-            }
+        if (permissionsNotGranted.isEmpty()) {
+            permissionRequestViewModel.setPermissionGranted();
+            dialog.dismiss();
+        } else {
+            permissionLauncher.launch(permissionsNotGranted.toArray(new String[0]));
         }
+    }
+
+    public void dismiss() {
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+        }
+    }
 }

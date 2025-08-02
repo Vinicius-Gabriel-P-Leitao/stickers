@@ -28,13 +28,13 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
 import androidx.core.view.ViewCompat;
 
-import br.arch.sticker.R;
-import br.arch.sticker.view.core.base.BaseActivity;
-import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
-import br.arch.sticker.view.core.usecase.activity.StickerPackCreationBaseActivity;
-
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+
+import br.arch.sticker.R;
+import br.arch.sticker.view.core.base.BaseActivity;
+import br.arch.sticker.view.core.usecase.activity.StickerPackCreationBaseActivity;
+import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
 
 public class StickerPackMetadataActivity extends BaseActivity {
 
@@ -44,7 +44,7 @@ public class StickerPackMetadataActivity extends BaseActivity {
     @SuppressLint("ObsoleteSdkInt")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sticker_pack_info);
+        setContentView(R.layout.activity_stickerpack_info);
 
         final String trayIconUriString = getIntent().getStringExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_TRAY_ICON);
         final String website = getIntent().getStringExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_WEBSITE);
@@ -98,7 +98,7 @@ public class StickerPackMetadataActivity extends BaseActivity {
     private void launchEmailClient(String email) {
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", email, null));
         emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
-        startActivity(Intent.createChooser(emailIntent, getResources().getString(R.string.dialog_info_send_email_to_prompt)));
+        startActivity(Intent.createChooser(emailIntent, getResources().getString(R.string.dialog_info_send_email_prompt)));
     }
 
     private void launchWebpage(String website) {

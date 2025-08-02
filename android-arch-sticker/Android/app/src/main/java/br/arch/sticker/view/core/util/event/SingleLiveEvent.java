@@ -20,12 +20,12 @@ public class SingleLiveEvent<T> extends MutableLiveData<T> {
 
     @Override
     public void observe(@NonNull LifecycleOwner owner, @NonNull final Observer<? super T> observer) {
-        super.observe(
-                owner, t -> {
+        super.observe(owner, t -> {
                     if (pending.compareAndSet(true, false)) {
                         observer.onChanged(t);
                     }
-                });
+                }
+        );
     }
 
     @Override

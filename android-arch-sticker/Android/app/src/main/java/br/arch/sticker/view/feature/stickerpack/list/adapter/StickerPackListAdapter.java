@@ -133,7 +133,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
 
             viewHolder.titleView.setText(stickerPack.name);
             viewHolder.publisherView.setText(stickerPack.publisher);
-            viewHolder.filesizeView.setText(Formatter.formatShortFileSize(context, stickerPack.getTotalSize()));
+            viewHolder.fileSizeView.setText(Formatter.formatShortFileSize(context, stickerPack.getTotalSize()));
             viewHolder.container.setOnClickListener(view -> {
                 onEventClickedListener.onStickerPackClicked(stickerPack, stickers, status);
             });
@@ -181,7 +181,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
             viewHolder.imageRowView.setVisibility(View.GONE);
 
             viewHolder.publisherView.setText(stickerPack.publisher);
-            viewHolder.filesizeView.setText(Formatter.formatShortFileSize(context, stickerPack.getTotalSize()));
+            viewHolder.fileSizeView.setText(Formatter.formatShortFileSize(context, stickerPack.getTotalSize()));
             viewHolder.titleView.setText(stickerPack.name);
 
             viewHolder.container.setOnClickListener(

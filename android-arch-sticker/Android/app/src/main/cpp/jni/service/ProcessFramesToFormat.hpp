@@ -6,7 +6,6 @@
  * which is based on the GNU General Public License v3.0, with additional restrictions regarding commercial use.
  */
 
-
 #ifndef ANDROID_PROCESSFRAMESTOFORMAT_HPP
 #define ANDROID_PROCESSFRAMESTOFORMAT_HPP
 
@@ -15,23 +14,26 @@
 #include "../raii/AVFrameDestroyer.hpp"
 #include "../raii/AVBufferDestroyer.hpp"
 
-struct FrameWithBuffer {
+class ProcessFramesToFormat;
+
+class FrameWithBuffer {
+public:
     AVFramePtr frame;
     AVBufferPtr buffer;
 
-    bool allocate(JNIEnv *env, jclass exClass, int width, int height, AVPixelFormat format);
+    bool allocateFrameWithBuffer(int width, int height, AVPixelFormat format);
 };
 
 class ProcessFramesToFormat {
 public:
-    static AVFramePtr createAvFrame(JNIEnv *env, jclass exClass, int width, int height, AVPixelFormat format);
+    ProcessFramesToFormat();
 
-    static void processFrame(JNIEnv *env, jclass exClass, AVFramePtr &rgbFrame, int width, int height, std::vector<FrameWithBuffer> &frames);
+    static AVFramePtr createAvFrame(int width, int height, AVPixelFormat format);
+
+    static void processFrame(AVFramePtr &rgbFrame, int cropX, int cropY, int width, int height, std::vector<FrameWithBuffer> &frames);
 
 private:
-    static bool
-    cropFrame(JNIEnv *env, jclass exClass, const AVFramePtr &srcFrame, FrameWithBuffer &dstFrame, int targetWidth, int targetHeight);
+    static bool cropFrame(const AVFramePtr &srcFrame, FrameWithBuffer &dstFrame, int cropX, int cropY, int cropWidth, int cropHeight);
 };
-
 
 #endif //ANDROID_PROCESSFRAMESTOFORMAT_HPP

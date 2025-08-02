@@ -13,49 +13,41 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import java.io.File;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import br.arch.sticker.core.error.code.MediaConversionErrorCode;
 import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 import br.arch.sticker.core.lib.NativeProcessWebp;
 
 public class VideoConverter {
     private final Context context;
 
-    public VideoConverter(Context context)
-        {
-            this.context = context.getApplicationContext();
-        }
+    public VideoConverter(Context context) {
+        this.context = context.getApplicationContext();
+    }
 
-    public CompletableFuture<File> convertVideoToWebPAsyncFuture(
-            @NonNull String inputPath, @NonNull String outputFileName) throws MediaConversionException
-        {
-            CompletableFuture<File> future = new CompletableFuture<>();
+    public CompletableFuture<File> convertVideoToWebPAsyncFuture(@NonNull String inputPath, @NonNull String outputFileName)
+            throws MediaConversionException {
+        CompletableFuture<File> future = new CompletableFuture<>();
 
-            String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFileName);
-            String outputFile = new File(context.getCacheDir(), finalOutputFileName).getAbsolutePath();
+        String finalOutputFileName = ConvertMediaToStickerFormat.ensureWebpExtension(outputFileName);
+        String outputFile = new File(context.getCacheDir(), finalOutputFileName).getAbsolutePath();
 
-            NativeProcessWebp nativeProcessWebp = new NativeProcessWebp();
-            nativeProcessWebp.processWebpAsync(
-                    inputPath, outputFile, 20f, false,
+        NativeProcessWebp nativeProcessWebp = new NativeProcessWebp(context.getResources());
+        nativeProcessWebp.processWebpAsync(inputPath, outputFile, 20f, false,
 
-                    new NativeProcessWebp.ConversionCallback() {
-                        @Override
-                        public void onSuccess(File file)
-                            {
-                                future.complete(file);
-                            }
+                new NativeProcessWebp.ConversionCallback() {
+                    @Override
+                    public void onSuccess(File file) {
+                        future.complete(file);
+                    }
 
-                        @Override
-                        public void onError(Exception exception)
-                            {
-                                future.completeExceptionally(
-                                        new MediaConversionException(Objects.toString(exception.getMessage(), "Erro desconhecido ao converter mídia"),
-                                                exception.getCause(), MediaConversionErrorCode.ERROR_PACK_CONVERSION_MEDIA));
-                            }
-                    });
+                    @Override
+                    public void onError(Exception exception) {
+                        future.completeExceptionally(exception);
+                    }
+                }
+        );
 
-            return future;
-        }
+        return future;
+    }
 }

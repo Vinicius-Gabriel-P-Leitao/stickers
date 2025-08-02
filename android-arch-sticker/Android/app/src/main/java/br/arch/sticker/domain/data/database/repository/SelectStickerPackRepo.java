@@ -9,8 +9,6 @@
 package br.arch.sticker.domain.data.database.repository;
 
 import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.ANIMATED_STICKER_PACK;
-import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.STICKER_IS_VALID;
-import static br.arch.sticker.domain.data.database.StickerDatabaseHelper.TABLE_STICKER;
 
 import android.database.Cursor;
 import android.database.SQLException;
@@ -30,17 +28,41 @@ public class SelectStickerPackRepo {
             this.database = database;
         }
 
-    public Cursor getAllStickerPacks() {
+    public Cursor selectAllStickerPacks() {
         try{
             String query =
-                    "SELECT DISTINCT " +
-                            StickerDatabaseHelper.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".* " +
-                    "FROM " +
+                    "SELECT " +
+                            // STICKER PACK
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_NAME_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_PUBLISHER_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_TRAY_IMAGE_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.PUBLISHER_EMAIL + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.PUBLISHER_WEBSITE + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.PRIVACY_POLICY_WEBSITE + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.LICENSE_AGREEMENT_WEBSITE + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.IOS_APP_DOWNLOAD_LINK_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.IMAGE_DATA_VERSION + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.AVOID_CACHE + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.ANIMATED_STICKER_PACK + ", " +
+
+                            // STICKER
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.ID_STICKER + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_FILE_NAME_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_FILE_EMOJI_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_IS_VALID + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY +
+                    " FROM " +
                             StickerDatabaseHelper.TABLE_STICKER_PACK +
                     " INNER JOIN " +
-                            TABLE_STICKER +
+                            StickerDatabaseHelper.TABLE_STICKER +
                     " ON " +
-                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + TABLE_STICKER + "." + StickerDatabaseHelper.FK_STICKER_PACK;
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.FK_STICKER_PACK +
+                    " ORDER BY " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + ";";
+
 
             return database.rawQuery(query, null);
         } catch (SQLException | IllegalStateException exception) {
@@ -49,17 +71,38 @@ public class SelectStickerPackRepo {
         }
     }
 
-    public  Cursor getStickerPackByIdentifier(String stickerPackIdentifier) {
+    public Cursor selectStickerPackByIdentifier(String stickerPackIdentifier) {
         try {
             String query =
-                "SELECT DISTINCT " +
-                        StickerDatabaseHelper.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".* " +
-                "FROM " +
+                "SELECT " +
+                        // STICKER PACK
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_NAME_IN_QUERY + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_PUBLISHER_IN_QUERY + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_TRAY_IMAGE_IN_QUERY + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.PUBLISHER_EMAIL + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.PUBLISHER_WEBSITE + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.PRIVACY_POLICY_WEBSITE + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.LICENSE_AGREEMENT_WEBSITE + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.IOS_APP_DOWNLOAD_LINK_IN_QUERY + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.IMAGE_DATA_VERSION + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.AVOID_CACHE + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.ANIMATED_STICKER_PACK + ", " +
+
+                        // STICKER
+                        StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.ID_STICKER + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_FILE_NAME_IN_QUERY + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_FILE_EMOJI_IN_QUERY + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_IS_VALID + ", " +
+                        StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY +
+                " FROM " +
                         StickerDatabaseHelper.TABLE_STICKER_PACK + " " +
                 "INNER JOIN " +
-                        TABLE_STICKER +
+                        StickerDatabaseHelper.TABLE_STICKER +
                 " ON " +
-                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + TABLE_STICKER + "." + StickerDatabaseHelper.FK_STICKER_PACK + " " +
+                        StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " +
+                        StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.FK_STICKER_PACK + " " +
                 "WHERE " +
                         StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?";
 
@@ -70,23 +113,44 @@ public class SelectStickerPackRepo {
         }
     }
 
-    public  Cursor getFilteredStickerPackByIdentifier(String stickerPackIdentifier) {
+    public Cursor selectFilteredStickerPackByIdentifier(String stickerPackIdentifier) {
         try {
             String query =
-                    "SELECT DISTINCT " +
-                            StickerDatabaseHelper.TABLE_STICKER_PACK + ".*, " + TABLE_STICKER + ".*" +
-                        " FROM " +
+                    "SELECT " +
+                            // STICKER PACK
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_NAME_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_PUBLISHER_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_TRAY_IMAGE_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.PUBLISHER_EMAIL + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.PUBLISHER_WEBSITE + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.PRIVACY_POLICY_WEBSITE + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.LICENSE_AGREEMENT_WEBSITE + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.ANDROID_APP_DOWNLOAD_LINK_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.IOS_APP_DOWNLOAD_LINK_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.IMAGE_DATA_VERSION + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.AVOID_CACHE + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.ANIMATED_STICKER_PACK + ", " +
+
+                            // STICKER
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.ID_STICKER + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_FILE_NAME_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_FILE_EMOJI_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_IS_VALID + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY +
+                    " FROM " +
                             StickerDatabaseHelper.TABLE_STICKER_PACK +
-                        " INNER JOIN " +
-                            TABLE_STICKER +
-                        " ON " +
-                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " + TABLE_STICKER + "." + StickerDatabaseHelper.FK_STICKER_PACK  +
-                        " WHERE " +
+                    " INNER JOIN " +
+                            StickerDatabaseHelper.TABLE_STICKER +
+                    " ON " +
+                            StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.FK_STICKER_PACK  +
+                    " WHERE " +
                             StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?" +
-                        " AND (" +
-                                TABLE_STICKER + "." + STICKER_IS_VALID + " IS NULL OR " +
-                                TABLE_STICKER + "." + STICKER_IS_VALID + " = ''" +
-                            ");";
+                    " AND (" +
+                             StickerDatabaseHelper.TABLE_STICKER + "." +  StickerDatabaseHelper.STICKER_IS_VALID + " IS NULL OR " +
+                             StickerDatabaseHelper.TABLE_STICKER + "." +  StickerDatabaseHelper.STICKER_IS_VALID + " = ''" +
+                        ");";
 
 
             return database.rawQuery(query, new String[]{stickerPackIdentifier});
@@ -96,24 +160,30 @@ public class SelectStickerPackRepo {
         }
     }
 
-    public  Cursor getStickerPackIsAnimated(String stickerPackIdentifier) {
+    public Cursor selectStickerPackIsAnimated(String stickerPackIdentifier) {
         String query =
                 "SELECT DISTINCT " +
                         StickerDatabaseHelper.TABLE_STICKER_PACK + "." + ANIMATED_STICKER_PACK +
-                    " FROM " +
+                " FROM " +
                         StickerDatabaseHelper.TABLE_STICKER_PACK +
-                    " WHERE " +
+                " WHERE " +
                         StickerDatabaseHelper.TABLE_STICKER_PACK + "." + StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ? " + ";";
 
 
         return database.rawQuery(query, new String[]{stickerPackIdentifier});
     }
 
-    public  Cursor getStickerByStickerPackIdentifier(String stickerPackIdentifier) {
+    public Cursor selectStickerByStickerPackIdentifier(String stickerPackIdentifier) {
         try {
             String query =
-                    "SELECT * FROM " +
-                            TABLE_STICKER +
+                    "SELECT " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.ID_STICKER + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_FILE_NAME_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_FILE_EMOJI_IN_QUERY + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_IS_VALID + ", " +
+                            StickerDatabaseHelper.TABLE_STICKER + "." + StickerDatabaseHelper.STICKER_FILE_ACCESSIBILITY_TEXT_IN_QUERY +
+                    " FROM " +
+                            StickerDatabaseHelper.TABLE_STICKER +
                     " WHERE " +
                             StickerDatabaseHelper.FK_STICKER_PACK + " = " +
                             "(" +

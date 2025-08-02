@@ -24,8 +24,8 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
             android:contentDescription="@string/tray_image_content_description"
             android:src="@color/color_accent"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,8 +37,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_from_tray_to_name"
-            android:layout_marginEnd="@dimen/margin_from_tray_to_name"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/margin_from_tray_to_name"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@+id/tray_image"
@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
-            android:contentDescription="@string/sticker_stickerpack_animation_indicator"
+            android:contentDescription="@string/sticker_animation_indicator"
             android:src="@drawable/sticker_animated_pack_indicator"
             app:layout_constraintBottom_toBottomOf="@+id/pack_name"
             app:layout_constraintStart_toEndOf="@+id/pack_name"
@@ -63,8 +63,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_from_tray_to_name"
-            android:layout_marginEnd="@dimen/margin_from_tray_to_name"
             android:layout_marginTop="16dp"
+            android:layout_marginEnd="@dimen/margin_from_tray_to_name"
             app:layout_constraintStart_toEndOf="@+id/tray_image"
             app:layout_constraintTop_toBottomOf="@+id/pack_name"
             tools:text="Author" />
@@ -132,7 +132,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="@string/details_stickerpack_already_added"
+            android:text="@string/details_sticker_pack_already_added"
             android:textColor="#9B9B9B"
             android:textSize="14sp"
             android:visibility="gone"
@@ -152,7 +152,7 @@
                 android:layout_gravity="bottom|center"
                 android:layout_marginBottom="10dp"
                 android:padding="16dp"
-                android:text="@string/button_create_sticker_package" />
+                android:text="@string/button_create_sticker_pack" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/add_to_whatsapp_button"
@@ -178,7 +178,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:text="@string/sticker_stickerpack_details_tap_to_preview" />
+                android:text="@string/sticker_tap_to_preview" />
         </LinearLayout>
 
 

@@ -10,47 +10,21 @@ package br.arch.sticker.domain.data.database.repository;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.util.Log;
 
-import br.arch.sticker.core.error.code.DeleteErrorCode;
-import br.arch.sticker.core.error.throwable.sticker.DeleteStickerException;
-import br.arch.sticker.core.pattern.CallbackResult;
 import br.arch.sticker.domain.data.database.StickerDatabaseHelper;
 
 public class DeleteStickerPackRepo {
-    private final static String TAG_LOG = DeleteStickerPackRepo.class.getSimpleName();
-
     private final SQLiteDatabase database;
 
     public DeleteStickerPackRepo(SQLiteDatabase database) {
         this.database = database;
     }
 
-    public CallbackResult<Integer> deleteStickerPackFromDatabase(String stickerPackIdentifier) throws DeleteStickerException {
-        if (stickerPackIdentifier == null) {
-            return CallbackResult.failure(new DeleteStickerException("Identificador do pacote está nulo.", DeleteErrorCode.ERROR_PACK_DELETE_DB));
-        }
-
-        try {
-            int deleted = database.delete(StickerDatabaseHelper.TABLE_STICKER_PACK,
-                    StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY +
-                            " = ?", new String[]{stickerPackIdentifier});
-
-            if (deleted == 0) {
-                return CallbackResult.warning("Nenhum pacote foi deletado. Verifique se o ID está correto.");
-            }
-
-            return CallbackResult.success(deleted);
-        } catch (IllegalArgumentException | SQLiteException runtimeException) {
-            Log.e(TAG_LOG, "Erro ao deletar pacote do banco: " +
-                    runtimeException.getMessage(), runtimeException);
-
-            return CallbackResult.failure(new DeleteStickerException("Erro no banco ao deletar pacote.", runtimeException, DeleteErrorCode.ERROR_PACK_DELETE_DB));
-        } catch (Exception exception) {
-            Log.e(TAG_LOG,
-                    "Erro inesperado ao deletar pacote: " + exception.getMessage(), exception);
-
-            return CallbackResult.failure(new DeleteStickerException("Erro inesperado ao deletar pacote.", exception, DeleteErrorCode.ERROR_PACK_DELETE_DB));
-        }
+    public Integer deleteStickerPackFromDatabase(String stickerPackIdentifier)
+            throws IllegalArgumentException, SQLiteException {
+        return database.delete(StickerDatabaseHelper.TABLE_STICKER_PACK,
+                StickerDatabaseHelper.STICKER_PACK_IDENTIFIER_IN_QUERY + " = ?",
+                new String[]{stickerPackIdentifier}
+        );
     }
 }

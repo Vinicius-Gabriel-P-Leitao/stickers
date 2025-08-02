@@ -11,19 +11,19 @@ package br.arch.sticker.core.error.throwable.base;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import br.arch.sticker.core.error.ErrorCodeProvider;
+import br.arch.sticker.core.error.ErrorCode;
 
 // @formatter:off
 public class InternalAppException extends AppCoreStateException {
-    public InternalAppException(@NonNull String message, @NonNull ErrorCodeProvider errorCode) {
+    public InternalAppException(@NonNull String message, @NonNull ErrorCode errorCode) {
         super(message, errorCode);
     }
 
-    public InternalAppException(@NonNull String message, Exception exception, @NonNull ErrorCodeProvider errorCode) {
+    public InternalAppException(@NonNull String message, Exception exception, @NonNull ErrorCode errorCode) {
         super(message, exception, errorCode);
     }
 
-    public InternalAppException(@NonNull String message, @Nullable Throwable cause, @NonNull ErrorCodeProvider errorCode, @Nullable String errorDetails) {
+    public InternalAppException(@NonNull String message, @Nullable Throwable cause, @NonNull ErrorCode errorCode, @Nullable String errorDetails) {
         super(message, cause, errorCode, new Object[]{errorDetails});
     }
 

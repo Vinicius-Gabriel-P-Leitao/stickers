@@ -20,38 +20,37 @@ public class PermissionSettingsDialog {
     private final AlertStickerDialog dialog;
     private final AppCompatActivity activity;
 
-    public PermissionSettingsDialog(AppCompatActivity activity)
-        {
-            this.activity = activity;
-            this.dialog = new AlertStickerDialog(activity);
-            this.permissionSettingsViewModel = new ViewModelProvider(activity).get(PermissionSettingsViewModel.class);
+    public PermissionSettingsDialog(AppCompatActivity activity) {
+        this.activity = activity;
+        this.dialog = new AlertStickerDialog(activity);
+        this.permissionSettingsViewModel = new ViewModelProvider(activity).get(
+                PermissionSettingsViewModel.class);
 
+    }
+
+    public void showSettingsDialog() {
+        dialog.setTitleText(activity.getString(R.string.dialog_manual_permission_open_settings));
+        dialog.setMessageText(activity.getString(R.string.dialog_permission_message));
+
+        dialog.setTextFixButton(
+                activity.getString(R.string.dialog_permission_accept));
+        dialog.setOnFixClick(view -> {
+            permissionSettingsViewModel.setOpenSettingsRequested();
+            dialog.dismiss();
+        });
+
+        dialog.setTextIgnoreButton(activity.getString(R.string.dialog_cancel));
+        dialog.setOnIgnoreClick(view -> {
+            permissionSettingsViewModel.setPermissionDenied();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    public void dismiss() {
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
         }
-
-    public void showSettingsDialog()
-        {
-            dialog.setTitleText(activity.getString(R.string.dialog_settings_permission_title));
-            dialog.setMessageText(activity.getString(R.string.dialog_settings_message_permission));
-
-            dialog.setTextFixButton(activity.getString(R.string.dialog_settings_button_permission_accept));
-            dialog.setOnFixClick(view -> {
-                permissionSettingsViewModel.setOpenSettingsRequested();
-                dialog.dismiss();
-            });
-
-            dialog.setTextIgnoreButton(activity.getString(R.string.dialog_cancel));
-            dialog.setOnIgnoreClick(view -> {
-                permissionSettingsViewModel.setPermissionDenied();
-                dialog.dismiss();
-            });
-
-            dialog.show();
-        }
-
-    public void dismiss()
-        {
-            if (dialog != null && dialog.isShowing()) {
-                dialog.dismiss();
-            }
-        }
+    }
 }

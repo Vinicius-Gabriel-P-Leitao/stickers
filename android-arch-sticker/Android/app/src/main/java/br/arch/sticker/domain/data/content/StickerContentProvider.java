@@ -8,6 +8,8 @@
 
 package br.arch.sticker.domain.data.content;
 
+import static br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
+
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -25,10 +27,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import br.arch.sticker.BuildConfig;
+import br.arch.sticker.R;
 import br.arch.sticker.core.error.throwable.content.ContentProviderException;
 import br.arch.sticker.domain.data.content.provider.StickerAssetProvider;
 import br.arch.sticker.domain.data.content.provider.StickerPackQueryProvider;
 import br.arch.sticker.domain.data.content.provider.StickerQueryProvider;
+import br.arch.sticker.domain.util.ApplicationTranslate;
 
 public class StickerContentProvider extends ContentProvider {
     private final static String TAG_LOG = StickerContentProvider.class.getSimpleName();
@@ -45,12 +49,12 @@ public class StickerContentProvider extends ContentProvider {
     private static final int STICKERS_FILES_CODE = 4;
     private static final int STICKER_PACK_TRAY_ICON_CODE = 5;
 
-    public static final Uri AUTHORITY_URI = new Uri.Builder().scheme(
-            ContentResolver.SCHEME_CONTENT).authority(
-            BuildConfig.CONTENT_PROVIDER_AUTHORITY).appendPath(
-            StickerContentProvider.METADATA).build();
+    public static final Uri AUTHORITY_URI = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
+            .authority(BuildConfig.CONTENT_PROVIDER_AUTHORITY)
+            .appendPath(StickerContentProvider.METADATA).build();
 
     private StickerPackQueryProvider stickerPackQueryProvider;
+    private ApplicationTranslate applicationTranslate;
     private StickerQueryProvider stickerQueryProvider;
     private StickerAssetProvider stickerAssetProvider;
     private Context context;
@@ -65,6 +69,12 @@ public class StickerContentProvider extends ContentProvider {
         MATCHER.addURI(authority, STICKERS_ASSET + "/*/*", STICKERS_FILES_CODE);
 
         context = getContext();
+        if (context == null) {
+            Log.e(TAG_LOG, "Context is null!");
+            throw new ContentProviderException("Context is null!");
+        }
+
+        applicationTranslate = new ApplicationTranslate(context.getResources());
 
         stickerPackQueryProvider = new StickerPackQueryProvider(context);
         stickerQueryProvider = new StickerQueryProvider(context);
@@ -91,23 +101,31 @@ public class StickerContentProvider extends ContentProvider {
         } else if (code == METADATA_CODE_ALL_STICKERS) {
             return stickerQueryProvider.fetchStickerListForPack(uri);
         } else {
-            throw new ContentProviderException("URI desconhecida: " + uri);
+            throw new ContentProviderException(
+                    applicationTranslate.translate(R.string.error_invalid_url, uri)
+                            .log(TAG_LOG, Level.ERROR).get());
         }
     }
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, String[] selectionArgs) {
-        throw new UnsupportedOperationException("Operação não suportada!");
+        throw new UnsupportedOperationException(
+                applicationTranslate.translate(R.string.error_operation_failed)
+                        .log(TAG_LOG, Level.ERROR).get());
     }
 
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
-        throw new UnsupportedOperationException("Operação não suportada!");
+        throw new UnsupportedOperationException(
+                applicationTranslate.translate(R.string.error_operation_failed)
+                        .log(TAG_LOG, Level.ERROR).get());
     }
 
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        throw new UnsupportedOperationException("Operação não suportada!");
+        throw new UnsupportedOperationException(
+                applicationTranslate.translate(R.string.error_operation_failed)
+                        .log(TAG_LOG, Level.ERROR).get());
     }
 
     @Override
@@ -128,12 +146,11 @@ public class StickerContentProvider extends ContentProvider {
                 try {
                     return context.getAssets().openFd("sticker_warning.webp");
                 } catch (IOException ioException) {
-                    Log.w(TAG_LOG, "Fallback não encontrado em assets", ioException);
-                    try {
-                        throw ioException;
-                    } catch (IOException runtimeException) {
-                        throw new RuntimeException(runtimeException);
-                    }
+                    Log.w(TAG_LOG,
+                            applicationTranslate.translate(R.string.warn_fallback_not_found).get(),
+                            ioException
+                    );
+                    throw new RuntimeException(ioException);
                 }
             }
         }
@@ -158,7 +175,9 @@ public class StickerContentProvider extends ContentProvider {
             case STICKERS_FILES_CODE -> "image/webp";
             case STICKER_PACK_TRAY_ICON_CODE -> "image/jpg";
 
-            default -> throw new ContentProviderException("URI desconhecida: " + uri);
+            default -> throw new ContentProviderException(
+                    applicationTranslate.translate(R.string.error_invalid_url, uri)
+                            .log(TAG_LOG, Level.ERROR).get());
         };
     }
 
@@ -168,20 +187,22 @@ public class StickerContentProvider extends ContentProvider {
 
         Context context = getContext();
         if (context == null) {
-            throw new ContentProviderException("Contexto do content provider não disponível!");
+            Log.e(TAG_LOG, "Context is null!");
+            throw new ContentProviderException("Context is null!");
         }
 
-        String packageName = getContext().getPackageName();
+        String packageName = context.getPackageName();
         if (packageName == null) {
             throw new ContentProviderException(
-                    "Nome do pacote do content provider não disponível!");
+                    applicationTranslate.translate(R.string.error_invalid_pack_name)
+                            .log(TAG_LOG, Level.ERROR).get());
         }
 
         if (!authority.startsWith(packageName)) {
             throw new ContentProviderException(
-                    "Sua autoridade (" + authority +
-                            ") para o provedor de conteúdo deve começar com o nome do seu pacote: " +
-                            getContext().getPackageName());
+                    applicationTranslate.translate(R.string.error_invalid_authority, authority,
+                            context.getPackageName()
+                    ).log(TAG_LOG, Level.ERROR).get());
         }
 
         return authority;

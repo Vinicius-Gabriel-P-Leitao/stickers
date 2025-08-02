@@ -43,13 +43,15 @@ import br.arch.sticker.view.core.util.transformation.CropSquareTransformation;
 import br.arch.sticker.view.feature.stickerpack.creation.viewholder.MediaViewHolder;
 
 public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
-    public static final String PAYLOAD_SELECTION_CHANGED = "payload_selection_changed";
-    private final List<Integer> selectedItems = new ArrayList<>();
-    private final Context context;
 
     public interface OnItemClickListener {
         void onItemClick(String imagePath);
     }
+
+    public static final String PAYLOAD_SELECTION_CHANGED = "payload_selection_changed";
+
+    private final List<Integer> selectedItems = new ArrayList<>();
+    private final Context context;
 
     public MediaPickerAdapter(Context context, OnItemClickListener itemClickListener) {
         super(new UriDiffCallback());
@@ -81,17 +83,16 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
         String fileName = getFileNameFromUri(holder.itemView.getContext(), uri);
 
         if (fileName.isBlank()) {
-            Toast.makeText(context, context.getString(R.string.error_message_file_not_found), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
-
 
         RequestManager glide = Glide.with(holder.imageView.getContext());
         MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
         RequestBuilder<?> requestBuilder = null;
 
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
-        if (extension.endsWith("mp4") || extension.endsWith("webm") || extension.endsWith("3gp")) {
+        if (extension.endsWith("mp4") || extension.endsWith("webm")) {
             requestBuilder = glide.asBitmap().frame(1_000_000).load(uri);
         }
 
@@ -104,8 +105,8 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
         }
 
         if (requestBuilder == null) {
-            Toast.makeText(context, context.getString(R.string.error_message_unsuported_media_type_in_gallery), Toast.LENGTH_LONG)
-                    .show();
+            holder.radioCheckBox.setVisibility(View.GONE);
+            holder.imageView.setImageResource(R.drawable.sticker_3rdparty_warning);
             return;
         }
 
@@ -130,8 +131,7 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
             if (adapterPosition == RecyclerView.NO_POSITION) return;
 
             if (selectedItems.size() > STICKER_SIZE_MAX) {
-                Toast.makeText(context, context.getString(R.string.error_message_max_media_selected), Toast.LENGTH_SHORT)
-                        .show();
+                Toast.makeText(context, context.getString(R.string.error_max_media_selected), Toast.LENGTH_SHORT).show();
             }
 
             if (selectedItems.size() < STICKER_SIZE_MAX) {
@@ -175,8 +175,7 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
         }
 
         if (uri.getPath() == null) {
-            Toast.makeText(context, context.getString(R.string.error_message_could_not_extract_path_media, uri), Toast.LENGTH_SHORT)
-                    .show();
+            Toast.makeText(context, context.getString(R.string.error_could_not_extract_path, uri), Toast.LENGTH_SHORT).show();
             return "";
         }
 

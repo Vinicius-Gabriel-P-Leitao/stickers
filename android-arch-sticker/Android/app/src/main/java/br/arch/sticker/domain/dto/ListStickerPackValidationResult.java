@@ -8,13 +8,13 @@
 
 package br.arch.sticker.domain.dto;
 
-import br.arch.sticker.domain.data.model.Sticker;
-import br.arch.sticker.domain.data.model.StickerPack;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-// @formatter:off
-public record ListStickerPackValidationResult(ArrayList<StickerPack> validPacks, ArrayList<StickerPack> invalidPacks,HashMap<StickerPack, List<Sticker>> validPacksWithInvalidStickers) {
+import br.arch.sticker.domain.data.model.Sticker;
+import br.arch.sticker.domain.data.model.StickerPack;
+
+public record ListStickerPackValidationResult(ArrayList<StickerPack> validPacks, ArrayList<StickerPack> invalidPacks,
+                                              HashMap<StickerPack, List<Sticker>> validPacksWithInvalidStickers) {
 }
