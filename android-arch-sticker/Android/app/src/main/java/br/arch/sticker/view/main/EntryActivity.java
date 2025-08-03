@@ -8,12 +8,13 @@
 
 package br.arch.sticker.view.main;
 
+import static br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.*;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
@@ -39,14 +40,16 @@ import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.domain.dto.ListStickerPackValidationResult;
 import br.arch.sticker.domain.dto.StickerPackWithInvalidStickers;
 import br.arch.sticker.domain.service.fetch.FetchStickerPackService;
+import br.arch.sticker.domain.util.ApplicationTranslate;
 import br.arch.sticker.view.core.base.BaseActivity;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.InitialStickerPackCreationActivity;
-import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
+import br.arch.sticker.view.feature.preview.activity.StickerPackDetailsActivity;
 import br.arch.sticker.view.feature.stickerpack.list.activity.StickerPackListActivity;
 
 public class EntryActivity extends BaseActivity {
     private final static String TAG_LOG = EntryActivity.class.getSimpleName();
 
+    private ApplicationTranslate applicationTranslate;
     private LoadListAsyncTask loadListAsyncTask;
     private View progressBar;
 
@@ -54,6 +57,8 @@ public class EntryActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entry);
+
+        applicationTranslate = new ApplicationTranslate(getResources());
 
         overridePendingTransition(0, 0);
         if (getSupportActionBar() != null) {
@@ -63,11 +68,12 @@ public class EntryActivity extends BaseActivity {
         progressBar = findViewById(R.id.entry_activity_progress);
     }
 
-    private final ActivityResultLauncher<Intent> createPackLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-        if (result.getResultCode() == RESULT_OK) {
-            loadStickerPacks();
-        }
-    });
+    private final ActivityResultLauncher<Intent> createPackLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    loadStickerPacks();
+                }
+            });
 
     private void showStickerPack(ArrayList<StickerPack> validPacks, ArrayList<StickerPack> invalidPacks, HashMap<StickerPack, List<Sticker>> validPacksWithInvalidStickers) {
         progressBar.setVisibility(View.GONE);
@@ -78,7 +84,8 @@ public class EntryActivity extends BaseActivity {
                 validPacksWithInvalidStickers != null && !validPacksWithInvalidStickers.isEmpty();
 
         if (!hasValid && !hasInvalid && !hasValidWithInvalidStickers) {
-            showErrorMessage("Nenhum pacote de figurinhas encontrado.");
+            showErrorMessage(
+                    applicationTranslate.translate(R.string.error_empty_sticker_pack).log(TAG_LOG, Level.ERROR).get());
             return;
         }
 
@@ -102,13 +109,15 @@ public class EntryActivity extends BaseActivity {
         ArrayList<StickerPackWithInvalidStickers> stickerPackWithInvalidStickers = new ArrayList<>();
         if (validPacksWithInvalidStickers != null) {
             for (Map.Entry<StickerPack, List<Sticker>> entry : validPacksWithInvalidStickers.entrySet()) {
-                stickerPackWithInvalidStickers.add(new StickerPackWithInvalidStickers(entry.getKey(), new ArrayList<>(entry.getValue())));
+                stickerPackWithInvalidStickers.add(
+                        new StickerPackWithInvalidStickers(entry.getKey(), new ArrayList<>(entry.getValue())));
             }
         }
 
         intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA, validPacks);
         intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_PACK_LIST_DATA, invalidPacks);
-        intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_MAP_DATA, stickerPackWithInvalidStickers);
+        intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_INVALID_STICKER_MAP_DATA,
+                stickerPackWithInvalidStickers);
 
         startActivity(intent);
         finish();
@@ -117,8 +126,8 @@ public class EntryActivity extends BaseActivity {
 
     private void showErrorMessage(String errorMessage) {
         progressBar.setVisibility(View.GONE);
-        Log.e(TAG_LOG, "Erro ao buscar pacote de figurinhas, " + errorMessage);
         final TextView errorMessageTV = findViewById(R.id.error_message);
+        errorMessageTV.setVisibility(View.VISIBLE);
         errorMessageTV.setText(getString(R.string.error_message, errorMessage));
     }
 
@@ -166,8 +175,6 @@ public class EntryActivity extends BaseActivity {
                     try {
                         result = new Pair<>(null, fetchStickerPackService.fetchStickerPackListFromContentProvider());
                     } catch (FetchStickerPackException | FetchStickerException exception) {
-                        Log.e(TAG_LOG, "Erro ao buscar pacotes de figurinhas, banco de dados vazio", exception);
-
                         Intent intent = new Intent(context, InitialStickerPackCreationActivity.class);
                         intent.putExtra("database_empty", true);
                         intent.putExtra(InitialStickerPackCreationActivity.EXTRA_SHOW_UP_BUTTON, false);
@@ -175,11 +182,10 @@ public class EntryActivity extends BaseActivity {
                         createPackLauncher.launch(intent);
                         return;
                     } catch (Exception exception) {
-                        Log.e(TAG_LOG, "Erro ao obter pacotes de figurinhas", exception);
                         result = new Pair<>(exception.getMessage(), null);
                     }
                 } else {
-                    result = new Pair<>("Erro ao obter contexto da aplicação!", null);
+                    result = new Pair<>("Invalid context application.", null);
                 }
 
                 Pair<String, ListStickerPackValidationResult> finalResult = result;
@@ -189,7 +195,9 @@ public class EntryActivity extends BaseActivity {
                         if (finalResult.first != null) {
                             entryActivity.showErrorMessage(finalResult.first);
                         } else {
-                            entryActivity.showStickerPack(finalResult.second.validPacks(), finalResult.second.invalidPacks(), finalResult.second.validPacksWithInvalidStickers());
+                            entryActivity.showStickerPack(finalResult.second.validPacks(),
+                                    finalResult.second.invalidPacks(),
+                                    finalResult.second.validPacksWithInvalidStickers());
                         }
                     }
                 });

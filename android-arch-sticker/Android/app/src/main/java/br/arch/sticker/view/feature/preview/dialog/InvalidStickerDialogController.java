@@ -8,6 +8,8 @@
 
 package br.arch.sticker.view.feature.preview.dialog;
 
+import static br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerViewModel.FixActionSticker.*;
+
 import android.content.Context;
 import android.view.View;
 
@@ -48,7 +50,7 @@ public class InvalidStickerDialogController {
         Context alertStickerContext = alertStickerDialog.getContext();
         Context alertInputStickerContext = inputAlertStickerDialog.getContext();
 
-        if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.Delete delete) {
+        if (action instanceof Delete delete) {
             int resourceString = delete.codeProvider().getMessageResId();
 
             alertStickerDialog.setTitleText(alertStickerContext.getString(R.string.dialog_delete));
@@ -68,7 +70,7 @@ public class InvalidStickerDialogController {
             alertStickerDialog.show();
         }
 
-        if (action instanceof PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile resizeFile) {
+        if (action instanceof ResizeFile resizeFile) {
             int resourceString = resizeFile.codeProvider().getMessageResId();
 
             inputAlertStickerDialog.setTitleText(alertInputStickerContext.getString(R.string.dialog_delete));
@@ -89,15 +91,19 @@ public class InvalidStickerDialogController {
                 try {
                     int value = Integer.parseInt(input);
                     if (value > MAX_QUALITY) {
-                        inputAlertStickerDialog.showError(alertInputStickerContext.getString(R.string.error_invalid_quality_number));
+                        inputAlertStickerDialog.showError(
+                                alertInputStickerContext.getString(R.string.error_invalid_quality_number));
                         return;
                     }
 
-                    PreviewInvalidStickerViewModel.FixActionSticker.ResizeFile newAction = resizeFile.withQuality(value);
+                    ResizeFile newAction = resizeFile.withQuality(value);
                     viewModel.onFixActionConfirmed(newAction);
                     inputAlertStickerDialog.dismiss();
                 } catch (NumberFormatException numberFormatException) {
-                    inputAlertStickerDialog.showError(alertInputStickerContext.getString(R.string.error_invalid_quality_number));
+                    inputAlertStickerDialog.showError(
+                            alertInputStickerContext.getString(R.string.error_invalid_quality_number));
+                } finally {
+                    inputAlertStickerDialog.dismiss();
                 }
             });
 

@@ -89,28 +89,23 @@ public class SaveStickerPackService {
                 stickerPack.setStickers(stickerList);
                 return persistPackToStorage(context, stickerPack);
             } catch (Exception exception) {
-                return CallbackResult.failure(new StickerPackSaveException(
-                        applicationTranslate.translate(R.string.error_save_sticker_pack_general).log(TAG_LOG, Level.ERROR, exception).get(),
-                        exception, ERROR_UNKNOWN
-                ));
+                return CallbackResult.failure(new StickerPackSaveException(applicationTranslate.translate(R.string.error_save_sticker_pack_general).log(TAG_LOG, Level.ERROR, exception).get(), exception, ERROR_UNKNOWN));
             }
         });
     }
 
-    public CallbackResult<StickerPack> persistPackToStorage(@NonNull Context context, @NonNull StickerPack stickerPack)
-            throws StickerPackSaveException {
+    public CallbackResult<StickerPack> persistPackToStorage(@NonNull Context context, @NonNull StickerPack stickerPack) throws StickerPackSaveException {
         File mainDirectory = new File(context.getFilesDir(), STICKERS_ASSET);
         CallbackResult<Boolean> createdMainDirectory, copyStickerPack;
 
         createdMainDirectory = StickerPackDirectory.createMainDirectory(context, mainDirectory);
         if (!createdMainDirectory.isSuccess() && !createdMainDirectory.isDebug()) {
-            if (createdMainDirectory.isWarning()) return CallbackResult.warning(createdMainDirectory.getWarningMessage());
+            if (createdMainDirectory.isWarning())
+                return CallbackResult.warning(createdMainDirectory.getWarningMessage());
             return CallbackResult.failure(createdMainDirectory.getError());
         }
 
-        CallbackResult<File> createdStickerPackDirectory = StickerPackDirectory.createStickerPackDirectory(context, mainDirectory,
-                stickerPack.identifier
-        );
+        CallbackResult<File> createdStickerPackDirectory = StickerPackDirectory.createStickerPackDirectory(context, mainDirectory, stickerPack.identifier);
         if (!createdStickerPackDirectory.isSuccess() && !createdStickerPackDirectory.isWarning()) {
             if (createdStickerPackDirectory.isDebug()) {
                 Log.d(TAG_LOG, createdStickerPackDirectory.getDebugMessage());
@@ -120,10 +115,7 @@ public class SaveStickerPackService {
         }
 
         if (createdStickerPackDirectory.getData() == null) {
-            return CallbackResult.failure(new StickerPackSaveException(
-                    applicationTranslate.translate(R.string.error_save_sticker_pack_directory_null).log(TAG_LOG, Level.ERROR).get(),
-                    ErrorCode.ERROR_PACK_SAVE_SERVICE
-            ));
+            return CallbackResult.failure(new StickerPackSaveException(applicationTranslate.translate(R.string.error_save_sticker_pack_directory_null).log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_SAVE_SERVICE));
         }
 
         List<Sticker> stickerList = new ArrayList<>(stickerPack.getStickers());
@@ -135,18 +127,18 @@ public class SaveStickerPackService {
 
         copyStickerPack = saveStickerAssetService.saveStickerFromCache(stickerPack, createdStickerPackDirectory.getData());
         if (!copyStickerPack.isSuccess()) {
-            if (copyStickerPack.isDebug()) return CallbackResult.debug(copyStickerPack.getDebugMessage());
-            if (copyStickerPack.isWarning()) return CallbackResult.warning(copyStickerPack.getWarningMessage());
+            if (copyStickerPack.isDebug())
+                return CallbackResult.debug(copyStickerPack.getDebugMessage());
+            if (copyStickerPack.isWarning())
+                return CallbackResult.warning(copyStickerPack.getWarningMessage());
             return CallbackResult.failure(copyStickerPack.getError());
         }
 
         try {
             stickerPackValidator.verifyStickerPackValidity(stickerPack);
-        } catch (StickerPackValidatorException | StickerValidatorException | InvalidWebsiteUrlException exception) {
-            Log.e(TAG_LOG,
-                    exception.getMessage() != null ? exception.getMessage() : applicationTranslate.translate(R.string.error_validate_sticker_pack)
-                            .get()
-            );
+        } catch (StickerPackValidatorException | StickerValidatorException |
+                 InvalidWebsiteUrlException exception) {
+            Log.e(TAG_LOG, exception.getMessage() != null ? exception.getMessage() : applicationTranslate.translate(R.string.error_validate_sticker_pack).get());
         }
 
         for (Sticker sticker : stickerList) {
@@ -159,18 +151,12 @@ public class SaveStickerPackService {
                     }
                 }
 
-                Log.e(TAG_LOG,
-                        exception.getMessage() != null ? exception.getMessage() : applicationTranslate.translate(R.string.error_validate_sticker)
-                                .get()
-                );
+                Log.e(TAG_LOG, exception.getMessage() != null ? exception.getMessage() : applicationTranslate.translate(R.string.error_validate_sticker).get());
             }
         }
 
         if (stickerPack.identifier == null) {
-            return CallbackResult.failure(new StickerPackSaveException(
-                    applicationTranslate.translate(R.string.error_save_sticker_pack_invalid_id).log(TAG_LOG, Level.ERROR).get(),
-                    ErrorCode.ERROR_PACK_SAVE_DB
-            ));
+            return CallbackResult.failure(new StickerPackSaveException(applicationTranslate.translate(R.string.error_save_sticker_pack_invalid_id).log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_SAVE_DB));
         }
 
         return insertStickerPackRepo.insertStickerPack(stickerPack);

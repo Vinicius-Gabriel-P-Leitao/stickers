@@ -28,37 +28,29 @@ public class StickerPackDirectory {
 
             if (!created) {
 
-                return CallbackResult.failure(new StickerPackSaveException(
-                        ApplicationTranslate.translate(context, R.string.error_create_main_directory)
-                                .log(TAG_LOG, Level.ERROR, mainDirectory.getPath()).get(), ERROR_PACK_SAVE_UTIL
-                ));
+                return CallbackResult.failure(new StickerPackSaveException(ApplicationTranslate.translate(context, R.string.error_create_main_directory).log(TAG_LOG, Level.ERROR, mainDirectory.getPath()).get(), ERROR_PACK_SAVE_UTIL));
             }
 
             return CallbackResult.success(true);
         } else {
-            return CallbackResult.debug(ApplicationTranslate.translate(context, R.string.debug_main_directory_exists).log(TAG_LOG, Level.WARN).get());
+            return CallbackResult.debug(ApplicationTranslate.translate(context, R.string.debug_main_directory_exists, mainDirectory).log(TAG_LOG, Level.WARN).get());
         }
     }
 
-    public static CallbackResult<File> createStickerPackDirectory(Context context, File mainDirectory, String stickerPackIdentifier)
-            throws StickerPackSaveException {
+    public static CallbackResult<File> createStickerPackDirectory(Context context, File mainDirectory, String stickerPackIdentifier) throws StickerPackSaveException {
         File stickerPackDirectory = new File(mainDirectory, stickerPackIdentifier);
 
         if (!stickerPackDirectory.exists()) {
             boolean created = stickerPackDirectory.mkdirs();
 
             if (!created) {
-                return CallbackResult.failure(new StickerPackSaveException(
-                        ApplicationTranslate.translate(context, R.string.error_create_sticker_pack_directory)
-                                .log(TAG_LOG, Level.ERROR, stickerPackDirectory.getPath()).get(), ERROR_PACK_SAVE_UTIL
-                ));
+                return CallbackResult.failure(new StickerPackSaveException(ApplicationTranslate.translate(context, R.string.error_create_sticker_pack_directory, stickerPackDirectory).log(TAG_LOG, Level.ERROR, stickerPackDirectory.getPath()).get(), ERROR_PACK_SAVE_UTIL));
 
             }
 
             return CallbackResult.success(stickerPackDirectory);
         } else {
-            return CallbackResult.debug(
-                    ApplicationTranslate.translate(context, R.string.debug_sticker_pack_directory_exists).log(TAG_LOG, Level.WARN).get());
+            return CallbackResult.debug(ApplicationTranslate.translate(context, R.string.debug_sticker_pack_directory_exists, stickerPackIdentifier).log(TAG_LOG, Level.WARN).get());
         }
     }
 }

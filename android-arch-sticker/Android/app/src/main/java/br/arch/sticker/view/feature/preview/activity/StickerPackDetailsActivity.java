@@ -9,7 +9,7 @@
  * Licensed under the Vinícius Non-Commercial Public License (VNCL)
  */
 
-package br.arch.sticker.view.feature.stickerpack.details.activity;
+package br.arch.sticker.view.feature.preview.activity;
 
 import static br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity.EXTRA_INVALID_STICKER_LIST;
 import static br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity.EXTRA_INVALID_STICKER_PACK;
@@ -50,7 +50,6 @@ import br.arch.sticker.domain.data.model.StickerPack;
 import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
-import br.arch.sticker.view.feature.preview.activity.PreviewInvalidStickerActivity;
 import br.arch.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
 import br.arch.sticker.view.feature.stickerpack.metadata.activity.StickerPackMetadataActivity;

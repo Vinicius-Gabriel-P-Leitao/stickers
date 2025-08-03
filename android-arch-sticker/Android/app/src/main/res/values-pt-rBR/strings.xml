@@ -143,6 +143,7 @@
     <string name="error_delete_sticker_pack_service">Erro ao deletar pacote na camada de serviço.</string>
     <string name="error_delete_sticker_pack_util">Erro ao deletar pacote na camada de utilitário.</string>
     <string name="error_delete_sticker_pack_ui">Erro ao deletar pacote na interface.</string>
+    <string name="error_delete_sticker_pack">Erro ao deletar pacote de figurinhas.</string>
     <string name="error_sticker_file_not_found">Arquivo da figurinha não existe.</string>
     <string name="error_empty_stickers_sticker_pack">Pacote de figurinhas vazio.</string>
     <string name="error_content_provider">Erro ao buscar no provedor de conteúdo.</string>
@@ -204,8 +205,8 @@
     <string name="error_create_sticker_placeholder">Erro ao criar placeholder para o pacote de figurinhas!</string>
     <string name="error_cursor_invalid_fields">O cursor está com campos inválidos.</string>
     <string name="error_fetch_content_provider">Não foi possível buscar no content provider, %1$s</string>
-    <string name="error_no_sticker_pack_found">Nenhum pacote de figurinhas encontrado no content provider</string>
-    <string name="error_empty_sticker_pack">Deve haver pelo menos um pacote de adesivos no aplicativo</string>
+    <string name="error_no_sticker_pack_found">Nenhum pacote de figurinhas encontrado no content provider.</string>
+    <string name="error_empty_sticker_pack">Deve haver pelo menos um pacote de adesivos no aplicativo.</string>
     <string name="error_duplicate_sticker_pack_id">Os identificadores dos pacotes de figurinhas devem ser únicos, há mais de um pacote com identificador: %1$s</string>
     <string name="error_invalid_sticker_pack_empty_stickers">Pacote de figurinhas inválido: não restaram stickers após a validação.</string>
     <string name="error_create_placeholder">Não foi possível criar placeholder.</string>
@@ -239,4 +240,10 @@
     <string name="error_process_interruption">Erro de interrupção do processo.</string>
     <string name="error_could_not_get_list_paths_files">Não foi possível obter uma lista de caminho para os arquivos.</string>
     <string name="description_editor_gesture_image_view">Área de envio da imagem para editar.</string>
+    <string name="description_select_sticker_pack_delete">Selecione os pacotes para excluir.</string>
+    <string name="description_select_sticker_pack_rename">Selecione um pacote para renomear.</string>
+    <string name="description_rename_mode_canceled">Modo renomear cancelado.</string>
+    <string name="dialog_title_new_name_package">Novo nome para pacote.</string>
+    <string name="button_delete_sticker_pack">Deletar pacote de figurinhas.</string>
+    <string name="button_rename_sticker_pack">Renomear pacote de figurinhas.</string>
 </resources>

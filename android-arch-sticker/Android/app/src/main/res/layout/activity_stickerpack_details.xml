@@ -180,7 +180,5 @@
                 android:gravity="center"
                 android:text="@string/sticker_tap_to_preview" />
         </LinearLayout>
-
-
     </FrameLayout>
 </LinearLayout>

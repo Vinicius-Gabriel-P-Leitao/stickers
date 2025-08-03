@@ -10,5 +10,7 @@
     <dimen name="sticker_pack_list_item_preview_image_size">50dp</dimen>
     <dimen name="sticker_pack_list_item_preview_image_padding">4dp</dimen>
     <dimen name="sticker_pack_list_item_row_dot_horizontal_padding">4dp</dimen>
-    <dimen name="icon_add_pack_name">60dp</dimen>
+    <dimen name="icon_add_sticker_pack">55dp</dimen>
+    <dimen name="icon_edit_sticker_pack">35dp</dimen>
+    <dimen name="icon_trash_sticker_pack">35dp</dimen>
 </resources>

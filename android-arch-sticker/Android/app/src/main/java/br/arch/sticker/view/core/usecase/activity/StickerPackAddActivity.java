@@ -32,7 +32,7 @@ import br.arch.sticker.domain.util.ApplicationTranslate;
 import br.arch.sticker.view.core.base.BaseActivity;
 import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.core.usecase.definition.StickerPackHandler;
-import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
+import br.arch.sticker.view.feature.preview.activity.StickerPackDetailsActivity;
 
 public abstract class StickerPackAddActivity extends BaseActivity implements StickerPackHandler {
     private static final int ADD_PACK = 200;

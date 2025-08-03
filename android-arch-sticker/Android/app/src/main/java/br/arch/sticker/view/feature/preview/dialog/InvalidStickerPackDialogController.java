@@ -8,6 +8,8 @@
 
 package br.arch.sticker.view.feature.preview.dialog;
 
+import static br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerPackViewModel.FixActionStickerPack.*;
+
 import android.content.Context;
 import android.view.View;
 
@@ -15,6 +17,7 @@ import br.arch.sticker.R;
 import br.arch.sticker.view.core.usecase.component.InputAlertStickerDialog;
 import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerPackViewModel;
+import br.arch.sticker.view.feature.preview.viewmodel.PreviewInvalidStickerViewModel;
 
 public class InvalidStickerPackDialogController {
     private final PreviewInvalidStickerPackViewModel viewModel;
@@ -46,7 +49,7 @@ public class InvalidStickerPackDialogController {
         Context alertStickerContext = alertStickerDialog.getContext();
         Context alertInputStickerContext = inputAlertStickerDialog.getContext();
 
-        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.Delete delete) {
+        if (action instanceof Delete delete) {
             alertStickerDialog.setTitleText(alertStickerContext.getString(R.string.error_invalid_pack));
             alertStickerDialog.setMessageText(alertStickerContext.getString(R.string.dialog_message_delete_pack));
             alertStickerDialog.setVisibilityFixButton(View.VISIBLE);
@@ -64,7 +67,7 @@ public class InvalidStickerPackDialogController {
             alertStickerDialog.show();
         }
 
-        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.NewThumbnail newThumbnail) {
+        if (action instanceof NewThumbnail newThumbnail) {
             alertStickerDialog.setTitleText(alertStickerContext.getString(R.string.error_invalid_thumbnail));
             alertStickerDialog.setMessageText(alertStickerContext.getString(R.string.dialog_create_thumbnail_message));
             alertStickerDialog.setVisibilityFixButton(View.VISIBLE);
@@ -82,25 +85,42 @@ public class InvalidStickerPackDialogController {
             alertStickerDialog.show();
         }
 
-        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.RenameStickerPack renameStickerPack) {
+        if (action instanceof RenameStickerPack renameStickerPack) {
             inputAlertStickerDialog.setTitleText(alertInputStickerContext.getString(R.string.error_invalid_pack_name));
-            inputAlertStickerDialog.setMessageText(alertInputStickerContext.getString(R.string.dialog_insert_new_name_message));
+            inputAlertStickerDialog.setMessageText(
+                    alertInputStickerContext.getString(R.string.dialog_insert_new_name_message));
             inputAlertStickerDialog.setVisibilityFixButton(View.VISIBLE);
             inputAlertStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
 
             inputAlertStickerDialog.setTextInput(alertInputStickerContext.getString(R.string.dialog_rename));
             inputAlertStickerDialog.setTextFixButton(alertInputStickerContext.getString(R.string.dialog_rename));
             inputAlertStickerDialog.setOnFixClick(view -> {
-                viewModel.onFixActionConfirmed(renameStickerPack);
-                inputAlertStickerDialog.dismiss();
+                String input = inputAlertStickerDialog.getUserInput();
+
+                if (input.isEmpty()) {
+                    inputAlertStickerDialog.showError(
+                            alertInputStickerContext.getString(R.string.error_empty_pack_name));
+                    return;
+                }
+
+                try {
+                    RenameStickerPack newAction = renameStickerPack.withNewName(input);
+                    viewModel.onFixActionConfirmed(newAction);
+                } catch (NumberFormatException numberFormatException) {
+                    inputAlertStickerDialog.showError(
+                            alertInputStickerContext.getString(R.string.error_invalid_pack_name));
+                } finally {
+                    inputAlertStickerDialog.dismiss();
+                }
             });
 
             inputAlertStickerDialog.show();
         }
 
-        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.ResizeStickerPack resizeStickerPack) {
+        if (action instanceof ResizeStickerPack resizeStickerPack) {
             alertStickerDialog.setTitleText(alertStickerContext.getString(R.string.dialog_fix_sticker_pack));
-            alertStickerDialog.setMessageText(alertStickerContext.getString(R.string.dialog_remove_extra_stickers_message));
+            alertStickerDialog.setMessageText(
+                    alertStickerContext.getString(R.string.dialog_remove_extra_stickers_message));
             alertStickerDialog.setVisibilityFixButton(View.VISIBLE);
             alertStickerDialog.setVisibilityIgnoreButton(View.VISIBLE);
 
@@ -116,7 +136,7 @@ public class InvalidStickerPackDialogController {
             alertStickerDialog.show();
         }
 
-        if (action instanceof PreviewInvalidStickerPackViewModel.FixActionStickerPack.CleanUpUrl cleanUpUrl) {
+        if (action instanceof CleanUpUrl cleanUpUrl) {
             alertStickerDialog.setTitleText(alertStickerContext.getString(R.string.dialog_cleanup_urls_title));
             alertStickerDialog.setMessageText(alertStickerContext.getString(R.string.dialog_cleanup_urls_message));
             alertStickerDialog.setVisibilityFixButton(View.VISIBLE);

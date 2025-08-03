@@ -89,16 +89,11 @@ public class MediaPickerFragment extends BottomSheetDialogFragment {
                 if (data != null) {
                     String fileUri = data.getStringExtra(FILE_STICKER_DATA);
                     if (fileUri != null) {
-                        try {
-                            File file = new File(fileUri);
-                            List<File> files = new ArrayList<>();
-                            files.add(file);
+                        File file = new File(fileUri);
+                        List<File> files = new ArrayList<>();
+                        files.add(file);
 
-                            StickerPackCreationViewModel.generateStickerPack(files);
-                        } catch (Exception exception) {
-                            // TODO: Tratar erro melhor
-                            exception.printStackTrace();
-                        }
+                        StickerPackCreationViewModel.generateStickerPack(files);
                     }
                 }
             }

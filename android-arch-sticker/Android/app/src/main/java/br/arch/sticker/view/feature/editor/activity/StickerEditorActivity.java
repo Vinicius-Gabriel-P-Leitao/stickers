@@ -25,6 +25,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,6 +72,7 @@ public class StickerEditorActivity extends BaseActivity {
     private GestureImageView gestureImageView;
     private RecyclerView recyclerTimeline;
     private TextureView textureView;
+    private ProgressBar progressBar;
     private TextView timelineTitle;
     private Button buttonConfirm;
     private FrameLayout timeline;
@@ -92,7 +94,6 @@ public class StickerEditorActivity extends BaseActivity {
         finish();
         return true;
     }
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -121,6 +122,7 @@ public class StickerEditorActivity extends BaseActivity {
         rangeTimeline = findViewById(R.id.range_timeline);
         timelineTitle = findViewById(R.id.timeline_title);
         buttonConfirm = findViewById(R.id.button_confirm);
+        progressBar = findViewById(R.id.progress_bar_media);
 
         recyclerTimeline = findViewById(R.id.recycler_timeline);
         recyclerTimeline.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -145,6 +147,8 @@ public class StickerEditorActivity extends BaseActivity {
         handler.post(loopChecker);
 
         stickerEditorViewModel.getFileConverted().observe(this, file -> {
+            progressBar.setVisibility(View.GONE);
+
             Intent intent = new Intent();
             intent.putExtra(FILE_STICKER_DATA, file.getAbsolutePath());
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -153,7 +157,7 @@ public class StickerEditorActivity extends BaseActivity {
         });
 
         stickerEditorViewModel.getErrorMessageLiveData().observe(this, message -> {
-
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -181,7 +185,7 @@ public class StickerEditorActivity extends BaseActivity {
 
     private void processUris(Uri uri) {
         String mimeType = getContentResolver().getType(uri);
-        MimeTypesSupported mediaType = MimeTypesSupported.fromMimeType(mimeType);
+        MimeTypesSupported mediaType = MimeTypesSupported.fromMimeType(this, mimeType);
 
         if (mediaType == null) {
             Toast.makeText(this, getString(R.string.error_unsupported_mimetype, mimeType), Toast.LENGTH_SHORT).show();
@@ -199,20 +203,25 @@ public class StickerEditorActivity extends BaseActivity {
         }
 
         buttonConfirm.setOnClickListener(view -> {
+            progressBar.setVisibility(View.VISIBLE);
+
             getCropRectFromTransformedTexture(mimeType, crop -> {
                 if (crop != null) {
                     float startSeconds = (float) loopStartMs / 1000;
                     float endSeconds = (float) loopEndMs / 1000;
 
-                    stickerEditorViewModel.createCroppedNative(uri, crop.left, crop.top, crop.width(), crop.height(), startSeconds, endSeconds);
+                    stickerEditorViewModel.createCroppedNative(uri, crop.left, crop.top, crop.width(), crop.height(),
+                            startSeconds, endSeconds);
                 } else {
                     Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
                 }
             }, crop -> {
                 if (crop != null) {
                     stickerEditorViewModel.createCroppedBitmap(uri, crop);
                 } else {
                     Toast.makeText(this, getString(R.string.error_calculation_clipping), Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
                 }
             });
         });
@@ -296,7 +305,8 @@ public class StickerEditorActivity extends BaseActivity {
             }
 
             if (videoDurationMs == 0) {
-                Toast.makeText(this, applicationTranslate.translate(R.string.error_invalid_timeline_duration).log(TAG_LOG, Level.ERROR).get(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, applicationTranslate.translate(R.string.error_invalid_timeline_duration)
+                        .log(TAG_LOG, Level.ERROR).get(), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -369,7 +379,9 @@ public class StickerEditorActivity extends BaseActivity {
             Rect textureScreenRect = new Rect();
             textureView.getGlobalVisibleRect(textureScreenRect);
 
-            RectF cropRectInTexture = new RectF(cropScreenRect.left - textureScreenRect.left, cropScreenRect.top - textureScreenRect.top, cropScreenRect.right - textureScreenRect.left, cropScreenRect.bottom - textureScreenRect.top);
+            RectF cropRectInTexture = new RectF(cropScreenRect.left - textureScreenRect.left,
+                    cropScreenRect.top - textureScreenRect.top, cropScreenRect.right - textureScreenRect.left,
+                    cropScreenRect.bottom - textureScreenRect.top);
 
             Matrix inverseMatrix = new Matrix();
             if (!transformMatrix.invert(inverseMatrix)) return;
@@ -389,7 +401,8 @@ public class StickerEditorActivity extends BaseActivity {
             return;
         }
 
-        if ("image/jpeg".equalsIgnoreCase(mimeType) || "image/jpg".equalsIgnoreCase(mimeType) || "image/png".equalsIgnoreCase(mimeType) || "image/gif".equalsIgnoreCase(mimeType)) {
+        if ("image/jpeg".equalsIgnoreCase(mimeType) || "image/jpg".equalsIgnoreCase(
+                mimeType) || "image/png".equalsIgnoreCase(mimeType) || "image/gif".equalsIgnoreCase(mimeType)) {
             if (gestureImageView == null || cropArea == null) return;
 
             Matrix imageMatrix = gestureImageView.getImageMatrix();
@@ -403,7 +416,9 @@ public class StickerEditorActivity extends BaseActivity {
             Rect imageViewScreenRect = new Rect();
             gestureImageView.getGlobalVisibleRect(imageViewScreenRect);
 
-            RectF cropRectInImageView = new RectF(cropScreenRect.left - imageViewScreenRect.left, cropScreenRect.top - imageViewScreenRect.top, cropScreenRect.right - imageViewScreenRect.left, cropScreenRect.bottom - imageViewScreenRect.top);
+            RectF cropRectInImageView = new RectF(cropScreenRect.left - imageViewScreenRect.left,
+                    cropScreenRect.top - imageViewScreenRect.top, cropScreenRect.right - imageViewScreenRect.left,
+                    cropScreenRect.bottom - imageViewScreenRect.top);
 
             Matrix inverseMatrix = new Matrix();
             if (!imageMatrix.invert(inverseMatrix)) return;

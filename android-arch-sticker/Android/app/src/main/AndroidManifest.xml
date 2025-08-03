@@ -27,7 +27,7 @@
         <activity android:name=".view.feature.stickerpack.list.activity.StickerPackListActivity" />
 
         <activity
-            android:name=".view.feature.stickerpack.details.activity.StickerPackDetailsActivity"
+            android:name=".view.feature.preview.activity.StickerPackDetailsActivity"
             android:parentActivityName=".view.feature.stickerpack.list.activity.StickerPackListActivity"
             tools:ignore="UnusedAttribute">
             <meta-data
@@ -38,11 +38,11 @@
         <activity
             android:name=".view.feature.stickerpack.metadata.activity.StickerPackMetadataActivity"
             android:label="@string/title_activity_sticker_pack_info"
-            android:parentActivityName=".view.feature.stickerpack.details.activity.StickerPackDetailsActivity"
+            android:parentActivityName=".view.feature.preview.activity.StickerPackDetailsActivity"
             tools:ignore="UnusedAttribute">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.feature.stickerpack.details.activity.StickerPackDetailsActivity" />
+                android:value=".view.feature.preview.activity.StickerPackDetailsActivity" />
         </activity>
 
         <activity android:name=".view.feature.stickerpack.creation.activity.StickerPackCreationActivity">

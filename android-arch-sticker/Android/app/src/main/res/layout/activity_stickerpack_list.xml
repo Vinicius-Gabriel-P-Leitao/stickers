@@ -1,34 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.feature.stickerpack.list.activity.StickerPackListActivity"
-    tools:showIn="@layout/activity_stickerpack_list">
+    android:orientation="vertical"
+    tools:context=".view.feature.stickerpack.list.activity.StickerPackListActivity">
 
-    <TextView
-        android:id="@+id/error_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|center"
-        android:layout_margin="20dp"
-        android:padding="16dp"
-        android:textColor="@android:color/holo_red_dark"
-        tools:text="@string/error_message" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_valid_packs"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/button_redirect_create_stickers"
-        android:layout_width="wrap_content"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_valid_packs"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center"
+            android:layout_margin="20dp"
+            android:padding="16dp"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="gone"
+            tools:text="@string/error_message" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/floating_toolbar_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:layout_margin="24dp"
-        android:backgroundTint="@color/catppuccin_mauve"
-        android:contentDescription="@string/button_open_media_picker"
-        android:src="@drawable/ic_add_circle_24px"
-        android:tint="@color/catppuccin_base" />
-</FrameLayout>
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="24dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:padding="0dp">
+
+        <LinearLayout
+            android:id="@+id/bottom_wing_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:background="@drawable/background_toolbar_wings"
+            android:elevation="4dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+
+            <ImageButton
+                android:id="@+id/action_rename_sticker_pack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/button_rename_sticker_pack"
+                android:src="@drawable/ic_edit_24px"
+                app:tint="@color/catppuccin_text" />
+
+            <View
+                android:layout_width="72dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:visibility="invisible"
+                tools:ignore="InefficientWeight" />
+
+            <ImageButton
+                android:id="@+id/action_delete_sticker_pack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/button_delete_sticker_pack"
+                android:src="@drawable/ic_trash_24px"
+                app:tint="@color/catppuccin_text" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/action_create_sticker_pack"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:background="@drawable/background_button_center"
+            android:contentDescription="@string/button_create_sticker_pack"
+            android:elevation="10dp"
+            android:src="@drawable/ic_add_circle_24px"
+            app:tint="@color/catppuccin_base" />
+    </FrameLayout>
+</LinearLayout>

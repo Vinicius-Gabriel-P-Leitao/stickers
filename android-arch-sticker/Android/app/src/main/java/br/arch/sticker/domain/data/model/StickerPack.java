@@ -16,7 +16,7 @@ import java.util.List;
 
 public class StickerPack implements Parcelable {
     public String identifier;
-    public final String name;
+    public String name;
     public final String publisher;
     public final String trayImageFile;
     public final String publisherEmail;

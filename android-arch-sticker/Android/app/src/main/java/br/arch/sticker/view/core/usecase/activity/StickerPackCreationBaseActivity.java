@@ -19,6 +19,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -32,8 +33,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -325,7 +324,7 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
             recyclerView.setAdapter(stickerPreviewAdapter);
         }
 
-        FloatingActionButton floatingActionButton = findViewById(R.id.button_select_media);
+        ImageButton floatingActionButton = findViewById(R.id.button_select_media);
         floatingActionButton.setVisibility(View.GONE);
     }
 

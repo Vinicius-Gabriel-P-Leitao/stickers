@@ -29,8 +29,8 @@ public class ApplicationTranslate {
         return new LoggableString(message);
     }
 
-    public static LoggableString translate(Context context, @StringRes int resId) {
-        String message = ContextCompat.getString(context, resId);
+    public static LoggableString translate(Context context, @StringRes int resId, Object... args) {
+        String message = context.getString(resId, args);
         return new LoggableString(message);
     }
 
@@ -61,23 +61,37 @@ public class ApplicationTranslate {
         }
 
         public LoggableString log(String TAG_LOG, Level priority, Object... args) {
+            Throwable throwable = null;
+            StringBuilder msgBuilder = new StringBuilder();
+
+            for (Object arg : args) {
+                if (arg instanceof Throwable firstThrowable && throwable == null) {
+                    throwable = firstThrowable;
+                } else {
+                    msgBuilder.append(arg).append(' ');
+                }
+            }
+
+            String message = msgBuilder.toString().trim();
+
             switch (priority) {
                 case VERBOSE:
-                    Log.v(TAG_LOG, message + "\n" + Arrays.toString(args));
+                    Log.v(TAG_LOG, message, throwable);
                     break;
                 case INFO:
-                    Log.i(TAG_LOG, message + "\n" + Arrays.toString(args));
+                    Log.i(TAG_LOG, message, throwable);
                     break;
                 case WARN:
-                    Log.w(TAG_LOG, message + "\n" + Arrays.toString(args));
+                    Log.w(TAG_LOG, message, throwable);
                     break;
                 case ERROR:
-                    Log.e(TAG_LOG, message + "\n" + Arrays.toString(args));
+                    Log.e(TAG_LOG, message, throwable);
                     break;
                 default:
-                    Log.d(TAG_LOG, message + "\n" + Arrays.toString(args));
+                    Log.d(TAG_LOG, message, throwable);
                     break;
             }
+
             return this;
         }
 

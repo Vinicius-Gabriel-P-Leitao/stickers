@@ -241,4 +241,11 @@
     <string name="error_could_not_get_list_paths_files">Could not get a list of paths to files.</string>
     <string name="title_activity_editor" translatable="false">Editor</string>
     <string name="description_editor_gesture_image_view">Image upload area for editing.</string>
+    <string name="description_select_sticker_pack_delete">Select the packages to delete.</string>
+    <string name="error_delete_sticker_pack">Error deleting sticker pack.</string>
+    <string name="description_select_sticker_pack_rename">Select a package to rename.</string>
+    <string name="description_rename_mode_canceled">Rename mode canceled.</string>
+    <string name="dialog_title_new_name_package">New name for package.</string>
+    <string name="button_delete_sticker_pack">Delete sticker pack.</string>
+    <string name="button_rename_sticker_pack">Rename sticker pack.</string>
 </resources>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -43,15 +44,16 @@
             android:visibility="invisible"
             tools:visibility="visible" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <ImageButton
             android:id="@+id/button_select_media"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_gravity="bottom|center"
             android:layout_margin="24dp"
-            android:backgroundTint="@color/catppuccin_mauve"
+            android:background="@drawable/background_button_center"
             android:contentDescription="@string/description_media_selection"
+            android:elevation="10dp"
             android:src="@drawable/ic_add_circle_24px"
-            android:tint="@color/catppuccin_base" />
+            app:tint="@color/catppuccin_base" />
     </FrameLayout>
 </LinearLayout>

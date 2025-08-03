@@ -91,7 +91,6 @@
             android:text="@string/dot"
             android:textColor="@color/catppuccin_text" />
 
-
         <TextView
             android:id="@+id/sticker_pack_filesize"
             style="@style/StickerPacksListItemAuthorStyle"
@@ -99,7 +98,6 @@
             android:layout_height="wrap_content"
             tools:ignore="TextContrastCheck"
             tools:text="700kb" />
-
     </LinearLayout>
 
     <FrameLayout

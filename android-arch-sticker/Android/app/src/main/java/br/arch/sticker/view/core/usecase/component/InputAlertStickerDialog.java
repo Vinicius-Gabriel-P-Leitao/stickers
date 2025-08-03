@@ -10,6 +10,7 @@ package br.arch.sticker.view.core.usecase.component;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,73 +29,63 @@ public class InputAlertStickerDialog extends Dialog {
     private Button fixButton;
     private ImageView iconImageView;
 
-    public InputAlertStickerDialog(@NonNull Context context)
-        {
-            super(context, R.style.AlterDialogStyle);
-            init();
-        }
+    public InputAlertStickerDialog(@NonNull Context context) {
+        super(context, R.style.AlterDialogStyle);
+        init();
+    }
 
-    private void init()
-        {
-            setContentView(R.layout.dialog_alert_input);
-            setCancelable(true);
+    private void init() {
+        setContentView(R.layout.dialog_alert_input);
+        setCancelable(true);
 
-            titleTextView = findViewById(R.id.dialog_title);
-            messageTextView = findViewById(R.id.dialog_message);
-            textInputEditText = findViewById(R.id.et_user_input);
-            fixButton = findViewById(R.id.button_fix_operation);
-            iconImageView = findViewById(R.id.dialog_icon);
-        }
+        titleTextView = findViewById(R.id.dialog_title);
+        messageTextView = findViewById(R.id.dialog_message);
+        textInputEditText = findViewById(R.id.et_user_input);
+        fixButton = findViewById(R.id.button_fix_operation);
+        iconImageView = findViewById(R.id.dialog_icon);
+    }
 
-    public void setTitleText(String title)
-        {
-            titleTextView.setText(title);
-        }
+    public void setTitleText(String title) {
+        titleTextView.setText(title);
+    }
 
-    public void setMessageText(String message)
-        {
-            messageTextView.setText(message);
-        }
+    public void setMessageText(String message) {
+        messageTextView.setText(message);
+    }
 
-    public String getUserInput()
-        {
-            return textInputEditText.getText() != null
-                   ? textInputEditText.getText().toString().trim()
-                   : "";
-        }
+    public String getUserInput() {
+        return textInputEditText.getText() != null ? textInputEditText.getText().toString().trim() : "";
+    }
 
-    public void showError(String errorMessage)
-        {
-            textInputEditText.setError(errorMessage);
-        }
+    public void showError(String errorMessage) {
+        textInputEditText.setError(errorMessage);
+    }
 
-    public void setTextInput(String text)
-        {
-            textInputEditText.setHint(text);
-        }
+    public void setTextInput(String text) {
+        textInputEditText.setHint(text);
+    }
 
-    public void setTextFixButton(String text)
-        {
-            fixButton.setText(text);
-        }
+    public void setInputType(int inputType) {
+        textInputEditText.setInputType(inputType);
+    }
 
-    public void setVisibilityFixButton(int text)
-        {
-            fixButton.setVisibility(text);
-        }
+    public void setTextFixButton(String text) {
+        fixButton.setText(text);
+    }
 
-    public void setVisibilityIgnoreButton(int text)
-        {
-            textInputEditText.setVisibility(text);
-        }
+    public void setVisibilityFixButton(int text) {
+        fixButton.setVisibility(text);
+    }
 
-    public void setOnFixClick(View.OnClickListener listener)
-        {
-            fixButton.setOnClickListener(listener);
-        }
+    public void setVisibilityIgnoreButton(int text) {
+        textInputEditText.setVisibility(text);
+    }
 
-    public void setIconImageView(int icon)
-        {
-            iconImageView.setImageResource(icon);
-        }
+    public void setOnFixClick(View.OnClickListener listener) {
+        fixButton.setOnClickListener(listener);
+    }
+
+    public void setIconImageView(int icon) {
+        iconImageView.setImageResource(icon);
+    }
 }

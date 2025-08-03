@@ -34,7 +34,7 @@ import java.io.InputStream;
 import br.arch.sticker.R;
 import br.arch.sticker.view.core.base.BaseActivity;
 import br.arch.sticker.view.core.usecase.activity.StickerPackCreationBaseActivity;
-import br.arch.sticker.view.feature.stickerpack.details.activity.StickerPackDetailsActivity;
+import br.arch.sticker.view.feature.preview.activity.StickerPackDetailsActivity;
 
 public class StickerPackMetadataActivity extends BaseActivity {
 

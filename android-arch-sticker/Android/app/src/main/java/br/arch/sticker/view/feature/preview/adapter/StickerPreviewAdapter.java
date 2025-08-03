@@ -122,14 +122,16 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             return stickerPreviewViewHolder;
         } else {
             View itemView = layoutInflater.inflate(R.layout.button_invalid_item_preview, viewGroup, false);
-            InvalidStickerButtonPreviewViewHolder invalidStickerButtonPreviewViewHolder = new InvalidStickerButtonPreviewViewHolder(itemView);
+            InvalidStickerButtonPreviewViewHolder invalidStickerButtonPreviewViewHolder = new InvalidStickerButtonPreviewViewHolder(
+                    itemView);
 
             ViewGroup.LayoutParams layoutParams = invalidStickerButtonPreviewViewHolder.materialButton.getLayoutParams();
             layoutParams.height = cellSize;
             layoutParams.width = cellSize;
 
             invalidStickerButtonPreviewViewHolder.materialButton.setLayoutParams(layoutParams);
-            invalidStickerButtonPreviewViewHolder.materialButton.setPadding(cellPadding, cellPadding, cellPadding, cellPadding);
+            invalidStickerButtonPreviewViewHolder.materialButton.setPadding(cellPadding, cellPadding, cellPadding,
+                    cellPadding);
             return invalidStickerButtonPreviewViewHolder;
         }
     }
@@ -140,8 +142,10 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             Sticker sticker = stickerList.get(position);
 
             previewViewHolder.stickerPreviewView.setImageResource(errorResource);
-            previewViewHolder.stickerPreviewView.setImageURI(BuildStickerUri.buildStickerAssetUri(stickerPack.identifier, sticker.imageFileName));
-            previewViewHolder.stickerPreviewView.setOnClickListener(view -> expandPreview(position, previewViewHolder.stickerPreviewView));
+            previewViewHolder.stickerPreviewView.setImageURI(
+                    BuildStickerUri.buildStickerAssetUri(stickerPack.identifier, sticker.imageFileName));
+            previewViewHolder.stickerPreviewView.setOnClickListener(
+                    view -> expandPreview(position, previewViewHolder.stickerPreviewView));
         }
 
         if (viewHolder instanceof InvalidStickerButtonPreviewViewHolder invalidStickerButtonPreviewViewHolder) {
@@ -187,7 +191,8 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static ArrayList<Sticker> filterValidStickers(@NonNull StickerPack stickerPack) {
         ArrayList<Sticker> result = new ArrayList<>();
         for (Sticker sticker : stickerPack.getStickers()) {
-            if (!PLACEHOLDER_ANIMATED.equals(sticker.imageFileName) && !PLACEHOLDER_STATIC.equals(sticker.imageFileName)) {
+            if (!PLACEHOLDER_ANIMATED.equals(sticker.imageFileName) && !PLACEHOLDER_STATIC.equals(
+                    sticker.imageFileName)) {
                 result.add(sticker);
             }
         }
@@ -227,10 +232,12 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             // If the bottom or right sides are clipped, we need to move the top left positions
             // so that those sides are no longer clipped.
-            final float adjustmentX = Math.max(expandedViewLeftX + expandedStickerPreview.getWidth() - recyclerViewWidth - recyclerViewRightMargin,
+            final float adjustmentX = Math.max(
+                    expandedViewLeftX + expandedStickerPreview.getWidth() - recyclerViewWidth - recyclerViewRightMargin,
                     0
             );
-            final float adjustmentY = Math.max(expandedViewTopY + expandedStickerPreview.getHeight() - recyclerViewHeight, 0);
+            final float adjustmentY = Math.max(
+                    expandedViewTopY + expandedStickerPreview.getHeight() - recyclerViewHeight, 0);
 
             expandedViewLeftX -= adjustmentX;
             expandedViewTopY -= adjustmentY;
@@ -261,7 +268,8 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             if (extension.equals("webp") && android.os.Build.VERSION.SDK_INT >= 28) {
                 try {
                     Drawable drawable = Drawable.createFromStream(
-                            expandedStickerPreview.getContext().getContentResolver().openInputStream(stickerAssetUri), null);
+                            expandedStickerPreview.getContext().getContentResolver().openInputStream(stickerAssetUri),
+                            null);
                     if (drawable instanceof android.graphics.drawable.AnimatedImageDrawable) {
                         isAnimatedWebp = true;
                     }
@@ -279,9 +287,11 @@ public class StickerPreviewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             if (extension.equals("webp") && isAnimatedWebp) {
                 expandedStickerPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 glide.load(stickerAssetUri).apply(requestOptions).error(R.drawable.sticker_3rdparty_warning)
-                        .transform(WebpDrawable.class, new WebpDrawableTransformation(commonTransform)).into(expandedStickerPreview);
+                        .transform(WebpDrawable.class, new WebpDrawableTransformation(commonTransform))
+                        .into(expandedStickerPreview);
             } else {
-                glide.asBitmap().load(stickerAssetUri).apply(requestOptions).error(R.drawable.sticker_3rdparty_warning).centerCrop()
+                glide.asBitmap().load(stickerAssetUri).apply(requestOptions).error(R.drawable.sticker_3rdparty_warning)
+                        .centerCrop()
                         .transform(commonTransform).into(expandedStickerPreview);
             }
 

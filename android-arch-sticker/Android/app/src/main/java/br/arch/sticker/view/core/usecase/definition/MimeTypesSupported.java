@@ -8,9 +8,13 @@
 
 package br.arch.sticker.view.core.usecase.definition;
 
-// @formatter:off
+import android.content.Context;
+
+import br.arch.sticker.R;
+import br.arch.sticker.domain.util.ApplicationTranslate;
+
 public enum MimeTypesSupported {
-    IMAGE(new String[]{"image/jpeg", "image/jpg","image/png"}),
+    IMAGE(new String[]{"image/jpeg", "image/jpg", "image/png"}),
     ANIMATED(new String[]{"video/mp4", "image/gif"});
 
     private final String[] mimeTypes;
@@ -23,7 +27,7 @@ public enum MimeTypesSupported {
         return mimeTypes;
     }
 
-    public static MimeTypesSupported fromMimeType(String mimeType) throws IllegalArgumentException {
+    public static MimeTypesSupported fromMimeType(Context context, String mimeType) throws IllegalArgumentException {
         for (MimeTypesSupported mimeTypesSupported : values()) {
             for (String supported : mimeTypesSupported.getMimeTypes()) {
                 if (supported.equalsIgnoreCase(mimeType)) {
@@ -32,7 +36,6 @@ public enum MimeTypesSupported {
             }
         }
 
-        // TODO: Fazer exception personalizada.
-        throw new IllegalArgumentException("MimeType não suportado: " + mimeType);
+        throw new IllegalArgumentException(ApplicationTranslate.translate(context, R.string.error_unsupported_mimetype, mimeType).get());
     }
 }
