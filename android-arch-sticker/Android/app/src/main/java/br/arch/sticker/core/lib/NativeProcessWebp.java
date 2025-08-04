@@ -11,8 +11,6 @@ package br.arch.sticker.core.lib;
 import android.content.res.Resources;
 
 import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import br.arch.sticker.R;
 import br.arch.sticker.core.error.ErrorCode;
@@ -20,7 +18,6 @@ import br.arch.sticker.core.error.throwable.media.MediaConversionException;
 import br.arch.sticker.domain.util.ApplicationTranslate;
 import br.arch.sticker.domain.util.ApplicationTranslate.LoggableString.Level;
 
-// @formatter:off
 public class NativeProcessWebp {
     public interface ConversionCallback {
         void onSuccess(File file);
@@ -36,46 +33,38 @@ public class NativeProcessWebp {
 
     private final ApplicationTranslate applicationTranslate;
 
-    private static final ExecutorService nativeExecutor = Executors.newFixedThreadPool(
-            Runtime.getRuntime().availableProcessors());
-
     public NativeProcessWebp(Resources resources) {
         this.applicationTranslate = new ApplicationTranslate(resources);
     }
 
     public native boolean convertToWebp(String inputPath, String outputPath, float quality, boolean lossless);
 
-    public void processWebpAsync(String inputPath, String outputPath, float quality, boolean lossless, ConversionCallback callback)
-            throws MediaConversionException {
-        nativeExecutor.submit(() -> {
-            try {
-                boolean success = convertToWebp(inputPath, outputPath, quality, lossless);
-                File outputFile = new File(outputPath);
+    public void processWebpAsync(String inputPath, String outputPath, float quality, boolean lossless, ConversionCallback callback) throws MediaConversionException {
 
-                if (success && outputFile.exists()) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException exception) {
-                        throw new MediaConversionException(
-                                exception.getMessage() != null
-                                    ? exception.getMessage()
-                                    : applicationTranslate.translate(R.string.error_pausing_thread).log(TAG_LOG, Level.ERROR, exception).get(),
-                                exception.getCause(),
-                                ErrorCode.ERROR_NATIVE_CONVERSION);
-                    }
+        try {
+            boolean success = convertToWebp(inputPath, outputPath, quality, lossless);
+            File outputFile = new File(outputPath);
 
-                    callback.onSuccess(outputFile);
-                } else {
-                    callback.onError(new MediaConversionException(
-                            applicationTranslate.translate(R.string.error_conversion_failed).log(TAG_LOG, Level.ERROR).get(),
-                            ErrorCode.ERROR_NATIVE_CONVERSION));
+            if (success && outputFile.exists()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException exception) {
+                    throw new MediaConversionException(
+                            exception.getMessage() != null ? exception.getMessage() : applicationTranslate.translate(
+                                    R.string.error_pausing_thread).log(TAG_LOG, Level.ERROR, exception).get(),
+                            exception.getCause(), ErrorCode.ERROR_NATIVE_CONVERSION);
                 }
-            } catch (Exception exception) {
-                callback.onError(
-                        new MediaConversionException(
-                                applicationTranslate.translate(R.string.error_native_conversion).log(TAG_LOG, Level.ERROR, exception).get(),
-                                ErrorCode.ERROR_NATIVE_CONVERSION));
+
+                callback.onSuccess(outputFile);
+            } else {
+                callback.onError(new MediaConversionException(
+                        applicationTranslate.translate(R.string.error_conversion_failed).log(TAG_LOG, Level.ERROR)
+                                .get(), ErrorCode.ERROR_NATIVE_CONVERSION));
             }
-        });
+        } catch (Exception exception) {
+            callback.onError(new MediaConversionException(
+                    applicationTranslate.translate(R.string.error_native_conversion)
+                            .log(TAG_LOG, Level.ERROR, exception).get(), ErrorCode.ERROR_NATIVE_CONVERSION));
+        }
     }
 }

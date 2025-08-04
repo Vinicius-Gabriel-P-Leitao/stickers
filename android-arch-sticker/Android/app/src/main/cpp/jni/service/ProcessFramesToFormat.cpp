@@ -69,7 +69,8 @@ AVFramePtr ProcessFramesToFormat::createAvFrame(int width, int height, AVPixelFo
     return frame;
 }
 
-void ProcessFramesToFormat::processFrame(AVFramePtr &rgbFrame, int cropX, int cropY, int width, int height, std::vector<FrameWithBuffer> &frames) {
+void ProcessFramesToFormat::processFrame(AVFramePtr &rgbFrame, int cropX, int cropY, int width, int height,
+                                         std::vector<FrameWithBuffer> &frames) {
     FrameWithBuffer frameWithBuffer;
 
     if (!cropFrame(rgbFrame, frameWithBuffer, cropX, cropY, width, height)) {
@@ -80,7 +81,8 @@ void ProcessFramesToFormat::processFrame(AVFramePtr &rgbFrame, int cropX, int cr
     frames.push_back(std::move(frameWithBuffer));
 }
 
-bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffer &dstFrame, int cropX, int cropY, int cropWidth, int cropHeight) {
+bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffer &dstFrame, int cropX, int cropY,
+                                      int cropWidth, int cropHeight) {
     const AVFrame *frame = srcFrame.get();
     if (!frame || !frame->data[0]) {
         throw std::runtime_error("Falha ao alocar AVFrame ou os dados são nulos.");
@@ -95,12 +97,6 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
                                              srcWidth, srcHeight, av_get_pix_fmt_name(srcFormat)));
     }
 
-//    if (cropX < 0 || cropY < 0 || cropWidth <= 0 || cropHeight <= 0 || cropX + cropWidth > srcWidth || cropY + cropHeight > srcHeight) {
-//        throw std::runtime_error(
-//                fmt::format("Área de recorte ({}+{}, {}+{}) fora dos limites do quadro de origem ({}x{}).",
-//                            cropX, cropWidth, cropY, cropHeight, srcWidth, srcHeight));
-//    }
-
     int bufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24, cropWidth, cropHeight, 1);
     AVBufferPtr tempData(reinterpret_cast<uint8_t *>(av_malloc(bufferSize)));
     if (!tempData) {
@@ -109,7 +105,8 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
 
     uint8_t *tempDataPtr[AV_NUM_DATA_POINTERS] = {nullptr};
     int tempLineSize[AV_NUM_DATA_POINTERS] = {0};
-    if (av_image_fill_arrays(tempDataPtr, tempLineSize, tempData.get(), AV_PIX_FMT_RGB24, cropWidth, cropHeight, 1) < 0) {
+    if (av_image_fill_arrays(tempDataPtr, tempLineSize, tempData.get(), AV_PIX_FMT_RGB24, cropWidth, cropHeight, 1) <
+        0) {
         throw std::runtime_error("Falha ao preencher ponteiros do av_image_fill_arrays.");
     }
 
@@ -149,7 +146,8 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
 
     dstFrame.allocateFrameWithBuffer(OUTPUT_SIZE, OUTPUT_SIZE, AV_PIX_FMT_RGB24);
 
-    if (sws_scale(swsContextPtr.get(), tempDataPtr, tempLineSize, 0, cropHeight, dstFrame.frame->data, dstFrame.frame->linesize) <= 0) {
+    if (sws_scale(swsContextPtr.get(), tempDataPtr, tempLineSize, 0, cropHeight, dstFrame.frame->data,
+                  dstFrame.frame->linesize) <= 0) {
         throw std::runtime_error("Falha ao redimensionar o frame para 512x512");
     }
 
@@ -157,7 +155,8 @@ bool ProcessFramesToFormat::cropFrame(const AVFramePtr &srcFrame, FrameWithBuffe
         throw std::runtime_error("Falha ao copiar propriedades do frame");
     }
 
-    LOGIRCF("%s", fmt::format("Quadro recortado e redimensionado: cropX={}, cropY={}, cropWidth={}, cropHeight={}, dstWidth={}, dstHeight={}",
-                              cropX, cropY, cropWidth, cropHeight, dstFrame.frame->width, dstFrame.frame->height).c_str());
+    LOGIRCF("%s", fmt::format(
+            "Quadro recortado e redimensionado: cropX={}, cropY={}, cropWidth={}, cropHeight={}, dstWidth={}, dstHeight={}",
+            cropX, cropY, cropWidth, cropHeight, dstFrame.frame->width, dstFrame.frame->height).c_str());
     return true;
 }

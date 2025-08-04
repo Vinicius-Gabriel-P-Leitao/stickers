@@ -55,7 +55,8 @@ struct JniString {
 extern "C"
 JNIEXPORT jboolean JNICALL Java_br_arch_sticker_core_lib_NativeProcessWebp_convertToWebp(
         JNIEnv *env, jobject /* this */, jstring inputPath, jstring outputPath, jfloat quality, jboolean lossless) {
-    jclass nativeMediaException = env->FindClass("br/arch/sticker/core/error/throwable/media/NativeConversionException");
+    jclass nativeMediaException = env->FindClass(
+            "br/arch/sticker/core/error/throwable/media/NativeConversionException");
 
     JniString inPath(env, inputPath);
     JniString outPath(env, outputPath);
@@ -76,13 +77,16 @@ JNIEXPORT jboolean JNICALL Java_br_arch_sticker_core_lib_NativeProcessWebp_conve
         if (isWebP) {
             std::vector<FrameWithBuffer> vFramesWithBuffer;
 
-            if (!ProcessWebpToAvFrames::decodeWebPAsAVFrames(inPath.get(), vFramesWithBuffer, OUTPUT_SIZE, OUTPUT_SIZE)) {
-                HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Erro ao processar arquivo WebP");
+            if (!ProcessWebpToAvFrames::decodeWebPAsAVFrames(inPath.get(), vFramesWithBuffer, OUTPUT_SIZE,
+                                                             OUTPUT_SIZE)) {
+                HandlerJavaException::throwNativeConversionException(env, nativeMediaException,
+                                                                     "Erro ao processar arquivo WebP");
                 return JNI_FALSE;
             }
 
             if (vFramesWithBuffer.empty()) {
-                HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Nenhum frame extraído do WebP");
+                HandlerJavaException::throwNativeConversionException(env, nativeMediaException,
+                                                                     "Nenhum frame extraído do WebP");
                 return JNI_FALSE;
             }
 
@@ -96,32 +100,36 @@ JNIEXPORT jboolean JNICALL Java_br_arch_sticker_core_lib_NativeProcessWebp_conve
             ProcessFramesToFormat::processFrame(frame, 0, 0, frame->width, frame->height, buffers);
         };
 
-        std::vector<FrameWithBuffer> vFramesWithBuffer = ProcessInputMedia::processVideoFrames(inPath.get(), outPath.get(), 0, 5, frameProcessor);
+        std::vector<FrameWithBuffer> vFramesWithBuffer = ProcessInputMedia::processVideoFrames(
+                inPath.get(), outPath.get(), 0, 5, frameProcessor);
 
         if (!vFramesWithBuffer.empty()) {
             LOGDF("%s", fmt::format("Gerando animação com {} vFrameBuffer...", vFramesWithBuffer.size()).c_str());
 
             if (vFramesWithBuffer.size() < 2) {
-                LOGIF("%s", fmt::format("Apenas {} frame(s) capturado(s) — a animação pode parecer estática", vFramesWithBuffer.size()).c_str());
+                LOGIF("%s", fmt::format("Apenas {} frame(s) capturado(s) — a animação pode parecer estática",
+                                        vFramesWithBuffer.size()).c_str());
             }
 
             int result = WebpAnimationConverter::convertToWebp(
                     outPath.get(), vFramesWithBuffer, OUTPUT_SIZE, OUTPUT_SIZE, DURATION_MS, quality, losslessFlag);
 
             if (!result) {
-                HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Falha ao criar a animação WebP.");
+                HandlerJavaException::throwNativeConversionException(env, nativeMediaException,
+                                                                     "Falha ao criar a animação WebP.");
                 return JNI_FALSE;
             }
 
             LOGDF("%s", fmt::format("Animação WebP criada com sucesso: {}", outPath.get()).c_str());
         } else {
-            HandlerJavaException::throwNativeConversionException(env, nativeMediaException, "Nenhum frame capturado para criar a animação");
+            HandlerJavaException::throwNativeConversionException(env, nativeMediaException,
+                                                                 "Nenhum frame capturado para criar a animação");
             return JNI_FALSE;
         }
 
         return JNI_TRUE;
     } catch (const std::exception &exception) {
-        LOGEN("%s", fmt::format("Erro ao realizar crop nativo: \n {}", exception.what()).c_str());
+        LOGEN("%s", fmt::format("Erro ao realizar conversão nativo: \n {}", exception.what()).c_str());
         HandlerJavaException::throwNativeConversionException(env, nativeMediaException, exception.what());
         return JNI_FALSE;
     }

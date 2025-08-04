@@ -131,15 +131,10 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
     std::vector<FrameWithBuffer> vFramesWithBuffer;
 
     const double frameInterval = 0.1;
-    double nextTargetTime = startSeconds;
+    double lastCapturedTime = -frameInterval;
 
     while (av_read_frame(formatContext.get(), packet) >= 0) {
         if (packet->stream_index == videoStreamIndex) {
-            if (packet->stream_index != videoStreamIndex) {
-                av_packet_unref(packet);
-                continue;
-            }
-
             if (avcodec_send_packet(codecContext.get(), packet) < 0) {
                 av_packet_unref(packet);
                 continue;
@@ -163,20 +158,22 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
 
                 if (std::isnan(seconds)) continue;
 
-                const double tolerance = 0.05;
-                if (seconds >= nextTargetTime - tolerance && seconds <= nextTargetTime + tolerance) {
-                    AVFramePtr rgbFrame = ProcessFramesToFormat::createAvFrame(codecContext->width, codecContext->height, AV_PIX_FMT_RGB24);
+                if (seconds - lastCapturedTime >= frameInterval) {
+                    AVFramePtr rgbFrame = ProcessFramesToFormat::createAvFrame(
+                            codecContext->width, codecContext->height, AV_PIX_FMT_RGB24);
 
                     sws_scale(
                             swsContextPtr.get(),
-                            decodedFrame->data, decodedFrame->linesize, 0, codecContext->height, rgbFrame->data, rgbFrame->linesize
+                            decodedFrame->data, decodedFrame->linesize, 0, codecContext->height, rgbFrame->data,
+                            rgbFrame->linesize
                     );
 
                     frameProcessor(rgbFrame, vFramesWithBuffer, params);
+                    lastCapturedTime = seconds;
 
-                    nextTargetTime += frameInterval;
-                    if (nextTargetTime > endSeconds + tolerance) {
+                    if (seconds > endSeconds) {
                         av_packet_unref(packet);
+                        av_packet_free(&packet);
                         return vFramesWithBuffer;
                     }
                 }
@@ -188,7 +185,8 @@ std::vector<FrameWithBuffer> ProcessInputMedia::processVideoFrames(
 
     av_packet_free(&packet);
     if (vFramesWithBuffer.empty()) {
-        throw std::runtime_error(fmt::format("Nenhum frame capturado para criar a animação: {}", vFramesWithBuffer.size()));
+        throw std::runtime_error(
+                fmt::format("Nenhum frame capturado para criar a animação: {}", vFramesWithBuffer.size()));
     }
 
     return vFramesWithBuffer;

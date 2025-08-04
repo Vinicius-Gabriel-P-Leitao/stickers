@@ -121,13 +121,15 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
 
     public void startConversions(Set<Uri> uris) {
         if (uris == null || uris.isEmpty()) {
-            postFailure(applicationTranslate.translate(R.string.error_could_not_get_list_paths_files).log(TAG_LOG, Level.ERROR).get());
+            postFailure(applicationTranslate.translate(R.string.error_could_not_get_list_paths_files)
+                    .log(TAG_LOG, Level.ERROR).get());
             return;
         }
 
         int cores = Runtime.getRuntime().availableProcessors();
         int maxThreads = Math.min(30, cores * 2);
-        conversionExecutor = new ThreadPoolExecutor(cores, maxThreads, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+        conversionExecutor = new ThreadPoolExecutor(cores, maxThreads, 1L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>());
 
         totalConversions = uris.size();
         completedConversions.set(0);
@@ -143,7 +145,8 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
                     }
 
                     if (uri.getPath() == null) {
-                        postFailure(applicationTranslate.translate(R.string.error_converting_uri, uri).log(TAG_LOG, Level.ERROR).get());
+                        postFailure(applicationTranslate.translate(R.string.error_converting_uri, uri)
+                                .log(TAG_LOG, Level.ERROR).get());
                         return;
                     }
 
@@ -159,9 +162,11 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
                 } catch (MediaConversionException mediaConversionException) {
                     postFailure(mediaConversionException.getMessage());
                 } catch (InterruptedException interruptedException) {
-                    postFailure(applicationTranslate.translate(R.string.error_process_interruption).log(TAG_LOG, Level.ERROR, interruptedException).get());
+                    postFailure(applicationTranslate.translate(R.string.error_process_interruption)
+                            .log(TAG_LOG, Level.ERROR, interruptedException).get());
                 } catch (Exception exception) {
-                    postFailure(applicationTranslate.translate(R.string.error_converting_uri, uri).log(TAG_LOG, Level.ERROR, exception).get());
+                    postFailure(applicationTranslate.translate(R.string.error_conversion_failed, uri)
+                            .log(TAG_LOG, Level.ERROR, exception).get());
                 }
             });
 
@@ -206,25 +211,29 @@ public class StickerPackCreationViewModel extends AndroidViewModel {
             String name = nameStickerPack.getValue();
 
             if (animated == null || name == null || name.isBlank()) {
-                throw new IllegalArgumentException(applicationTranslate.translate(R.string.error_insufficient_to_sticker_pack).log(TAG_LOG, Level.ERROR).get());
+                throw new IllegalArgumentException(
+                        applicationTranslate.translate(R.string.error_insufficient_to_sticker_pack)
+                                .log(TAG_LOG, Level.ERROR).get());
             }
 
             if (context == null) {
-                throw new IllegalStateException(applicationTranslate.translate(R.string.error_invalid_context).log(TAG_LOG, Level.ERROR).get());
+                throw new IllegalStateException(
+                        applicationTranslate.translate(R.string.error_invalid_context).log(TAG_LOG, Level.ERROR).get());
             }
 
             generateStickerPack.submit(() -> {
                 try {
-                    CallbackResult<StickerPack> result = saveStickerPackService.saveStickerPackAsync(animated, files, name).get();
+                    CallbackResult<StickerPack> result = saveStickerPackService.saveStickerPackAsync(animated, files,
+                            name).get();
 
                     stickerPackResult.postValue(result);
-                } catch (AppCoreStateException | ExecutionException |
-                         InterruptedException exception) {
+                } catch (AppCoreStateException | ExecutionException | InterruptedException exception) {
                     postFailure(exception.getMessage());
                 }
             });
         } catch (StickerPackSaveException exception) {
-            postFailure(applicationTranslate.translate(R.string.error_conversion_failed).log(TAG_LOG, Level.ERROR, exception).get());
+            postFailure(applicationTranslate.translate(R.string.error_conversion_failed)
+                    .log(TAG_LOG, Level.ERROR, exception).get());
         }
     }
 
