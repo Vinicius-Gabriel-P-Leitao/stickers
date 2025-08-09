@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22.1)
 project("StickerLib")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+
 add_definitions(-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS)
 
 set(SHARED_SOURCES
