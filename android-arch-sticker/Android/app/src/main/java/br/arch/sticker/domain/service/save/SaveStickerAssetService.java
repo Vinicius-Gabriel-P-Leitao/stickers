@@ -48,28 +48,32 @@ public class SaveStickerAssetService {
         this.applicationTranslate = new ApplicationTranslate(this.context.getResources());
     }
 
-    public CallbackResult<Boolean> saveStickerFromCache(@NonNull StickerPack stickerPack, @NonNull File stickerPackDirectory)
+    public CallbackResult<Boolean> saveStickerFromCache(@NonNull List<Sticker> stickerList, @NonNull File stickerPackDirectory)
             throws StickerPackSaveException {
         if (!stickerPackDirectory.canWrite()) {
             return CallbackResult.failure(new StickerPackSaveException(
-                    applicationTranslate.translate(R.string.error_no_write_permission, stickerPackDirectory).log(TAG_LOG, Level.ERROR).get(),
+                    applicationTranslate.translate(R.string.error_no_write_permission, stickerPackDirectory)
+                            .log(TAG_LOG, Level.ERROR).get(),
                     ErrorCode.ERROR_PACK_SAVE_SERVICE
             ));
         }
 
-        List<Sticker> stickerList = stickerPack.getStickers();
         if (stickerList.isEmpty()) {
             return CallbackResult.failure(
-                    new StickerPackSaveException(applicationTranslate.translate(R.string.error_empty_sticker_list).log(TAG_LOG, Level.ERROR).get(),
+                    new StickerPackSaveException(
+                            applicationTranslate.translate(R.string.error_empty_sticker_list).log(TAG_LOG, Level.ERROR)
+                                    .get(),
                             ErrorCode.ERROR_PACK_SAVE_SERVICE
                     ));
         }
 
         File thumbnailSticker = new File(context.getCacheDir(), stickerList.get(0).imageFileName);
-        CallbackResult<Boolean> thumbnail = ConvertThumbnail.createThumbnail(context, thumbnailSticker, stickerPackDirectory);
+        CallbackResult<Boolean> thumbnail = ConvertThumbnail.createThumbnail(context, thumbnailSticker,
+                stickerPackDirectory);
         if (thumbnail.isFailure() || thumbnail.isWarning()) {
             return CallbackResult.failure(new StickerPackSaveException(
-                    applicationTranslate.translate(R.string.error_create_thumbnail).log(TAG_LOG, Level.ERROR, thumbnail.getError()).get(),
+                    applicationTranslate.translate(R.string.error_create_thumbnail)
+                            .log(TAG_LOG, Level.ERROR, thumbnail.getError()).get(),
                     ErrorCode.ERROR_PACK_SAVE_SERVICE
             ));
         }
@@ -81,7 +85,8 @@ public class SaveStickerAssetService {
 
             if (fileName == null || fileName.trim().isEmpty()) {
                 return CallbackResult.failure(new StickerPackSaveException(
-                        applicationTranslate.translate(R.string.error_null_or_empty_filename).log(TAG_LOG, Level.ERROR).get(),
+                        applicationTranslate.translate(R.string.error_null_or_empty_filename).log(TAG_LOG, Level.ERROR)
+                                .get(),
                         ErrorCode.ERROR_PACK_SAVE_SERVICE
                 ));
             }
@@ -97,7 +102,8 @@ public class SaveStickerAssetService {
             File sourceFile = new File(context.getCacheDir(), fileName);
             if (!sourceFile.exists()) {
                 return CallbackResult.failure(new StickerPackSaveException(
-                        applicationTranslate.translate(R.string.error_sticker_file_not_found_param, fileName).log(TAG_LOG, Level.ERROR).get(),
+                        applicationTranslate.translate(R.string.error_sticker_file_not_found_param, fileName)
+                                .log(TAG_LOG, Level.ERROR).get(),
                         ErrorCode.ERROR_PACK_SAVE_SERVICE
                 ));
             }
@@ -107,7 +113,8 @@ public class SaveStickerAssetService {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     Files.copy(sourceFile.toPath(), destFile.toPath());
                 } else {
-                    try (InputStream fileInputStream = new FileInputStream(sourceFile); OutputStream fileOutputStream = new FileOutputStream(
+                    try (InputStream fileInputStream = new FileInputStream(
+                            sourceFile); OutputStream fileOutputStream = new FileOutputStream(
                             destFile)) {
 
                         byte[] buffer = new byte[8192];
@@ -122,7 +129,8 @@ public class SaveStickerAssetService {
                 filesAlreadyCopied.add(fileName);
             } catch (IOException exception) {
                 return CallbackResult.failure(new StickerPackSaveException(
-                        applicationTranslate.translate(R.string.error_copy_file, fileName).log(TAG_LOG, Level.ERROR, exception).get(), exception,
+                        applicationTranslate.translate(R.string.error_copy_file, fileName)
+                                .log(TAG_LOG, Level.ERROR, exception).get(), exception,
                         ErrorCode.ERROR_PACK_SAVE_SERVICE
                 ));
             }

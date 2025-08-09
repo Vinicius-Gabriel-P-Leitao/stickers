@@ -43,17 +43,15 @@ public class ConvertMediaToStickerFormat {
         this.applicationTranslate = new ApplicationTranslate(context.getResources());
     }
 
-    public CompletableFuture<File> convertMediaToWebPAsyncFuture(@NonNull Uri inputUri, @NonNull String outputFileName)
-            throws MediaConversionException {
+    public CompletableFuture<File> convertMediaToWebPAsyncFuture(@NonNull Uri inputUri, @NonNull String outputFileName) throws MediaConversionException {
 
         Map<String, String> fileDetails = fileDetailsResolver.getFileDetailsFromUri(inputUri);
         CompletableFuture<File> future = new CompletableFuture<>();
 
         if (fileDetails.isEmpty()) {
-            future.completeExceptionally(
-                    new MediaConversionException(applicationTranslate.translate(R.string.error_unsupported_file_type).log(TAG_LOG, Level.ERROR).get(),
-                            ERROR_PACK_CONVERSION_MEDIA
-                    ));
+            future.completeExceptionally(new MediaConversionException(
+                    applicationTranslate.translate(R.string.error_unsupported_file_type).log(TAG_LOG, Level.ERROR)
+                            .get(), ERROR_PACK_CONVERSION_MEDIA));
             return future;
         }
 
@@ -76,14 +74,13 @@ public class ConvertMediaToStickerFormat {
                 }
 
                 future.completeExceptionally(new MediaConversionException(
-                        applicationTranslate.translate(R.string.error_unsupported_file_type).log(TAG_LOG, Level.ERROR).get(),
-                        ERROR_PACK_CONVERSION_MEDIA
-                ));
+                        applicationTranslate.translate(R.string.error_unsupported_file_type).log(TAG_LOG, Level.ERROR)
+                                .get(), ERROR_PACK_CONVERSION_MEDIA));
             } catch (MediaConversionException exception) {
                 future.completeExceptionally(new MediaConversionException(
-                        applicationTranslate.translate(R.string.error_media_conversion).log(TAG_LOG, Level.ERROR, exception).get(),
-                        exception.getCause(), ERROR_PACK_CONVERSION_MEDIA
-                ));
+                        applicationTranslate.translate(R.string.error_media_conversion)
+                                .log(TAG_LOG, Level.ERROR, exception).get(), exception.getCause(),
+                        ERROR_PACK_CONVERSION_MEDIA));
             }
         }
 

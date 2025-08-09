@@ -28,12 +28,10 @@ public class InsertStickerRepo {
     }
 
     public CallbackResult<Sticker> insertSticker(Sticker sticker, String stickerPackIdentifier) {
-        if (sticker == null || sticker.imageFileName == null || stickerPackIdentifier == null ||
-                stickerPackIdentifier.isEmpty()) {
+        if (sticker == null || sticker.imageFileName == null || stickerPackIdentifier == null || stickerPackIdentifier.isEmpty()) {
             return CallbackResult.failure(new StickerPackSaveException(
-                    applicationTranslate.translate(R.string.error_insert_sticker_invalid_data)
-                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_SAVE_DB
-            ));
+                    applicationTranslate.translate(R.string.error_insert_sticker_invalid_data).log(TAG_LOG, Level.ERROR)
+                            .get(), ErrorCode.ERROR_PACK_SAVE_DB));
         }
 
         try {
@@ -45,14 +43,11 @@ public class InsertStickerRepo {
             return CallbackResult.failure(new StickerPackSaveException(
                     applicationTranslate.translate(R.string.error_insert_sticker_db)
                             .log(TAG_LOG, Level.ERROR, sqLiteException).get(), sqLiteException,
-                    ErrorCode.ERROR_PACK_SAVE_DB
-            ));
+                    ErrorCode.ERROR_PACK_SAVE_DB));
         } catch (Exception exception) {
             return CallbackResult.failure(new StickerPackSaveException(
                     applicationTranslate.translate(R.string.error_unexpected_insert_sticker_db)
-                            .log(TAG_LOG, Level.ERROR).get(), exception,
-                    ErrorCode.ERROR_PACK_SAVE_DB
-            ));
+                            .log(TAG_LOG, Level.ERROR).get(), exception, ErrorCode.ERROR_PACK_SAVE_DB));
         }
     }
 }

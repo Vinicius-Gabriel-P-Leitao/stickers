@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/button_add_sticker"
+    style="@style/Widget.Material3.Button.Icon"
+    android:layout_width="@dimen/sticker_pack_details_button_size"
+    android:layout_height="@dimen/sticker_pack_details_button_size"
+    android:backgroundTint="@android:color/transparent"
+    android:contentDescription="@string/preview_sticker_description"
+    android:padding="0dp"
+    app:icon="@drawable/ic_add_2_24dp"
+    app:iconGravity="textStart"
+    app:iconPadding="0dp"
+    app:iconSize="@dimen/sticker_pack_details_button_size"
+    app:iconTint="@color/catppuccin_mauve" />

@@ -50,6 +50,7 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
 
     public static final String PAYLOAD_SELECTION_CHANGED = "payload_selection_changed";
 
+    private int maxSelectionCount = STICKER_SIZE_MAX;
     private final List<Integer> selectedItems = new ArrayList<>();
     private final Context context;
 
@@ -88,7 +89,8 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
         }
 
         RequestManager glide = Glide.with(holder.imageView.getContext());
-        MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
+        MultiTransformation<Bitmap> commonTransform = new MultiTransformation<>(
+                new CropSquareTransformation(10f, 5, R.color.catppuccin_overlay2));
         RequestBuilder<?> requestBuilder = null;
 
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
@@ -130,18 +132,18 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
             int adapterPosition = holder.getAbsoluteAdapterPosition();
             if (adapterPosition == RecyclerView.NO_POSITION) return;
 
-            if (selectedItems.size() > STICKER_SIZE_MAX) {
-                Toast.makeText(context, context.getString(R.string.error_max_media_selected), Toast.LENGTH_SHORT).show();
-            }
-
-            if (selectedItems.size() < STICKER_SIZE_MAX) {
-                if (selectedItems.contains(adapterPosition)) {
-                    selectedItems.remove((Integer) adapterPosition);
+            if (selectedItems.contains(adapterPosition)) {
+                selectedItems.remove((Integer) adapterPosition);
+                holder.radioCheckBox.setChecked(false);
+            } else {
+                if (selectedItems.size() >= maxSelectionCount) {
+                    Toast.makeText(context, context.getString(R.string.error_max_media_selected), Toast.LENGTH_SHORT)
+                            .show();
                     holder.radioCheckBox.setChecked(false);
-                } else {
-                    selectedItems.add(adapterPosition);
-                    holder.radioCheckBox.setChecked(true);
+                    return;
                 }
+                selectedItems.add(adapterPosition);
+                holder.radioCheckBox.setChecked(true);
             }
 
             for (Integer pos : selectedItems) {
@@ -161,6 +163,19 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    public void setMaxSelectionCount(int maxSelectionCount) {
+        this.maxSelectionCount = maxSelectionCount;
+        if (selectedItems.size() > maxSelectionCount) {
+            while (selectedItems.size() > maxSelectionCount) {
+                int removed = selectedItems.remove(selectedItems.size() - 1);
+                notifyItemChanged(removed, PAYLOAD_SELECTION_CHANGED);
+            }
+        }
+
+        notifyDataSetChanged();
+    }
+
     private static String getFileNameFromUri(Context context, Uri uri) {
         String result = null;
         if (Objects.equals(uri.getScheme(), "content")) {
@@ -175,7 +190,8 @@ public class MediaPickerAdapter extends ListAdapter<Uri, MediaViewHolder> {
         }
 
         if (uri.getPath() == null) {
-            Toast.makeText(context, context.getString(R.string.error_could_not_extract_path, uri), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.error_could_not_extract_path, uri), Toast.LENGTH_SHORT)
+                    .show();
             return "";
         }
 
