@@ -20,12 +20,14 @@ import static br.arch.sticker.view.feature.preview.activity.StickerPackDetailsAc
 
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.text.InputType;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -228,6 +230,7 @@ public class StickerPackListActivity extends StickerPackAddActivity {
         setContentView(R.layout.activity_stickerpack_list);
 
         packRecyclerView = findViewById(R.id.recycler_valid_packs);
+
         stickerPackListViewmodel = new ViewModelProvider(this).get(StickerPackListViewModel.class);
         applicationTranslate = new ApplicationTranslate(getResources());
 

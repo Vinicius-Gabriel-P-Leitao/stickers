@@ -42,19 +42,16 @@ public class DeleteStickerPackService {
     public CallbackResult<Boolean> deleteStickerPack(String stickerPackIdentifier) {
         if (stickerPackIdentifier == null) {
             return CallbackResult.failure(new DeleteStickerException(
-                    applicationTranslate.translate(R.string.error_invalid_identifier)
-                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_DELETE_DB
-            ));
+                    applicationTranslate.translate(R.string.error_invalid_identifier).log(TAG_LOG, Level.ERROR).get(),
+                    ErrorCode.ERROR_PACK_DELETE_DB));
         }
 
         try {
-            Integer stickerPackDeletedInDb = deleteStickerPackRepo.deleteStickerPackFromDatabase(
-                    stickerPackIdentifier);
+            Integer stickerPackDeletedInDb = deleteStickerPackRepo.deleteStickerPackFromDatabase(stickerPackIdentifier);
 
             if (stickerPackDeletedInDb == 0) {
                 return CallbackResult.warning(
-                        applicationTranslate.translate(R.string.warn_no_pack_deleted)
-                                .log(TAG_LOG, Level.WARN).get());
+                        applicationTranslate.translate(R.string.warn_no_pack_deleted).log(TAG_LOG, Level.WARN).get());
             }
 
             return CallbackResult.success(Boolean.TRUE);
@@ -62,50 +59,42 @@ public class DeleteStickerPackService {
             return CallbackResult.failure(new DeleteStickerException(
                     applicationTranslate.translate(R.string.error_delete_sticker_db)
                             .log(TAG_LOG, Level.ERROR, runtimeException).get(), runtimeException,
-                    ErrorCode.ERROR_PACK_DELETE_DB
-            ));
+                    ErrorCode.ERROR_PACK_DELETE_DB));
         } catch (Exception exception) {
             return CallbackResult.failure(new DeleteStickerException(
-                    applicationTranslate.translate(R.string.error_unknown)
-                            .log(TAG_LOG, Level.ERROR, exception).get(), exception,
-                    ErrorCode.ERROR_PACK_DELETE_DB
-            ));
+                    applicationTranslate.translate(R.string.error_unknown).log(TAG_LOG, Level.ERROR, exception).get(),
+                    exception, ErrorCode.ERROR_PACK_DELETE_DB));
         }
     }
 
     public CallbackResult<Boolean> deleteSpareStickerPack(String stickerPackIdentifier, List<String> stickersFileNameToDelete) {
         if (stickerPackIdentifier == null) {
             return CallbackResult.failure(new DeleteStickerException(
-                    applicationTranslate.translate(R.string.error_invalid_identifier)
-                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_DELETE_DB
-            ));
+                    applicationTranslate.translate(R.string.error_invalid_identifier).log(TAG_LOG, Level.ERROR).get(),
+                    ErrorCode.ERROR_PACK_DELETE_DB));
         }
 
         if (stickersFileNameToDelete == null || stickersFileNameToDelete.isEmpty()) {
             throw new DeleteStickerException(
-                    applicationTranslate.translate(R.string.error_sticker_file_not_found)
-                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_DELETE_DB
-            );
+                    applicationTranslate.translate(R.string.error_sticker_file_not_found).log(TAG_LOG, Level.ERROR)
+                            .get(), ErrorCode.ERROR_PACK_DELETE_DB);
         }
 
         try {
 
-            Integer listStickerDeletedInDb = deleteStickerRepo.deleteListSticker(
-                    stickerPackIdentifier, stickersFileNameToDelete);
+            Integer listStickerDeletedInDb = deleteStickerRepo.deleteListSticker(stickerPackIdentifier,
+                    stickersFileNameToDelete);
 
             if (listStickerDeletedInDb == 0) {
                 return CallbackResult.warning(
-                        applicationTranslate.translate(R.string.warn_no_pack_deleted)
-                                .log(TAG_LOG, Level.WARN).get());
+                        applicationTranslate.translate(R.string.warn_no_pack_deleted).log(TAG_LOG, Level.WARN).get());
             }
 
             return CallbackResult.success(Boolean.TRUE);
         } catch (Exception exception) {
             return CallbackResult.failure(new DeleteStickerException(
-                    applicationTranslate.translate(R.string.error_unknown)
-                            .log(TAG_LOG, Level.ERROR, exception).get(), exception,
-                    ErrorCode.ERROR_STICKER_DELETE_DB
-            ));
+                    applicationTranslate.translate(R.string.error_unknown).log(TAG_LOG, Level.ERROR, exception).get(),
+                    exception, ErrorCode.ERROR_STICKER_DELETE_DB));
         }
     }
 }
